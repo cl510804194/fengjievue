@@ -1,0 +1,54 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+import com.yjf.esupplier.ws.userManage.enums.UserExtendEnum;
+
+public class UserExtendOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 4505786680606401826L;
+	UserExtendEnum userExtendEnum;
+	String value;
+	long userId;
+	
+	public UserExtendEnum getUserExtendEnum() {
+		return this.userExtendEnum;
+	}
+	
+	public void setUserExtendEnum(UserExtendEnum userExtendEnum) {
+		this.userExtendEnum = userExtendEnum;
+	}
+	
+	public String getValue() {
+		return this.value;
+	}
+	
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	public long getUserId() {
+		return this.userId;
+	}
+	
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	
+	@Override
+	public void check() {
+		validateNotNull(userExtendEnum, "属性");
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserExtendOrder [userExtendEnum=");
+		builder.append(userExtendEnum);
+		builder.append(", value=");
+		builder.append(value);
+		builder.append(", userId=");
+		builder.append(userId);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

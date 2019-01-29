@@ -1,0 +1,49 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2012 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.product;
+
+import java.util.List;
+
+import com.alibaba.fastjson.JSONObject;
+import com.yjf.esupplier.ws.product.info.ProductInfo;
+import com.yjf.esupplier.ws.product.info.ProductUserCollectInfo;
+import com.yjf.esupplier.ws.product.order.ProductUserOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+/**
+ * 
+ * 
+ * @Filename ProductUserService.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author min
+ * 
+ * @Email oyangnuo@yiji.com
+ * 
+ * @History <li>Author: oyangnuo</li> <li>Date: 2016-2-17上午10:54:20</li> <li>
+ * Version: 1.0</li> <li>Content: create</li>
+ */
+public interface ProductUserService {
+	
+	EsupplierBaseResult insertProductUser(ProductUserOrder order);
+	
+	QueryBaseBatchResult<ProductInfo> getProductUserList(ProductUserOrder order);
+	
+	List<ProductUserCollectInfo> getProductUserCollectList(long userId, List<String> productIds);
+	
+	List<ProductUserCollectInfo> getSupplierUserCollectList(long userId, List<String> supplierIds);
+	
+	EsupplierBaseResult deleteProductUser(long userId, long productId, long supplierId);
+	
+	/** 商品/商户收藏统计 */
+	void countCollect(long userId, JSONObject json);
+	
+	Boolean checkCollecteStatus(String productId, String supplierId);
+	
+}

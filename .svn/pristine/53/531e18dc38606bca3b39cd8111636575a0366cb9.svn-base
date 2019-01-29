@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--修改特殊商品  </title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<table align="center" width="790" height="45" bgcolor="#fffced" cellpadding="0" cellspacing="0"  class="sm-ts">
+		<tr>
+			<td width="55" align="center"><img src="../../image/comdo/pen.png"></td>
+			<td width="737">修改特殊商品</td>
+		</tr>
+	</table>
+	<br>
+	<form action="/admin/speupdateSpecialProduct.htm" method="post" enctype="multipart/form-data" theme="simple" id="form1">
+		<input type="hidden" name="specialProduct.id" value="${specialProduct.id}"></input>
+		<input type="hidden" name="specialProduct.smallPicPath" value="${specialProduct.smallPicPath}"></input>
+		<input type="hidden" name="specialProduct.bigPicPath" value="${specialProduct.bigPicPath}"></input>
+		<input type="hidden" name="specialProduct.unit" value="${specialProduct.unit}"></input>
+		<input type="hidden" name="specialProduct.originalPrice" value="${specialProduct.originalPrice}"></input>
+		<input type="hidden" name="specialProduct.productId" value="${specialProduct.productId}"></input>
+		<input type="hidden" name="specialProduct.groupId" value="${specialProduct.groupId}"></input>
+		<input type="hidden" name="specialProduct.supplierId" value="${specialProduct.supplierId}"></input>
+		<table width="90%" align="center" cellpadding="0" cellspacing="0">
+				<tr>
+            		<td height="30" class="wz_left" ><span style="color:red;">*</span>商品名称：</td>
+                	<td><input type="text" name="specialProduct.name" size="38" value="${specialProduct.name}"></input><span id="errorsDiv_specialProduct.name"></span></td>
+            	</tr>	
+            	<tr>
+            		<td height="30" class="wz_left" >商品顺序号：</td>
+                	<td><input type="text" name="specialProduct.snumber" size="5" value="${specialProduct.snumber}"></input></td>
+            	</tr>	
+            	<tr>
+            		<td height="30" class="wz_left" ><img width="80" height="80" alt="" src='${rc.contextPath}/$!{specialProduct.smallPicPath}'></td>
+                	<td>商品图片：<input type="file" name="originalPic"/></td>
+            	</tr>  
+            	<tr>
+            		<td height="30" class="wz_left" >商品原价：</td>
+                	<td><input type="text" size="10" value="${specialProduct.originalPrice}" disabled="disabled"></input>元/${specialProduct.unit}</td>
+            	</tr>
+            	<tr>
+            		<td height="30" class="wz_left" ><span style="color:red;">*</span>商品现价：</td>
+                	<td><input type="text" name="specialProduct.newPrice" size="10" value="${specialProduct.newPrice}"></input>元/${specialProduct.unit}<span id="errorsDiv_specialProduct.newPrice"></span></td>
+            	</tr>	
+            	<tr>
+                 	<td height="40">&nbsp;</td>
+	              	<td><input type="submit" value="确定" />&nbsp;
+	              	<input type="button" value="返回" onclick="JavaScript:window.location.href='toSpecialProductList.htm?groupId=${specialProduct.groupId}'" />
+	              	</td>
+	        	</tr>  
+		</table>	
+	</form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+//设置表单验证
+$(document).ready(function(){
+	// 定义规则，规则表参见 http://yav.sourceforge.net/en/validationrules.html
+	var rules=new Array(
+		"specialProduct.name:商品名称|required",
+		"specialProduct.newPrice:商品单价|double",	
+		//"specialProduct.newPrice:商品现价|required",
+		"specialProduct.newPrice:商品单价|maxlength|10"
+	);
+	yav.init('form1', rules);
+	// 提交前验证
+	$("#form1").submit(function () {
+		  return yav.performCheck("form1", rules, "inline");  // classic 或者 inline
+	});
+	
+});
+</script>
+</body>
+</html>

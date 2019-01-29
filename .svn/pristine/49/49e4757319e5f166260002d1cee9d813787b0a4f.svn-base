@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>游客中心管理-景区管理</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="javascript:;">用户管理</a> > 景区管理</p>
+					</div>
+					<div class="search fn-clear">
+						<form action="/admin/userManage/scenicManage.htm"  method="post" >
+							<dl>
+								<dt>景区名称：</dt>
+								<dd><input type="text" class="u-input" name="name" value="$!{queryConditions.name}"/></dd>
+							</dl>
+							<dl>
+								<dt>所属城市：</dt>
+								<dd><input type="text" class="u-input" name="city" value="$!{queryConditions.city}"/></dd>
+							</dl>
+                           #* <dl>
+                                <dt>状态：</dt>
+                                <dd>
+                                    <div class="jqtransform jqtransform-select3">
+                                        <select name="atatus" id="">
+                                            <option value="">全部</option>
+                                            <option value="normal"   #if($!{queryConditions.scenicStateEnum.code}=="normal")   selected="selected"  #end >正常</option>
+                                            <option value="disable"  #if($!{queryConditions.scenicStateEnum.code}=="disable")  selected="selected"  #end >禁用</option>
+                                        </select>
+                                    </div>
+                                </dd>
+                            </dl>*#
+							<button type="submit" class="s-btn" style="cursor:pointer;" buttonMode=true>搜索</button>
+						</form>
+					</div>
+					<div class="t-box">
+						<div class="p-box pages-t fn-clear">
+							#set($t = $permission.check('/admin/userManage/institutionManage/addInstitutionsUser.htm'))
+							#if($t>0)
+							<a href="/admin/userManage/scenicManage/changeScenic.htm" class="p-btn addUser">创建景区</a>
+							#end
+							#parse("/backstage/page/page.vm")
+						</div>
+						#set($m = $permission.check('/admin/userManage/updateState.htm'))
+						#set($n = $permission.check('/admin/userManage/resetPayPassword.htm'))
+						#set($t = $permission.check('/admin/userManage/institutionManage/updateInstitutionsUser.htm'))
+						<table class="m-table">
+							<tr>
+								<th width="130">景区ID</th>
+								<th width="100">景区名称</th>
+								<th width="100">所属城市</th>
+								<th width="120">景区地址</th>
+								<th width="100">入驻时间</th>
+								<th width="150">操作</th>
+							</tr>
+						#if($page.result.size()==0)
+            				<tr class="even">
+                				<td colspan=8 align=center>暂时没有景区记录</td>
+                			</tr>
+						#end
+						#foreach($info in $page.result)
+							<tr>
+								<td>$!{info.id}</td>
+								<td>$!{info.shortName}</td>
+                                <td>$!{info.city}</td>
+                                <td>$!{info.address}</td>
+								<td>$!{info.inTime}</td>
+								<td >
+									#if($t>0)
+									<a href="/admin/userManage/scenicManage/changeScenic.htm?userBaseId=$!{info.userBaseId}&id=$!{info.id}&roleEnum=B" class="updateUser">修改</a>
+    								#end
+									<input type="hidden"  value="$!{info.userBaseId}" />
+								</td>
+							</tr>
+						#end
+						</table>
+						<input type="hidden" value="JG" data="userType"/>
+#*						<div class="p-box pages-b fn-clear">
+							#set($t = $permission.check('/admin/userManage/scenicManage/changeScenic.htm'))
+							#if($t>0)
+							<a href="/admin/userManage/scenicManage/changeScenic.htm" class="p-btn addUser">创建景区</a>
+							#end
+							parse("/backstage/page/page.vm")
+						</div>*#
+                       #parse("/backstage/page/page.vm")
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'institutionsManage');
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/userManage/scenicManage.htm"
+			+"?name=$!{queryConditions.name}"
+			+"&status=$!{queryConditions.status}"
+			+"&city=$!{queryConditions.city}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

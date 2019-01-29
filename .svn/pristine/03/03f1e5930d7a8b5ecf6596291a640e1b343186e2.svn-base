@@ -1,0 +1,63 @@
+package com.yjf.esupplier.service.user.result;
+
+import java.util.List;
+
+import com.yjf.esupplier.service.user.info.InstitutionsInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class InstitutionsInfoQueryResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = 647828845990824972L;
+	/**
+	 * 查询个数
+	 */
+	long queryCount = 0;
+	/**
+	 * 批量查询
+	 */
+	List<InstitutionsInfo> queryInstitutionsInfoList;
+	/**
+	 * 单个用户查询结果
+	 */
+	InstitutionsInfo queryInstitutionsInfo;
+	
+	public long getQueryCount() {
+		return this.queryCount;
+	}
+	
+	public void setQueryCount(long queryCount) {
+		this.queryCount = queryCount;
+	}
+	
+	public List<InstitutionsInfo> getQueryInstitutionsInfoList() {
+		return this.queryInstitutionsInfoList;
+	}
+	
+	public void setQueryInstitutionsInfoList(List<InstitutionsInfo> queryInstitutionsInfoList) {
+		this.queryInstitutionsInfoList = queryInstitutionsInfoList;
+	}
+	
+	public InstitutionsInfo getQueryInstitutionsInfo() {
+		return this.queryInstitutionsInfo;
+	}
+	
+	public void setQueryInstitutionsInfo(InstitutionsInfo queryInstitutionsInfo) {
+		this.queryInstitutionsInfo = queryInstitutionsInfo;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("InstitutionsInfoQueryResult [queryCount=");
+		builder.append(queryCount);
+		builder.append(", queryInstitutionsInfoList=");
+		builder.append(queryInstitutionsInfoList);
+		builder.append(", queryInstitutionsInfo=");
+		builder.append(queryInstitutionsInfo);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

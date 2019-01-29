@@ -1,0 +1,166 @@
+package com.yjf.esupplier.service.supplier.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.common.service.base.ProcessInvokeService;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.dal.dataobject.TblDiningTableSituationDO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.supplier.SupplierBaseService;
+import com.yjf.esupplier.service.supplier.SupplierSettingService;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.orderfood.enums.DiningTableStatus;
+import com.yjf.esupplier.ws.orderfood.info.DiningTableSituationInfo;
+import com.yjf.esupplier.ws.orderfood.order.QureyDiningTableOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.supplier.order.SupplierDataOrder;
+import com.yjf.esupplier.ws.supplier.order.TableNumberSettingOrder;
+
+@Service("supplierSettingService")
+public class SupplierSettingServiceImpl extends SupplierBaseService implements
+																	SupplierSettingService {
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+	
+	@Override
+	public EsupplierBaseResult setTableNumber(final TableNumberSettingOrder numberSettingOrder) {
+		return commonProcess(numberSettingOrder, "设置餐桌数", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				if (numberSettingOrder.getBelongTo() != numberSettingOrder.getSupplierId()) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS, "无操作权限");
+				}
+				if (numberSettingOrder.getTableNumber() > AppConstantsUtil.getMaxTableNumber()) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+						"超出系统配置最大的桌数");
+				}
+				TblSupplierDO supplierDO = tblSupplierDAO.findByIdForUpdate(numberSettingOrder
+					.getSupplierId());
+				if (!BooleanEnum.YES.code().equals(supplierDO.getOrderMeal())) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS, "无操作权限");
+				}
+				if (supplierDO.getTableNumber() == 0) {
+					supplierDO.setTableNumber(numberSettingOrder.getTableNumber());
+					for (long i = 0; i < numberSettingOrder.getTableNumber(); i++) {
+						insertTable(numberSettingOrder, supplierDO, i);
+					}
+				} else {
+					if (numberSettingOrder.getTableNumber() > supplierDO.getTableNumber()) {
+						if (numberSettingOrder.getTableNumber() >= 100
+							&& supplierDO.getTableNumber() < 100) {
+							List<TblDiningTableSituationDO> tableSituationDOs = tblDiningTableSituationDAO
+								.findBySupplierIdOnly(supplierDO.getSupplierId());
+							for (TblDiningTableSituationDO tableSituationDO : tableSituationDOs) {
+								tableSituationDO.setTableNumber("0"
+																+ tableSituationDO.getTableNumber());
+								tblDiningTableSituationDAO.update(tableSituationDO);
+							}
+						}
+						for (long i = supplierDO.getTableNumber(); i < numberSettingOrder
+							.getTableNumber(); i++) {
+							insertTable(numberSettingOrder, supplierDO, i);
+						}
+						
+					} else {
+						QureyDiningTableOrder diningTableOrder = new QureyDiningTableOrder();
+						diningTableOrder.setSupplierId(supplierDO.getSupplierId());
+						List<DiningTableSituationInfo> situationInfos = orderfoodService
+							.qureyDiningTable(diningTableOrder);
+						int i = 0;
+						for (DiningTableSituationInfo diningTableSituationInfo : situationInfos) {
+							if (numberSettingOrder.getTableNumber() < i + 1) {
+								if (diningTableSituationInfo.getStatus() == DiningTableStatus.USING) {
+									throw ExceptionFactory.newYrdException(
+										EsupplierResultEnum.NO_ACCESS,
+										"不能把最大桌号改小,还有正在使用的桌号，且超过需要改为["
+												+ numberSettingOrder.getTableNumber() + "]的数字");
+								} else {
+									tblDiningTableSituationDAO.deleteById(diningTableSituationInfo
+										.getId());
+								}
+							}
+							
+							i++;
+						}
+					}
+					supplierDO.setTableNumber(numberSettingOrder.getTableNumber());
+				}
+				tblSupplierDAO.update(supplierDO);
+				return null;
+			}
+			
+		}, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+			}
+		}, null);
+	}
+	
+	private String getTableNo(long index, long tableNumber) {
+		long length = 1;
+		if (tableNumber < 10)
+			length = 2;
+		else if (tableNumber < 99)
+			length = 2;
+		else if (tableNumber < 999)
+			length = 3;
+		String value = String.valueOf(index);
+		while (value.length() < length) {
+			value = "0" + value;
+		}
+		return value;
+	}
+	
+	private void insertTable(final TableNumberSettingOrder numberSettingOrder,
+								TblSupplierDO supplierDO, long i) {
+		TblDiningTableSituationDO diningTableSituationDO = new TblDiningTableSituationDO();
+		diningTableSituationDO.setTableNumber(getTableNo((i + 1),
+			numberSettingOrder.getTableNumber()));
+		diningTableSituationDO.setSupplierId(supplierDO.getSupplierId());
+		diningTableSituationDO.setStatus(DiningTableStatus.UNWANTED.code());
+		diningTableSituationDO.setRawAddTime(new Date());
+		tblDiningTableSituationDAO.insert(diningTableSituationDO);
+	}
+	
+	@Override
+	public EsupplierBaseResult setSupplierData(final SupplierDataOrder supplierDataOrder) {
+		return commonProcess(supplierDataOrder, "设置特殊参数", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				TblSupplierDO supplierDO = tblSupplierDAO.findByIdForUpdate(supplierDataOrder
+					.getSupplierId());
+				if (supplierDataOrder.getLongRentRoom() != null) {
+					supplierDO.setLongRentRoom(supplierDataOrder.getLongRentRoom().code());
+				}
+				if (supplierDataOrder.getMorningRoom() != null) {
+					supplierDO.setMorningRoom(supplierDataOrder.getMorningRoom().code());
+				}
+				if (supplierDataOrder.getSpecialRoom() != null) {
+					supplierDO.setSpecialRoom(BooleanEnum.YES.code());
+				}
+				if (supplierDataOrder.getRoomLowestPrice() != null) {
+					supplierDO.setRoomLowestPrice(supplierDataOrder.getRoomLowestPrice());
+				}
+				if (supplierDataOrder.getRoomNormalPrice() != null) {
+					supplierDO.setRoomNormalPrice(supplierDataOrder.getRoomNormalPrice());
+				}
+				tblSupplierDAO.update(supplierDO);
+				return null;
+			}
+		}, null, null);
+		
+	}
+}

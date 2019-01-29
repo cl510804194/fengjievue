@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>新增公告</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="/styles/new/backstage.css" />
+    <link rel="stylesheet" href="/resources/css/ztree/metroStyle/metroStyle.css" type="text/css">
+    <link rel="stylesheet" href="/resources/css/ztree/demo.css" type="text/css">
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+                        <p> &gt; #if($!{type}==100)首页图片新闻#elseif($!{type}==10)微信首页导航图#elseif($!{type}==11)APP首页导航图#elseif($!{type}==12)PC首页导航图#elseif($!{type}==-2)
+                            产品明细页大图片#elseif($!{type}==102)友情链接 #elseif($!{type}==103)
+                            首页推广图片5(张)#elseif($!{type}==104)首页各类商品    #end</p>
+					</div>
+					<form action="/admin/updateBannerNewsSubmit.htm" method="post" class="ui-form" id="add_pop_form">
+						
+						<fieldset>
+							<legend><h3>修改</h3></legend>
+                                <div class="item" style="display: none">
+                                    <label for="" class="u-label"><span class="required">*</span>所属栏目：</label>
+                                    <input type="hidden" name="parentId" id="parentId" value="$!{info.parentId}"/>
+                                    <input type="text" name="ztree_input" id="ztree_input"  value="$!{info.parentName}"
+                                           onfocus="ztreeSelf.ztree.showMenu(this);" readonly
+                                           placeholder="这里选择所属商品栏目" title="所属商品栏目"/>
+                                </div>
+                            <input type="hidden" id="type" name="type" value="$!{type}"/>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>标题：</label>
+								<input type="text" class="u-input" style="width:300px;" name="title" value="$!{info.title}" id="title"/>
+							</div>
+
+#*                            <div class="item">
+                                <label for="" class="u-label"><span class="required">*</span>是否有链接：</label>
+                                <input type="radio" name="parentId" class="radio" #if($!{info.parentId}==101) checked=checked #end value="101"/><label for="">有</label>
+                                <input type="radio" name="parentId" class="radio" #if($!{info.parentId}==102) checked=checked #end   value="102"/><label for="">无</label>
+                            </div>*#
+
+                            <div class="item">
+                                <label for="" class="u-label">显示顺序：</label>
+                                <input type="text" class="u-input" style="width:300px;" name="sortOrder" value="$!{info.sortOrder}"/>
+                            </div>
+
+#*							<div class="item">
+								<label for="" class="u-label">内容：</label>
+								<textarea name="content" id="content" class="u-area" style="width:720px;height:480px;">$!{info.content}</textarea>
+							</div> *#
+##							<div class="item">
+##								<label for="" class="u-label">外部链接：</label>
+##								<input type="text" class="u-input" style="width:300px;" name="remark" value="$!{info.remark}"/>
+##							</div>
+
+                            <div class="item">
+                                <label for="" class="u-label">外部链接：</label>
+                                <input type="text" class="u-input" style="width:300px;" id="remark" name="remark" value="$!{info.remark}"/>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="remarkPathUpload" name="remarkPathUpload"/>
+								</span>
+                                <div id="remarkPath_imgcontainer" style = "display:none;height:265px;">
+                                    <a href="javascript:;" id="remarkPathImgLink" name="remarkPathImgLink" title="图片">
+                                        <img id="remarkPathImg" name="remarkPathImg" title="图片" style = "width:450px;height:260px;"  src=""/>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="item">
+                                <label for="" class="u-label"><span class="required">*</span>图片：</label>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="rem1PathUpload" name="rem1PathUpload"/>
+							</span>
+							#if(!$stringUtil.isEmpty($!{info.rem1}))
+                                <div id="rem1Path_imgcontainer" style = "height:265px;">
+                                    <input type='hidden' id="rem1" name="rem1" value="$!{info.rem1}"/>
+                                    <a href="javascript:;" id="rem1PathImgLink" name="rem1PathImgLink" title="图片">
+                                        <img id="rem1PathImg" name="rem1PathImg" title="图片" style = "width:450px;height:260px;"  src="$!{info.rem1}"/>
+                                    </a>        
+                                </div>
+                            #end
+                            </div>
+
+						</fieldset>
+						<input type="hidden" name="popId" value="$!{info.popId}"/>
+						<input type="hidden" name="status" value="$!{info.status}"/>
+						<div class="item mt10">
+                            <a href="javascript:;"  class="u-btn u-btn-blue fn-submit1">立即保存</a><a href="javascript:history.go(-1);" class="u-btn u-btn-gray">取消</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div id="ztree_content" class="ztree_content" style="display:none; position: absolute;z-index: 999999;">
+        <ul id="ztree" class="ztree" style="margin-top:0;"></ul>
+    </div>
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/resources/js/ztree/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/resources/js/ztree/jquery.ztree.self.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="/resources/js/xheditor/xheditor-1.2.1.min.js"></script>
+	<script type="text/javascript" src="/resources/js/xheditor/xheditor_lang/zh-cn.js"></script>
+	<script type="text/javascript">
+        var p_type = "$!{type}";
+        seajs.use($_GLOBAL.mode + 'bannerNews');
+        $(document).ready(function () {
+            var setting = {
+                view: {
+                    dblClickExpand: true,
+                    fontCss: ztreeSelf.ztree.getFontCss
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                callback: {
+                    beforeClick: ztreeSelf.ztree.beforeClickAllNode,
+                    onClick: onClickClose
+                }
+            };
+
+            function onClickClose(e, treeId, treeNode) {
+                var inputObj = $("#" + treeId + "_input");
+                inputObj.val(treeNode.name);
+                $("#parentId").val(treeNode.id);
+                ztreeSelf.ztree.hideMenu(treeId);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/do/productType/getAllTreeType.json",
+                success: function (data) {
+                    var obj2 = eval("(" + data + ")");
+                    $.fn.zTree.init($("#ztree"), setting, obj2);
+                },
+                contentType: "application/json",
+                dataType: "json"
+            })
+        });
+    </script>
+</body>
+</html>

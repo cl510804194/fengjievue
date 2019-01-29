@@ -1,0 +1,328 @@
+
+$("#supplier").chosen({
+	no_results_text: "未找到相关值",
+	placeholder_text: "请选择商户...",
+	search_contains: true, /*是否全字段模糊查询*/
+	disable_search_threshold: 5  /*大于多少显示搜索框*/
+});
+$("#supplier").val("");
+$("#supplier").trigger("chosen:updated");
+var count = 1;
+var rowNum = 0;
+function addLine() {
+	if (rowNum > 99) {
+		alert("自定义属性数量太大");
+		return;
+	}
+	var table = document.getElementById("listTable");
+	var tr = table.insertRow(0);
+	tr.id = "tr" + count;
+	var td0 = tr.insertCell(0);
+	var td1 = tr.insertCell(1);
+	var td2 = tr.insertCell(2);
+	td0.innerHTML = '<input type="text" name="listPCP[' + count + '].propertyName" size="10" maxlength="10"></input>';
+	td1.innerHTML = '<input type="text" name="listPCP[' + count + '].propertyDetail" maxlength="20"></input>';
+	td2.innerHTML = '<input type="button" value="删除" onclick="deleteLine(' + "'" + "tr" + count + "'" + ')"></input>';
+	count++;
+	rowNum++;
+}
+
+function deleteLine(id) {
+	var tr = document.getElementById(id);
+	tr.parentNode.removeChild(tr);
+	rowNum--;
+}
+
+function onOpen() {
+	var v = document.getElementById();
+}
+
+function initUnit() {
+	var unit = document.getElementById("product.productUnit").value;
+	document.getElementById("startOrderCountUnit").innerHTML = unit;
+	document.getElementById("wareCountUnit").innerHTML = unit;
+	for (var i = 1; i <= 10; i++) {
+		document.getElementById("unit" + i).innerHTML = unit;
+	}
+}
+
+function initValue0() {
+	var value0 = document.getElementById("startOrderCount").value;
+	document.getElementById("range1").value = value0;
+}
+
+function initValue1() {
+	var value1 = document.getElementById("range2").value;
+	document.getElementById("range3").value = Number(value1) + 1;
+	document.getElementById("range4").removeAttribute("disabled");
+	document.getElementById("price2").removeAttribute("disabled");
+	//  showNumTip(document.getElementById("range4"), "unit5");
+}
+
+function initValue2() {
+	var value1 = document.getElementById("range4").value;
+	document.getElementById("range5").value = Number(value1) + 1;
+	document.getElementById("range6").removeAttribute("disabled");
+	document.getElementById("price3").removeAttribute("disabled");
+	//  showNumTip(document.getElementById("range6"), "unit8");
+}
+
+function checkNum() {
+	//     var value=document.getElementById("productNumber").value;
+	//     if(value!=null&&value!=""){
+	//         var ret=butil.getUrl("/do/product/checkProductNumber.htm?productNumber="+value+"&supplierId=$!supplier.supplierId");
+	//         if(ret!="yes"){
+	//             alert("该编号"+value+"已存在，请另选");
+	// //              document.getElementById("productNumber").value="";
+	//  //             document.getElementById("productNumber").focus();
+	//             return false;
+	//         }
+	//     }
+}
+
+function showNumTip(elem, spanUnit) {
+	if (elem.value == "") {
+		elem.value = "以上";
+		$("#" + spanUnit).css("visibility", "hidden");
+		$(elem).css("color", "#999999");
+	}
+}
+
+function hideNumTip(elem, spanUnit) {
+	if (elem.value == "以上") elem.value = "";
+	$("#" + spanUnit).css("visibility", "visible");
+	$(elem).css("color", "#000000");
+}
+
+$(document).ready(function () {
+	$("#all").click(function () {
+		checkNum();
+	});
+	$(document.getElementById("product.productUnit")).blur(function () {
+		initUnit();
+	});
+	$("#range2").blur(function () {
+		initValue1();
+	});
+	$("#range4").blur(function () {
+		initValue2();
+	});
+	$("#startOrderCount").blur(function () {
+		initValue0();
+	});
+	$("#order1").select(function () {
+		alert("1");
+	});
+	$("#order2").select(function () {
+		alert("2");
+	});
+
+});
+/*获取商户能选择的商品分类*/
+var prodcutTypeUrl = "/do/productType/getSonTypeByScenic.json";
+var proArray, firstType, secondType, thridType;
+$("#supplier").chosen().change(function (data) {
+	proArray = butil.getJson(prodcutTypeUrl, {supplierId: $("#supplier").val()});
+	firstType = proArray[0];
+	secondType = proArray[1];
+	thridType = proArray[2];
+	var content = "";
+	for (var i = 0; i < firstType.length; i++) {
+		var productType = firstType[i];
+		var id = productType.ptId;
+		var ptAddColumns = productType.ptAddColumns;
+		var ptTag = productType.ptTag;
+		var ptTypeName = productType.ptTypeName;
+		if (ptTag == null) ptTag = "";
+		content = content + '<label class="DIB"><span onmousedown=\'onsel("' + id + '","1",' + i + ',"' + ptAddColumns + '","' + ptTag + '")\' id="s' + id + '-1">' + ptTypeName + '</span></label>';
+	}
+	$("#productFirst").html(content);
+	$("#productSecond").html("");
+	$("#productThird").html("");
+})
+var sum = 0;
+var sum2 = 0;
+function onsel(val, n, orderID, addColumns, ptTag) {
+	var selArray = "";
+	var productTypeName = document.getElementById("productTypeName").value;
+	if (n == "1") {
+		sum = 0;
+		var strvalue = "";
+		document.getElementById("productSecond").style.display = "none";
+		document.getElementById("productThird").style.display = "none";
+		productTypeName = "";
+		for (var i = 0; i < firstType.length; i++) {
+			var productType = firstType[i];
+			var id = productType.ptId;
+			if (id == val) {
+				document.getElementById("s" + val + "-1").className = "selected";
+				selArray = onProduct(val, firstType);
+				document.getElementById("productTypeName").value = productTypeName + selArray[0] + "-";
+			} else {
+				var productTypeHtmlObj = document.getElementById("s" + productType.ptId + "-1");
+				if (productTypeHtmlObj != null)
+					productTypeHtmlObj.className = "";
+			}
+		}
+
+		for (var i = 0; i < secondType.length; i++) {
+
+			var productType = secondType[i];
+			if (productType.ptParentId == val) {
+				var ptTag = productType.ptTag;
+				if (ptTag == null) ptTag = "";
+				sum++;
+				strvalue = strvalue + "<label class=\"DIB\"><span id='s" + sum + "-2' onmousedown=onsel('" + productType.ptId + "','2','" + sum + "','" + productType.ptAddColumns + "','" + productType.ptTag + "')>" + productType.ptTypeName + "</span></label>";
+			}
+		}
+		if (strvalue != "") {
+			document.getElementById("productSecond").style.display = "inline-block";
+			document.getElementById("productSecond").innerHTML = strvalue;
+		}
+	}
+
+	if (n == "2") {
+		sum2 = 0;
+		var strvalue = "";
+		productTypeName = productTypeName.substring(0, productTypeName.indexOf("-") + 1);
+		for (var i = 1; i <= sum; i++) {
+			if (i == orderID) {
+				document.getElementById("s" + i + "-2").className = "selected";
+				selArray = onProduct(val, secondType);
+				document.getElementById("productTypeName").value = productTypeName + selArray[0] + "-";
+			} else {
+				document.getElementById("s" + i + "-2").className = "";
+			}
+		}
+		for (var i = 0; i < thridType.length; i++) {
+			var productType = thridType[i];
+			if (productType.ptParentId == val) {
+				sum2++;
+				var ptTag = productType.ptTag;
+				if (ptTag == null) ptTag = "";
+				strvalue = strvalue + "<label class=\"DIB\"><span id='s" + sum2 + "-3' onmousedown=onsel('" + productType.ptId + "','3','" + sum2 + "','" + productType.ptAddColumns + "','" + ptTag + "')>" + productType.ptTypeName + "</span></label>";
+			}
+		}
+		if (strvalue != "") {
+			document.getElementById("productThird").style.display = "inline-block";
+			document.getElementById("productThird").innerHTML = strvalue;
+			// 设置酒店预订选项是否显示
+			if(ptCode=='0001-0002'){
+				document.getElementById("isHotel_span").style.display = "inline";
+			}else{
+				document.getElementById("isHotel_span").style.display = "none";
+			}
+		}else{
+			document.getElementById("isHotel_span").style.display = "none";
+		}
+	}
+
+	if (n == "3") {
+		var strSplit = productTypeName.split("-");
+		var productTypeName1 = "<label>" + strSplit[0] + "</label>&nbsp;-&nbsp;" +
+			"<label>" + strSplit[1] + "</label>&nbsp;-&nbsp;";
+		for (var i = 1; i <= sum2; i++) {
+			if (i == orderID) {
+				document.getElementById("s" + i + "-3").className = "selected";
+				selArray = onProduct(val, thridType);
+				document.getElementById("productTypeName").value = productTypeName + selArray[0];
+				document.getElementById("productTypeName1").innerHTML = productTypeName1 + "<label>" + selArray[0] + "</label>";
+				document.getElementById("productType").value = selArray[1];
+			} else {
+				document.getElementById("s" + i + "-3").className = "";
+			}
+		}
+		//商品分类获取
+//            var prodcutPropertyUrl = "/do/productProperty/getSonProperty.json";
+//            var propertyArray = butil.getJson(prodcutPropertyUrl, {productType: val});
+//            if (typeof(propertyArray) != "undefined") {
+//                var property = propertyArray[0];
+//                var ret = "";
+//                for (var i = 0; i < property.length; i++) {
+//                    var propertyDe = property[i];
+//                    var checkVar = i == 0 ? "checked" : ""
+//                    ret = ret + '<option value="' + propertyDe.propertyName + '" ' + checkVar + '>' + propertyDe.propertyName + '</option>';
+//                }
+//                document.getElementById("product.productStyle").innerHTML = ret;
+//            }
+		//商品预置字段
+		if (addColumns != "") {
+			var columnArray = addColumns.split(",");
+			var divAdd = ""
+			for (var i = 0; i < columnArray.length; i++) {
+				var num = i + 1;
+				divAdd = divAdd + '<div class="inpt" style="font-size: 12px">' +
+				'<span class="inpt_txt DIB">' + columnArray[i] + '：</span>' +
+				'<input size="30" type="text" maxlength="30" name="product.productCusAdd' + num + '"></input>' +
+				'</div>';
+			}
+			$("#addDivTag").css("display", "");
+			$("#addDivTag").html(divAdd);
+		} else {
+			$("#addDivTag").css("display", "none");
+			$("#addDivTag").html("");
+		}
+		//商品标签
+		if (ptTag != "") {
+			var ptTagArray = ptTag.split("-");
+			var tagAdd = "<span class=\"inpt_txt DIB\"><em>*</em>商品标签：</span>"
+			for (var i = 1; i <= ptTagArray.length; i++) {
+				tagAdd = tagAdd + '<input type="checkbox" name="ptTag" value="' + ptTagArray[i - 1] + '" id="ptTag_' + i + '"/><label for="ptTag_' + i + '">' + ptTagArray[i - 1] + '</label>';
+			}
+			$("#product_tag").css("display", "");
+			$("#product_tag").html(tagAdd);
+		} else {
+			$("#product_tag").css("display", "none");
+			$("#product_tag").html("");
+		}
+	}
+	function onProduct(val, strArray) {
+		var selArray = new Array();
+		for (var i = 0; i < strArray.length; i++) {
+			var productType = strArray[i];
+			if (productType.ptId == val) {
+				selArray[0] = productType.ptTypeName;
+				selArray[1] = productType.ptCode;
+			}
+		}
+		return selArray;
+	}
+}
+
+function createNum() {
+	var now = new Date();
+	var e = document.getElementById("productNumber");
+	e.value = document.getElementById("sid").innerHTML + now.getTime();
+}
+
+function hidePost() {
+	document.getElementById("post1").style.display = 'none';
+	document.getElementById("post2").style.display = 'none';
+	document.getElementById("post3").style.display = 'none';
+	document.getElementById("p1").value = 0;
+	document.getElementById("p2").value = 0;
+	document.getElementById("p3").value = 0;
+}
+
+function showPost() {
+	document.getElementById("post1").style.display = '';
+	document.getElementById("post2").style.display = '';
+	document.getElementById("post3").style.display = '';
+	document.getElementById("p1").value = "";
+	document.getElementById("p2").value = "";
+	document.getElementById("p3").value = "";
+}
+
+KindEditor.ready(function (K) {
+	$('.u-area').each(function () {
+		var id = $(this).attr('id');
+		window.editor = K.create('#' + id, {
+			uploadJson: '/do/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+			fileManagerJson: '/do/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+			allowFileManager: true,
+			afterBlur: function () {
+				this.sync();
+			}
+		});
+	});
+});

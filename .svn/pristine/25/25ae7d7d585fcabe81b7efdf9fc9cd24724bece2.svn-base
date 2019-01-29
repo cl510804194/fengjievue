@@ -1,0 +1,127 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * zeyong 2014-11-4 上午11:10:47 创建
+ */
+package com.yjf.esupplier.service.recharge.impl;
+
+import java.util.Date;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallback;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.service.recharge.DepositFlowService;
+import com.yjf.esupplier.service.recharge.FundsFlowServiceBase;
+import com.yjf.esupplier.service.recharge.order.DepositFlowOrder;
+import com.yjf.esupplier.ws.enums.ExtPayTypeEnum;
+import com.yjf.esupplier.ws.info.RechargeFlowInfo;
+
+/**
+ * 
+ * 
+ * @author zeyong
+ * 
+ */
+@Service("depositFlowService")
+public class DepositFlowServiceImpl extends FundsFlowServiceBase implements DepositFlowService {
+	
+	/**
+	 * @param order
+	 * @return
+	 * @throws Exception
+	 * @see com.yjf.yrd.service.recharge.DepositFlowService#save(com.yjf.yrd.service.recharge.order.DepositFlowOrder)
+	 */
+	@Transactional
+	@Override
+	public long save(final DepositFlowOrder order) throws Exception {
+		
+		final RechargeFlowInfo rechargeFlow = new RechargeFlowInfo();
+		BeanCopier.staticCopy(order, rechargeFlow);
+		rechargeFlow.setInOutType("in");
+		rechargeFlow.setPayTime(new Date());
+		rechargeFlow.setUserId(order.getInUserId());
+		rechargeFlow.setYjfAccountId(order.getYjfAccountId());
+		
+		long id = transactionTemplate.execute(new TransactionCallback<Integer>() {
+			
+			@Override
+			public Integer doInTransaction(TransactionStatus status) {
+				try {
+					if (order.getAmountCharge().getCent() > 0 && order.getStatus() == 1) {
+						
+						RechargeFlowInfo feeFlow = new RechargeFlowInfo();
+						BeanCopier.staticCopy(rechargeFlow, feeFlow);
+						feeFlow.setInOutType("out");
+						feeFlow.setPayType(ExtPayTypeEnum.CHARGEFEE);
+						feeFlow.setAmount(order.getAmountCharge());
+						feeFlow.setStatus(order.getStatus());
+						feeFlow.setOutUserId(order.getInUserId());
+						feeFlow.setPayTime(new Date());
+						feeFlow.setOutBizNo(feeFlow.getOutBizNo() + "_fee");
+						rechargeFlowService.addRechargeFlow(feeFlow);
+					}
+					return (int) rechargeFlowService.addRechargeFlow(rechargeFlow);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					return 0;
+				}
+				
+			}
+		});
+		return id;
+	}
+	
+	/**
+	 * @param order
+	 * @return
+	 * @see com.yjf.yrd.service.recharge.DepositFlowService#update(com.yjf.yrd.service.recharge.order.DepositFlowOrder)
+	 */
+	@Override
+	public int update(final DepositFlowOrder order) {
+		final RechargeFlowInfo rechargeFlowInfo = queryByOutBizNo(order.getOutBizNo());
+		
+		if (rechargeFlowInfo == null || rechargeFlowInfo.getStatus() == 1)
+			return 0;
+		final RechargeFlowInfo rechargeFlow = new RechargeFlowInfo();
+		BeanCopier.staticCopy(order, rechargeFlow);
+		rechargeFlow.setInOutType("in");
+		rechargeFlow.setPayTime(new Date());
+		
+		int id = transactionTemplate.execute(new TransactionCallback<Integer>() {
+			
+			@Override
+			public Integer doInTransaction(TransactionStatus status) {
+				try {
+					if (order.getAmountCharge().getCent() > 0 && order.getStatus() == 1) {
+						RechargeFlowInfo feeFlow = new RechargeFlowInfo();
+						BeanCopier.staticCopy(rechargeFlowInfo, feeFlow);
+						feeFlow.setFlowId(0l);
+						feeFlow.setInOutType("out");
+						feeFlow.setPayType(ExtPayTypeEnum.CHARGEFEE);
+						feeFlow.setAmount(order.getAmountCharge());
+						feeFlow.setStatus(order.getStatus());
+						feeFlow.setPayTime(new Date());
+						feeFlow.setOutBizNo(feeFlow.getOutBizNo() + "_fee");
+						rechargeFlowService.addRechargeFlow(feeFlow);
+					}
+					
+					return (int) rechargeFlowService.update(rechargeFlow);
+					
+				} catch (Exception e) {
+					logger.info(e.getMessage(), e);
+					return 0;
+				}
+				
+			}
+		});
+		return id;
+	}
+	
+}

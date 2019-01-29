@@ -1,0 +1,4 @@
+testId,resultMessage,resultCode,bizNo,supplierId,orderId,buyerId,buyerName,buyerIp,product,productId,delivery,communication,remark,supplierName,processorId,totalAmount,workflowStatus,itemProductId,quantity,id,productName,productNumber,productStatus,productUnit,reservedCount,saleCount,viewCount,postType
+1001,模型对象不能为空,HAVE_NOT_DATA,201610171726,1726,1235,4568,买家,买家IP,5,123,5,5,备注,供应商,4695,13000,CONFIRMATION_OF_RECEIPT,1581,1,257,大龙火锅,100136,ON,件,10000,9000,15000,2
+1002,已经处理数据，不能对该订单进行评价,DO_ACTION_STATUS_ERROR,201610171726,1726,1235,4568,买家,买家IP,5,123,5,5,备注,供应商,4695,13000,CONFIRMATION_OF_RECEIPT,1581,1,257,大龙火锅,100136,ON,件,10000,9000,15000,2
+1003,无权限操作该数据,NO_ACCESS,201610171726,1726,1235,4568,买家,买家IP,5,123,5,5,备注,供应商,4695,13000,CONFIRMATION_OF_RECEIPT,1581,1,257,大龙火锅,100136,ON,件,10000,9000,15000,2

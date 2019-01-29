@@ -1,0 +1,213 @@
+ <div class="m-aside fn-left">
+      <div class="m-info border-bt" id='testDiv'> <span class="welcome"><span>晚上</span>好，#if($!{sessionScope.realName})$!{sessionScope.realName} #else $!{sessionScope.userName} #end</span>
+        <div class="m-function mt10 showtest" > 
+		#if($!{userBaseInfo.realNameAuthentication})
+        	#if("IS" == $!{userBaseInfo.realNameAuthentication})
+        	 <span class="mf-icon1" title="已认证"></span>
+			 <div class="mf-box mf-box1" style="display:none;">
+                    <em></em>
+                    <p>您已通过实名认证</p>#if(1==$!certifyLevel)<a href="/do/userManage/userRealNameInfo.htm">升级</a>#end
+             </div>
+        	#elseif("NO" == $!{userBaseInfo.realNameAuthentication})
+				<span class="no-mf-icon1" tilte="认证未通过"></span>
+			 <div class="mf-box mf-box1" id="mfBox" style="display:none;">
+                    <em></em>
+                    <p>您的实名认证未通过<br /><a href="/userManage/userRealNameInfo">重新认证</a></p>
+             </div>
+        	#elseif("IN" == $!{userBaseInfo.realNameAuthentication})
+				<span class="no-mf-icon1" tilte="认证中"></span>
+				 <div class="mf-box mf-box1" id="mfBox" style="display:none;">
+                    <em></em>
+                    <p>您已经申请实名认证,正在认证中</a></p>
+             </div>
+			#else
+				<span class="no-mf-icon1"  tilte="未认证"></span>
+				<div class="mf-box mf-box1 f-dn">
+                    <em></em>
+                    <p>您尚未进行实名认证<br /><a href="/do/userManage/userRealNameInfo.htm">马上认证</a></p>
+                </div>	
+        	#end	
+        #else
+			<span class="no-mf-icon1"  tilte="未认证"></span>
+			 <div class="mf-box mf-box1 f-dn">
+                    <em></em>
+                    <p>您尚未进行实名认证<br /><a href="/do/userManage/userRealNameInfo.htm">马上认证</a></p>
+                </div>
+		#end
+		
+		#if($!{userBaseInfo.mobileBinding}=="IS")
+		<span class="mf-icon2" title="已绑定"></span>
+		 <div class="mf-box mf-box2 f-dn">
+                    <em></em>
+                    <p>您已完成手机绑定$!mobile<br /><a href="/do/userManage/accountSetting.htm">修改</a></p>
+                </div>	
+		#else
+			<span class="no-mf-icon2"></span>
+			 <div class="mf-box mf-box2 f-dn">
+                    <em></em>
+                    <p>您还未进行手机绑定<a class="ml10" href="#">绑定</a></p>
+                </div>	
+		#end
+		
+		#if($!{mailBinding}=="IS")
+		<span class="mf-icon3" title="已绑定"></span>
+		 <div class="mf-box mf-box3 f-dn">
+                    <em></em>
+                    <p>您已完成邮箱绑定$!mail<br /><a href="/do/userManage/accountSetting.htm">修改</a></p>
+                </div>
+		#else
+		<span class="no-mf-icon3"></span>
+		 <div class="mf-box mf-box3 f-dn">
+                    <em></em>
+                    <p>您还未进行邮箱绑定<a class="ml10" href="/do/userManage/accountSetting.htm">立即绑定</a></p>
+                </div>
+		#end
+	
+		</div>
+        <div class="m-safe mt5" style="width:120px"> 
+			#if($!{userBaseInfo.mobileBinding}=="IS" && $!{mailBinding}=="IS"&&"IS" == $!{userBaseInfo.realNameAuthentication})
+				<h3 class="m-safe-bg" style="background-position:0px -23px"><span></span></h3>
+				
+			
+			#elseif($!{userBaseInfo.mobileBinding}=="IS" || $!{mailBinding}=="IS"||"IS" == $!{userBaseInfo.realNameAuthentication})
+				<h3 class="m-safe-bg" style="background-position:0px -11px"><span></span></h3>
+			
+			
+			#elseif($!{userBaseInfo.mobileBinding}=="NO" && $!{mailBinding}=="NO")
+				<h3 class="m-safe-bg" style="background-position:0px 0px"><span></span></h3>
+				
+			#end
+			
+		
+		
+          <h3 style="line-height:20px"><span>安全等级：</span>
+			<span>
+			#if($!{userBaseInfo.mobileBinding}=="IS" && $!{mailBinding}=="IS"&&"IS" == $!{userBaseInfo.realNameAuthentication})
+			<img src="$!{rc.contextPath}/resources/images/common/level-h.gif" alt="高级" class="vt" />
+			#elseif($!{userBaseInfo.mobileBinding}=="IS" || $!{mailBinding}=="IS"||"IS" == $!{userBaseInfo.realNameAuthentication})
+			<img src="$!{rc.contextPath}/resources/images/common/level-m.gif" alt="中级" class="vt" />
+			#elseif($!{userBaseInfo.mobileBinding}=="NO" && $!{mailBinding}=="NO")
+			<img src="$!{rc.contextPath}/resources/images/common/level-l.gif" alt="低级" class="vt" />
+			#end
+			</span>
+		  </h3>
+        </div>
+      </div>
+      <div class="m-balance border-bt"> <strong>可用余额</strong> <span>￥$!{yjfAccountInfo.availableBalance.toStandardString()}</span> <a href="/userManage/topUp/withholdingIndex">充值</a> </div>
+      <div class="m-nav">
+        <h2>我的账户</h2>
+        <ul>
+        
+              
+        
+   		    #if($!{operator}=='no')
+   		     	<li><a href="/do/userManage/userHome.htm">账户总览</a></li>
+			#end
+			<!--
+           <li><a href="/userManage/userBasicInfo">账户资料</a></li>-->
+           <li><a href="/do/userManage/balanceChangeRecord.htm">交易明细</a></li>
+           <li><a href="/do/userManage/accountSetting.htm">账户设置</a></li>
+          
+          
+          
+          #set($t = $permission.check('/tradeQuery/entries/12/1'))
+          #if($t > 0)
+          	<li><a href="/tradeQuery/entries/12/1">投资的项目</a></li>
+			<li><a href="/tradeQuery/entries/12/1/2" >债权转让</a></li>
+		  #end
+		  #set($g = $permission.check('/userGiftMoney/*'))
+          #if($g > 0)
+		  <li><a href="/userGiftMoney/pageQuery">红包查询</a></li>
+          #end
+		  #set($t = $permission.check('/repayQuery/colletions/12/1'))
+          #if($t > 0)
+             <li><a href="/repayQuery/colletions/12/1">收款明细</a></li>
+          #end
+		  
+		  #set($t = $permission.check('/loanQuery/loanSchedule'))
+          #if($t > 0)
+			 <li><a href="/loanQuery/loanSchedule">借款进度查询</a></li>
+		  #end
+		  
+          #set($t = $permission.check('/tradeQuery/borrowingRecord'))
+          #if($t > 0)
+             <li><a href="/tradeQuery/borrowingRecord">投资接受记录</a></li>
+		  #end
+		  
+          #set($t = $permission.check('/tradeQuery/repay'))
+          #if($t > 0)
+			   <li><a href="/tradeQuery/repay/12/1">还款管理</a></li>
+          #end
+		  
+          #set($t = $permission.check('/investorManager/*'))
+		  #if($t>0)
+		 	 <li><a href="/investorManager/investorManage">客户管理</a></li>
+		 	 <!--<li><a href="/investorManager/salesCount">业务管理</a></li>-->
+		 	 <li><a href="/investorManager/salesList">业务管理</a></li>
+          #end
+
+
+          
+          
+          #set($t = $permission.check('/guaranteeCenter/*'))
+		  #if($t>0)
+			<li><a href="/guaranteeCenter/guaranteeManager">业务管理</a></li>
+
+             <li><a href="/guaranteeCenter/repayPlanGuranetee/12/1">还款管理</a></li>
+		  #end
+          #set($t=$permission.check("/guaranteeOperator/operatorManager"))
+          #if($t>0)
+              <li><a href="/guaranteeOperator/operatorManager">操作员管理</a></li>
+           #end
+
+            #set($t = $permission.check('/marketingCenter/*'))
+            #if($t>0)
+                <li><a href="/marketingCenter/brokerManage" >经纪人管理</a></li>
+                <li><a href="/marketingCenter/salesList" >业务管理</a></li>
+                <li><a href="/marketingCenter/salesInvestList" >投资</a></li>
+
+            #end
+
+
+                <li><a href="/userManage/messageInfoList">消息中心</a></li>
+
+
+
+        </ul>
+      </div>
+    </div>
+	
+	
+	<script type="text/javascript">
+	    (function(){
+	    var old = window.onload;
+		window.onload = function(){
+		    if(old) old();
+			
+			
+			$(".showtest").find("span").hover(function(i,item){
+				$(".showtest").find("div").hide();
+				$(this).next().show();
+			});
+			
+			$("#testDiv").mouseout(function(event){
+				var target = event.target || event.srcElement;
+				if(target.id == "testDiv"){
+					$('.m-function div').hide();
+				}
+			});
+			
+			var now = new Date(),str;
+			var h = now.getHours();
+			if(h>=0 && h<6) str = "凌晨";
+			if(h>=6 && h<8) str = "早晨";
+			if(h>=8 && h<12) str = "上午";
+			if(h>=12 && h<14) str = "中午";
+			if(h>=14 && h<17) str = "下午";
+			if(h>=17 && h<19) str = "黄昏";
+			if(h>=19 && h<24) str = "晚上";
+			$('.welcome').find('span').html(str);
+		}
+		
+		})();
+	</script>

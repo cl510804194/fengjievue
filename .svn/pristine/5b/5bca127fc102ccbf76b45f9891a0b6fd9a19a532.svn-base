@@ -1,0 +1,54 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class OpenCapitalAccountOrder extends PersonalBackstageRegisterOrder {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8904279119098250012L;
+	
+	private String userBaseId;
+	
+	public String getUserBaseId() {
+		return userBaseId;
+	}
+	
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	@Override
+	public void check() {
+		validateHasText(userBaseId, "用户ID");
+		validateHasText(super.getCertNo(), "身份证号");
+		validateHasText(super.getRealName(), "真实姓名");
+	}
+	
+	public static final class CapitalAccountResult extends EsupplierBaseResult {
+		
+		private static final long serialVersionUID = 1452101503530707133L;
+		private String accountId;
+		
+		public String getAccountId() {
+			return this.accountId;
+		}
+		
+		public void setAccountId(String accountId) {
+			this.accountId = accountId;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("CapitalAccountResult [accountId=");
+			builder.append(accountId);
+			builder.append(", toString()=");
+			builder.append(super.toString());
+			builder.append("]");
+			return builder.toString();
+		}
+		
+	}
+}

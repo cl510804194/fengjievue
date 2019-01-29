@@ -1,0 +1,106 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body style="background: #fdfaf1;">
+     #parse("/front/platform/layout/header_member2.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="myCollectProductList">
+    <div class="w1200">
+        #parse("/front/platform/member/layout/person_member_left2.vm")
+        
+        <div class="member-right DIB pro_list">
+			<p class="nav_title"><span class="DIB" >我的攻略收藏</span></p>
+			<div class="left_content ">
+			<form theme="simple" name="frm_search" method="post" action="/do/productCollect/myCollectProductList.htm">
+				<div class="search_list">	
+				<span class="inpt">
+					<select name="status" class="pub-input fn-left col-select" style="width: 150px;" onchange="collectChange()">
+                       <option value="PRODUCT_COL">商品收藏</option>
+                 ##      <option value="HOTEL_COL">酒店收藏</option>
+                       <option value="COLLECT"  selected = "selected">景区攻略收藏</option>
+                   </select>
+				</span>		
+				<span class="inpt">
+					<label class="inpt_txt DIB">时间：</label>
+					 <input class="pub-input" type="text" name="beginDate" id="beginDate" value="$!beginDate"  onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'2020-10-01\'}'})" />&nbsp;-&nbsp;
+                     <input class="pub-input" type="text" name="endDate" id="endDate" value="$!endDate" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'beginDate\')}',maxDate:'2020-10-01'})">
+				</span>
+				<span class="inpt">
+					<input class="sc green-btn fn-ml5"  type="submit" value="搜 索">
+				</span>	
+				</div>
+			</form>
+				<div class="com_list push_pro">
+	    			<p class="order_tl">
+	    				<span class="DIB pp_img">攻略名称</span>
+	    				<span class="DIB pp_name">景区名称</span>
+	    				<span class="DIB pp_prc pp_prc1">所属城市</span>
+	    				<span class="DIB pp_type pp_type1">攻略分类</span>
+	    				<span class="DIB pp_opt">操作</span>
+	    			</p>
+	    			#foreach($item in $!page.result)	
+	    			<div class="order_list">
+	    				<div class="list_i">
+	    					<p class="list_hd">
+	    						<span>攻略编号：<label><a href="/front/platform/strategy/strategyDetail.htm?popId=$!item.popId" target="_blank">$!item.popId</a></label></span>
+	    					</p>
+	    					<div class="list_cnt">
+
+	    						<span class="DIB pp_img">
+	    							<a href="/front/platform/strategy/strategyDetail.htm?popId=$!item.popId" target="_blank">
+		    						#if($stringUtil.isEmpty($!item.rem1))
+		    						<img width="80" height="80" border="0px;" src='/resources/images/photo_not_exits_small.gif'>
+		    						#else
+		    							<img width="80" height="80" border="0px;" src='$!item.rem1'>
+		    						#end
+		    						</a>
+	    						</span>
+	    						<span class="DIB pp_name">$!item.scenicInfo.name</span>
+		    					<span class="DIB pp_prc pp_prc1">
+		    						$!item.scenicInfo.address
+		    					</span>
+	    						<span class="DIB pp_type pp_type1">
+									$!item.popModuleVOInfo.moduleName
+	    						</span>
+	    						<span class="DIB pp_opt"><a name="cancelCollect" data="$!{item.popId}" href="javascript:;" class="button2">取消收藏</a></span>
+	    					</div>
+	    				</div>
+	    			</div>
+	    			#end
+	    		</div>
+	    		
+				<div class="center_page">
+			    	<table width="100%" height="40" cellpadding="0" cellspacing="0" style="text-align: right;">
+			    		<tr>
+			    			<td style="vertical-align: middle;"> 
+			    				<input type="hidden" name="pages" id=""/>
+			    				$!{pageBar}
+			    			</td>
+			    		</tr>
+			    	</table>
+			    </div>    		
+			</div>
+    	</div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+        #parse("/front/platform/layout/footer-lg.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript">seajs.use($_GLOBAL.mode + 'collectStrategy');</script>
+<script type="text/javascript">
+	function collectChange(){
+		var selectVal = $('.col-select option:selected').val();
+		if(selectVal == 'PRODUCT_COL'){
+			window.location.href = "/do/productCollect/myCollectProductList.htm";
+		}else if(selectVal == 'COLLECT'){
+			window.location.href = "/front/platform/strategy/strategyCollectList.htm?type=COLLECT";
+		}else if(selectVal == 'HOTEL_COL'){
+			window.location.href = "/do/productCollect/hotel/collectHotelList.htm?type=HOTEL_PERSON";
+		}
+	}
+	
+</script>
+</html>

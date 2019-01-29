@@ -1,0 +1,675 @@
+<body class="m-content">
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">零售商员工推荐人资料</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>推荐人姓名：</label>
+                    <input class="input" type="text" name="referrerName" maxlength="64"/>
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>推荐人手机：</label>
+                    <input class="input" type="text" name="referrerMobile" maxlength="11"/>
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>身份证号码：</label>
+                    <input class="input" type="text" name="referrerCardNumber" maxlength="18"/>
+                </div>
+
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">收入资料</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>月收入总额：</label>
+                    <input class="input" type="text" name="monthlyIncome" maxlength="10"/>元
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>每月其他收入：</label>
+                    <input class="input" type="text" name="otherAmount" maxlength="10"/>元
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>家庭月收入：</label>
+                    <input class="input" type="text" name="allAmount" maxlength="10"/>元
+                </div>
+
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">所在单位信息</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+            <!--row-->
+            <div class="f-cf">
+
+                <!--group-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位或大学：</label>
+                        <select class="select" name="companyCategory">
+                            <option>请选择</option>
+                            <option value="company">公司/个人</option>
+                            <option value="university">大学</option>
+                        </select>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位/个体全称：</label>
+                        <input class="input" type="text" name="companyName" maxlength="128"/>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>行业类别：</label>
+                        <input class="input" type="text" name="industry" maxlength="64"/>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>职位：</label>
+                        <input class="input" type="text" name="position" maxlength="64"/>
+                    </div>
+
+                </div>
+                <!--group End-->
+
+                <!--group-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">大学名称：</label>
+                        <input class="input" type="text" name="university" maxlength="128"/>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>工作/在校时间：</label>
+                        <select class="select" name="workTime">
+                            <option>请选择</option>
+                            <option value="1">0-1年</option>
+                            <option value="2">2-3年</option>
+                            <option value="3">3-5年</option>
+                            <option value="4">5-8年</option>
+                            <option value="5">8-10年</option>
+                            <option value="6">10以上</option>
+                        </select>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位性质：</label>
+                        <select class="select" name="unitType">
+                            <option>请选择</option>
+                            #foreach($unitType in $unitTypeList)
+                               <option value="$unitType.code">$unitType.message</option>
+                            #end
+                        </select>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>办公电话：</label>
+                        <input class="input" type="text" name="companyPhone" maxlength="11"/>
+                    </div>
+
+                </div>
+                <!--group End-->
+
+                <!--group-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>任职部门/班级：</label>
+                        <input class="input" type="text" name="department" maxlength="64"/>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位/大学开始时间：</label>
+                        <input class="input" type="text" name="startDate" maxlength="4"/>
+                        年
+                    </div>
+
+                </div>
+                <!--group End-->
+
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label"><i>*</i>单位/学校地址：</label>
+                <label>省/直辖市：</label>
+                <select class="select2" name="unitProvince">
+                    #foreach($region in $regionInfoList)
+                        <option value="$!{region.regionId}">$!{region.regionName}</option>
+                    #end
+                </select>
+                <label>市：</label>
+                <select class="select2" name="unitCity"></select>
+                <label>区/县：</label>
+                <select class="select2" name="unitCountry"></select>
+                <input type="text" placeholder="如某区/县乡镇村小区楼层" class="input" name="unitAddress">
+            </div>
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">所购商品1</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>商品种类：</label>
+                    <select class="select" name="commodityType">
+                        <option>请选择</option>
+                        <option>手机</option>
+                        <option>数码产品</option>
+                        <option>摩托车</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>价格：</label>
+                    <input class="input" type="text" name="commodityPrice" maxlength="10"/>
+                    元
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>品牌：</label>
+                    <input class="input" type="text" name="commodityBrand" maxlength="128"/>
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>型号：</label>
+                    <input class="input" type="text" name="commodityModel" maxlength="64"/>
+                </div>
+
+            </div>
+            <!--col End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">所购商品2</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">商品种类：</label>
+                    <select class="select" name="commodityType1">
+                        <option>请选择</option>
+                        <option>手机</option>
+                        <option>数码产品</option>
+                        <option>摩托车</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <label class="label">价格：</label>
+                    <input class="input" type="text" name="commodityPrice1" maxlength="10"/>
+                    元
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">品牌：</label>
+                    <input class="input" type="text" name="commodityBrand1" maxlength="128"/>
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">型号：</label>
+                    <input class="input" type="text" name="commodityModel1" maxlength="64"/>
+                </div>
+
+            </div>
+            <!--col End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">贷款类型</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>贷款品种：</label>
+                    <select class="select" name="loanType">
+                        <option>请选择</option>
+                        <option value="">成人消费贷款</option>
+                        <option value="">学生消费贷款</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>客户支付总额：</label>
+                    <input class="input" type="text" name="downPayment" maxlength="10" id="downPayment"/>
+                    元
+                </div>
+
+
+                <div class="group">
+                    <label class="label"><i>*</i>每月还款额：</label>
+                    <input class="input" type="text" name="monthlyAmount" maxlength="10"/>
+                    元
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>客户开户银行：</label>
+                    <select class="select" name="bank">
+                        <option>请选择</option>
+                        <option>成人消费贷款</option>
+                        <option>学生消费贷款</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>资料邮寄地址：</label>
+                    <select class="select" name="postAddress">
+                        <option>请选择</option>
+                        <option>现居住地址</option>
+                        <option>公司地址/学校</option>
+                    </select>
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>贷款用途：</label>
+                    <select class="select" name="loanPurpose">
+                        <option>请选择</option>
+                        <option>家用电器</option>
+                        <option>时尚电子产品</option>
+                        <option>家俱及住宅装修用品</option>
+                        <option>计算机与办公室通信（私人）</option>
+                    </select>
+                </div>
+
+
+
+                <div class="group">
+                    <label class="label"><i>*</i>贷款本金：</label>
+                    <input class="input" type="text" name="loanAmount" maxlength="10" id="loanAmount"/>
+                    元
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>每月还款日：</label>
+                    <input class="input" type="text" name="monthlyLoanTime" maxlength="10"/>
+                </div>
+
+
+                <div class="group">
+                    <label class="label"><i>*</i>客户银行卡号：</label>
+                    <input class="input" type="text" name="loanBankNumber" maxlength="30"/>
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>商品总价：</label>
+                    <input class="input" type="text" name="commodityAmount" maxlength="10" id="commodityAmount"/>
+                    元
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>分期期数：</label>
+                    <select class="select" name="stagesNum">
+                        <option value="">请选择</option>
+                        <option value="9">9个月</option>
+                        <option value="12">12个月</option>
+                        <option value="15">15个月</option>
+                        <option value="18">18个月</option>
+                        <option value="21">21个月</option>
+                        <option value="24">24个月</option>
+                        <option value="0">其它</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>月供金额：</label>
+                    <input class="input" type="text" name="monthlyAmount" maxlength="10"/>
+                    元
+                </div>
+
+                <div class="group">
+                    <input type="checkbox"/>
+                    <label calss="label2">银行代扣还款</label>
+                </div>
+
+
+            </div>
+            <!--col End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">送货地址</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--row-->
+            <div class="f-cf">
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>收货人姓名：</label>
+                        <input class="input" type="text" name="deliverName" maxlength="64"/>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>手机号码：</label>
+                        <input class="input" type="text" name="deliverMobile" maxlength="11"/>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>送货地址：</label>
+                        <select class="select">
+                            <option>请选择</option>
+                            <option>户籍地址</option>
+                            <option>现居住地址</option>
+                            <option>单位/大学地址</option>
+                            <option>家庭成员地址</option>
+                            <option>其它地址</option>
+                        </select>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label"><i>*</i>收货地址：</label>
+                <label>省/直辖市：</label>
+                <select class="select2" name="deliverProvince"></select>
+                <label>市：</label>
+                <select class="select2" name="deliverCity"></select>
+                <label>区/县：</label>
+                <select class="select2" name="deliverContry"></select>
+                <input type="text" placeholder="如某区/县乡镇村小区楼层" class="input" name="deliver_address" maxlength="256">
+            </div>
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">保险</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--column-->
+            <div class="col">
+
+                <div class="group">
+                    <input class="checkbox" type="checkbox"/>
+                    <label class="label2">忠利短期人寿险 ￥7.00</label>
+                </div>
+
+            </div>
+            <!--column End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+</body>

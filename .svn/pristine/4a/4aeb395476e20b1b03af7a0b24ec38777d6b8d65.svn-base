@@ -1,0 +1,32 @@
+package com.yjf.esupplier.service.product.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.dal.dataobject.TblProductCustomPropertyDO;
+import com.yjf.esupplier.service.product.ProductBaseService;
+import com.yjf.esupplier.service.product.ProductCustomPropertyService;
+import com.yjf.esupplier.ws.product.info.ProductCustomPropertyInfo;
+
+@Service("productCustomPropertyService")
+public class ProductCustomPropertyServiceImpl extends ProductBaseService implements
+																		ProductCustomPropertyService {
+	@Override
+	public List<ProductCustomPropertyInfo> getProductCustomPropertyList(long productId) {
+		return convertProductCustomPropertyInfo(tblProductCustomPropertyDAO
+			.findByProductId(productId));
+	}
+	
+	protected List<ProductCustomPropertyInfo> convertProductCustomPropertyInfo(	List<TblProductCustomPropertyDO> customPropertyDOs) {
+		List<ProductCustomPropertyInfo> customPropertyInfos = Lists.newArrayList();
+		for (TblProductCustomPropertyDO propertyDO : customPropertyDOs) {
+			ProductCustomPropertyInfo customPropertyInfo = new ProductCustomPropertyInfo();
+			BeanCopier.staticCopy(propertyDO, customPropertyInfo);
+			customPropertyInfos.add(customPropertyInfo);
+		}
+		return customPropertyInfos;
+	}
+}

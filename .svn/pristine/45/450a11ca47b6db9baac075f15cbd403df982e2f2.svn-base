@@ -1,0 +1,162 @@
+<table sqlname="lottery_winner">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+		INSERT INTO lottery_winner(winner_id,activity_id,activity_name,instance_id,prize_rule_detail_id,awards,prize_name,prize_type,prize_num,prize_amount,prize_image,description,memo,user_id,user_name,real_name,moble,status,express_no,winner_memo,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+			]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+		   insert /*MS-YRD-LOTTERY-WINNER-INSERT*/ into lottery_winner(winner_id,activity_id,activity_name,instance_id,prize_rule_detail_id,awards,prize_name,prize_type,prize_num,prize_amount,prize_image,description,memo,user_id,user_name,real_name,moble,status,express_no,winner_memo,raw_add_time) values (#winnerId#, #activityId#, #activityName#, #instanceId#, #prizeRuleDetailId#, #awards#, #prizeName#, #prizeType#, #prizeNum#, #prizeAmount#, #prizeImage#, #description#, #memo#, #userId#, #userName#, #realName#, #moble#, #status#, #expressNo#, #winnerMemo#, #rawAddTime#)
+	       <selectKey  resultClass ="long"  keyProperty ="winnerId" >   
+	          		 SELECT LAST_INSERT_ID() AS ID 
+	      	</selectKey>
+				]]>
+		</sqlmap>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE lottery_winner SET activity_id=?,activity_name=?,instance_id=?,prize_rule_detail_id=?,awards=?,prize_name=?,prize_type=?,prize_num=?,prize_amount=?,prize_image=?,description=?,memo=?,user_id=?,user_name=?,real_name=?,moble=?,status=?,express_no=?,winner_memo=? WHERE winner_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="long">
+		<sql>
+				<![CDATA[
+				SELECT  winner_id ,activity_id ,activity_name ,instance_id ,prize_rule_detail_id ,awards ,prize_name ,prize_type ,prize_num ,prize_amount ,prize_image ,description ,memo ,user_id ,user_name ,real_name ,moble ,status ,express_no ,winner_memo ,raw_add_time ,raw_update_time  FROM lottery_winner WHERE winner_id=?
+
+			]]>
+		</sql>
+	</operation>
+
+    <operation name="giveWinner">
+        <sql>
+            <![CDATA[
+				update lottery_winner set express_no =?,status =?  WHERE winner_id=?
+				]]>
+        </sql>
+    </operation>
+
+
+	<operation name="deleteById" paramtype="string">
+		<sql>
+				<![CDATA[
+				DELETE FROM lottery_winner WHERE winner_id=?
+				]]>
+		</sql>
+	</operation>
+	<operation name="findByCondition" paramtype="object" multiplicity="many">
+		<extraparams>
+			<param name="limitStart" javatype="long" />
+			<param name="pageSize" javatype="long" />
+			<param name="statusList" javatype="java.util.List" />
+			<param name="activityIdList" javatype="java.util.List" />
+		</extraparams>
+		<sql>
+			<![CDATA[
+				SELECT  winner_id ,activity_id ,activity_name ,instance_id ,prize_rule_detail_id ,awards ,prize_name ,prize_type ,prize_num ,prize_amount ,prize_image ,description ,memo ,user_id ,user_name ,real_name ,moble ,status ,express_no ,winner_memo ,raw_add_time ,raw_update_time  FROM lottery_winner
+				WHERE 1=1
+			]]>
+		</sql>
+		<sqlmap>
+		<![CDATA[
+		SELECT  winner_id ,activity_id ,activity_name ,instance_id ,prize_rule_detail_id ,awards ,prize_name ,prize_type ,prize_num ,prize_amount ,prize_image ,description ,memo ,user_id ,user_name ,real_name ,moble ,status ,express_no ,winner_memo ,raw_add_time ,raw_update_time  FROM lottery_winner
+		WHERE 1=1
+		<dynamic>
+			<isNotEmpty property="lotteryWinner.activityName" prepend="  and ">
+				activity_name =  #lotteryWinner.activityName#
+			</isNotEmpty>
+			<isGreaterThan property="lotteryWinner.userId" compareValue="0" prepend=" and ">
+				user_id = #lotteryWinner.userId#
+			</isGreaterThan>
+			<isNotEmpty property="lotteryWinner.userName" prepend="  and ">
+				user_name =  #lotteryWinner.userName#
+			</isNotEmpty>
+			<isNotEmpty property="lotteryWinner.awards" prepend="  and ">
+				awards =  #lotteryWinner.awards#
+			</isNotEmpty>
+			<isNotEmpty property="lotteryWinner.prizeName" prepend="  and ">
+				prize_name =  #lotteryWinner.prizeName#
+			</isNotEmpty>
+			<isNotEmpty property="activityIdList" prepend=" and ">
+				activity_id in
+				<iterate property="activityIdList" open="(" close=")" conjunction=",">
+					#activityIdList[]#
+				</iterate>
+			</isNotEmpty>
+			<isNotEmpty property="statusList" prepend=" and ">
+				status in
+				<iterate property="statusList" open="(" close=")" conjunction=",">
+					#statusList[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY raw_add_time DESC LIMIT #limitStart#,#pageSize#;]]>
+		</sqlmap>
+	</operation>
+	<operation name="findCountByCondition" paramtype="object">
+		<extraparams>
+			<param name="statusList" javatype="java.util.List" />
+            <param name="activityIdList" javatype="java.util.List" />
+		</extraparams>
+		<sql>
+				<![CDATA[
+				SELECT  count(*)  FROM lottery_winner 
+
+				]]>
+		</sql>
+		<sqlmap>
+		<![CDATA[
+		SELECT  count(*)  FROM lottery_winner
+		WHERE 1=1
+		<dynamic>
+			<isNotEmpty property="lotteryWinner.activityName" prepend="  and ">
+				activity_name =  #lotteryWinner.activityName#
+			</isNotEmpty>
+			<isGreaterThan property="lotteryWinner.userId" compareValue="0" prepend=" and ">
+				user_id = #lotteryWinner.userId#
+			</isGreaterThan>
+			<isNotEmpty property="lotteryWinner.userName" prepend="  and ">
+				user_name =  #lotteryWinner.userName#
+			</isNotEmpty>
+			<isNotEmpty property="lotteryWinner.awards" prepend="  and ">
+				awards =  #lotteryWinner.awards#
+			</isNotEmpty>
+			<isNotEmpty property="lotteryWinner.prizeName" prepend="  and ">
+				prize_name =  #lotteryWinner.prizeName#
+			</isNotEmpty>
+			<isNotEmpty property="activityIdList" prepend=" and ">
+				activity_id in
+				<iterate property="activityIdList" open="(" close=")" conjunction=",">
+					#activityIdList[]#
+				</iterate>
+			</isNotEmpty>
+			<isNotEmpty property="statusList" prepend=" and ">
+				status in
+				<iterate property="statusList" open="(" close=")" conjunction=",">
+					#statusList[]#
+				</iterate>
+			</isNotEmpty>
+		</dynamic>
+		]]>
+		</sqlmap>
+	</operation>
+	
+	<operation name="findByActivityIdAutotest" paramtype="long"  multiplicity="many">
+		<sql>
+				<![CDATA[
+				SELECT  winner_id ,activity_id ,activity_name ,instance_id ,prize_rule_detail_id ,awards ,prize_name ,prize_type ,prize_num ,prize_amount ,prize_image ,description ,memo ,user_id ,user_name ,real_name ,moble ,status ,express_no ,winner_memo ,raw_add_time ,raw_update_time  FROM lottery_winner WHERE activity_id=?
+
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="deleteByActivityIdAutotest" paramtype="string">
+		<sql>
+				<![CDATA[
+				DELETE FROM lottery_winner WHERE activity_id=?
+				]]>
+		</sql>
+	</operation>
+</table>

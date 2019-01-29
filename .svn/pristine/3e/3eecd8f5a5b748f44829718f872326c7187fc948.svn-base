@@ -1,0 +1,62 @@
+package com.yjf.esupplier.service.product;
+
+import java.util.List;
+
+import com.yjf.esupplier.dal.dataobject.TblProductTypeDO;
+import com.yjf.esupplier.ws.product.info.ProductTypeInfo;
+import com.yjf.esupplier.ws.product.order.ProductTypeQueryOrder;
+import com.yjf.esupplier.ws.product.order.ProductTypeSaveOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+
+public interface ProductTypeService {
+
+	List<ProductTypeInfo> getProductTypeByFatherId(long id);
+
+	ProductTypeInfo findById(long id);
+
+	EsupplierBaseResult insertType(ProductTypeSaveOrder pt);
+
+	EsupplierBaseResult updateType(ProductTypeSaveOrder pt);
+
+	EsupplierBaseResult deleteType(ProductTypeSaveOrder pt);
+
+	List<ProductTypeInfo> getFatherProductTypeByCode(String code);
+
+	List<ProductTypeInfo> getProductTypeAll();
+
+	ProductTypeInfo getProductTypeByCode(String code);
+
+	int updateProductCount(int ptid);
+
+	QueryBaseBatchResult<ProductTypeInfo> findByCondition(ProductTypeQueryOrder queryOrder);
+
+	ProductTypeInfo findByPtCode(String productTypeCode);
+
+	List<ProductTypeInfo> getThirdProductType(SupplierInfo s);
+
+	List<ProductTypeInfo> getSecondProductType(SupplierInfo s);
+	/*
+	* 获取所有二级分类
+	* */
+	List<ProductTypeInfo> getSecondProductType(ProductTypeQueryOrder queryOrder);
+	/*
+	* 获取所有二级热词（关键字）
+	* */
+	List<String> getSecondKeyWords();
+	/*
+	* 获取所有三级分类
+	* */
+	List<ProductTypeInfo> getThirdProductType(ProductTypeQueryOrder queryOrder);
+
+	List<ProductTypeInfo> getFirstProductType(SupplierInfo sInfo);
+	/*
+	* 获取所有一级分类
+	* */
+	List<ProductTypeInfo> getFirstProductType(ProductTypeQueryOrder queryOrder);
+	/*
+	 * 获得首页分类
+	 * */
+	List<ProductTypeInfo> getProductTypeByFront();
+}

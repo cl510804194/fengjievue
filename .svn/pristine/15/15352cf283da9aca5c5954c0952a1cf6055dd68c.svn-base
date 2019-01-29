@@ -1,0 +1,141 @@
+#parse("/backstage/layout/logo.vm")
+<body class="m-content">
+
+  <!--toolbar-->
+  <div class="m-toolbar">
+    <!--form-->
+    <form class="m-form horizontal" action="/admin/userManager/customerInfo.htm"  method="post" id="customerInfo_form">
+      <!--row-->
+	  <div class="row">
+
+        <!--group-->
+        <div class="group">
+          <label class="label">账户状态：</label>
+          <select class="select" name="status">
+			<option value="">所有</option>
+			#foreach($cStatus in $!{customerStatus})
+				<option value="$!{cStatus.code}" #if($!{queryConditions.status.code()}==$!{cStatus.code}) selected #end>$!{cStatus.message}</option>
+			#end
+		  </select>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label">真实姓名：</label>
+          <input class="input" name="name" value="$!{queryConditions.name}"/>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label">身份证号码：</label>
+          <input class="input" name="certificateCard" value="$!{queryConditions.certificateCard}"/>
+        </div>
+        <!--group End-->
+      
+      </div>
+      <!--row End-->
+      <!--row-->
+      <div class="row">
+
+        <!--group-->
+        <div class="group">
+          <label class="label">手机号码：</label>
+          <input class="input" name="mobileNumber" value="$!{queryConditions.mobileNumber}"/>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <a class="u-btn white fn-submit" title="查询" href="javascript:;">查询</a>
+        </div>
+        <!--group End-->
+
+      </div>
+      <!--row End-->
+
+    </form>
+    <!--form End-->
+  </div>
+  <!--toolbar End-->
+
+  <!--grid-->
+  <div class="m-grid f-mt20">
+    <table class="table">
+      <tbody>
+        <!--head-->
+        <tr class="hd">
+          <th><div>序号</div></th>
+          <th><div>客户姓名</div></th>
+          <th><div>性别</div></th>
+          <th><div>年龄</div></th>
+          <th><div>手机号码</div></th>
+          <th><div>身份证号码</div></th>
+          <th><div>户籍区域</div></th>
+          <th><div>居住区域</div></th>
+          <th><div>居住地址</div></th>
+          <th><div>账户状态</div></th>
+          <th><div>操作</div></th>
+        </tr>
+        <!--head End-->
+        <!--row-->
+		#if($page.result.size()==0)
+			<tr class="even">
+				<td colspan=11 align=center>暂时没有申请人信息</td>
+			</tr>
+		#end
+		#set ($i= ($page.currentPageNo - 1)*$page.pageSize + 1 )
+		#set ($odd= true )
+		#foreach($info in $page.result)
+			<tr #if($odd) class="odd" #end>
+				<td>$i</td>
+                <td>$!{info.name}</td>
+                <td>$!{info.sex.message}</td>
+                <td>$!{info.age}</td>
+				<td>$!{info.mobileNumber}</td>
+				<td>$!{info.certificateCard}</td>
+				<td>$!{info.certificateSite}</td>
+                <td>$!{info.country}</td>
+				<td>$!{info.address}</td>
+				<td>#if($!{info.status}) $!{info.status.message} #else 正常  #end</td>
+				<td>
+					<a href="#" class="u-link blue">查看贷款记录</a>
+				</td>
+			</tr>
+			#if($odd) #set($odd=false) #end
+			#set($i=$i+1)
+		#end
+        <!--row End-->
+      </tbody>
+    </table>
+	#parse("/backstage/page/page.vm")
+  </div>
+  <!--grid End-->
+
+
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+    <script type="text/javascript" src="/resources/js/global.js"></script>
+	<script type="text/javascript">
+        
+    	$('.fn-submit').click(function() {
+    		$('#customerInfo_form').submit();
+    	})
+	
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/userManager/customerInfo.htm"
+			+"?status=$!{queryConditions.status.code}"
+			+"&name=$!{queryConditions.name}"
+			+"&certificateCard=$!{queryConditions.certificateCard}"
+			+"&mobileNumber=$!{queryConditions.mobileNumber}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+package com.yjf.esupplier.service.mail.template.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.esupplier.common.page.Page;
+import com.yjf.esupplier.common.page.PageParam;
+import com.yjf.esupplier.common.page.PageParamUtil;
+import com.yjf.esupplier.dal.daointerface.EmailTemplateDAO;
+import com.yjf.esupplier.dal.dataobject.EmailTemplateDO;
+import com.yjf.esupplier.service.base.BaseAutowiredToolsService;
+import com.yjf.esupplier.service.mail.template.EmailTemplateService;
+
+@Service("emailTemplateService")
+public class EmailTemplateServiceImpl extends BaseAutowiredToolsService implements
+																		EmailTemplateService {
+	@Autowired
+	EmailTemplateDAO emailTemplateDao;
+	
+	@Override
+	public EmailTemplateDO getById(long id) {
+		return emailTemplateDao.getById(id);
+	}
+	
+	@Override
+	public Page<EmailTemplateDO> getPageByConditions(PageParam pageParam,
+														Map<String, Object> conditions) {
+		conditions.put("limitStart", (pageParam.getPageNo() - 1) * pageParam.getPageSize());
+		conditions.put("pageSize", pageParam.getPageSize());
+		long totalSize = emailTemplateDao.queryCountByCondition(conditions);
+		List<EmailTemplateDO> result = emailTemplateDao.queryListByCondition(conditions);
+		int start = PageParamUtil.startValue((int) totalSize, pageParam.getPageSize(),
+			pageParam.getPageNo());
+		return new Page<EmailTemplateDO>(start, totalSize, pageParam.getPageSize(), result);
+	}
+	
+	@Override
+	public void insertEmailTemplate(EmailTemplateDO emailTemplate) {
+		emailTemplateDao.insertEmailTemplate(emailTemplate);
+	}
+	
+	@Override
+	public void updateEmailTemplate(EmailTemplateDO mailTemplate) {
+		emailTemplateDao.updateEmailTemplate(mailTemplate);
+	}
+	
+}

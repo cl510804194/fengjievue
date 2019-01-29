@@ -1,0 +1,170 @@
+package com.yjf.esupplier.service.user.impl;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.dal.daointerface.UserDAO;
+import com.yjf.esupplier.dal.daointerface.UserExtendDAO;
+import com.yjf.esupplier.dal.daointerface.UserLoginDAO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.domain.service.repository.UserAccountDataDomainRepository;
+import com.yjf.esupplier.integration.web.server.YjfLoginWebServer;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.biz.util.SendInformation;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.security.AuthorityService;
+import com.yjf.esupplier.service.user.info.MemberNoInfo;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.query.UserRelationQueryService;
+import com.yjf.esupplier.service.user.result.UserRelationQueryResult;
+import com.yjf.esupplier.ws.enums.MemberScalEnum;
+import com.yjf.esupplier.ws.enums.UserTypeEnum;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+
+public abstract class UserBaseInfoBaseService extends BaseBizService {
+	
+	@Autowired
+	protected AuthorityService authorityService;
+	
+	@Autowired
+	protected YjfLoginWebServer yjfLoginWebServer;
+	@Autowired
+	protected UserRelationQueryService userRelationQueryService;
+	
+	@Autowired
+	protected UserDAO userDAO;
+	@Autowired
+	protected UserLoginDAO userLoginDAO;
+	@Autowired
+	protected UserExtendDAO userExtendDAO;
+	@Autowired
+	protected UserAccountDataDomainRepository userAccountDataDomainRepository;
+	
+	protected final static int MEMBERSCALEDEFULT = 5; // 机构人员规模默认
+	protected final static int MEMBERSCALEVIP = 8; // 机构人员规模高级
+	
+	private final static String JGAGENTPREFIX = ""; // 机构经纪人前缀
+	private final static String JJRAGENTPREFIX = "K"; // 经纪人下的投资人前缀
+	
+	/* TODO 性能有很大的优化空间 */
+	protected MemberNoInfo getMemberNo(UserBaseInfoDO jgUserDO) {
+		
+		logger.info("机构编号：" + jgUserDO.getUserBaseId());
+		MemberNoInfo memberNoInfo = new MemberNoInfo();
+		String memberNo = null;
+		long stateNO = NumberUtil.parseLong(jgUserDO.getIdentityStartNo());
+		if (stateNO < 1) {
+			stateNO = 0;
+		}
+		long count = userRelationQueryService.getUserRelationMaxMemberNo(
+			jgUserDO.getIdentityName(), JJRAGENTPREFIX);
+		if (count <= 0) {
+			count = stateNO;
+			if (count >= 1) {
+				count = count - 1;
+			}
+		}
+		logger.info("当前号码：" + count);
+		memberNoInfo.setOrgCode(jgUserDO.getIdentityName());
+		memberNoInfo.setPrefixCode(JJRAGENTPREFIX);
+		boolean availabelFlag = false;
+		while (!availabelFlag) {
+			count++;
+			long curindex = count;
+			if (String.valueOf(curindex).endsWith("4")) {
+				curindex++;
+			}
+			int memberScale = 0;
+			if (UserTypeEnum.GJJG.code().equals(jgUserDO.getType())) {
+				memberScale = MemberScalEnum.VIP.getValue();
+			} else {
+				memberScale = MemberScalEnum.DEFAULT.getValue();
+			}
+			String sino = null;
+			if (curindex <= 9999999) {
+				sino = StringUtils.leftPad(String.valueOf(curindex), memberScale, "0");
+			} else {
+				sino = curindex + "";
+			}
+			String jgIdentity = jgUserDO.getIdentityName();
+			memberNo = jgIdentity + JJRAGENTPREFIX + sino;
+			UserRelationQueryResult relationQueryResult2 = userRelationQueryService
+				.findUserRelationByMemberNo(memberNo);
+			if (relationQueryResult2.getQueryUserRelationInfo() != null) {
+				availabelFlag = false;
+			} else {
+				availabelFlag = true;
+				memberNoInfo.setUserNumber(curindex);
+				logger.info("可用投资人编号：" + memberNo);
+			}
+		}
+		
+		return memberNoInfo;
+	}
+
+	
+	protected MemberNoInfo getJJRMemberNo(long parentId) {
+		
+		MemberNoInfo memberNoInfo = new MemberNoInfo();
+		UserInfo parentJG = userQueryService.queryByUserId(parentId).getQueryUserInfo();
+		if (parentJG == null) {
+			logger.error("未找到该机构-----" + parentId);
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+				"未找到该机构-----" + parentId);
+		}
+		String memberNo = null;
+		String indentity = parentJG.getIdentityName();
+		int startNo = Integer.parseInt(parentJG.getIdentityStartNo());
+		int endNo = Integer.parseInt(parentJG.getIdentityEndNo());
+		if (startNo < 0) {
+			startNo = 0;
+		}
+		long count = userRelationQueryService.getUserRelationMaxMemberNo(
+			parentJG.getIdentityName(), JGAGENTPREFIX);
+		memberNoInfo.setOrgCode(parentJG.getIdentityName());
+		memberNoInfo.setPrefixCode(JGAGENTPREFIX);
+		
+		boolean availabelFlag = false;
+		while (!availabelFlag) {
+			count++;
+			long currentNo = startNo + count;
+			if (String.valueOf(currentNo).endsWith("4")) {
+				currentNo++;
+			}
+			if (currentNo > endNo) {
+				logger.error("编号已满-----" + parentId);
+			}
+			int memberScale = 0;
+			if (parentJG.getType() == UserTypeEnum.GJJG) {
+				memberScale = MEMBERSCALEVIP;
+			} else {
+				memberScale = MEMBERSCALEDEFULT;
+			}
+			String sino = StringUtils.leftPad(String.valueOf(currentNo), memberScale, "0");
+			memberNo = indentity + JGAGENTPREFIX + sino;// 串号拼接
+			UserRelationQueryResult relationQueryResult2 = userRelationQueryService
+				.findUserRelationByMemberNo(memberNo);
+			if (relationQueryResult2.getQueryUserRelationInfo() != null) {
+				availabelFlag = false;
+			} else {
+				availabelFlag = true;
+				memberNoInfo.setUserNumber(currentNo);
+				logger.info("可用经纪人编号：" + memberNo);
+			}
+		}
+		return memberNoInfo;
+	}
+	
+	/**
+	 * @param servletPath
+	 */
+	protected void sendBrokerMail(String servletPath) {
+		String memberNo = (String) EsupplierDomainHolder.get().getAttribute("memberNo");
+		UserInfo brokerUser = (UserInfo) EsupplierDomainHolder.get().getAttribute("brokerUser");
+		mailService.sendBrokerMail(servletPath, SendInformation.sendBrokerMail(
+			brokerUser.getMail(), brokerUser.getRealName(), memberNo, 25L));
+	}
+	
+}

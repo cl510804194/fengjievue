@@ -1,0 +1,36 @@
+#parse("/front/index/common/js.vm")
+<!-- header start-->
+<div class="head MO">
+    <div class="MI clearfix">
+        <div class="wel_ws">
+        	#if($!webSessionUtil.isLogin())
+            	<a href="/login/logoutlogin.htm"><i class="icon login-out"></i>退出登录</a>
+            	<label href="#" class="wel_info"><i class="icon top-line"></i>您好，$!webSessionUtil.getUserViewName()</label>
+            #else
+                <a href="/login/frontLogin.htm">登录</a>
+                ##<a href="/anon/newInvestorsOpen.htm" target="_blank"><i class="icon top-line"></i>注册</a>
+            #end
+        </div>
+        <div class="ls_ol">
+            ##<a href="/do/mainHome.htm" class="my_user"><i class="icon user-mine"></i>景区中心</a>
+            #if($sessionLocal.userBizType.code=="VISITOR_CENTER" )
+          	  <a href="/do/scenic/doCenter/querySoldOrderList.htm?orderType=TICKET&itemType=bulk" class="my_order"><i class="icon user-mine"></i>我的订单</a>
+         	   <a href="/do/scenic/doCenter/mainHome.htm" class="my_user"><i class="icon top-line"></i>景区中心</a>
+            #end
+            #if($sessionLocal.userBizType.code=="BUYER" ||  !$!sessionLocal.userBizType.code)
+         	   <a href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=O2O&itemType=bulk" class="my_order"><i class="icon user-mine"></i>我的订单</a>    
+         	  	<a href="/do/mainHome.htm" class="my_user"><i class="icon top-line"></i>个人中心</a>
+            #end
+        </div>
+    </div>
+</div>
+<!--header end-->
+<!--logoArea start-->
+<div class="logo_area MO">
+    <div class="MI clearfix">
+    	<span class="logo_img">
+    		<a href="/login/login.htm" class="DIB"><img src="/styles/images/common/logo1.png" alt="$!appConstantsUtil.getProductName()"/></a>
+    	</span>
+        <span class="telphone">$!appConstantsUtil.getCustomerServicePhone()</span>
+    </div>
+</div><!--logoArea end-->

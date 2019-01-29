@@ -1,0 +1,69 @@
+package com.yjf.esupplier.service.security.util;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+import com.yjf.esupplier.service.security.info.PermissionInfo;
+
+/**
+ * 
+ * 
+ * @Filename PermissionSorter.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author yhl
+ * 
+ * @Email yhailong@yiji.com
+ * 
+ * @History <li>Author: yhl</li> <li>Date: 2013-7-16</li> <li>Version: 1.0</li>
+ * <li>Content: create</li> 排序
+ */
+public class PermissionSorter {
+	/**
+	 * 比较器
+	 */
+	private static Comparator<PermissionInfo> comparator = new Comparator<PermissionInfo>() {
+		@Override
+		public int compare(PermissionInfo o1, PermissionInfo o2) {
+			String op1 = o1.getPermissionOperate();
+			String op2 = o2.getPermissionOperate();
+			int len1 = 0;
+			int len2 = 0;
+			if (op1 != null) {
+				len1 = op1.length();
+			}
+			if (op2 != null) {
+				len2 = op2.length();
+			}
+			return len2 - len1;
+		}
+		
+	};
+	
+	/**
+	 * 排序
+	 * @return
+	 */
+	public static List<PermissionInfo> sort(List<PermissionInfo> permissions) {
+		return sort(permissions, comparator);
+	}
+	
+	/**
+	 * 排序
+	 * @param permissions
+	 * @param comparator
+	 */
+	public static List<PermissionInfo> sort(List<PermissionInfo> permissions,
+											Comparator<PermissionInfo> comparator) {
+		PermissionInfo[] ps = new PermissionInfo[permissions.size()];
+		permissions.toArray(ps);
+		Arrays.sort(ps, comparator);
+		return Lists.newArrayList(ps);
+	}
+	
+}

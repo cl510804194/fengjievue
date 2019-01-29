@@ -1,0 +1,5 @@
+ds.yrd.mysqlClassName=com.mysql.jdbc.Driver
+ds.yrd.mysqlUrl=jdbc:mysql://mysql.yiji.net:3306/yjf_eloan?useUnicode=true&allowMultiQueries=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull
+ds.yrd.username=Senterprise
+ds.yrd.password=Senterprise
+

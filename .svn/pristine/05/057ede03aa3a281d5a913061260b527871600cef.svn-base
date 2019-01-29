@@ -1,0 +1,290 @@
+package com.yjf.esupplier.service.user.query.order;
+
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.MerchantStateEnum;
+import com.yjf.esupplier.ws.enums.MerchantTypeEnum;
+import com.yjf.esupplier.ws.enums.SysUserRoleEnum;
+import com.yjf.esupplier.ws.enums.UserStateEnum;
+import com.yjf.esupplier.ws.enums.UserTypeEnum;
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class UserRoleQueryOrder extends QueryPageBase {
+	
+	private static final long serialVersionUID = 3670089528604385095L;
+	String realName;
+	String userName;
+	String accountName;
+	UserTypeEnum type;
+	SysUserRoleEnum roleEnum;
+	UserStateEnum userStateEnum;
+	MerchantStateEnum merchantStateEnum;
+	MerchantTypeEnum merchantTypeEnum;
+	String userCustomType;
+	long belongTo;
+	String userBaseId;
+	/*商户名称-店名*/
+	String merchantName;
+
+	/** 是否支持团、邮 */
+	private BooleanEnum o2o;
+	
+	/** 是否支持点餐 */
+	private BooleanEnum orderMeal;
+	
+	/** 是否支持酒店预订 */
+	private BooleanEnum hotels;
+	/** 是否支持酒店预订 */
+	private BooleanEnum recommend;
+    /*是否到店付*/
+	private String toShop;
+    /*商户等级*/
+	private String shopGrade;
+	/*用户经纬度*/
+    /*经度*/
+	private String longitude;
+	/*维度*/
+	private String latitude;
+
+	/*排序*/
+	/*分数降序*/
+	private String scoreSort;
+	/*总销量降序*/
+	private String amountSort;
+	
+	private boolean hasDistributionQuota = false;
+	
+	/** 不分页 */
+	private boolean loadAll = false;
+
+	public String getRealName() {
+		return this.realName;
+	}
+	
+	public void setRealName(String realName) {
+		if (StringUtil.isNotBlank(realName)) {
+			this.realName = realName;
+		} else {
+			this.realName = null;
+		}
+		
+	}
+	
+	public boolean isHasDistributionQuota() {
+		return this.hasDistributionQuota;
+	}
+	
+	public void setHasDistributionQuota(boolean hasDistributionQuota) {
+		this.hasDistributionQuota = hasDistributionQuota;
+	}
+	
+	public String getUserName() {
+		return this.userName;
+	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	public UserTypeEnum getType() {
+		return this.type;
+	}
+	
+	public void setType(UserTypeEnum type) {
+		this.type = type;
+	}
+	
+	public SysUserRoleEnum getRoleEnum() {
+		return this.roleEnum;
+	}
+	
+	public void setRoleEnum(SysUserRoleEnum roleEnum) {
+		this.roleEnum = roleEnum;
+	}
+	
+	public UserStateEnum getUserStateEnum() {
+		return this.userStateEnum;
+	}
+	
+	public void setUserStateEnum(UserStateEnum userStateEnum) {
+		this.userStateEnum = userStateEnum;
+	}
+	
+	public String getAccountName() {
+		return accountName;
+	}
+	
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
+	
+	public MerchantStateEnum getMerchantStateEnum() {
+		return merchantStateEnum;
+	}
+
+	public void setMerchantStateEnum(MerchantStateEnum merchantStateEnum) {
+		this.merchantStateEnum = merchantStateEnum;
+	}
+
+	public long getBelongTo() {
+		return belongTo;
+	}
+
+	public void setBelongTo(long belongTo) {
+		this.belongTo = belongTo;
+	}
+	
+	public String getUserCustomType() {
+		return userCustomType;
+	}
+
+	public void setUserCustomType(String userCustomType) {
+		this.userCustomType = userCustomType;
+	}
+	
+	public MerchantTypeEnum getMerchantTypeEnum() {
+		return merchantTypeEnum;
+	}
+
+	public void setMerchantTypeEnum(MerchantTypeEnum merchantTypeEnum) {
+		this.merchantTypeEnum = merchantTypeEnum;
+	}
+	
+
+	public String getUserBaseId() {
+		return userBaseId;
+	}
+
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	public String getMerchantName() {
+		return merchantName;
+	}
+
+	public void setMerchantName(String merchantName) {
+		this.merchantName = merchantName;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+	public String getScoreSort() {
+		return scoreSort;
+	}
+
+	public void setScoreSort(String scoreSort) {
+		this.scoreSort = scoreSort;
+	}
+
+	public String getAmountSort() {
+		return amountSort;
+	}
+
+	public void setAmountSort(String amountSort) {
+		this.amountSort = amountSort;
+	}
+
+	public String getToShop() {
+		return toShop;
+	}
+
+	public void setToShop(String toShop) {
+		this.toShop = toShop;
+	}
+
+	public String getShopGrade() {
+		return shopGrade;
+	}
+
+	public void setShopGrade(String shopGrade) {
+		this.shopGrade = shopGrade;
+	}
+	
+	public BooleanEnum getO2o() {
+		return o2o;
+	}
+	
+	public void setO2o(BooleanEnum o2o) {
+		this.o2o = o2o;
+	}
+	
+	public BooleanEnum getOrderMeal() {
+		return orderMeal;
+	}
+	
+	public void setOrderMeal(BooleanEnum orderMeal) {
+		this.orderMeal = orderMeal;
+	}
+
+	public BooleanEnum getHotels() {
+		return hotels;
+	}
+	
+	public void setHotels(BooleanEnum hotels) {
+		this.hotels = hotels;
+	}
+
+	public boolean isLoadAll() {
+		return loadAll;
+	}
+	
+	public void setLoadAll(boolean loadAll) {
+		this.loadAll = loadAll;
+	}
+
+	public BooleanEnum getRecommend() {
+		return recommend;
+	}
+
+	public void setRecommend(BooleanEnum recommend) {
+		this.recommend = recommend;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("UserRoleQueryOrder{");
+		sb.append("realName='").append(realName).append('\'');
+		sb.append(", userName='").append(userName).append('\'');
+		sb.append(", accountName='").append(accountName).append('\'');
+		sb.append(", type=").append(type);
+		sb.append(", roleEnum=").append(roleEnum);
+		sb.append(", userStateEnum=").append(userStateEnum);
+		sb.append(", merchantStateEnum=").append(merchantStateEnum);
+		sb.append(", merchantTypeEnum=").append(merchantTypeEnum);
+		sb.append(", userCustomType='").append(userCustomType).append('\'');
+		sb.append(", belongTo=").append(belongTo);
+		sb.append(", userBaseId='").append(userBaseId).append('\'');
+		sb.append(", merchantName='").append(merchantName).append('\'');
+		sb.append(", o2o=").append(o2o);
+		sb.append(", orderMeal=").append(orderMeal);
+		sb.append(", hotels=").append(hotels);
+		sb.append(", recommend=").append(recommend);
+		sb.append(", toShop='").append(toShop).append('\'');
+		sb.append(", shopGrade='").append(shopGrade).append('\'');
+		sb.append(", longitude='").append(longitude).append('\'');
+		sb.append(", latitude='").append(latitude).append('\'');
+		sb.append(", scoreSort='").append(scoreSort).append('\'');
+		sb.append(", amountSort='").append(amountSort).append('\'');
+		sb.append(", hasDistributionQuota=").append(hasDistributionQuota);
+		sb.append(", loadAll=").append(loadAll);
+		sb.append('}');
+		return sb.toString();
+	}
+
+
+}

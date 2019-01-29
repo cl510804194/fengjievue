@@ -1,0 +1,29 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	//新增部分
+	var performance_form = $('#performance_form');
+	$('.submit_form').click(function() {
+		performance_form.submit();
+	})
+	if (performance_form.length) {
+		performance_form.validate({
+			errorClass : 'error-tip',
+			errorElement : 'b',
+			submitHandler : function() {
+				performance_form.ajaxSubmit({
+				    type: 'post',  
+				    url: '/admin/sysPerformanceManage/updatePerformance.json',  
+				    dataType: 'json',  
+				    success: function(jsonStr){ 
+				    	alert(jsonStr.message);
+				    	window.location.href = "/admin/sysPerformanceManage/performanceManage.htm";
+				    }  
+				});
+			},
+			onkeyup : false
+
+		});
+	}
+	
+	
+});

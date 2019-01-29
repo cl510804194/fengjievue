@@ -1,0 +1,23 @@
+package com.yjf.esupplier.service.systemSet.query.order;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class PerformanceQueryOrder extends QueryPageBase{
+	protected Money saleAmount;
+
+	public Money getSaleAmount() {
+		return saleAmount;
+	}
+	public void setSaleAmount(Money saleAmount) {
+		this.saleAmount = saleAmount;
+	}
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PerformanceQueryOrder [saleAmount=");
+		builder.append(saleAmount);
+		builder.append("]");
+		return builder.toString();
+	}
+}

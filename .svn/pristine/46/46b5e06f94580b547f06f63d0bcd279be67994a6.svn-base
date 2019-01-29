@@ -1,0 +1,46 @@
+package com.yjf.esupplier.service.pay.result;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class AppPayResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = -1357761780358660351L;
+	
+	String url;
+	
+	Map<String, String> map = new HashMap<String, String>();
+
+	@Override
+	public String getUrl() {
+		return this.url;
+	}
+	
+	@Override
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	
+	public Map<String, String> getMap() {
+		return map;
+	}
+	
+	public void setMap(Map<String, String> map) {
+		this.map = map;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AppPayResult [url=");
+		builder.append(url);
+		builder.append(", map=");
+		builder.append(map);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>修改单位用户</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="/styles/new/backstage.css" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="javascript:;">用户管理</a> > 机构用户管理</p>
+					</div>
+					<form action="/admin/userManage/institutionManage/updateInstitutionsUserSubmit.htm" class="ui-form" id="institutions_form" method="POST"  >
+						<input type="hidden" name="realNameAuthentication" value="$!{info.realNameAuthentication}"/>
+						<input type="hidden" name="pwdErrorCount" value="$!{info.pwdErrorCount}"/>
+						<input type="hidden" name="changeLockTime" value="$!{info.changeLockTime}"/>
+						<fieldset>
+							<legend><h3>账户信息</h3></legend>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>$!appConstantsUtil.getProductName()用户ID：</label>
+								<p class="u-text">$!{info.userBaseId}</p>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>用户名：</label>
+								<input type="text" class="u-input disabled" disabled="disabled"   value="$!{info.userName}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>企业名称：</label>
+								<input type="text" class="u-input" name="enterpriseName" value="$!{info.enterpriseName}"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>组织机构代码：</label>
+								<input type="text" class="u-input w170" name="organizationCode" value="$!{info.organizationCode}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>税务登记号：</label>
+								<input type="text" class="u-input w170" name="taxRegistrationNo" value="$!{info.taxRegistrationNo}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>营业执照注册号：</label>
+								<input type="text" class="u-input w170" name="businessLicenseNo" value="$!{info.businessLicenseNo}" />
+							</div>
+							<div class="item fn-clear Y-selectarea" province="$!{info.businessLicenseProvince}" city="$!{info.businessLicenseCity}">
+								<label  class="u-label"><span class="required">*</span>营业执照所在地：</label>
+								<input type='hidden' value="$!{info.businessLicenseProvince}" id='thisProviceList'/>
+    							<input type='hidden' value="$!{info.businessLicenseCity}" id='thisCity'/>
+    							<input name="businessLicenseProvince" value="$!{info.businessLicenseProvince}" type="hidden" />
+    							<input name="businessLicenseCity" value="$!{info.businessLicenseCity}" type="hidden" />
+								<div class="jqtransform jqtransform-select3">
+									<select name="p" class="Y-province">
+									
+									</select>
+								</div>
+								<div class="jqtransform jqtransform-select3">
+									<select name="c"  data="thisCity" class="Y-city">
+									</select>
+								</div>
+								
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>常用地址：</label>
+								<input type="text" class="u-input w170" name="commonlyUsedAddress" value="$!{info.commonlyUsedAddress}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>邮政编码：</label>
+								<input type="text" class="u-input w170" name="zipCode" value="$!{info.zipCode}"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>公司联系电话(座机)：</label>
+								<input type="text" class="u-input w170" name="companyPhone" value="$!{info.companyPhone}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>经营期限：</label>
+								<input type="date" yearRange='[-10,80]' class="u-input w112 fn-isdate" name="businessPeriod" value="$!{info.businessPeriod}" />
+								<p class="u-tip"><input type="checkbox" id="isForever"  class="checkbox" name="businessPeriod" #if($!{info.businessPeriod}=="longTime") checked="checked" #end value="longTime"/><label for="">长期</label></p>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>法人代表姓名：</label>
+								<input type="text" class="u-input w170" name="legalRepresentativeName"  value="$!{info.legalRepresentativeName}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>身份证号码：</label>
+								<input type="text" class="u-input w170" name="legalRepresentativeCardNo" value="$!{info.legalRepresentativeCardNo}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>法人身份证期限：</label>
+								<input type="date" yearRange='[-10,80]' class="u-input w112 fn-isdate1" name="legalRepresentativeCardPeriod" value="$!{info.legalRepresentativeCardPeriod}"/>
+								<p class="u-tip"><input type="checkbox" id="isForeverCard" class="checkbox" name="legalRepresentativeCardPeriod" #if($!{info.legalRepresentativeCardPeriod}=="longTime") checked="checked" #end value="longTime"/><label for="">长期</label></p>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>常用联系人：</label>
+								<input type="text" class="u-input w170" name="contactName" value="$!{info.contactName}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>常用联系人身份证号：</label>
+								<input type="text" class="u-input w170" name="contactCertNo" value="$!{info.contactCertNo}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>联系电话：</label>
+								<input type="text" class="u-input w170" name="mobile" value="$!{info.mobile}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>手机绑定：</label>
+								<input type="checkbox" class="checkbox"  #if($!{info.mobileBinding}=='IS')checked='checked'#end name="mobileBinding" value="IS"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>邮箱：</label>
+								<input type="text" class="u-input w170"  name="mail" value="$!{info.mail}"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>邮箱绑定：</label>
+								<input type="checkbox" class="checkbox" #if($!{info.mailBinding}=='IS')checked='checked'#end name="mailBinding" value="IS"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>上传企业营业执照副本扫描件：</label>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="businessLicensePathUpload"/>
+									支持图片格式为:jpg、png、bmp,最大为3M.
+								</span>
+								<div id="businessLicensePath_imgcontainer"  #if($!{info.businessLicensePath}=="" ) style="display:none;"#end >
+									<div style = "height:265px;">
+    									<input type='hidden' id="businessLicensePath" name="businessLicensePath" value="$!{info.businessLicensePath}"/>
+    									<a href="javascript:;" id="businessLicensePathImgLink" name="businessLicensePathImgLink" title="企业营业执照副本扫描件">  
+    										<img id="businessLicensePathImg" name="businessLicensePathImg" title="企业营业执照副本扫描件" style = "width:450px;height:260px;"  src="$!{info.businessLicensePath}"/>
+                                        </a> 
+									</div>
+								</div>
+							</div>
+							
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>上传加盖公章的企业营业执照副本扫描件</label>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="businessLicenseCachetPathUpload"/>
+									支持图片格式为:jpg、png、bmp,最大为3M.
+								</span>
+								<div id="businessLicenseCachetPath_imgcontainer"  #if($!{info.businessLicenseCachetPath}=="" ) style = "display:none;"#end>
+									<div style = "height:265px;">
+    									<input type='hidden' id="businessLicenseCachetPath" name="businessLicenseCachetPath" value="$!{info.businessLicenseCachetPath}"/>
+    									<a href="javascript:;" id="businessLicenseCachetPathImgLink" name="businessLicenseCachetPathImgLink" title="加盖公章的企业营业执照副本扫描件">  
+    										<img id="businessLicenseCachetPathImg" name="businessLicenseCachetPathImg" title="加盖公章的企业营业执照副本扫描件" style = "width:450px;height:260px;"  src="$!{info.businessLicenseCachetPath}"/>
+                                        </a> 
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>上传法人代表身份证正面照片：</label>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="certFrontPathUpload"/>
+									请上传身份证正面彩色照，支持图片格式为:jpg、png、bmp,最大为3M.
+								</span>
+								<div id="certFrontPath_imgcontainer" #if($!{info.certFrontPath}=="" ) style = "display:none;"#end>
+									
+									<div style = "height:265px;">
+										<input type='hidden' id="certFrontPath" name="certFrontPath" value="$!{info.certFrontPath}"/>
+										<a href="javascript:;" id="certFrontPathImgLink" name="certFrontPathImgLink" title="法人代表身份证正面照片">  
+											<img id="certFrontPathImg" name="certFrontPathImg" title="法人代表身份证正面照片" style = "width:450px;height:260px;"  src="$!{info.certFrontPath}"/>
+										</a> 
+									</div>	
+								</div>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>上传法人代表身份证背面照片：</label>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="certBackPathUpload"/>
+									请上传身份证反面彩色照，支持图片格式为:jpg、png、bmp,最大为3M.
+								</span>
+								<div id="certBackPath_imgcontainer"  #if($!{info.certBackPath}=="" ) style = "display:none;"#end>
+    								<div style = "height:265px;">	
+										<input type='hidden' id="certBackPath" name="certBackPath" value="$!{info.certBackPath}"/>
+    									<a href="javascript:;" id="certBackPathImgLink" name="certBackPathImgLink" title="法人代表身份证背面照片">  
+    										<img id="certBackPathImg" name="certBackPathImg" title="法人代表身份证背面照片" style = "width:450px;height:260px;"  src="$!{info.certBackPath}"/>
+                                        </a> 
+									</div>	
+								</div>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>上传开户许可证：</label>
+								<span class="sl-file">
+									<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="openingLicensePathUpload"/>
+									支持图片格式为:jpg、png、bmp,最大为3M.
+								</span>
+								<div id="openingLicensePath_imgcontainer"  #if($!{info.openingLicensePath}=="" ) style = "display:none;"#end >
+									<div style = "height:265px;">
+    									<input type='hidden' id="openingLicensePath" name="openingLicensePath" value="$!{info.openingLicensePath}"/>
+    									<a href="javascript:;" id="openingLicensePathImgLink" name="openingLicensePathImgLink" title="开户许可证照片">  
+    										<img id="openingLicensePathImg" name="openingLicensePathImg" title="开户许可证照片" style = "width:450px;height:260px;"  src="$!{info.openingLicensePath}"/>
+                                        </a> 
+									</div>	
+								</div>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>机构简码：</label>
+								<input type="text" class="u-input w170"  disabled="disabled"  name="identityName" value="$!{info.identityName}" />
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>机构号段范围：</label>
+								<input type="text" class="u-input w70" maxlength="9" name="identityStartNo" value="$!{info.identityStartNo}"/> ~ <input type="text" class="u-input w70" maxlength="9" name="identityEndNo" value="$!{info.identityEndNo}" />
+							</div>
+								<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>状态：</label>
+								<p class="u-text">
+									<input type="radio" class="radio" name="state" #if($!{info.state.code()}=="inactive") checked="checked" #end value="inactive"/><label for="" class="mr10">未激活</label>
+									<input type="radio" class="radio" name="state" #if($!{info.state.code()}=="normal") checked="checked"   #end value="normal"/><label for="" class="mr10">正常</label>
+									##<input type="radio" class="radio" name="state" #if($!{info.state.code()}=="freeze") checked="checked"   #end value="freeze"/><label for="" class="mr10">冻结</label>
+									##<input type="radio" class="radio" name="state" #if($!{info.state.code()}=="disable") checked="checked"  #end value="disable"/><label for="">禁用</label>
+									<input type="radio" class="radio" name="state" #if($!{info.state.code()}=="locked") checked="checked"  #end value="locked"/><label for="">锁定</label>
+								</p>
+							</div>
+							<div class="item fn-clear">
+    								<label for="" class="u-label"><span class="required"></span>开户银行：</label>
+    								<div class="jqtransform jqtransform-select3">
+    									<select name="bankType">
+    										<option >请选择银行</option>
+    									</select>
+    								</div>
+    								<input id="bankType"     type="hidden"   value="$!{userBankInfo.bankType}"/>
+        							<input id="bankProvince" type="hidden"  value="$!{userBankInfo.bankProvince}"/>
+        							<input id="bankCity"     type="hidden"  value="$!{userBankInfo.bankCity}"/>
+    							</div>
+    							<div class="item">
+    								<label for="" class="u-label"><span class="required"></span>银行卡号：</label>
+    								<input type="text"  class="u-input w170" name="bankCardNo" value="$!{userBankInfo.bankCardNo}" />
+    							</div>
+    							<div class="item fn-clear Y-selectarea" province="$!{userBankInfo.bankProvince}" city="$!{userBankInfo.bankCity}">
+    								<label  class="u-label">开户银行地区：</label>
+        							<input name="bankProvince" type="hidden" value="$!{userBankInfo.bankProvince}"/>
+        							<input name="bankCity" type="hidden"  value="$!{userBankInfo.bankCity}"/>
+    								<div class="jqtransform jqtransform-select3">
+    									<select name="bankProvince_p"  class="Y-province">
+    									</select>
+    								</div>
+    								<div class="jqtransform jqtransform-select3">
+    									<select name="bankCity_c"  data="thisCity" class="Y-city">	
+    									</select>
+    								</div>
+    							</div>
+						</fieldset>
+						<fieldset>
+							<legend><h3>关联支付账户</h3></legend>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>支付账户ID：</label>
+								<p class="u-text">$!{info.accountId}</p>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>支付账户名：</label>
+								<p class="u-text">$!{info.accountName}</p>
+							</div>
+							
+							
+							
+						
+							<ima/>
+							<input type="hidden" name="userBaseId" value="$!{info.userBaseId}"/>
+							<input type="hidden" name="id"         value="$!{info.id}"/>
+							<input type="hidden" name="userId"     value="$!{info.userId}"/>
+							<input type='hidden' id="uploadHost" value="$!{uploadHost}"/>
+							<div class="item">
+								#if($!{info.realNameAuthentication}!="IS" && $!{info.realNameAuthentication}!="IN")
+								<a href="javascript:;" class="u-btn u-btn-blue" name="sendRealName">申请实名认证</a>
+								#end
+								<a href="javascript:;" class="u-btn u-btn-blue submit_form">保存</a><a href="/admin/userManage/institutionManage.htm?roleEnum=$!{roleEnum}" class="u-btn u-btn-gray">取消</a>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+		var roleEnum = "$!{roleEnum}";
+    	seajs.use($_GLOBAL.mode + 'institutions_user');
+    </script>
+</body>
+</html>

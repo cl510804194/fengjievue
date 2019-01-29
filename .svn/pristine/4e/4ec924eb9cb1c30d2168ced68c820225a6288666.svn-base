@@ -1,0 +1,65 @@
+package com.yjf.esupplier.dal.custom.ibatis;
+
+import com.ibatis.sqlmap.client.SqlMapExecutor;
+import com.yjf.esupplier.dal.custom.dataobject.BatchIbatisDO;
+import org.springframework.dao.DataAccessException;
+import org.springframework.orm.ibatis.SqlMapClientCallback;
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import java.sql.SQLException;
+import java.util.List;
+
+/**
+ * Created by huangxl on 2016/9/27.
+ */
+public class IbatisBatchBaseDao<T> extends SqlMapClientDaoSupport {
+    protected void batchInsert(final List<T> objList, final String statment, final int i) throws DataAccessException {
+        this.getSqlMapClientTemplate().execute(new SqlMapClientCallback() {
+            public T doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
+                executor.startBatch();
+                int batch = 0;
+                for (T obj : objList) {
+                    executor.insert(statment, obj);
+                    batch++;
+                    if (batch == i&&i!=0) {
+                        executor.executeBatch();
+                        batch = 0;
+                    }
+                }
+                executor.executeBatch();
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 批量更新
+     *
+     * @param objList
+     *            更新对象类表
+     * @param statment
+     *            sqlID名称
+     * @param i
+     *            更新数量
+     * @throws DataAccessException
+     */
+    @SuppressWarnings("unchecked")
+    protected void batchUpdate(final List<T> objList, final String statment, final int i) throws DataAccessException {
+        this.getSqlMapClientTemplate().execute(new SqlMapClientCallback() {
+            public T doInSqlMapClient(SqlMapExecutor executor) throws SQLException {
+                executor.startBatch();
+                int batch = 0;
+                for (T obj : objList) {
+                    executor.update(statment, obj);
+                    batch++;
+                    if (batch == i&&i!=0) {
+                        executor.executeBatch();
+                        batch = 0;
+                    }
+                }
+                executor.executeBatch();
+                return null;
+            }
+        });
+    }
+}

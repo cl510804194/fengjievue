@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>投资首页</title>
+	<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+<!--content begin----------------->	
+	
+	
+<div class="container">
+
+	
+		<div class="home-section_bd pt20">
+			<div class="blank20"></div>
+		    <div class="bd-box db-p14 container">
+		    	<h2 class="title2 mt10"><span class="tit-name">转让中列表</span><a class="return" href="javascript:history.go(-1);">《 返回</a><span class="balance" href="#">可用余额<span class="ml5">￥$!{yjfAccountInfo.availableBalance.toStandardString()}</span><a href="/userManage/topUp/withholdingIndex"></a></span></h2>
+		        
+		        	
+		         <div class="pro-list mt15">
+			
+			<table cellpadding="0" cellspacing="0" border="0" width="100%"  class="pro-table">
+				<tr>
+				    <th class="f-tac" width="8.6%"><span class="ml20">项目名称</span></th>
+					<th class="f-tac" width="7.2%" class="first">原始金额</th>
+					<th class="f-tac" width="7.2%" class="first">转让金额</th>
+					<th class="f-tac" width="8.0%">转让人</th>
+					<th class="f-tac" width="8.0%">年化收益率</th>
+					<th class="f-tac" width="7.2%">期限</th>
+					<th class="f-tac"  width="8.6%">成立时间</th>
+					<th class="f-tac" width="10.4%">到期时间</th>
+					<th class="f-tac" width="9%">操作</th>
+				</tr>
+				#foreach($trade in $!{page.result})
+				<tr>
+				    <td class="f-tac">$!{trade.tradeName}</td>
+					
+					<td class="f-tac">￥$!{trade.originalAmount.toStandardString()}</td>
+				    
+					<td class="f-tac">￥$!{trade.amount.toStandardString()}</td>
+					
+					<td class="f-tac">$!{trade.applyUserName}</td>
+					
+					<td class="f-tac">$!rateUtil.getRate($!{trade.profitRate})</td>
+                   
+					<td class="f-tac">$!{trade.timeLimit} $!{trade.timeLimitUnit.viewName}</td>
+					
+					<td class="f-tac">$!{dateUtil.dtSimpleFormat($!{trade.tradeEffectiveDate})}</td>
+					
+                    <td class="f-tac">#if($!{trade.tradeExpireDate})$!{dateUtil.dtSimpleFormat($!{trade.tradeExpireDate})}#else暂无数据#end</td>
+					
+					
+					<td class="f-tac" >
+					
+					
+					#if($!{trade.status}=='TRANSFERRING')
+					<a class="tz_btn" href="$!{rc.contextPath}/boot/lookupTransfer/$!{trade.tradeTransferId}">投资</a>
+					#else
+					    <a   style="background: none repeat scroll 0 0 #E4E9ED;border:1px solid #D9D9D9" href="$!{rc.contextPath}/boot/lookupTransfer/$!{trade.tradeTransferId}">已转让</a>
+					#end
+					
+					</td>
+					
+					 
+				</tr>
+				#end
+			</table>
+			
+        </div>  
+		         
+  
+                <!--分页-->
+				<div class="pages account-page mt20">
+					<div class="fn-right">
+	    				#parse("/backstage/page/page.vm")
+	    			</div>	
+				</div>
+		         
+		          <div class="blank30"></div>
+         
+		    </div>
+		    <div class="blank50"></div>
+		</div>
+
+   
+
+
+
+
+   <form action="$!{rc.contextPath}/boot/invest/$!{page.pageSize}/$!{page.nexPagetNo}" method="get" name="frm">
+		<input type="hidden" name="timeUnit" value="$!{request.getParameter('timeUnit')}"/>
+		<input type="hidden" name="startTime" value="$!{request.getParameter('startTime')}"/>
+		<input type="hidden" name="endTime" value="$!{request.getParameter('endTime')}"/>
+		<input type="hidden" name="startAmount" value="$!{request.getParameter('startAmount')}"/>
+		<input type="hidden" name="endAmount" value="$!{request.getParameter('endAmount')}"/>
+		<input type="hidden" name="startRate" value="$!{request.getParameter('startRate')}"/>
+		<input type="hidden" name="endRate" value="$!{request.getParameter('endRate')}"/>
+		<input type="hidden" name="guarantee" value="$!{request.getParameter('guarantee')}"/>
+	</form>
+
+
+</div>	
+
+	#parse("/front/index/common/js.vm")
+    
+    <script type="text/javascript">
+    	$(function(){
+    	  var timeUnit = $('input[name=timeUnit]').val();
+    	  var startTime = $('input[name=startTime]').val();
+    	  var endTime = $('input[name=endTime]').val();
+		  var guarantee = $('input[name=guarantee]').val();
+    	  $('[guarantee=' + guarantee + ']').addClass('cur');
+    	  $('[name=time][unit=' + timeUnit + '][start=' + startTime + '][end=' + endTime + ']').addClass('cur');
+    	  var startAmount = $('input[name=startAmount]').val();
+    	  if(startAmount != ''){
+    	  	startAmount = parseInt(startAmount) / 1000000;
+    	  }
+    	  var endAmount = $('input[name=endAmount]').val();
+    	  if(endAmount != ''){
+    	  	endAmount = parseInt(endAmount) / 1000000;
+    	  }
+    	  $('[name=amount][start=' + startAmount + '][end=' + endAmount + ']').addClass('cur');
+    	  var startRate = $('input[name=startRate]').val();
+    	  if(startRate != ''){
+    	  	startRate = parseFloat(startRate) * 100;
+    	  }
+    	  var endRate = $('input[name=endRate]').val();
+    	  if(endRate != ''){
+    	  	endRate = parseFloat(endRate) * 100;
+    	  }
+    	  $('[name=rate][start=' + startRate + '][end=' + endRate + ']').addClass('cur');
+    	});
+    	
+	    $('a[name=time]').click(function (){
+	        var t = $(this);
+	        $('input[name=timeUnit]').val(t.attr('unit'));
+	        $('input[name=startTime]').val(t.attr('start'));
+	        $('input[name=endTime]').val(t.attr('end'));
+	        go(1);
+			return false;
+	    });
+	    
+	    $('a[name=amount]').click(function (){
+	    	var t = $(this);
+	    	var start = t.attr('start');
+	    	if(start != ''){
+	    		start = parseInt(start) * 1000000;
+	    	}
+	    	var end = t.attr('end');
+	    	if(end != ''){
+	    		end = parseInt(end) * 1000000;
+	    	}
+	    	$('input[name=startAmount]').val(start);
+	    	$('input[name=endAmount]').val(end);
+	    	go(1);
+			return false;
+	    });
+	    
+	    $('a[name=rate]').click(function (){
+	    	var t = $(this);
+	    	$('form[name=frm]').attr('action', '$!{rc.contextPath}/boot/invest/$!{page.pageSize}/1');
+	    	var start = t. attr('start');
+	    	if(start != ''){
+	    		start = parseFloat(start) / 100;
+	    	}
+	    	var end = t.attr('end');
+	    	if(end != ''){
+	    		end = parseFloat(end) / 100;
+	    	}
+	    	$('input[name=startRate]').val(start);
+	    	$('input[name=endRate]').val(end);
+	    	go(1);
+			return false;
+	    });
+		$('a[name=guarantee]').click(function (){
+	    	var t = $(this);
+	    	$('form[name=frm]').attr('action', '$!{rc.contextPath}/boot/invest/$!{page.pageSize}/1');
+	    	var guarantee = t. attr('guarantee');
+	    	$('input[name=guarantee]').val(guarantee);
+	    	go(1);
+			return false;
+	    });
+	
+	 
+        <!--分页跳转-->
+		function toPage(totalPage, pageNo){
+				if(totalPage<pageNo){
+					return false;
+				}
+				var url = "$!{rc.contextPath}/boot/transfer/$!{page.pageSize}/"+pageNo;
+				window.location.href=url;
+		}
+  
+	 
+	 
+	 
+	    
+   </script>
+
+
+
+
+
+<!--content end----------------->	
+	#parse("/front/index/common/footer-yrd.vm")
+</body>
+</html>

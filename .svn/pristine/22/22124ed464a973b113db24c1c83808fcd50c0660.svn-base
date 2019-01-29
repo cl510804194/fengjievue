@@ -1,0 +1,13 @@
+package com.yjf.esupplier.service.lottery.query;
+
+import com.yjf.esupplier.ws.lottery.info.PrizeRuleInfo;
+import com.yjf.esupplier.ws.lottery.query.order.PrizeRuleQueryOrder;
+import com.yjf.esupplier.ws.lottery.query.result.PrizeRuleResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface PrizeRuleQueryService {
+	PrizeRuleResult findByPrizeRuleId(long actityId);
+	
+	QueryBaseBatchResult<PrizeRuleInfo> queryPrizeRuleInfo(PrizeRuleQueryOrder prizeRuleQueryOrder);
+	
+}

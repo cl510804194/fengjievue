@@ -1,0 +1,123 @@
+package com.yjf.esupplier.service.user.query.order;
+
+import com.yjf.esupplier.ws.userManage.enums.UserLevelEnum;
+
+public class PersonaCommonQueryOrder extends UserQueryOrder {
+	
+	private static final long serialVersionUID = -4555676642966622060L;
+	/** 身份证号 */
+	private String certNo;
+	/** 角色id */
+	private int roleId;
+	/** 推荐人 */
+	private String referees;
+	/** 平台编号 */
+	private String memberNo;
+	/** 创建开始时间 */
+	private String startCreateTime;
+	/** 创建结束时间 */
+	private String endCreateTime;
+	/** (申请)更新实名开始时间 */
+	private String startUpdateTime;
+	/** (申请)更新实名结束时间 */
+	private String endUpdateTime;
+	private UserLevelEnum userLevel;
+	
+	public String getCertNo() {
+		return this.certNo;
+	}
+	
+	public void setCertNo(String certNo) {
+		this.certNo = certNo;
+	}
+	
+	public int getRoleId() {
+		return this.roleId;
+	}
+	
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
+	}
+	
+	public String getReferees() {
+		return this.referees;
+	}
+	
+	public void setReferees(String referees) {
+		this.referees = referees;
+	}
+	
+	public String getMemberNo() {
+		return this.memberNo;
+	}
+	
+	public void setMemberNo(String memberNo) {
+		this.memberNo = memberNo;
+	}
+	
+	public String getStartCreateTime() {
+		return this.startCreateTime;
+	}
+	
+	public void setStartCreateTime(String startCreateTime) {
+		this.startCreateTime = startCreateTime;
+	}
+	
+	public String getEndCreateTime() {
+		return this.endCreateTime;
+	}
+	
+	public void setEndCreateTime(String endCreateTime) {
+		this.endCreateTime = endCreateTime;
+	}
+	
+	public String getStartUpdateTime() {
+		return this.startUpdateTime;
+	}
+	
+	public void setStartUpdateTime(String startUpdateTime) {
+		this.startUpdateTime = startUpdateTime;
+	}
+	
+	public String getEndUpdateTime() {
+		return this.endUpdateTime;
+	}
+	
+	public void setEndUpdateTime(String endUpdateTime) {
+		this.endUpdateTime = endUpdateTime;
+	}
+	
+	public UserLevelEnum getUserLevel() {
+		return this.userLevel;
+	}
+	
+	public void setUserLevel(UserLevelEnum userLevel) {
+		this.userLevel = userLevel;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PersonaCommonQueryOrder [certNo=");
+		builder.append(certNo);
+		builder.append(", roleId=");
+		builder.append(roleId);
+		builder.append(", referees=");
+		builder.append(referees);
+		builder.append(", memberNo=");
+		builder.append(memberNo);
+		builder.append(", startCreateTime=");
+		builder.append(startCreateTime);
+		builder.append(", endCreateTime=");
+		builder.append(endCreateTime);
+		builder.append(", startUpdateTime=");
+		builder.append(startUpdateTime);
+		builder.append(", endUpdateTime=");
+		builder.append(endUpdateTime);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

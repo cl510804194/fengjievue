@@ -1,0 +1,66 @@
+<table sqlname="common_district">
+	<operation name="getAll" paramtype="primitive"
+		multiplicity="many">
+		<sql>
+			<![CDATA[
+				select * from common_district 
+        	]]>
+		</sql>
+	</operation>
+	<operation name="getByDistrictNo" paramtype="primitive" >
+		<sql>
+			<![CDATA[
+				select * from common_district  where nb_no=?
+        	]]>
+		</sql>
+	</operation>
+	<operation name="getByDistrictName" paramtype="primitive" >
+		<extraparams>
+			<param name="areaName" javatype="java.lang.String" />
+		</extraparams>
+		<sql>
+			<![CDATA[
+				select * from common_district   
+        	]]>
+		</sql>
+		
+		
+		<sqlmap>
+		<![CDATA[
+			select * from common_district  where area_name like '%$areaName$%' and father_no !='001'
+		    ]]>
+	</sqlmap>
+	</operation>	
+	
+	<operation name="getByProvinceName" paramtype="primitive" >
+		<extraparams>
+			<param name="areaName" javatype="java.lang.String" />
+		</extraparams>
+		<sql>
+			<![CDATA[
+				select * from common_district   
+        	]]>
+		</sql>
+		
+		<sqlmap>
+		<![CDATA[
+			select * from common_district  where (area_name like '%$areaName$%'  or short_name like '%$areaName$%' ) and father_no ='001'
+		    ]]>
+	</sqlmap>
+	</operation>
+	<operation name="getByCityName" paramtype="primitive" >
+		<extraparams>
+			<param name="areaName" javatype="java.lang.String" />
+		</extraparams>
+		<sql>
+			<![CDATA[
+				select * from common_district   
+        	]]>
+		</sql>
+		<sqlmap>
+		<![CDATA[
+			select * from common_district  where (area_name like '%$areaName$%'  or short_name like '%$areaName$%' ) and father_no !='001'
+		    ]]>
+		</sqlmap>
+	</operation>	
+</table>

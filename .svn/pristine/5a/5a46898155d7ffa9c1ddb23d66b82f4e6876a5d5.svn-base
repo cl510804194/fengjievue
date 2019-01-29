@@ -1,0 +1,212 @@
+#parse("/front/platform/layout/header-title.vm")
+<title>收货地址管理</title>
+<link rel="stylesheet" rev="stylesheet" href="../../css/comdo.css" type="text/css" />
+<link href="/resources/js/yav/yav-style.css" type=text/css rel=stylesheet>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+  .red{ color:#FF0000;}
+</style>
+</head>
+<body style="background: #fdfaf1;">
+<div class="warp">
+#parse("/front/platform/layout/header_member2.vm")
+<div class="fn-container fn-clear" style="margin-top: 40px;">
+#parse("/front/platform/member/layout/person_member_left2.vm")
+<div class="member-right fn-right">
+<div class="tit-box fn-clear">
+    <p class="fn-left">请认真对待你的地址资料</p>
+    <a onclick="javascript:window.history.back();" class="fn-right">返回</a>
+</div>
+<div class="orderNumber">
+	<table align="center" width="98%" height="40" cellpadding="0" cellspacing="0" style="padding-top:10px;">
+		<tr>
+			<td width="5">&nbsp;</td>
+			<td width="100%" class="sm-title">收货地址管理</td>			
+		</tr>
+	</table>
+  </div>
+	<table align="center" id="toTbl" width="98%"cellpadding="0" cellspacing="0" border="1" bordercolor="#ddd" style="padding-top:10px; border-collapse:collapse;">
+		<tr>
+			<td width="10%" height="30" align="center" bgcolor="#E9F1E8">收货人</td>
+            <td width="15%" align="center" bgcolor="#E9F1E8">所在地区</td>
+            <td width="35%" align="center" bgcolor="#E9F1E8">街道地址</td>
+            <td width="10%" align="center" bgcolor="#E9F1E8">邮编</td>
+            <td width="15%" align="center" bgcolor="#E9F1E8">电话/手机</td>
+            <td width="10%" align="center" bgcolor="#E9F1E8">操作</td>		
+		</tr>
+		#foreach($!addressesInfo in $addressesInfos)
+	        <tr>
+	            <td height="25" align="center">
+	                $!addressesInfo.drawerName
+	            </td>
+	            <td align="center">
+	               $!addressesInfo.province  $!addressesInfo.city 
+	            </td>
+	            <td align="center">
+	               $!addressesInfo.detailAddress
+	            </td>
+	            <td align="center">
+	                 $!addressesInfo.zipCode 
+	            </td>
+	            <td align="center">
+					 $!addressesInfo.drawerNumber
+					  $!addressesInfo.mobileNumber 
+	                
+	            </td>
+	            <td align="center">
+	                 <a href="/do/addressManager/buyer/updateAddressInfo.htm?addId=$!addressesInfo.id">修改</a>|
+	                 <a href="/do/addressManager/buyer/deleteAddressInfo.htm?addId=$!addressesInfo.id">删除</a>
+	            </td>
+	        </tr>
+		#end
+	</table>
+	
+	<form id="form1" name="form1" method="post" action="saveAddressInfo.htm"   onsubmit="return chooseAddress();">
+	
+		<table align="center" width="98%" height="40" cellpadding="0" cellspacing="0" style="padding-top:10px;">
+			<tr>
+				<td width="5">&nbsp;</td>
+				<td width="785" class="sm-title">修改/添加收货地址</td>			
+			</tr>
+		</table>
+	
+		<table align="center" width="98%"cellpadding="0" cellspacing="0" border="1" bordercolor="#ddd" style="padding-top:10px; border-collapse:collapse;">		
+			
+			<tr>
+				<td height="30" width="100" align="right">收货人姓名：<em class="red">*</em></td>
+	            <td width="520">
+	               <input type="text" class="ml10" name="drawerName" value="$!addressesInfo.drawerName"  />
+				</td>
+				<td>
+				   <span id="errorsDiv_drawerName"></span>
+				</td>       	
+			</tr>
+			
+			<tr>
+				<td height="30" align="right">所在地区：<em class="red">*</em>&nbsp;</td>
+	            <td><div class="item fn-clear Y-selectarea ml10" province="$!{addressesInfo.province}" city="$!{addressesInfo.city}">
+                		<input type="hidden" name="area" id="area"/>
+						<input name="province" type="hidden" value="$!{addressesInfo.province}" />
+						<input name="city" type="hidden" value="$!{addressesInfo.city}"/>
+						<div class="jqtransform jqtransform-select3">
+							<select name="p"  class="Y-province">
+							</select>
+						</div>
+						<div class="jqtransform jqtransform-select3">
+							<select name="c"  data="thisCity" class="Y-city">	
+							</select>
+						</div>
+						</div>
+	            </td>
+	            <td>
+				    <span id="errorsDiv_area"></span>
+				</td>           	
+			</tr>
+					
+			<tr>
+				<td height="50" align="right">街道地址：<em class="red">*</em>&nbsp;</td>
+	            <td>
+	               <textarea class="ml10" cols="60" rows="3" name="detailAddress">$!addressesInfo.detailAddress</textarea>
+	               <br>
+	               <span>（不需要重复填写省/市/区）</span>
+	            </td>
+	            <td>
+				   <span id="errorsDiv_detailAddress"></span>
+				</td>           	
+			</tr>
+			
+			<tr>
+				<td height="30" width="20" align="right">邮政编码：<em class="red">*</em>&nbsp; </td>
+	            <td>&nbsp;
+	                <input type="text" name="zipCode" size="20" id="storeName" value="$!addressesInfo.zipCode"/>
+	            </td>
+	            <td>
+				    <span id="errorsDiv_zipCode"></span>
+				</td>          	
+			</tr>
+			<tr>
+				<td height="30" width="20" align="right">移动号码：<em class="red">*</em>&nbsp; </td>
+	            <td>&nbsp;
+	                <input type="text" name="mobileNumber" size="20" maxlength="11" value="$!addressesInfo.mobileNumber"/>
+	            </td>
+	            <td>
+				    <!--<span id="errorsDiv_drawerNumber"></span>-->
+				    &nbsp; 
+				</td>           	
+			</tr>
+			<tr>
+				<td height="30" width="20" align="right">固定电话：<em class="red"></em>&nbsp; </td>
+	            <td>&nbsp;
+	                <input type="text" name="drawerNumber" size="20" value="$!addressesInfo.drawerNumber"/>
+	            </td>
+	            <td>
+				    <span id="errorsDiv_drawerNumber"></span> 
+				</td>           	
+			</tr>		
+		</table>
+
+		<table align="center" width="98%"cellpadding="0" cellspacing="0" >
+			<tr>			
+	            <td height="50" align="center">
+	                <input type="submit" class="sm-submit8" value="保存">
+					 <input type="hidden" name="addId" size="20" value="$!addId"/>	
+	            </td>          	
+			</tr>
+		</table>
+	
+</form>	
+</div>
+</div>
+	#parse("/front/platform/layout/footer-lg.vm")
+ </div>
+	<script type="text/javascript" src="/resources/js/comp/swfobject.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'orderConfirm');
+		
+    </script>
+    <script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>	
+	<script src="/resources/js/yav/yav.js"></SCRIPT>
+	<script src="/resources/js/yav/yav-config.js"></SCRIPT>
+	<script type="text/javascript">	
+			
+			
+			// 取地区选择结果，如果没有选择，结果为null；如果选择，数据形式为：310101|黄浦区
+			function showSelection(){
+				var sel=geoloc.getSelection("divArea");
+				if(sel==null){
+					alert("没有选择");
+				} else {
+					alert(sel);
+				}
+			}
+
+
+		       function chooseAddress(){
+	             	var rules=new Array(
+	         				"province:省份|required",
+							"city:城市|required",
+	         				"detailAddress:详细地址|required",
+	         				"detailAddress:详细地址|minlength|8",
+	         				"zipCode:邮政编码|required",
+	         				"zipCode:邮政编码|numeric",
+	         				"zipCode|mask|member.zip_mask",			
+	         				"drawerNumber:电话号|required",
+	         				"drawerName:联系人|required"
+	         			);
+	         			// 遮罩规则的详细定义
+	         			yav.addMask('member.zip_mask', '      ', '1234567890');		
+	         			// 输入提示
+	         			yav.addHelp("zipCode", "邮政编码固定为6位数字");
+	         			// 输入时验证
+	         			yav.init('form1', rules);
+	         			// 提交前验证
+	         			$("#form1").submit(function () {
+	         				  return yav.performCheck("form1", rules, "inline");  // classic 或者 inline
+	         			});
+	        }
+
+	        
+	$('#a007').css('color', 'red');		
+	</script>
+</body>
+</html>

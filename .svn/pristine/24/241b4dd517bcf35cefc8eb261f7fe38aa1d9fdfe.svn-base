@@ -1,0 +1,60 @@
+<table sqlname="region">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO region(region_id,parent_id,region_name,region_ename,sort,currency,timediff) VALUES (?,?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE region SET parent_id=?,region_name=?,region_ename=?,sort=?,currency=?,timediff=? WHERE region_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  region_id ,parent_id ,region_name ,region_ename ,sort ,currency ,timediff  FROM region WHERE region_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM region WHERE region_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM region
+			]]>
+		</sql>
+	</operation>
+    <operation name="findByCondition" paramtype="object" multiplicity="many">
+        <sql>
+            <![CDATA[
+				SELECT  region_id ,parent_id ,region_name ,region_ename ,sort ,currency ,timediff  FROM region WHERE region_id=?
+			]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+				SELECT  region_id ,parent_id ,region_name ,region_ename ,sort ,currency ,timediff  FROM region r
+				WHERE 1=1
+				<dynamic>
+                    <isGreaterThan property="region.parentId" compareValue="0" prepend=" and ">
+                       r.parent_id = #region.parentId#
+                    </isGreaterThan>
+                    <isNotEmpty property="region.regionName" prepend=" and ">
+                        l.region_name = #region.regionName#
+                    </isNotEmpty>
+				</dynamic>
+			]]>
+        </sqlmap>
+    </operation>
+	
+</table>

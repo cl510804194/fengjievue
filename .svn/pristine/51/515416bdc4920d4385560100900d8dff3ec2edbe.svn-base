@@ -1,0 +1,154 @@
+define(function (require) {
+    require('../comp/init.js');
+    require('../Y-all/Y-script/Y-tip.js');
+    require('../Y-all/Y-script/Y-countdown.js');
+    require('../content/chineseAmountExchange.js');
+    require('../Y-all/Y-script/Y-msg.js');
+    require('../comp/security.js');
+    //clickShow (3,1)
+    var verify = $('.new_captcha');
+    var password_form = $('#password_form');
+    $('#bt_password_form').click(function () {
+        password_form.submit();
+    });
+    if (password_form.length) {
+        password_form.validate({
+            errorClass: 'error-tip',
+            errorElement: 'b',
+            errorPlacement: function (error, element) {
+                if (element.attr('name') == 'imgCode' || element.attr('name') == 'license') {
+                    element.next().next().after(error);
+                } else {
+                    element.after(error);
+                }
+            },
+            submitHandler: function () {
+            	var newPassword = encryptedPwd($('#newPassword').val());
+            	var newPasswordTo = encryptedPwd($('#newPasswordTo').val());
+            	var oldPassword = encryptedPwd($('#oldPassword').val());
+        		var url = '/PasswordManage/modifyPasswordSubmit.json';
+        		var data = {
+        			'oldPassword' : oldPassword,
+        			'newPassword' : newPassword,
+        			'newPasswordTo' : newPasswordTo,
+        			'md5UserBaseId' : $('#md5UserBaseId').val(),
+        			'randomMD5' : $('#randomMD5').val(),
+        			'userBaseId' : $('#userBaseId').val()
+        		};
+            	var result = $_GLOBAL.ajax(url, data);
+            	if(result.code==1)
+            	{
+            		alert(result.message);
+            		window.location.href = "/login/logout.htm";
+            	}
+            	else
+            	{
+            		alert(result.message);
+            	}
+            	
+            },
+            rules: {
+                oldPassword: {
+                    required: true,
+                    rangelength: [1, 20],
+                    mustNotInclude: ' ',
+                    noZh: true
+                },
+                newPassword: {
+                    required: true,
+                    rangelength: [6, 20],
+                    mustNotInclude: ' ',
+                    notAllNum: true,
+                    notAllSame: true,
+                    noZh: true
+                },
+                newPasswordTo: {
+                    required: true,
+                    equalTo: '#newPassword'
+                }
+            },
+            messages: {
+                oldPassword: {
+                    required: '请输入原登录密码'
+                },
+                newPassword: {
+                    required: '请输入登录密码',
+                    rangelength: '登录密码为6-20位',
+                    mustNotInclude: '登录密码不允许包含空格',
+                    notAllNum: '登录密码不能全为数字',
+                    notAllSame: '不能使用完全相同的数字、字母或符号',
+                    noZh: '不允许中文'
+                },
+                newPasswordTo: {
+                    required: '请再次确认登录密码',
+                    equalTo: '两次输入的登录密码不一致，请重新输入'
+                }
+
+            },
+            onkeyup: false
+
+        });
+    }
+	var modulus = "", exponent = "";
+	$.ajax({
+		url : '/login/keyPair.json',
+		type : 'post',
+		dataType : 'json',
+		success : function(res) {
+			if (res.code == 1) {
+				modulus = res.modulus;
+				exponent = res.exponent;
+			}
+		}
+	});
+    function encryptedPwd(str) {
+		var key = RSAUtils.getKeyPair(exponent, '', modulus);
+		return RSAUtils.encryptedString(key, str);
+	}
+
+    // -------------------------------------发送手机验证码-----------------------------------------------
+    // 判断密码强弱
+    // 
+    $(function () {
+        var pwdK = $('input[checkStrong="true"]');
+        pwdK.bind('input propertychange',function () {
+            checkStrong($(this));
+        })
+        function checkStrong(thisEle) {
+            var sValue = thisEle.val();
+            var len = sValue.length;
+            var strongBar = thisEle.parent().find('.pwdStrongBar i');
+        var modes = 0,
+                resultNum = -1;
+
+        if (len < 6){
+            strongBar.removeClass('on');
+            return;
+        };
+        if (len <= 12) modes = modes + 1;
+        if (len > 12) modes = modes + 2;
+        if (/\d/.test(sValue)) modes = modes + 2; //数字
+        if (/[a-z]/.test(sValue)) modes = modes + 3; //小写
+        if (/[A-Z]/.test(sValue)) modes = modes + 4; //大写
+        if (/\W/.test(sValue)) modes = modes + 6; //特殊字符
+
+        if(modes < 0 ) return;
+        if(modes < 5){//只有数字 > 弱
+            resultNum = 0;
+        };
+        if (modes >= 5 && modes <= 8 ) {//中
+            resultNum = 1;
+        }
+        if (modes > 8 && modes < 10){//较强
+            resultNum = 2;
+        }
+        if(modes >= 10){//强
+            resultNum = 3;
+        }
+        if(resultNum < 0) return;
+        // console.log(resultNum);
+        strongBar.removeClass('on');
+        strongBar.eq(resultNum).addClass('on').prevAll().addClass('on');
+      }
+    })
+});

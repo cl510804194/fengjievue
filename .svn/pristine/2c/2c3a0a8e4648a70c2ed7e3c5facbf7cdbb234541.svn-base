@@ -1,0 +1,3 @@
+testId,resultCode,investorReferees,userName,logPassword,userCustomType,realName,mobile,mail,mailBinding,mobileBinding,certNo
+1001,EXECUTE_SUCCESS,referee,药注册,123456,BUYER,叶良辰,13759158589,123456798@qq.com,NO,NO,500101189635585000
+1002,EXECUTE_SUCCESS,referee,药注册,123456,BUYER,叶良辰,13759158589,123456798@qq.com,NO,NO,500101189635585000

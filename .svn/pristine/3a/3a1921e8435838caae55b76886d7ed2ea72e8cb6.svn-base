@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:lang="http://www.springframework.org/schema/lang" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+<bean id="propertyConfigurerForIntegration"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="location" value="classpath:esupplier-integration-test.properties" />
+	</bean>
+
+
+	<!-- 引用@Autowired必须定义这个bean -->
+
+		<import resource="classpath:spring/yrd-service.xml" />
+	<!-- yrd -->
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+	<import resource="classpath:spring/esupplier-spring-common-config.xml" />
+	<import resource="classpath:spring/esupplier-common-dal-dao.xml" />
+	<import resource="classpath:spring/esupplier-common-dal-db.xml" />
+	<import resource="classpath:spring/domain-service.xml" />
+	<import resource="classpath:spring/eloan-ws-wsp.xml" />
+	<import resource="classpath:spring/integration-cxf.xml" />
+	<import resource="classpath:spring/applicationContext-kaptcha.xml" />
+	<import resource="classpath:spring/yrd-client.xml" />
+	<import resource="classpath:spring/applicationContext-shiro.xml" />
+	<import resource="classpath:spring/estate-web-fileupload.xml" />
+	<import resource="classpath:spring/spring-base.xml" />
+
+	<!-- accounttrans 
+	<import resource="classpath:spring/paycore-acctrans-comdchain.xml" />
+	<import resource="classpath:spring/paycore-acctrans-service.xml" />
+    <import resource="classpath:spring/paycore-acctrans-synchrodata.xml" />
+	
+	<import resource="classpath:spring/paycore-acctrans-domain-feature.xml" />
+	<import resource="classpath:spring/paycore-acctrans-domain.xml" />
+	-->
+	<!-- charge 
+	<import resource="classpath:spring/paycore-charge-service.xml" />
+	<import resource="classpath:spring/charge-domain-service.xml" />
+	-->
+	<!-- common
+	<import resource="classpath:spring/biz-common-service.xml" />
+	 -->
+	<!-- customer 
+	<import resource="classpath:spring/customer-biz-service.xml" />
+	<import resource="classpath:spring/customer-kaptcha.xml" />
+	<import resource="classpath:spring/rmq-context.xml" />
+	-->
+	<!-- payengine 
+	<import resource="classpath:spring/common/pay-common-biz-service.xml" />
+	
+	<import resource="classpath:spring/charge/pay-charge-schedule-service.xml" />
+		
+	<import resource="classpath:spring/deposit/pay-deposit-biz-service.xml" />
+	<import resource="classpath:spring/deposit/pay-deposit-impl-service.xml" />
+	<import resource="classpath:spring/deposit/pay-deposit-impl-v2-service.xml" />
+	<import resource="classpath:spring/deposit/pay-deposit-schedule-service.xml" />
+	
+	<import resource="classpath:spring/depositback/pay-depositback-biz-service.xml" />
+	<import resource="classpath:spring/depositback/pay-depositback-cache-impl-service.xml" />
+	<import resource="classpath:spring/depositback/pay-depositback-schedule-service.xml" />
+	
+	<import resource="classpath:spring/dishonour/pay-dishonour-biz-service.xml" />
+	<import resource="classpath:spring/dishonour/pay-dishonour-impl-service.xml" />
+	
+	<import resource="classpath:spring/transfer/pay-account-transfer-biz-service.xml" />
+	<import resource="classpath:spring/transfer/pay-account-transfer-impl-service.xml" />
+	
+	<import resource="classpath:spring/withdraw/pay-withdraw-biz-service.xml" />
+	<import resource="classpath:spring/withdraw/pay-withdraw-impl-service.xml" />
+	<import resource="classpath:spring/withdraw/pay-withdraw-impl-v2-service.xml" />
+	<import resource="classpath:spring/withdraw/pay-withdraw-schedule-service.xml" />
+	
+	<import resource="classpath:spring/pay-domain-common-service.xml" />
+	
+	<import resource="classpath:spring/accounttransfer/accounttransfer-domain-service.xml" />
+	
+	<import resource="classpath:spring/deposit/deposit-domain-b2b-service.xml" />
+	<import resource="classpath:spring/deposit/deposit-domain-b2c-service.xml" />
+	<import resource="classpath:spring/deposit/deposit-domain-deduct-service.xml" />
+	<import resource="classpath:spring/deposit/deposit-domain-exchange-service.xml" />
+	<import resource="classpath:spring/deposit/deposit-domain-offline-service.xml" />
+	<import resource="classpath:spring/deposit/deposit-domain-quick-service.xml" />
+	<import resource="classpath:spring/deposit/deposit-domain-service.xml" />
+	
+	<import resource="classpath:spring/depositback/depositback-domain-service.xml" />
+	
+	<import resource="classpath:spring/dishonour/dishonour-domain-service.xml" />
+	
+	<import resource="classpath:spring/withdraw/withdraw-domain-offline-service.xml" />
+	<import resource="classpath:spring/withdraw/withdraw-domain-service.xml" />
+	<import resource="classpath:spring/withdraw/withdraw-domain-easytrade-service.xml" />
+	-->
+    <!-- trade 
+    <import resource="classpath:spring/trade-biz-service.xml" />
+    <import resource="classpath:spring/tradefep-biz-service.xml"/>
+    <import resource="classpath:spring/trade-domain-engine.xml" />
+    <import resource="classpath:spring/trade-domain-process.xml" />
+    <import resource="classpath:spring/trade-domain-repository.xml" />
+    <import resource="classpath:spring/trade-domain-service.xml" />
+	-->
+	<!-- dal 
+	<import resource="classpath:spring/paycore-common-dal-dao.xml" />
+	<import resource="classpath:spring/paycore-common-dal-db.xml" />
+	<import resource="classpath:spring/paycore-mongodb.xml" />
+	
+	<import resource="classpath:spring/acctrans/acctrans-common-dal-dao.xml" />
+	
+	<import resource="classpath:spring/payengine/payengine-common-dal-dao.xml" />
+	
+	<import resource="classpath:spring/v2service/v2service-common-dal-dao.xml" />
+	<import resource="classpath:spring/v2service/v2service-common-dal-db.xml" />
+	-->
+	<!-- integration 
+    <import resource="classpath:spring/integration-accountcore.xml" />
+	<import resource="classpath:spring/integration-accounttrans.xml" />
+	<import resource="classpath:spring/integration-charge.xml" />
+	<import resource="classpath:spring/integration-customer.xml" />
+	<import resource="classpath:spring/integration-payengine.xml" /> 
+	<import resource="classpath:spring/integration-quickpay.xml" />
+	<import resource="classpath:spring/integration-settlement.xml" /> 
+	<import resource="classpath:spring/integration-trade.xml" />
+	<import resource="classpath:spring/integration-tradefep.xml" />
+	<import resource="classpath:spring/integration-backstage.xml" />
+	-->
+</beans>

@@ -1,0 +1,8 @@
+ALTER TABLE `points_rule`
+ADD COLUMN `points_valid`  BIGINT(18) NULL COMMENT '积分有效期' AFTER `point_value`;
+ALTER TABLE `points_rule`
+ADD COLUMN `validity_type`  VARCHAR(50) NULL COMMENT '有效期类型(获取积分时间，获取积分次月,获取积分次年)' AFTER `points_valid`;
+
+UPDATE points_rule SET validity_type = 'GET_PIONT_NEXT_YEAR' WHERE rule_type='SINGLE_CONSUME_COMPLETE';
+
+UPDATE points_rule SET points_valid = 12;

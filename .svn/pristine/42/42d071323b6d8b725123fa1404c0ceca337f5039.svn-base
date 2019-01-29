@@ -1,0 +1,31 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class AssignDeliveryPersonOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 2356003174720206904L;
+	protected long belongTo;
+	
+	@Override
+	public void check() {
+		validateHasZore(belongTo, "景区id");
+	}
+	
+	public long getBelongTo() {
+		return this.belongTo;
+	}
+	
+	public void setBelongTo(long belongTo) {
+		this.belongTo = belongTo;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AssignDeliveryPersonOrder [belongTo=");
+		builder.append(belongTo);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

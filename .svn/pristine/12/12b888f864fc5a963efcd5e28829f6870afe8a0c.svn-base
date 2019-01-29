@@ -1,0 +1,93 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class StorageInOutDO implements Serializable {
+	private static final long serialVersionUID = -2995442763631707775L;
+	private Long id;
+	private String billNum;
+	private Date billTime;
+	private String billType;
+	private Long handleMan;
+	private Date handleTime;
+	private Long billAmount;
+	
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public String getBillNum() {
+		return billNum;
+	}
+	
+	public void setBillNum(String billNum) {
+		this.billNum = billNum;
+	}
+	
+	public Date getBillTime() {
+		return billTime;
+	}
+	
+	public void setBillTime(Date billTime) {
+		this.billTime = billTime;
+	}
+	
+	public String getBillType() {
+		return billType;
+	}
+	
+	public void setBillType(String billType) {
+		this.billType = billType;
+	}
+	
+	public Long getHandleMan() {
+		return handleMan;
+	}
+	
+	public void setHandleMan(Long handleMan) {
+		this.handleMan = handleMan;
+	}
+	
+	public Date getHandleTime() {
+		return handleTime;
+	}
+	
+	public void setHandleTime(Date handleTime) {
+		this.handleTime = handleTime;
+	}
+	
+	public Long getBillAmount() {
+		return this.billAmount;
+	}
+	
+	public void setBillAmount(Long billAmount) {
+		this.billAmount = billAmount;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("StorageInOutDO [id=");
+		builder.append(id);
+		builder.append(", billNum=");
+		builder.append(billNum);
+		builder.append(", billTime=");
+		builder.append(billTime);
+		builder.append(", billType=");
+		builder.append(billType);
+		builder.append(", handleMan=");
+		builder.append(handleMan);
+		builder.append(", handleTime=");
+		builder.append(handleTime);
+		builder.append(", billAmount=");
+		builder.append(billAmount);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

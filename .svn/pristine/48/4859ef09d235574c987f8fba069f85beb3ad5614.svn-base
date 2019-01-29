@@ -1,0 +1,52 @@
+package com.yjf.esupplier.service.systemSet.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class LoanParamQueryOrder extends ValidateOrderBase {
+	
+	private static final long serialVersionUID = 4791020140648945986L;
+	
+	long stageNum;
+	
+	String commodityType;
+	
+	String loanType;
+	
+	public long getStageNum() {
+		return this.stageNum;
+	}
+	
+	public void setStageNum(long stageNum) {
+		this.stageNum = stageNum;
+	}
+	
+	public String getCommodityType() {
+		return this.commodityType;
+	}
+	
+	public void setCommodityType(String commodityType) {
+		this.commodityType = commodityType;
+	}
+	
+	public String getLoanType() {
+		return this.loanType;
+	}
+	
+	public void setLoanType(String loanType) {
+		this.loanType = loanType;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("LoanParamQueryOrder [stageNum=");
+		builder.append(stageNum);
+		builder.append(", commodityType=");
+		builder.append(commodityType);
+		builder.append(", loanType=");
+		builder.append(loanType);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

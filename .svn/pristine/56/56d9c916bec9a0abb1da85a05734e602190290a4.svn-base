@@ -1,0 +1,59 @@
+/**
+ *
+ * @authors 熊洋 (xywindows@gmail.com)
+ * @date    2015-03-18 14:54:37
+ * @description 主体框架js
+ */
+define(function(require, module, exports) {
+
+  var win, viewportMask, space,
+    main, sidebar, collapse;
+
+  win = $(window);
+
+  viewportMask = $('.m-vpMask'); //视窗遮罩
+
+  main = $('.m-main');
+
+  sidebar = main.find('.g-sb');
+
+  spaceHeight = $('.m-hd').outerHeight() + $('.m-hdBt').outerHeight() + $('.m-ft').outerHeight() + 2; //主容器多余的高度
+
+  collapseCls = 'j-collapsed';
+
+
+  //绑定window resize事件
+  win.on('resize', doLayout).trigger('resize');
+
+
+  /**
+   * 重新计算页面布局
+   */
+  function doLayout() {
+    main.height($(window).height() - spaceHeight);
+  }
+
+
+  /**
+   * 侧边栏折叠
+   */
+  sidebar.on('click', '.toggleBtn', function() {
+    main[main.is('.' + collapseCls) ? 'removeClass' : 'addClass'](collapseCls);
+  })
+
+  /**
+   * 侧边栏激活样式添加
+   */
+  var menuLinks = sidebar.find('.m-menu .list li'),
+    activeCls='active';
+
+  sidebar.on('click', '.m-menu .list li', function() {
+    var index=menuLinks.index(this);
+
+    menuLinks.removeClass(activeCls)
+      .eq(index).addClass(activeCls);
+  })
+
+  //关闭遮罩层
+  viewportMask.fadeOut('fast');
+})

@@ -1,0 +1,278 @@
+define(function(require) {
+	require('../comp/init.js');
+	require('../Y-all/Y-script/Y-tip.js');
+	require('../Y-all/Y-script/Y-countdown.js');
+	require('../Y-all/Y-script/Y-window.js');
+	require('../content/securityPassword.js')(210,31);
+	require('../comp/security.js');
+	var refresh = $('.refresh');
+		refresh.click(function() {
+			$('#newImgCod').attr('src','/anon/getImgCode.htm?dateTag=' + new Date().getTime());
+		});
+
+	var investorsOpen_form = $('#investorsOpen_form');
+	if (investorsOpen_form.length) {
+		investorsOpen_form.validate({
+
+			errorClass: 'error',
+			errorElement: 'span',
+			errorPlacement: function(error, element) {
+				if (element.attr('name') == 'imgCode' || element.attr('name') == 'license') {
+					element.next().next().after(error);
+				} else {
+					element.after(error);
+				}
+			},
+			rules: {
+				userName: {
+					required: true,
+					rangelength: [6, 20],
+					NumandLetter_: true,
+					customRemote: {
+						url: '/anon/checkUserName.json?dateTag=' + new Date().getTime(),
+						customError: function(element, res) {
+							return res.message;
+						}
+					}
+				},
+
+				logPassword: {
+					required: true,
+					rangelength: [6, 20],
+					mustNotInclude: ' ',
+					notAllNum: true,
+					notAllSame: true,
+					noZh: true
+				},
+				logPasswordTO: {
+					required: true,
+					equalTo: '#logPassword'
+				},
+				mail: {
+					required: true,
+					customRemote: {
+						url: '/anon/checkEmailOrMobile.json?dateTag=' + new Date().getTime(),
+						data: {
+							email: function() {
+								return $('input[name=mail]').val();
+							},
+							checkType: 'investor'
+						},
+						customError: function(element, res) {
+							return res.message;
+						}
+					}
+				},
+				mobile: {
+					required: true,
+					isMobile: true,
+					customRemote: {
+						url: '/anon/checkMobile.json?dateTag=' + new Date().getTime(),
+						customError: function(element, res) {
+							return res.message;
+						}
+					},
+					customRemote: {
+						url: '/anon/checkMobileUserName.json?dateTag=' + new Date().getTime(),
+						customError: function(element, res) {
+							return res.message;
+						}
+					}
+				},
+				code: {
+					required: true,
+					customRemote: {
+						url: '/anon/checkSmsCode.json',
+						data: {
+							mobile: function() {
+								return $('#bundPhone').val();
+							},
+							business: function() {
+								return $('#smsBizType').val();
+							},
+							code: function() {
+								return $('#code').val();
+							}
+						},
+						customError: function(element, res) {
+							return res.message;
+						}
+					}
+				},
+				imgCode: {
+					required: true,
+					customRemote: {
+						url: '/anon/checkImgCode.json?dateTag=' + new Date().getTime(),
+						customError: function(element, res) {
+							return res.message;
+						},
+						customSuccess: function(element,res){
+							//$('.verifycode').remove();
+							$(".smscode").show();
+							
+						}
+					}
+				},
+				referees: {
+					customRemote: {
+						url: '/anon/checkReferees.json?dateTag=' + new Date().getTime(),
+						customError: function(element, res) {
+							return res.message;
+						}
+					}
+				},
+				license: {
+					required: true
+				}
+
+			},
+			messages: {
+				userName: {
+					required: '请输入用户名',
+					rangelength: '请输入6-20位字符',
+					NumandLetter_: '只能为数字、字母、下划线'
+				},
+				logPassword: {
+					required: '请输入登录密码',
+					rangelength: '登录密码为6-20位',
+					mustNotInclude: '登录密码不允许包含空格',
+					notAllNum: '登录密码不能全为数字',
+					notAllSame: '不能使用完全相同的数字、字母或符号',
+					noZh: '不允许中文'
+				},
+				logPasswordTO: {
+					required: '请再次确认登录密码',
+					equalTo: '两次输入的登录密码不一致，请重新输入'
+				},
+				mail: {
+					required: '请输入常用电子邮箱'
+				},
+				mobile: {
+					required: '请输入手机号',
+					isMobile: '请输入正确的手机号'
+				},
+				code: {
+					required: '请输入验证码'
+				},
+				imgCode: {
+					required: '请输入验证码'
+				},
+				license: {
+					required: '请先阅读并同意服务协议'
+				}
+
+			},
+			onkeyup: false
+
+		});
+	}
+
+	//加密部分--------------------------
+	var pwd="";
+	var modulus="";
+	var exponent="";
+	function setHiddenPwd(){
+		var loginPwd = $('#logPassword').val();
+		var key = RSAUtils.getKeyPair(exponent, '', modulus);
+		pwd =  RSAUtils.encryptedString(key, loginPwd);
+	}
+	$.ajax({
+		url : '/login/keyPair.json',
+		type : 'post',
+		dataType : 'json',
+		success : function(res){
+			if(res.code==1){
+				modulus = res.modulus;
+				exponent = res.exponent;
+			}
+		}
+	});
+	$('#submitButton').click(function(){
+		$('#userName').val($('#bundPhone').val());
+		setHiddenPwd();
+		$('#secPassword').val(pwd);
+		investorsOpen_form.submit();
+	});
+	
+
+	//	login_form.submit(function(){
+	//		return validateForm();
+	//	});
+	//	/* validate */
+	//	function validateForm(){		
+	//		var securityData = getSecurityData();
+	//		var user = $('input[name=userName]');
+	//		if ($.trim(user.val()) === '' || securityData === 'invalid'){
+	//			$('.err').eq(0).html('请填写账户或密码，密码不小于6位!');
+	//			$('.err').show();
+	//			return false;
+	//		}
+	//		$('#password').val(securityData);
+	//		return true;
+	//	}
+
+	// -------------------------------------发送手机验证码-----------------------------------------------
+	$('#getCode').click(function() {
+		var _this = $(this);
+		if (_this.hasClass('ing')) {
+			return;
+		}
+		_this.addClass('ing');
+		var business = $("#smsBizType").val();
+		var mobile = $("#bundPhone").val();
+		var verifyCode = $("#verifyCodeHidden").val();
+		setTimeout(function() {
+			$('#getCodeD').Y('Countdown', {
+				beControl: '#getCode',
+				autoDisappear: true,
+				message: '{0}秒后重发',
+				key: 'getCode'
+			});
+			var countdown = Y.getCmp('getCode');
+			if (!$("#bundPhone").valid()) {
+				countdown.close(0);
+				_this.removeClass('ing');
+				return;
+			} else {
+				sendMobile(business, mobile, countdown, _this,verifyCode);
+			}
+		}, 1000);
+	});
+
+	function sendMobile(business, mobile, countdown,_this,verifyCode) {
+		$.ajax({
+			url: '/anon/sendSmsCode.json',
+			dataType: 'json',
+			data: {
+				mobile: mobile,
+				business: business,
+				verifyCode: verifyCode
+			},
+			cache: false,
+			success: function(res) {
+				_this.removeClass('ing');
+				if (res.code == 0) {
+					alert(res.message);
+					if (countdown) {
+						countdown.close();
+					}
+				}
+			},
+			error: function() {
+				_this.removeClass('ing');
+				alert('获取失败');
+				if (countdown) {
+					countdown.close();
+				}
+			}
+		});
+	}
+
+
+	$('.btn_license').click(function() {
+		$('body').Y('Window', {
+			content: ".j-license"
+		});
+	});
+
+});

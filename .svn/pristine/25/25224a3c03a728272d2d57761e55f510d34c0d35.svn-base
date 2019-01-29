@@ -1,0 +1,60 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	require('../Y-all/Y-script/Y-msg.js');
+	require('../Y-all/Y-script/Y-tip.js');
+	require('../My97DatePicker/WdatePicker.js');
+	$(".canelButton").click(function(){
+		var id=$(this).attr("orderId");
+		var batchNo=$(this).attr("batchNo");
+		var parentDiv=$(this).parent();
+		 $.ajax({
+    		url : "/do/infoOrder/buyer/cancelOrderByBuyer.htm?batchNo="+batchNo+"&date="+new Date(),
+    		type : 'post',
+    		dataType : 'json',
+    		success : function(res){
+    			 if(res.code=="1") {
+				 	alert("取消成功");
+				 	window.location.reload();
+				 }
+				 else
+				 {
+				 	alert(res.message);
+				 }
+    		}
+    	});	
+	});
+	$(".confirmReceipt").click(function(){
+		var id=$(this).attr("orderId");
+		var parentDiv=$(this).parent();
+		Y.confirm("确认收货","请确认收到货物后，在点击确认收货，亲现在确认收货吗？",function(opn){
+			if(opn=="yes")
+			{
+				 $.ajax({
+			    		url : "/do/infoOrder/buyer/confirmReceipt.htm?orderId="+id+"&date="+new Date(),
+			    		type : 'post',
+			    		dataType : 'json',
+			    		success : function(res){
+			    			 if(res.code=="1") {
+							 	parentDiv.hide();
+								var textId="#orderStatus"+id;
+								$(textId).text("交易完成");
+							 	Y.confirm("确认收货成功","是否进行评价?",function(opn){
+									if(opn=="yes"){
+										window.open("/do/infoOrder/buyer/createReview.htm?orderId="+id,"_blank");
+									}else{
+										window.location.href ='/do/infoOrder/buyer/queryBuyOrder.htm';
+									}
+
+								});
+								
+							 }
+							 else
+							 {
+							 	alert(res.message);
+							 }
+			    		}
+				});	
+			}
+		});
+	});
+});

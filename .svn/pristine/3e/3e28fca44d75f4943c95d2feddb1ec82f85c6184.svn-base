@@ -1,0 +1,692 @@
+package com.yjf.esupplier.service.giftMoney.query.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.dal.dataobject.GiftMoneyTradeDO;
+import com.yjf.esupplier.domain.convert.DomainConvert;
+import com.yjf.esupplier.domain.service.repository.GiftMoneyDomainRepository;
+import com.yjf.esupplier.integration.openapi.result.UseGiftMoneyResult;
+import com.yjf.esupplier.service.giftMoney.impl.GiftMoneyBaseService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyQueryService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyTemplateQueryService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyTradeQueryService;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTypeEnum;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyRuleInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTemplateInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTemplateRuleInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTradeInfo;
+import com.yjf.esupplier.ws.gifamount.order.GainMoneyUseOrder;
+import com.yjf.esupplier.ws.gifamount.query.order.GiftMoneyTradeQueryOrder;
+import com.yjf.esupplier.ws.gifamount.query.order.UserCanUseGiftMoneyQueryOrder;
+import com.yjf.esupplier.ws.gifamount.result.UseGainMoneyResult;
+import com.yjf.esupplier.ws.info.LoanDemandExtendInfo;
+import com.yjf.esupplier.ws.order.InvestBizTradeOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service("giftMoneyTradeQueryService")
+public class GiftMoneyTradeQueryServiceImpl extends GiftMoneyBaseService implements
+																		GiftMoneyTradeQueryService {
+	@Autowired
+	GiftMoneyDomainRepository giftMoneyDomainRepository;
+	
+	@Autowired
+	GiftMoneyTemplateQueryService giftMoneyTemplateQueryService;
+	
+	@Autowired
+	UserQueryService userQueryService;
+	
+	@Autowired
+	GiftMoneyQueryService giftMoneyQueryService;
+
+	@Override
+	public QueryBaseBatchResult<GiftMoneyTradeInfo> queryGiftMoneyTrade(GiftMoneyTradeQueryOrder demandQueryOrder) {
+		QueryBaseBatchResult<GiftMoneyTradeInfo> batchResult = new QueryBaseBatchResult<GiftMoneyTradeInfo>();
+		
+		try {
+			demandQueryOrder.check();
+			List<GiftMoneyTradeInfo> pageList = new ArrayList<GiftMoneyTradeInfo>(
+				(int) demandQueryOrder.getPageSize());
+			
+			GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+			BeanCopier.staticCopy(demandQueryOrder, giftMoneyTradeDO);
+			Date startDate = null;
+			Date endDate = null;
+			if (StringUtil.isNotEmpty(demandQueryOrder.getStartDate())) {
+				startDate = DateUtil.getStartTimeOfTheDate(DateUtil
+					.strToDtSimpleFormat(demandQueryOrder.getStartDate()));
+			}
+			
+			if (StringUtil.isNotEmpty(demandQueryOrder.getEndDate())) {
+				endDate = DateUtil.getEndTimeOfTheDate(DateUtil
+					.strToDtSimpleFormat(demandQueryOrder.getEndDate()));
+			}
+			
+
+			
+			long totalCount = giftMoneyTradeDAO.giftMoneyCountByCondition(giftMoneyTradeDO,
+				startDate, endDate, demandQueryOrder.getTypeList(),demandQueryOrder.getStatusList());
+			PageComponent component = new PageComponent(demandQueryOrder, totalCount);
+			List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.giftMoneyListByCondition(
+				giftMoneyTradeDO, component.getFirstRecord(), component.getPageSize(), startDate,
+				endDate, demandQueryOrder.getTypeList(),demandQueryOrder.getStatusList());
+			if(recordList != null){
+				for (GiftMoneyTradeDO item : recordList) {
+					String userType = item.getUseType();
+					GiftMoneyTemplateInfo giftMoneyTemplateInfo = null;;
+					if(StringUtil.isNotEmpty(userType)){
+						giftMoneyTemplateInfo = giftMoneyTemplateQueryService.queryGiftMoneyTemplateById(Long.parseLong(userType));	
+					}
+					GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+					DomainConvert.convertGiftMoneyTradeDomain(info, item);
+					if(giftMoneyTemplateInfo !=null){
+						Collections.sort(giftMoneyTemplateInfo.getRules(), new Comparator<GiftMoneyTemplateRuleInfo>() {
+							@Override
+							public int compare(GiftMoneyTemplateRuleInfo o1, GiftMoneyTemplateRuleInfo o2) {
+								return o1.getRuleAmount().compareTo(o2.getRuleAmount());
+							}
+						});
+						int len = giftMoneyTemplateInfo.getRules().size();
+						List <String>giftMoneyTemplateDataList = new ArrayList<String>();
+						for (int i = 0; i < len; i++) {
+							GiftMoneyTemplateRuleInfo rule = giftMoneyTemplateInfo.getRules().get(i);
+							Money ruleAmount = rule.getRuleAmount();	
+							Money amount = new Money();
+							amount.setAmount(new BigDecimal(rule.getAmount()));
+//							/*发送优惠券金额  比较  优惠券规则优惠金额*/
+//							if(item.getAmount().greaterThan(amount)){
+//								info.setUseAmount(ruleAmount.toString());
+//								info.setUseRuleAmount(amount.toString());
+//							}else{
+//								info.setUseAmount(ruleAmount.toString());
+//								info.setUseRuleAmount(item.getAmount().toStandardString());
+//							}
+							giftMoneyTemplateDataList
+							.add("单笔交易满"+ ruleAmount.toString()
+									+ "元可使用" + amount.toString()+ "元");
+						}
+						info.setGiftMoneyTemplateDataList(giftMoneyTemplateDataList);
+					}
+					pageList.add(info);
+				}
+				batchResult.initPageParam(component);
+				batchResult.setSuccess(true);
+				batchResult.setPageList(pageList);
+			
+			}
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return batchResult;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> queryGiftMoneyTradeByUserCondition(	GiftMoneyTradeQueryOrder demandQueryOrder) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		try {
+			GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+			BeanCopier.staticCopy(demandQueryOrder, giftMoneyTradeDO);
+			List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.giftMoneyListByUserInfo(
+				giftMoneyTradeDO, getSysdate());
+			for (GiftMoneyTradeDO item : recordList) {
+				GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+				DomainConvert.convertGiftMoneyTradeDomain(info, item);
+				list.add(info);
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> queryGainMoneyCanUse(	GiftMoneyTradeQueryOrder giftMoneyTradeQueryOrder) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		try {
+			GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+			BeanCopier.staticCopy(giftMoneyTradeQueryOrder, giftMoneyTradeDO);
+			List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.gainMoneyUserCanUse(
+				giftMoneyTradeDO, getSysdate());
+			for (GiftMoneyTradeDO item : recordList) {
+				GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+				DomainConvert.convertGiftMoneyTradeDomain(info, item);
+				list.add(info);
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public UseGainMoneyResult queryGainMoneyCanUseByTrade(GainMoneyUseOrder gainMoneyUseOrder) {
+		UseGainMoneyResult useGainMoneyResult = new UseGainMoneyResult();
+		GiftMoneyTradeQueryOrder giftMoneyTradeQueryOrder = new GiftMoneyTradeQueryOrder();
+		giftMoneyTradeQueryOrder.setUserid(gainMoneyUseOrder.getUserId());
+		List<GiftMoneyTradeInfo> giftMoneyTradeInfoList = queryGainMoneyCanUse(giftMoneyTradeQueryOrder);
+		if (ListUtil.isEmpty(giftMoneyTradeInfoList)) {
+			return useGainMoneyResult;
+		}
+		Map<String, GiftMoneyTemplateInfo> ruleMap = new HashMap<String, GiftMoneyTemplateInfo>();
+		List<GiftMoneyTradeInfo> returnGainMoney = Lists.newArrayList();
+		for (GiftMoneyTradeInfo tradeInfo : giftMoneyTradeInfoList) {
+			String useType = tradeInfo.getUseType();
+			if (!ruleMap.containsKey(useType)) {
+				List<GiftMoneyTemplateRuleInfo> ruleInfoList = Lists.newArrayList();
+				GiftMoneyTemplateInfo giftMoneyTemplateInfo = giftMoneyTemplateQueryService
+					.queryGiftMoneyTemplateById(Long.valueOf(useType));
+				if (giftMoneyTemplateInfo == null) {
+					tradeInfo.setPayAmount(tradeInfo.getAmount());
+					returnGainMoney.add(tradeInfo);
+					ruleMap.put(useType, new GiftMoneyTemplateInfo());
+					continue;
+				}
+				ruleInfoList = giftMoneyTemplateInfo.getRules();
+				if (ListUtil.isEmpty(ruleInfoList)) {
+					tradeInfo.setPayAmount(tradeInfo.getAmount());
+					returnGainMoney.add(tradeInfo);
+					ruleMap.put(useType, giftMoneyTemplateInfo);
+					continue;
+				} else {
+					if (addCanUseTradeGainAmount(gainMoneyUseOrder, tradeInfo,
+						giftMoneyTemplateInfo) > 0) {
+						returnGainMoney.add(tradeInfo);
+					}
+				}
+				ruleMap.put(useType, giftMoneyTemplateInfo);
+			} else {
+				GiftMoneyTemplateInfo giftMoneyTemplateInfo = ruleMap.get(useType);
+				if (ListUtil.isEmpty(giftMoneyTemplateInfo.getRules())) {
+					returnGainMoney.add(tradeInfo);
+				} else {
+					if (addCanUseTradeGainAmount(gainMoneyUseOrder, tradeInfo,
+						giftMoneyTemplateInfo) > 0) {
+						returnGainMoney.add(tradeInfo);
+					}
+					
+				}
+			}
+		}
+		
+		if (ListUtil.isNotEmpty(returnGainMoney)) {
+			useGainMoneyResult.setGainMoneyTrades(returnGainMoney);
+			useGainMoneyResult.setSuccess(true);
+			return useGainMoneyResult;
+		}
+		return useGainMoneyResult;
+	}
+	
+	@Override
+	public Money queryGiftMoneyAmountSumUserCanUse(GiftMoneyTradeQueryOrder demandQueryOrder) {
+		List<GiftMoneyTradeInfo> giftMoneyTradeInfoList = queryGiftMoneyTradeUserCanUse(demandQueryOrder);
+		Money amount = new Money();
+		if (ListUtil.isNotEmpty(giftMoneyTradeInfoList)) {
+			for (GiftMoneyTradeInfo info : giftMoneyTradeInfoList) {
+				Money balance = info.getAmount().subtract(info.getUsedAmount());
+				amount.addTo(balance);
+			}
+		}
+		
+		return amount;
+	}
+	
+	@Override
+	public Money calculateGiftUseMaxAmount(InvestBizTradeOrder investBizTradeOrder) {
+		logger.info("calculateGiftUseMaxAmount order={}", investBizTradeOrder);
+		Money useMoney = Money.zero();
+		try {
+			Money giftMoney = queryGiftMoneyAmountUserCanUse(0, investBizTradeOrder
+				.getInvestAmount().toStandardString(), investBizTradeOrder.getUserId(),
+				GiftMoneyTypeEnum.GIFT_MONEY);
+			UseGiftMoneyResult result = queryGiftMoneyLimitAmount(0,
+				investBizTradeOrder.getInvestAmount(), GiftMoneyTypeEnum.GIFT_MONEY);
+			if (!result.isSuccess()) {
+				return Money.zero();
+			}
+			
+			if (giftMoney != null && giftMoney.greaterThan(Money.zero())) {
+				Money limitMoney = result.getAmount();
+				if (investBizTradeOrder.getGiftMoneyAmount() == null
+					|| investBizTradeOrder.getGiftMoneyAmount().equals(Money.zero())) {
+					useMoney = giftMoney;
+					if (limitMoney != null && giftMoney.greaterThan(limitMoney)) {
+						useMoney = limitMoney;
+					}
+				} else {
+					useMoney = investBizTradeOrder.getGiftMoneyAmount();
+					if (useMoney.greaterThan(giftMoney)) {
+						useMoney = giftMoney;
+					}
+					if (useMoney.greaterThan(limitMoney)) {
+						useMoney = limitMoney;
+					}
+				}
+				
+			}
+		} catch (Exception e) {
+			logger.error("calculateGiftUseMaxAmount 计算优惠券使用规则失败： 异常{}", e.getMessage(), e);
+		}
+		return useMoney;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> queryGiftMoneyTradeUserCanUse(	GiftMoneyTradeQueryOrder demandQueryOrder) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		try {
+			GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+			BeanCopier.staticCopy(demandQueryOrder, giftMoneyTradeDO);
+			List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.giftMoneyUserCanUse(
+				giftMoneyTradeDO, getSysdate());
+			for (GiftMoneyTradeDO item : recordList) {
+				GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+				DomainConvert.convertGiftMoneyTradeDomain(info, item);
+				list.add(info);
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> queryGiftMoneyTradeUserCanUseHasNotDate(GiftMoneyTradeQueryOrder demandQueryOrder) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		try {
+			GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+			BeanCopier.staticCopy(demandQueryOrder, giftMoneyTradeDO);
+			List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.giftMoneyUserCanUse(
+				giftMoneyTradeDO, null);
+			for (GiftMoneyTradeDO item : recordList) {
+				GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+				DomainConvert.convertGiftMoneyTradeDomain(info, item);
+				list.add(info);
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public GiftMoneyTradeInfo queryGiftMoneyTradeById(long giftMoneyTradeId) {
+		GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+		GiftMoneyTradeDO item = giftMoneyTradeDAO.findById(giftMoneyTradeId);
+		if (item == null) {
+			return null;
+		}
+		DomainConvert.convertGiftMoneyTradeDomain(info, item);
+		return info;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> queryGiftMoneyTradeByTradeDetailId(long tradeDetailId) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.findByTradeDetailId(tradeDetailId);
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyTradeDO item : recordList) {
+			GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+			DomainConvert.convertGiftMoneyTradeDomain(info, item);
+			list.add(info);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> findAssignByTradeDetailId(long tradeDetailId) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO
+			.findAssignByTradeDetailId(tradeDetailId);
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyTradeDO item : recordList) {
+			GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+			DomainConvert.convertGiftMoneyTradeDomain(info, item);
+			list.add(info);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> queryExpireGiftMoneyTradeInfo() {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO
+			.queryExpireGiftMoneyTradeListByCondition(getSysdate());
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyTradeDO item : recordList) {
+			GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+			DomainConvert.convertGiftMoneyTradeDomain(info, item);
+			list.add(info);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public long giftMoneyCountByGiftIdAndUserId(GiftMoneyTradeQueryOrder giftMoneyTradeQueryOrder) {
+		GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+		BeanCopier.staticCopy(giftMoneyTradeQueryOrder, giftMoneyTradeDO);
+		return giftMoneyTradeDAO.giftMoneyCountByGiftIdAndUserId(giftMoneyTradeDO);
+	}
+	
+	public GiftMoneyTradeInfo queryGiftMoneyTradeByIdForUpdate(long giftMoneyTradeId) {
+		GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+		GiftMoneyTradeDO item = giftMoneyTradeDAO.findByIdForUpdate(giftMoneyTradeId);
+		if (item == null) {
+			return null;
+		}
+		DomainConvert.convertGiftMoneyTradeDomain(info, item);
+		return info;
+	}
+	
+	@Override
+	public UseGiftMoneyResult queryGiftMoneyLimitAmount(long demandId, Money investAmount,
+														GiftMoneyTypeEnum giftMoneyType) {
+		UseGiftMoneyResult result = new UseGiftMoneyResult();
+		if (giftMoneyType == GiftMoneyTypeEnum.GIFT_MONEY) {
+			
+			List<GiftMoneyRuleInfo> giftMoneyRuleInfos = queryGiftMoneyUseRules(demandId);
+			logger.info("标的优惠券使用规则 giftMoneyRuleInfos ={}", giftMoneyRuleInfos);
+			
+			if (ListUtil.isNotEmpty(giftMoneyRuleInfos)) {
+				if (giftMoneyRuleInfos.size() == 1) {
+					GiftMoneyRuleInfo giftMoneyRuleInfo = giftMoneyRuleInfos.get(0);
+					Money ruleAmount = Money.amout(giftMoneyRuleInfo.getRuleAmount());
+					if (investAmount.compareTo(ruleAmount) == -1) {
+						result.setSuccess(false);
+						result.setMessage("不满足投资" + giftMoneyRuleInfo.getRuleAmount() + "元使用"
+											+ giftMoneyRuleInfo.getAmount());
+						return result;
+					}
+					
+					result.setAmount(Money.amout(giftMoneyRuleInfo.getAmount()));
+					
+					result.setSuccess(true);
+					return result;
+					
+				} else {
+					Collections.sort(giftMoneyRuleInfos, new Comparator<GiftMoneyRuleInfo>() {
+						@Override
+						public int compare(GiftMoneyRuleInfo o1, GiftMoneyRuleInfo o2) {
+							return Money.amout(o1.getRuleAmount()).compareTo(
+								Money.amout(o2.getRuleAmount()));
+							
+						}
+					});
+					
+					logger.info("标的优惠券使用规则排序后 giftMoneyRuleInfos ={}", giftMoneyRuleInfos);
+					
+					int len = giftMoneyRuleInfos.size();
+					GiftMoneyRuleInfo condition = null;
+					for (int i = len - 1; i >= 0; i--) {
+						GiftMoneyRuleInfo info = giftMoneyRuleInfos.get(i);
+						Money ruleAmount = Money.amout(info.getRuleAmount());
+						if (investAmount.compareTo(ruleAmount) == 1
+							|| investAmount.compareTo(ruleAmount) == 0) {
+							condition = info;
+							break;
+						}
+					}
+					if (condition == null) {
+						result.setMessage("不满足优惠券使用规则!");
+						result.setSuccess(false);
+						return result;
+					}
+					result.setSuccess(true);
+					result.setAmount(Money.amout(condition.getAmount()));
+					return result;
+					
+				}
+			} else {
+				result.setSuccess(true);
+				return result;
+			}
+		}
+		result.setAmount(Money.zero());
+		result.setSuccess(true);
+		return result;
+	}
+	
+	@Override
+	public Money queryGiftMoneyAmountUserCanUse(long demandId, String investAmount, long userId,
+												GiftMoneyTypeEnum giftMoneyType) {
+		
+		Money amount = new Money();
+		
+		Money invest_amount = Money.amout(investAmount);
+		GiftMoneyTradeQueryOrder tradeQueryOrder = new GiftMoneyTradeQueryOrder();
+		tradeQueryOrder.setUserid(userId);
+		tradeQueryOrder.setType(giftMoneyType.getCode());
+		List<GiftMoneyTradeInfo> giftMoneyTradeInfos = queryGiftMoneyTradeUserCanUse(tradeQueryOrder);
+		if (ListUtil.isNotEmpty(giftMoneyTradeInfos)) {
+			for (GiftMoneyTradeInfo info : giftMoneyTradeInfos) {
+				if (StringUtil.isNotEmpty(info.getUseAmount())) {
+					Money useAmount = Money.amout(info.getUseAmount());
+					if ((invest_amount.compareTo(useAmount) == 0 || invest_amount
+						.compareTo(useAmount) == 1)
+						&& giftMoneyType != GiftMoneyTypeEnum.VIRTUAL_EXPERIENCE_AMOUNT) {
+						amount.addTo(info.getAmount().subtract(info.getUsedAmount()));
+					} else if (giftMoneyType == GiftMoneyTypeEnum.VIRTUAL_EXPERIENCE_AMOUNT) {
+						amount.addTo(info.getAmount().subtract(info.getUsedAmount()));
+					}
+				} else {
+					amount.addTo(info.getAmount().subtract(info.getUsedAmount()));
+				}
+				
+			}
+		}
+		
+		return amount;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> findExperienceAmountTradeByTradeDetailId(long tradeDetailId) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO
+			.findExperienceAmountByTradeDetailId(tradeDetailId);
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyTradeDO item : recordList) {
+			GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+			DomainConvert.convertGiftMoneyTradeDomain(info, item);
+			list.add(info);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	public Money getExperienceAmountByTradeDetailId(long tradeDetailId) {
+		Money experienceAmount = new Money();
+		List<GiftMoneyTradeInfo> list = findExperienceAmountTradeByTradeDetailId(tradeDetailId);
+		if (ListUtil.isNotEmpty(list)) {
+			for (GiftMoneyTradeInfo info : list) {
+				experienceAmount.addTo(info.getUsedAmount());
+			}
+		}
+		return experienceAmount;
+	}
+	
+	@Override
+	public List<GiftMoneyRuleInfo> queryGiftMoneyUseRules(long demandId) {
+		
+		List<LoanDemandExtendInfo> extendInfoList = new ArrayList<LoanDemandExtendInfo>();
+		List<GiftMoneyRuleInfo> list = new ArrayList<GiftMoneyRuleInfo>();
+		for (LoanDemandExtendInfo info : extendInfoList) {
+			if (info.getPropertyValue() != null) {
+				String[] rules = info.getPropertyValue().split("->");
+				if (rules.length == 2) {
+					GiftMoneyRuleInfo ruleInfo = new GiftMoneyRuleInfo();
+					ruleInfo.setRuleAmount(rules[0]);
+					ruleInfo.setAmount(rules[1]);
+					list.add(ruleInfo);
+				}
+			}
+		}
+		return list;
+	}
+	
+	@Override
+	public List<GiftMoneyTradeInfo> expireGiftMoneyTradeNotify(Date sysDate) {
+		List<GiftMoneyTradeInfo> list = new ArrayList<GiftMoneyTradeInfo>();
+		List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.expireGiftMoneyTradeNotify(sysDate,
+			0, 12);
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyTradeDO item : recordList) {
+			GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+			DomainConvert.convertGiftMoneyTradeDomain(info, item);
+			list.add(info);
+		}
+		
+		return list;
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+
+	@Override
+	public QueryBaseBatchResult<GiftMoneyTradeInfo> queryGiftMoneyTradeHistory(	GiftMoneyTradeQueryOrder demandQueryOrder) {
+		// TODO Auto-generated method stub
+			QueryBaseBatchResult<GiftMoneyTradeInfo> batchResult = new QueryBaseBatchResult<GiftMoneyTradeInfo>();
+		
+		try {
+			demandQueryOrder.check();
+			List<GiftMoneyTradeInfo> pageList = new ArrayList<GiftMoneyTradeInfo>(
+				(int) demandQueryOrder.getPageSize());
+			
+			GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+			BeanCopier.staticCopy(demandQueryOrder, giftMoneyTradeDO);
+			Date startDate = null;
+			Date endDate = null;
+			if (StringUtil.isNotEmpty(demandQueryOrder.getStartDate())) {
+				startDate = DateUtil.getStartTimeOfTheDate(DateUtil
+					.strToDtSimpleFormat(demandQueryOrder.getStartDate()));
+			}
+			
+			if (StringUtil.isNotEmpty(demandQueryOrder.getEndDate())) {
+				endDate = DateUtil.getEndTimeOfTheDate(DateUtil
+					.strToDtSimpleFormat(demandQueryOrder.getEndDate()));
+			}
+			
+			long totalCount = giftMoneyTradeDAO.giftMoneyCountByCondition(giftMoneyTradeDO,
+				startDate, endDate, demandQueryOrder.getTypeList(),demandQueryOrder.getStatusList());
+			PageComponent component = new PageComponent(demandQueryOrder, totalCount);
+			List<GiftMoneyTradeDO> recordList = giftMoneyTradeDAO.giftMoneyListByCondition(
+				giftMoneyTradeDO, component.getFirstRecord(), component.getPageSize(), startDate,
+				endDate, demandQueryOrder.getTypeList(),demandQueryOrder.getStatusList());
+			for (GiftMoneyTradeDO item : recordList) {
+				GiftMoneyTradeInfo info = new GiftMoneyTradeInfo();
+				DomainConvert.convertGiftMoneyTradeDomain(info, item);
+				long giftId = item.getGiftId();
+				GiftMoneyInfo giftMoneyInfo = giftMoneyQueryService.active(giftId);
+				if(giftMoneyInfo !=null){
+				info.setStartDate(giftMoneyInfo.getStartDate());
+				info.setEndDate(giftMoneyInfo.getEndDate());
+				}
+				pageList.add(info);
+			}
+			batchResult.initPageParam(component);
+			batchResult.setSuccess(true);
+			batchResult.setPageList(pageList);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return batchResult;
+	}
+
+	@Override
+	public QueryBaseBatchResult<GiftMoneyTradeInfo>  queryGiftMoneyTradeNum(GiftMoneyTradeQueryOrder demandQueryOrder) {
+		// TODO Auto-generated method stub
+		QueryBaseBatchResult<GiftMoneyTradeInfo> batchResult = new QueryBaseBatchResult<GiftMoneyTradeInfo>();
+		try {
+		
+		GiftMoneyTradeDO giftMoneyTradeDO = new GiftMoneyTradeDO();
+		BeanCopier.staticCopy(demandQueryOrder, giftMoneyTradeDO);
+		Date startDate = null;
+		Date endDate = null;
+		if (StringUtil.isNotEmpty(demandQueryOrder.getStartDate())) {
+			startDate = DateUtil.getStartTimeOfTheDate(DateUtil
+				.strToDtSimpleFormat(demandQueryOrder.getStartDate()));
+		}
+		
+		if (StringUtil.isNotEmpty(demandQueryOrder.getEndDate())) {
+			endDate = DateUtil.getEndTimeOfTheDate(DateUtil
+				.strToDtSimpleFormat(demandQueryOrder.getEndDate()));
+		}
+		
+		long totalCount = giftMoneyTradeDAO.giftMoneyCountByCondition(giftMoneyTradeDO,
+			startDate, endDate, demandQueryOrder.getTypeList(),demandQueryOrder.getStatusList());
+		batchResult.setTotalCount(totalCount);
+		batchResult.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		return batchResult;
+	}
+}

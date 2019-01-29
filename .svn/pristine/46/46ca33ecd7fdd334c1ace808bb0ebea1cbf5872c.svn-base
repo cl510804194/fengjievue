@@ -1,0 +1,20 @@
+package com.yjf.esupplier.service.product;
+
+import com.yjf.esupplier.ws.product.info.ShopCartInfo;
+import com.yjf.esupplier.ws.product.order.RemoveShopCartOrder;
+import com.yjf.esupplier.ws.product.order.ShopCartItemOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface ShopCartService {
+
+    EsupplierBaseResult addShopCartItem(ShopCartItemOrder cartItemOrder);
+
+    EsupplierBaseResult updateShopCartItem(ShopCartItemOrder cartItemOrder);
+
+	QueryBaseBatchResult<ShopCartInfo> getShopCartList(long userId, String shopingCartType);
+
+    EsupplierBaseResult removeShopCartItem(RemoveShopCartOrder shopCartOrder);
+
+	EsupplierBaseResult clear(long userId, String shopingCartType);
+}

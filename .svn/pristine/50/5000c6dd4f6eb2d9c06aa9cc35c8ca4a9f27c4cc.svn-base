@@ -1,0 +1,82 @@
+package com.yjf.esupplier.service.systemSet.info;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.yjf.common.lang.util.money.Money;
+
+public class CommodityLimitInfo implements Serializable{
+	private static final long serialVersionUID = -8622739529363661969L;
+	private int commodityLimitId;
+
+	private String category;
+
+	private Money limitAmount = new Money(0, 0);
+
+	private Date rawAddTime;
+
+	private Date rawUpdateTime;
+
+    //========== getters and setters ==========
+
+	public int getCommodityLimitId() {
+		return commodityLimitId;
+	}
+	
+	public void setCommodityLimitId(int commodityLimitId) {
+		this.commodityLimitId = commodityLimitId;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+	
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public Money getLimitAmount() {
+		return limitAmount;
+	}
+	
+	public void setLimitAmount(Money limitAmount) {
+		if (limitAmount == null) {
+			this.limitAmount = new Money(0, 0);
+		} else {
+			this.limitAmount = limitAmount;
+		}
+	}
+
+	public Date getRawAddTime() {
+		return rawAddTime;
+	}
+	
+	public void setRawAddTime(Date rawAddTime) {
+		this.rawAddTime = rawAddTime;
+	}
+
+	public Date getRawUpdateTime() {
+		return rawUpdateTime;
+	}
+	
+	public void setRawUpdateTime(Date rawUpdateTime) {
+		this.rawUpdateTime = rawUpdateTime;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CommodityLimitInfo [commodityLimitId=");
+		builder.append(commodityLimitId);
+		builder.append(", category=");
+		builder.append(category);
+		builder.append(", limitAmount=");
+		builder.append(limitAmount);
+		builder.append(", rawAddTime=");
+		builder.append(rawAddTime);
+		builder.append(", rawUpdateTime=");
+		builder.append(rawUpdateTime);
+		builder.append("]");
+		return builder.toString();
+	}
+}

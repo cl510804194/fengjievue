@@ -1,0 +1,279 @@
+define(function(require,exports,module){
+    var rules;
+
+    rules={
+        rules : {
+            referrerName : {
+                required : true
+            },
+            referrerMobile : {
+                required : true
+            },
+            referrerCardNumber : {
+                required : true,
+                checkID:true
+            },
+            monthlyIncome:{
+                required : true,
+                floatNum:true
+            },
+            otherAmount:{
+                required : true,
+                floatNum:true
+            },
+            allAmount:{
+                required : true,
+                floatNum:true
+            },
+            companyCategory:{
+                requiredSelect:true
+            },
+            workTime:{
+                requiredSelect:true
+            },
+            unitType:{
+                requiredSelect:true
+            },
+            unitProvince:{
+                requiredSelect:true
+            },
+            unitCity:{
+                requiredSelect:true
+            },
+            unitCountry:{
+                requiredSelect:true
+            },
+            unitAddress:{
+                required : true
+            },
+            companyName:{
+                required : true
+            },
+            position:{
+                required : true
+            },
+            companyPhone:{
+                required : true,
+                isPhone:true
+            },
+            department:{
+                required : true
+            },
+            commodityPrice:{
+                required : true,
+                floatNum:true
+            },
+            commodityBrand:{
+                required : true
+            },
+            commodityModel:{
+                required : true
+            },
+            monthlyAmount:{
+                required : true,
+                floatNum:true
+            },
+            loanAmount:{
+                required : true,
+                floatNum:true
+            },
+            monthlyLoanTime:{
+                required : true
+            },
+            fristLoanTime:{
+                required : true
+            },
+            commodityAmount:{
+                required : true,
+                floatNum:true
+            },
+            downPayment:{
+                required : true,
+                floatNum:true
+            },
+            loanBankNumber:{
+                required:true
+            },
+            monthlyAmount:{
+                required:true,
+                floatNum:true
+            },
+            commodityType:{
+                requiredSelect:true
+            },
+            loanType:{
+                requiredSelect:true
+            },
+            loanPurpose:{
+                requiredSelect:true
+            },
+            stagesNum:{
+                requiredSelect:true
+            },
+            bank:{
+                requiredSelect:true
+            },
+            postAddress:{
+                requiredSelect:true
+            },
+            deliverName:{
+                required:true
+            },
+            deliverMobile:{
+                required:true,
+                isMobile:true
+            },
+            deliverProvince:{
+                requiredSelect:true
+            },
+            deliverCity:{
+                requiredSelect:true
+            },
+            deliverContry:{
+                requiredSelect:true
+            },
+            deliverAddress:{
+                required:true
+            }
+        },
+        messages : {
+            referrerName : {
+                required : '请输入推荐人姓名'
+            },
+            referrerMobile : {
+                required : '请输入推荐人手机',
+                isMobile : '请正确录入推荐人手机'
+            },
+            referrerCardNumber : {
+                required : '请输入推荐人身份证号',
+                checkID:'请正确录入推荐人身份证号'
+            },
+            monthlyIncome:{
+                required : '请输入月收入',
+                floatNum:'请正确录入月收入'
+            },
+            otherAmount:{
+                required : '请输入其它月收入',
+                floatNum:'请正确录入其它月收入'
+            },
+            allAmount:{
+                required : '请输入家庭月收入',
+                floatNum:'请正确录入家庭月收入'
+            },
+            companyCategory:{
+                requiredSelect:'请选择'
+            },
+            workTime:{
+                requiredSelect:'请选择'
+            },
+            unitType:{
+                requiredSelect:'请选择'
+            },
+            unitProvince:{
+                requiredSelect:'请选择'
+            },
+            unitCity:{
+                requiredSelect:'请选择'
+            },
+            unitCountry:{
+                requiredSelect:'请选择'
+            },
+            unitAddress:{
+                required : '请输入单位详细地址'
+            },
+            companyName:{
+                required : '请输入单位/个体全称'
+            },
+            position:{
+                required : '请输入职位'
+            },
+            companyPhone:{
+                required : '请输入办公电话',
+                isPhone:'请正确录入办公电话'
+            },
+            department:{
+                required : '请输入任职部门/班级'
+            },
+            commodityPrice:{
+                required : '请输入商品价格',
+                floatNum:'请正确录入商品价格'
+            },
+            commodityBrand:{
+                required : '请输入品牌名称'
+            },
+            commodityModel:{
+                required : '请输入商品型号'
+            },
+            monthlyAmount:{
+                required : '请输入每月还款额',
+                floatNum:'请正确录入每月还款额'
+            },
+            commodityType:{
+                requiredSelect:'请选择'
+            },
+            loanType:{
+                requiredSelect:'请选择'
+            },
+            loanPurpose:{
+                requiredSelect:'请选择'
+            },
+            stagesNum:{
+                requiredSelect:'请选择'
+            },
+            bank:{
+                requiredSelect:'请选择'
+            },
+            postAddress:{
+                requiredSelect:'请选择'
+            },
+            loanAmount:{
+                required : '请输入贷款本金',
+                floatNum:'请正确录入贷款本金'
+            },
+            monthlyLoanTime:{
+                required:'请输入每月还款日'
+            },
+            fristLoanTime:{
+                required:'请输入首次还款日'
+            },
+            commodityAmount:{
+                required : '请输入商品总价',
+                floatNum:'请正确录入商品总价'
+            },
+            downPayment:{
+                required : '请输入首次支付金额',
+                floatNum:'请正确录入首次支付金额'
+            },
+            loanBankNumber:{
+                required:'请输入还款银行卡号'
+            },
+            monthlyAmount:{
+                required:'请输入每月还款金额'
+            },
+            monthlyAmount:{
+                required:'请输入月供金额'
+            },
+            deliverName:{
+                required:'请输入收货人姓名'
+            },
+            deliverMobile:{
+                required:'请输入收货人手机号',
+                isMobile:'请正确录入收货人手机号'
+            },
+            deliverProvince:{
+                requiredSelect:'请选择'
+            },
+            deliverCity:{
+                requiredSelect:'请选择'
+            },
+            deliverContry:{
+                requiredSelect:'请选择'
+            },
+            deliverAddress:{
+                required:'请输入收货地址'
+            }
+        }
+    };
+
+    module.exports=rules
+})

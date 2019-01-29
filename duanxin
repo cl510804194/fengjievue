@@ -1,0 +1,22 @@
+bornsoft_fjyl_zc注册验证码:您本次注册的验证码为:${validateCode}(为保证您的账户安全,请勿将验证码转告他人),如非本人操作请拨打热线:${ServicePhone}
+
+bornsoft_fjyl_zhmm找回密码的验证码:您本次找回密码的验证码为:${validateCode}(为保证您的账户安全,请勿将验证码转告他人),如非本人操作请拨打热线:${ServicePhone}
+
+
+bornsoft_fjyl_bdsjhm绑定手机号码的验证码:您本次绑定手机号码的验证码为:${validateCode}(为保证您的账户安全,请勿将验证码转告他人),如非本人操作请拨打热线:${ServicePhone}
+
+bornsoft_fjyl_xgxsjhm修改新手机号码:您本次修改手机号码,新手机的验证码为${validateCode}(为保证您的账户安全,请勿将验证码转告他人),如非本人操作请拨打热线：${ServicePhone}
+
+
+bornsoft_fjyl_xgjsjhm修改旧手机号码:您本次修改绑定手机号码的验证码为:${validateCode}(为保证您的账户安全,请勿将验证码转告他人),如非本人操作请拨打热线:${ServicePhone}
+
+bornsoft_fjyl_spxfm商品消费码:您的订单已支付成功,凭此短信优惠码:${validateCode}可进行消费
+
+
+
+
+------备注
+景区用户：
+fjly01   密码：s11111
+商户用户：
+fjsh01  密码：080010

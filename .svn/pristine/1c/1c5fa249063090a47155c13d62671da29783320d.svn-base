@@ -1,0 +1,103 @@
+<table sqlname="guarantor_info">
+
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO guarantor_info(id,guarantor_code,guarantor_name,guarantee_cert_type,guarantee_cert_no,guarantee_cert_valid_time,guarantee_cert_front_path,guarantee_cert_back_path,guarantee_phone,guarantee_occupation,guarantee_address,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+			UPDATE guarantor_info SET guarantor_code=?,guarantor_name=?,guarantee_cert_type=?,guarantee_cert_no=?,guarantee_cert_valid_time=?,guarantee_cert_front_path=?,guarantee_cert_back_path=?,guarantee_phone=?,guarantee_occupation=?,guarantee_address=? WHERE id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" >
+		<sql>
+				<![CDATA[
+		SELECT  id ,guarantor_code ,guarantor_name ,guarantee_cert_type ,guarantee_cert_no ,guarantee_cert_valid_time ,guarantee_cert_front_path ,guarantee_cert_back_path ,guarantee_phone ,guarantee_occupation ,guarantee_address ,raw_add_time ,raw_update_time  FROM guarantor_info WHERE id=?
+
+			]]>
+		</sql>
+	</operation>
+	
+
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM guarantor_info WHERE id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findByCondition" paramtype="object"  multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long" />
+            <param name="pageSize" javatype="long" />
+        </extraparams>
+        <sql>
+            SELECT  id ,guarantor_code ,guarantor_name ,guarantee_cert_type ,guarantee_cert_no ,guarantee_cert_valid_time ,guarantee_cert_front_path ,guarantee_cert_back_path ,guarantee_phone ,guarantee_occupation ,guarantee_address ,raw_add_time ,raw_update_time  FROM guarantor_info  WHERE 1=1
+	 </sql>
+        <sqlmap>
+				<![CDATA[
+				 SELECT  id ,guarantor_code ,guarantor_name ,guarantee_cert_type ,guarantee_cert_no ,guarantee_cert_valid_time ,guarantee_cert_front_path ,guarantee_cert_back_path ,guarantee_phone ,guarantee_occupation ,guarantee_address ,raw_add_time ,raw_update_time  FROM guarantor_info  
+				 WHERE 1 =1
+	              <dynamic>
+				  <isNotEmpty property="guarantorInfo.guarantorName" prepend=" and ">
+		              ${cdata-start}      guarantor_name like #guarantorInfo.guarantorName#   ${cdata-end}
+		          </isNotEmpty>
+				  <isNotEmpty property="guarantorInfo.guaranteeCertNo" prepend=" and ">
+		              ${cdata-start}      guarantee_cert_no like #guarantorInfo.guaranteeCertNo#   ${cdata-end}
+		          </isNotEmpty>
+		           <isNotEmpty property="guarantorInfo.guaranteePhone" prepend=" and ">
+		              ${cdata-start}      guarantee_phone like #guarantorInfo.guaranteePhone#   ${cdata-end}
+		          </isNotEmpty>
+		           <isNotEmpty property="guarantorInfo.guaranteeOccupation" prepend=" and ">
+		              ${cdata-start}      guarantee_occupation = #guarantorInfo.guaranteeOccupation#   ${cdata-end}
+		          </isNotEmpty>
+	       	 </dynamic>
+		          ORDER BY raw_add_time LIMIT #limitStart#,#pageSize#
+			]]>
+		</sqlmap>
+	</operation>
+	<operation name="findByConditionCount" paramtype="object"  >
+        <extraparams>
+            <param name="limitStart" javatype="long" />
+            <param name="pageSize" javatype="long" />
+        </extraparams>
+        <sql>
+            SELECT  count(*)  FROM guarantor_info  WHERE 1=1
+	 </sql>
+        <sqlmap>
+				<![CDATA[
+				 SELECT  count(*)  FROM guarantor_info  
+				 WHERE 1 =1
+	              <dynamic>
+				  <isNotEmpty property="guarantorInfo.guarantorName" prepend=" and ">
+		              ${cdata-start}      guarantor_name like #guarantorInfo.guarantorName#   ${cdata-end}
+		          </isNotEmpty>
+				  <isNotEmpty property="guarantorInfo.guaranteeCertNo" prepend=" and ">
+		              ${cdata-start}      guarantee_cert_no like #guarantorInfo.guaranteeCertNo#   ${cdata-end}
+		          </isNotEmpty>
+		           <isNotEmpty property="guarantorInfo.guaranteePhone" prepend=" and ">
+		              ${cdata-start}      guarantee_phone like #guarantorInfo.guaranteePhone#   ${cdata-end}
+		          </isNotEmpty>
+		           <isNotEmpty property="guarantorInfo.guaranteeOccupation" prepend=" and ">
+		              ${cdata-start}      guarantee_occupation like #guarantorInfo.guaranteeOccupation#   ${cdata-end}
+		          </isNotEmpty>
+	       	 </dynamic>
+		         LIMIT #limitStart#,#pageSize#
+			]]>
+		</sqlmap>
+	</operation>
+	<operation name="findAllCount" >
+		<sql>
+				<![CDATA[
+				SELECT  count(*) FROM guarantor_info
+			]]>
+		</sql>
+	</operation>
+</table>

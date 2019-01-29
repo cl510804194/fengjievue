@@ -1,0 +1,159 @@
+package com.yjf.esupplier.dal.custom.ibatis;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.yjf.esupplier.dal.custom.daointerface.DiscountDAO;
+import com.yjf.esupplier.dal.custom.dataobject.Discount2productDO;
+import com.yjf.esupplier.dal.custom.dataobject.DiscountDO;
+
+@SuppressWarnings("deprecation")
+public class IbatisDiscountDAO extends SqlMapClientDaoSupport implements DiscountDAO {
+	/**
+	 * @author chenl
+	 * @date 2010-04-07
+	 * @discription 新增活动
+	 * */
+	@Override
+	public void insertDiscount(DiscountDO discount) {
+		getSqlMapClientTemplate().insert("insertDiscount", discount);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-07
+	 * @discription 查询所有活动
+	 * */
+	@Override
+	public List<DiscountDO> listDiscount(Map m) {
+		return getSqlMapClientTemplate().queryForList("listDiscount", m);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-07
+	 * @discription 查询总数
+	 * */
+	@Override
+	public Long getDiscountCount(Map m) {
+		return (Long) getSqlMapClientTemplate().queryForObject("getDiscountCount", m);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-08
+	 * @discription 删除
+	 * */
+	@Override
+	public void delDiscount(long activatyId) {
+		getSqlMapClientTemplate().delete("deleteDiscount", activatyId);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-08
+	 * @discription 根据ID查询
+	 * */
+	@Override
+	public DiscountDO getDiscountById(Long activityId) {
+		return (DiscountDO) getSqlMapClientTemplate().queryForObject("getDiscountById", activityId);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-08
+	 * @discription 根据ID修改活动信息
+	 * */
+	@Override
+	public void updateDiscount(DiscountDO d) {
+		getSqlMapClientTemplate().update("updateDiscount", d);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-08
+	 * @discription 添加供应商参与活动
+	 * */
+	@Override
+	public void insertD2product(Discount2productDO d2product) {
+		getSqlMapClientTemplate().insert("insertD2product", d2product);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-12
+	 * @discription 查看已经参与活动的产品
+	 * */
+	@Override
+	public List getExistProduct(Map m) {
+		return getSqlMapClientTemplate().queryForList("getExistProduct", m);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-12
+	 * @discription 查看自己已经参与活动
+	 * */
+	@Override
+	public List getSelfActivity(Map m) {
+		
+		return getSqlMapClientTemplate().queryForList("getSelfActivity", m);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-12
+	 * @discription 查看自己已经参与活动的总记录
+	 * */
+	@Override
+	public Long getSelfActivityCount(Map m) {
+		
+		return (Long) getSqlMapClientTemplate().queryForObject("getSelfActivityCount", m);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-13
+	 * @discription 删除自己已经参与活动的记录
+	 * */
+	@Override
+	public void delselfActivity(Map m) {
+		
+		getSqlMapClientTemplate().delete("delselfDiscount", m);
+		
+	}
+	
+	@Override
+	public void delDiscount(Map m) {
+		getSqlMapClientTemplate().delete("delDiscount", m);
+		
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-13
+	 * @discription 管理员查看某活动的参与供应商
+	 * */
+	@Override
+	public List checkjoinSupplier(Map m) {
+		return getSqlMapClientTemplate().queryForList("getJoinSupplierInfo", m);
+	}
+	
+	/**
+	 * @author chenl
+	 * @date 2010-04-12
+	 * @discription 管理员查看某活动的参与供应商总记录
+	 * */
+	@Override
+	public Long getJoinSupplierCount(Map m) {
+		
+		return (Long) getSqlMapClientTemplate().queryForObject("getJoinSupplierCount", m);
+	}
+	
+	@Override
+	public List<String> getScript(Map m) {
+		return getSqlMapClientTemplate().queryForList("getScript", m);
+	}
+}

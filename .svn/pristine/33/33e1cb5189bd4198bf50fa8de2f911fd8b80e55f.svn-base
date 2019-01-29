@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/datetime2.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--增加广告图片</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+<style type="text/css"> 
+	body{font-size:12px;font-family:"新宋体";}
+	.wz_left{ padding-right:10px; text-align:right; font-size:12px; color:#000000;}
+	.section_title {
+		font-size: 18px;
+	}
+
+	.divscr{
+		WIDTH:225px; 
+		HEIGHT:250px; 
+		OVERFLOW: scroll; 
+		border:1px #c7deff solid;
+		margin-top:5px;	
+		font-family:"宋体";
+		font-size:12px; 
+		float:left;
+		padding-top:5px;		
+	}
+	.divscr span{
+		float:left;
+		width:185px;
+		cursor:pointer; 
+		height:18px;
+		padding-top:5px;
+		padding-left:5px;
+		margin-left:5px;
+		background:url(../../image/point3.gif) right center no-repeat;
+	}
+	.divscr span.selected{
+		background-color:#e7f4d4;
+		border:1px solid #5ba515;
+		color: #0045df;
+	}
+</style> 
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<table align="center" width="790" height="45" bgcolor="#fffced" cellpadding="0" cellspacing="0"  class="sm-ts">
+    <tr>
+    	<td width="55" align="center"><img src="../../image/comdo/pen.png"></td>
+    	<td width="700">增加广告图片</td>
+    	<td width="37"><a href="#" onclick="javascript:window.history.go(-1);">返回</a></td>
+    </tr>
+    </table>
+    <br>
+    <form id="form1" name="form1" method="post" enctype="multipart/form-data">
+    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" class="table_border" style="margin-top:0">
+    <tr>
+    	<td width="8%" height="30" nowrap="nowrap">分类名称：</td>
+        <td width="92%">&nbsp;<input name="typeName" type="text" id="typeName" size="60" maxlength="100"></input><span id="errorsDiv_groupPurchaseInfo.title"></span></td>
+    </tr>
+    <tr>
+    	<td align="center" nowrap="nowrap">图片明细：</td>
+    	<td>
+    		<table align="left" id="listTable" width="100%">          
+    			<tr id="tr">  
+    				<td width="293" align="center" bgcolor="#e8f5fb">图片名称</td>
+    				<td width="244" align="center" bgcolor="#e8f5fb">图片路径</td>  
+    				<td width="191" align="center" bgcolor="#e8f5fb">链接地址</td>  
+    				<td width="354" align="center" bgcolor="#e8f5fb">发布状态</td>     
+    				<td width="102" align="center" bgcolor="#e8f5fb"><a href="#" onClick="addLine();">新增</a></td>    
+    			</tr>
+    			<tr id="tr0">  
+    				<td><input size="20" type="text" name="listAPD[0].picName"></input></td>
+    			  	<td><input name="fileList[0]" type="file"></input></td>  
+    				<td><input size="25" type="text" name="listAPD[0].picLink"></input></td>
+    				<td>
+    					<label>是<input type="radio" name="listAPD[0].status" value="Y" checked="checked">否<input type="radio" name="listAPD[0].status" value="N"></label>
+    				</td>
+    				<td align="center"><a href="#" onClick="deleteLine('tr0')">删除</a></td>      
+    			</tr>    
+    		</table>  
+    	</td>  
+    </tr>
+    <tr>
+    	<td colspan="2" align="center"><input type="button" value="提交" id="fb" onClick="ins();"  class="sm-buttom4-2"/>&nbsp;</td>
+    </tr>  
+    </table>
+    </form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+var count=1;
+var rowNum=0;
+function addLine(){
+	if(rowNum>99){
+		alert("自定义属性数量太大");
+		return;
+	}
+	var table=document.getElementById("listTable");
+	var tr=table.insertRow(1);  
+	tr.id="tr"+count;
+	var td0=tr.insertCell(0);
+	var td1=tr.insertCell(1);
+	var td2=tr.insertCell(2);
+	var td3=tr.insertCell(3);
+	var td4=tr.insertCell(4);
+	td4.align="center";      
+	td0.innerHTML='<input size="20" type="text" name="listAPD['+count+'].picName"></input>';   
+	td1.innerHTML='<input type="file" name="fileList['+count+']"></input>';
+	td2.innerHTML='<input  type="text" name="listAPD['+count+'].picLink" size="25"></input>';  
+	td3.innerHTML='是<input type="radio" name="listAPD['+count+'].status" value="Y" checked="checked"></input>否<input type="radio" name="listAPD['+count+'].status" value="N">';
+	td4.innerHTML='<a href="#" onclick="deleteLine('+"'"+"tr"+count+"'"+')">删除</a>';  
+	count++;
+	rowNum++;
+}
+
+function deleteLine(id){
+	var tr=document.getElementById(id);
+	tr.parentNode.removeChild(tr);
+	rowNum--;
+}
+
+function ins()
+{
+	var els=document.getElementsByTagName("INPUT");
+	for(i=0;i<els.length;i++)
+	{
+		if (els[i].type == "text")
+		{
+			if(els[i].value=="")
+			{
+				alert("请完整填写广告图片明细");
+				return;
+			}
+		}
+		else if(els[i].type == "file")
+		{
+			if(els[i].value=="")
+			{
+				alert("请选择需要上传的图片");
+				return;
+			}
+		}
+	}
+	document.form1.action="$!{rc.contextPath}/admin/adPic/addAdPic.htm";
+	document.form1.submit();
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+
+.head2{
+	background: #f8e9c8;
+}
+.fn-container{
+	width: 1200px;
+}
+.fn-container .content span,
+.fn-container .content i{display: inline;}
+.head2 .wel_ws{float: left;line-height: 40px;}
+.head2 .ls_ol{float: right;line-height: 40px;}
+.head2 .wel_ws i{margin: 12px 8px 0 10px;}
+.head2 a,
+.head2 label{font-size:12px;color: #0885d9;font-family: SimSun;}
+.head2 .my_order:hover{color: #5bc1f1;}
+.head2 i.top-line{margin: 12px 18px;}
+.head2 i.user-mine{margin: 13px 5px 0 0;}
+
+.perct_nav2{width: 198px;border: 1px solid #e8e8e8;background: #fff;margin-right: 20px;overflow: hidden;}
+.perct_nav2 .center_ttl{font-size: 20px;;margin-bottom:30px;color: #666;text-align:center;line-height: 80px;height: 80px;z-index: 999;border-bottom: 1px solid #fff;background: #f8e9c8;user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-o-user-select:none;}
+.perct_nav2 .leftNav{padding: 0 0 15px 0;margin: 0 30px;border-top: 1px solid #fff;z-index: 888;}
+.perct_nav2 span{font-size: 16px;color: #333;width: 100%;height:30px;line-height: 30px;cursor: pointer; user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-o-user-select:none;}
+.perct_nav2 a{font-size: 14px;color: #666;width: 155px;padding:18px 0 0 0;/*display: none;*/}
+.perct_nav2 span a{ font-size: 16px; color: #333;}
+/*.perct_nav2 .show{height: auto;}*/
+.perct_nav2 .show span{background: url(../images/gxt/arrow-down.png) no-repeat 0 center;background-size: 17px auto;}
+.perct_nav2 .show a{display: none;}
+.perct_nav2 a.on,
+.perct_nav2 a:hover{color: #50acf5;transition: all ease-in-out 0.3s;-moz-transition: all ease-in-out 0.3s;-webkit-transition: all ease-in-out 0.3s;-ms-transition: all ease-in-out 0.3s;-o-transition: all ease-in-out 0.3s;}
+
+
+/*住名宿*/
+.ms_banner{width:100%;background: #3eb09e;height: 495px;}
+.ms_banner_in{height: 100%;background: url(../images/gxt/minsu_bg.png) no-repeat center center;background-size: auto 100%;}
+.ms_orders{width: 420px;background: transparent url("../images/gxt/ms_orders_bg.png") repeat;height: 100%;overflow: hidden;}
+.ms_orders_ttl{color: #333;font-size: 22px;text-align: center;line-height: 72px;height: 72px;}
+.condition_item{color: #666;font-size: 0;margin: 0 auto;margin-top: 24px;width: 380px;position: relative;}
+.condition_item span{width: 100px;font-size: 18px;}
+.condition_item input{background: none;border: none;}
+.condition_item .in_input{width:277px;height: 40px;border: 1px solid #e2e4e4;font-size: 18px;padding-left:10px;}
+.condition_item option{padding-left:10px;}
+.condition_item b.b-error-tips{position: absolute;font-size: 12px;color: #f30;left:104px;top:43px;}
+  /*修正select和input宽度不一致BUG*/
+.condition_item input[type=text]{width:265px;background: #fff;}
+.condition_btn{margin-top:40px;}
+.condition_item .ms_orders_btn{width:100%;border-radius: 3px;height: 45px;line-height: 45px;text-align: center;background: #0088de;color: #fff;font-size: 16px;}
+.orders_f_link{margin-top:28px;color: #757575;font-size: 16px;}
+.orders_f_link a{color: inherit;}
+.ms_list_head{padding-top: 30px;height: 54px;line-height: 54px;font-size: 22px;color: #333;border-bottom: 1px solid #b1b1b1;margin-bottom: 40px;}
+.ms_list_head span{padding-left: 40px;background: url(../images/gxt/minsu_b_icon.png) no-repeat left center;}
+.ms_list_head a{color: #999;font-size: 18px;padding-right: 20px;background: url(../images/gxt/more_new_icon.png) no-repeat right center;}
+.ms_list_warp_k{margin-left: -20px;}
+.ms_list_items{width:285px;height: 275px;background: #ffffff;margin-left: 20px;margin-bottom: 18px;}
+.list_inner{margin:4px;padding: 8px;}
+.ms_list_items:hover{background: #eeeeee;-webkit-box-shadow:0 0 20px rgba(110, 83, 52, .2);
+  -moz-box-shadow:0 0 20px rgba(110, 83, 52, .2);
+  box-shadow:0 0 20px rgba(110, 83, 52, .2);  }
+.ms_list_items:hover .list_inner{background: #f8f8f8;}
+.list_img{margin:auto;text-align: center;height: 155px;width: 260px;}
+.list_img img{max-width: 100%;max-height: 100%;margin: auto;height: 100%;width: 100%;}
+.list_name{margin: 4px 8px;color: #333333;font-size:16px;padding: 4px 0;}
+.list_name span{width:200px;}
+.list_name em{width:200px;}
+.list_inner .list_tags{font-size: 0;vertical-align: top;padding: 5px 0;}
+.list_inner .list_tags em{font-size: 12px;padding:2px 4px;border-radius: 5px;text-align: center;margin-left: 5px;}
+.list_inner .list_tags .tag_jing{color: #fc6464;border: 1px solid #fc6464;}
+.list_inner .list_tags .tag_te{color: #39beb7;border: 1px solid #39beb7;}
+.list_inner .list_tags.tag_ling{color: #c3d515;border: 1px solid #c3d515;}
+.list_inner .list_tags .tag_bao{color: #ff6600;border: 1px solid #ff6600;}
+.list_info{margin: 4px 8px;color: #acacac;}
+.list_info .list_price{font-size: 18px;}
+.list_info .list_price label{font-size: 20px;color: #ff5113;margin-right:5px;}
+.list_info .list_dengji{vertical-align: top;color: #999999;font-size: 14px;margin-top:4px;}
+.search_result{text-align: center;}
+.search_error{height: 60px;line-height: 60px;color: #999;}
+.search_error i{background:url(../images/gxt/error_icon.png) no-repeat center center;width: 60px;height: 60px;margin-right: 10px;}

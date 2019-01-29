@@ -1,0 +1,435 @@
+ALTER TABLE `tbl_order_info`
+ADD COLUMN `refund_status`  varchar(32)  NULL AFTER `workflow_status`;
+
+
+CREATE TABLE `refund_order_info` (
+  `refund_id` bigint(18) NOT NULL AUTO_INCREMENT,
+  `order_item_id` bigint(18) DEFAULT NULL,
+  `order_id` bigint(18) DEFAULT NULL,
+  `product_id` bigint(18) DEFAULT NULL,
+  `product_name` varchar(128) DEFAULT NULL,
+  `price` bigint(18) DEFAULT NULL,
+  `quantity` bigint(18) DEFAULT NULL,
+  `old_quantity` bigint(18) DEFAULT NULL,
+  `pic_path` varchar(128) DEFAULT NULL,
+  `buyer_user_id` bigint(18) DEFAULT NULL,
+  `buyer_real_name` varchar(64) DEFAULT NULL,
+  `buyer_user_name` varchar(64) DEFAULT NULL,
+  `refund_type` varchar(32) DEFAULT NULL COMMENT '退款类型',
+  `refund_amount` bigint(18) DEFAULT NULL COMMENT '退款金额',
+  `refund_quantity` bigint(20) DEFAULT NULL COMMENT '退款金额',
+  `supplier_id` bigint(18) DEFAULT NULL,
+  `supplier_name` varchar(64) DEFAULT NULL,
+  `supplier_nickname` varchar(64) DEFAULT NULL,
+  `check_pass_date` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `refund_reason` varchar(500) DEFAULT NULL COMMENT '退款原因',
+  `refund_desc` varchar(500) DEFAULT NULL COMMENT '退款描述',
+  `apply_date` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `check_advice` varchar(500) DEFAULT NULL COMMENT '不通过意见',
+  `logistics_companies` varchar(128) DEFAULT NULL COMMENT '物流公司',
+  `logistics_no` varchar(64) DEFAULT NULL COMMENT '物流单号',
+  `status` varchar(32) DEFAULT NULL COMMENT '退款状态',
+  `raw_add_time` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`refund_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `tbl_product_user` (
+   `product_user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '商品用户ID',
+   `product_id` bigint(20) NOT NULL COMMENT '商品ID',
+   `user_id` bigint(20) NOT NULL COMMENT '人员ID',
+   `raw_add_time` timestamp NULL DEFAULT NULL COMMENT '添加时间',
+   `raw_update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+   PRIMARY KEY (`product_user_id`),
+   UNIQUE KEY `AK_Key_2` (`product_id`,`user_id`) USING BTREE
+ ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品用户收藏'
+ 
+ 
+ALTER TABLE `payment_flow` ADD COLUMN `payment_type` bigint(18) DEFAULT NULL COMMENT '红包支付' AFTER `payment_success_date`;
+
+ALTER TABLE `payment_flow`
+ADD COLUMN `red_pay` bigint(18) DEFAULT NULL COMMENT '红包支付' AFTER  `raw_update_time`,
+ADD COLUMN `integral_pay` bigint(18) DEFAULT NULL COMMENT '积分支付'   AFTER `integral_pay`,
+ADD COLUMN `ticket_amount` bigint(18) DEFAULT NULL COMMENT '券金额' AFTER `red_pay`,
+ADD COLUMN `ticket_id` bigint(18) DEFAULT NULL COMMENT '券id' AFTER `ticket_amount`;
+##修改user表user_name属性，可为空
+ALTER TABLE `user` 
+   CHANGE `user_name` `user_name` VARCHAR(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL  COMMENT '用户名'
+   
+   
+ALTER TABLE `points_rule`
+ADD COLUMN `points_valid`  bigint(18) NULL COMMENT '积分有效期' AFTER `point_value`;
+ALTER TABLE `points_rule`
+ADD COLUMN `validity_type`  bigint(18) NULL COMMENT '有效期类型(获取积分时间，获取积分次月,获取积分次年)' AFTER `points_valid`;
+
+
+---qch20160829
+
+ALTER TABLE `tbl_product` 
+	ADD COLUMN `sale_type_order_meal` varchar(32)  NULL COMMENT '是否点餐商品' after `sale_type_b2c`, 
+	ADD COLUMN `sale_type_hotels` varchar(32)   NULL COMMENT '是否点酒店商品' after `sale_type_order_meal`;
+
+ALTER TABLE `tbl_supplier` 
+	ADD COLUMN `o2o` varchar(32)   DEFAULT 'YES' COMMENT '支持团购、邮购' after `product_type`, 
+	ADD COLUMN `order_meal` varchar(32)  NULL COMMENT '支持点餐' after `o2o`, 
+	ADD COLUMN `hotels` varchar(32)  NULL COMMENT '支持酒店预定' after `order_meal`, 
+	ADD COLUMN `lowest_handsel_amount` bigint(18)   NULL COMMENT '最低送餐金额' after `hotels`;
+
+ALTER TABLE `tbl_supplier`
+ADD INDEX `supplier_order_meal_index` (`order_meal`) USING BTREE ;
+ALTER TABLE `tbl_supplier`
+ADD INDEX `supplier_hotels_index` (`hotels`) USING BTREE ;
+
+
+ALTER TABLE `tbl_product`
+ADD INDEX `product_sale_type_o2o` (`sale_type_o2o`) USING BTREE ,
+ADD INDEX `product_sale_type_b2c` (`sale_type_b2c`) USING BTREE ,
+ADD INDEX `product_sale_type_order_meal` (`sale_type_order_meal`) USING BTREE ,
+ADD INDEX `product_sale_type_hotels` (`sale_type_hotels`) USING BTREE ;
+
+
+
+
+ALTER TABLE `tbl_product`
+ADD INDEX `product_resorts_business_id` (`resorts_business_id`) USING BTREE ;
+
+ALTER TABLE `tbl_order_info`
+ADD COLUMN `sale_type_order_meal`  varchar(32) NULL AFTER `sale_type_b2c`,
+ADD COLUMN `sale_type_hotels`  varchar(32) NULL AFTER `sale_type_order_meal`,
+ADD INDEX `order_sale_type_o2o` (`sale_type_o2o`) USING BTREE ,
+ADD INDEX `order_sale_type_b2c` (`sale_type_b2c`) USING BTREE ,
+ADD INDEX `order_sale_type_order_meal` (`sale_type_order_meal`) USING BTREE ,
+ADD INDEX `order_sale_type_hotels` (`sale_type_hotels`) USING BTREE ;
+
+ALTER TABLE `tbl_order_info`
+ADD COLUMN `table_number_seq`  varchar(32) NULL AFTER `batch_no`,
+ADD COLUMN `table_number`  varchar(32) NULL AFTER `table_number_seq`,
+ADD COLUMN `tune_meal`  varchar(32) NULL AFTER `table_number`;
+
+ALTER TABLE `tbl_order_info`
+ADD INDEX `order_table_number_seq` (`table_number_seq`) USING BTREE,
+ADD INDEX `order_batch_no` (`batch_no`) USING BTREE;
+
+
+ALTER TABLE `tbl_supplier`
+ADD COLUMN `table_number`  bigint(18) NULL COMMENT '餐桌总数' AFTER `shopGrade`;
+
+
+ALTER TABLE `tbl_order_info`
+DROP COLUMN `table_number`,
+ADD COLUMN `table_number`  varchar(32) NULL COMMENT '桌号' AFTER `batch_No`;
+
+
+
+
+ALTER TABLE `tbl_supplier`
+ADD COLUMN `room_lowest_price`   bigint(18)  DEFAULT NULL COMMENT '房间最低价格' AFTER `table_number`,
+ADD COLUMN `room_normal_price`   bigint(18)  DEFAULT NULL COMMENT '正常价格' AFTER `room_lowest_price`,
+ADD COLUMN `special_room`  varchar(32)  DEFAULT NULL COMMENT '是否有特价房' AFTER `room_normal_price`,
+ADD COLUMN `long_rent_room`   varchar(32)  DEFAULT NULL COMMENT '是否有长租房' AFTER `special_room`,
+ADD COLUMN `morning_room`   varchar(32)  DEFAULT NULL COMMENT '凌晨房' AFTER `long_rent_room`,
+ADD COLUMN `dining`   varchar(32)  DEFAULT NULL COMMENT '是否收餐' AFTER `morning_room`;
+
+--2016年8月30日 购物车增加类型
+alter table `tbl_shop_cart` 
+   add column `sale_type` varchar(32) DEFAULT 'O2O' NULL COMMENT '购物车类型，商品O2O,点餐ORDER_MEAL,酒店HOTELS' after `user_nikename`;
+
+   
+CREATE TABLE `tbl_dining_table_situation` (
+  `id` bigint(18) NOT NULL AUTO_INCREMENT COMMENT '主键唯一识别号',
+  `table_number` varchar(32) DEFAULT NULL COMMENT '桌号',
+  `supplier_id` bigint(18) DEFAULT NULL COMMENT '供应商id',
+  `consume_amount` bigint(18) DEFAULT NULL COMMENT '消费金额',
+  `order_count` bigint(18) DEFAULT NULL COMMENT '已点餐数量',
+  `settle_accounts_amount` bigint(18) DEFAULT NULL COMMENT '已结算金额',
+  `people_no` bigint(18) DEFAULT NULL,
+  `status` varchar(32) DEFAULT NULL COMMENT '点餐状态',
+  `table_number_seq` varchar(32) DEFAULT NULL COMMENT '当前餐桌流水号',
+  `raw_add_time` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `Index_dining_tab_table_No_supplier_id` (`table_number`,`supplier_id`) USING BTREE,
+  KEY `Index_dining_tab_supplier_id` (`supplier_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='餐桌使用状态';
+
+
+CREATE TABLE `tbl_supplier_dining_config` (
+   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+   `supplier_id` bigint(20) NOT NULL COMMENT '商户ID',
+   `available_supplier_id` bigint(20) NOT NULL COMMENT '可以调餐商户id',
+   `raw_add_time` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+   `raw_update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `index_supplier_id_available_supplier_id` (`supplier_id`,`available_supplier_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='商户可调餐商户配置表';
+ 
+
+alter table `tbl_product` 
+   add column `tune_meal` varchar(32) NULL COMMENT '是否调餐' after `points`;
+   
+alter table `tbl_supplier` 
+   add column `dining_supplier_type` varchar(32) NULL COMMENT '点餐商户类别' after `dining`;
+ 
+ALTER TABLE `tbl_order_info`
+MODIFY COLUMN `order_status`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '状态' AFTER `payment_method`;
+
+alter table `tbl_order_info` 
+   add column `print_receipt` varchar(32) NULL COMMENT '是否打印小票' after `tune_meal`;
+
+alter table `tbl_order_info` 
+   add column `diliveryman_id` bigint NULL COMMENT '配送员ID' after `print_receipt`, 
+   add column `diliveryman_name` varchar(32) NULL COMMENT '配送员名字' after `diliveryman_id`;
+
+   
+alter table `tbl_order_info` 
+   change `is_payed` `is_payed` varchar(20) character set utf8 collate utf8_general_ci default 'n' NULL  comment '是否支付';
+
+   
+CREATE TABLE `delivery_person` (
+  `user_id` bigint(18) NOT NULL DEFAULT '0',
+  `user_name` varchar(32) DEFAULT NULL,
+  `real_name` varchar(64) DEFAULT NULL,
+  `nike_name` varchar(64) DEFAULT NULL,
+  `belong_to` bigint(18) DEFAULT NULL COMMENT '所属景区',
+  `status` varchar(64) DEFAULT NULL,
+  `raw_add_time` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` timestamp NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `delivery_person_belong_to` (`belong_to`) USING BTREE,
+  KEY `delivery_person_status` (`status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='配送员';
+
+ALTER TABLE `tbl_order_info`
+ADD INDEX `order_payment_flow_id` (`payment_flow_id`) USING BTREE ;
+
+
+ALTER TABLE `tbl_order_info`
+ADD INDEX `order_print_receipt` (`print_receipt`) USING BTREE ,
+ADD INDEX `order_diliveryman_id` (`diliveryman_id`) USING BTREE ;
+
+ALTER TABLE `tbl_order_info`
+ADD COLUMN `supplier_nickname`  varchar(64) NULL AFTER `supplier_id`;
+
+alter table `tbl_order_info` 
+   add column `dining_time` timestamp DEFAULT '0000-00-00 00:00:00' NULL COMMENT '就餐时间' after `diliveryman_name`, 
+   add column `orders_time` timestamp DEFAULT '0000-00-00 00:00:00' NULL COMMENT '下单时间' after `dining_time`, 
+   add column `deliver_time` timestamp DEFAULT '0000-00-00 00:00:00' NULL COMMENT '发货时间' after `orders_time`;
+
+alter table `tbl_dining_table_situation` 
+   add column `can_settle` varchar(32) NULL COMMENT '是否可以结算' after `status`;
+alter table `tbl_supplier` 
+   add column `dining_run_state` varchar(20) DEFAULT 'Opening' NULL COMMENT '点餐商户运营状态' after `dining_supplier_type`;
+
+--2016年9月26日   
+alter table `tbl_supplier` 
+   add column `service_charge_rate` float DEFAULT '0' NULL COMMENT '调餐服务费率' after `dining_run_state`;
+   
+alter table `user_base_info` 
+   add column `operate_password` varchar(200) NULL COMMENT '操作密码' after `link_code`;
+
+ALTER TABLE `tbl_supplier`
+add COLUMN `total_sale`  bigint(18) NULL COMMENT '销售总额' AFTER `service_charge_rate`;
+
+alter table `tbl_order_info` 
+   add column `dilivery_fee` bigint(18) NULL COMMENT '配送费（点餐）' after `deliver_time`;
+
+alter table `delivery_person` 
+   change `nike_name` `nick_name` varchar(64) character set utf8 collate utf8_general_ci NULL;
+
+drop table hotels_stock;
+CREATE TABLE `hotels_stock` (
+   `id` bigint(18) NOT NULL AUTO_INCREMENT COMMENT '酒店库存id',
+   `product_id` bigint(18) NOT NULL COMMENT '房型id',
+   `product_name` varchar(64) NOT NULL,
+   `supplier_id` bigint(18) DEFAULT NULL COMMENT '商户id',
+   `price_date` timestamp NULL DEFAULT '0000-00-00 00:00:00' COMMENT '价格日期',
+   `product_price` bigint(18) NOT NULL COMMENT '价格',
+   `discount_price` bigint(18) DEFAULT NULL COMMENT '折扣价',
+   `morning_room_price` bigint(18) DEFAULT NULL COMMENT '凌晨房价格',
+   `special_room_price` bigint(18) DEFAULT NULL COMMENT '特价房价格',
+   `exec_price` bigint(18) DEFAULT NULL COMMENT '执行价格',
+   `in_stock` bigint(18) NOT NULL COMMENT '总库存',
+   `available_stock` bigint(18) NOT NULL COMMENT '可用库存',
+   `ordain_num` bigint(18) NOT NULL COMMENT '预定数量',
+   `morning_room_total_num` bigint(18) DEFAULT NULL COMMENT '凌晨房总数',
+   `morning_room_num` bigint(18) DEFAULT NULL COMMENT '凌晨房预定数',
+   `special_room_total_num` bigint(18) DEFAULT NULL COMMENT '特价房总数',
+   `special_room_num` bigint(18) DEFAULT NULL COMMENT '特价房预定数',
+   `status` varchar(32) DEFAULT NULL COMMENT '房型当天状态',
+   `raw_add_time` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+   `raw_update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `hotels_stock_product_id_date` (`product_id`,`price_date`) USING BTREE,
+   KEY `hotels_stock_product_id` (`product_id`) USING BTREE,
+   KEY `hotels_stock_supplier_id` (`supplier_id`) USING BTREE
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ ALTER TABLE `tbl_supplier`
+    ADD COLUMN `recommend_room` VARCHAR(32) NULL COMMENT '是否有推荐房' AFTER `room_normal_price`,
+    ADD COLUMN `hotel_order_score` BIGINT(10) NULL COMMENT '酒店排序分';
+
+
+ALTER TABLE `tbl_product`
+ADD COLUMN `recommend` VARCHAR(32) NULL COMMENT '是否推荐' AFTER `tune_meal`;
+
+ALTER TABLE `tbl_product`
+ADD COLUMN `special_room` VARCHAR(32) NULL COMMENT '是否有特价房' AFTER `recommend`,
+ADD COLUMN `long_rent_room` VARCHAR(32) NULL COMMENT '是否有长租房' AFTER `special_room`,
+ADD COLUMN `morning_room` VARCHAR(32) NULL COMMENT '是否有凌晨房' AFTER `long_rent_room`;
+
+ALTER TABLE `tbl_product`
+ADD COLUMN `orderScore` BIGINT(10) NULL COMMENT '排序得分' AFTER `morning_room`;
+
+CREATE TABLE `tbl_supplier_recommend` (
+ `supplier_recommend_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '商户推荐ID',
+ `supplier_id` BIGINT(20) NOT NULL COMMENT '商户ID',
+ `TYPE` VARCHAR(32) DEFAULT 'SUPPLIER_TOP' COMMENT '推荐类型（首页)',
+ `user_id` BIGINT(20) NOT NULL COMMENT '操作人员ID',
+ `raw_add_time` TIMESTAMP NULL DEFAULT NULL COMMENT '添加时间',
+ `raw_update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+ PRIMARY KEY (`supplier_recommend_id`),
+ UNIQUE KEY `AK_Key_2` (`supplier_id`,`TYPE`) USING BTREE
+) ENGINE=INNODB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COMMENT='商户推荐表';
+
+alter table `tbl_product`
+   add column `exec_begin_time` timestamp NULL COMMENT '酒店执行开始日期' after `group_purchase_begin_time`,
+   add column `exec_end_time` timestamp NULL COMMENT '酒店执行结束日期' after `exec_begin_time`,
+   change `ware_count` `ware_count` bigint(20) NULL  comment '库存量';
+
+alter table `tbl_supplier`
+   add column `recommend` varchar(32) NULL COMMENT '是否推荐' after `total_sale`;
+
+
+CREATE TABLE `tbl_hotel_discount` (
+  `hotel_discount_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '特殊房型折扣ID',
+  `scenic_id` BIGINT(20) NOT NULL COMMENT '景区ID',
+  `TYPE` VARCHAR(32) NULL COMMENT '房间类型',
+  `set_time` VARCHAR(100) NULL COMMENT '退房时间',
+  `discount_begin` INT NULL COMMENT '折扣开始',
+  `discount_end` INT NULL COMMENT '折扣结束',
+  `raw_add_time` TIMESTAMP NULL DEFAULT NULL COMMENT '添加时间',
+  `raw_update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`hotel_discount_id`),
+  UNIQUE KEY `AK_Key_2` (`scenic_id`,`TYPE`) USING BTREE
+) ENGINE=INNODB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COMMENT='特殊房型折扣表';
+
+CREATE TABLE `tbl_hotel_refund` (
+  `hotel_refund_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '酒店退房时间ID',
+  `user_grade` INT(4) NOT NULL COMMENT '用户等级',
+  `refund_time` VARCHAR(32) NULL COMMENT '退房时间',
+  `batch_no` BIGINT(20) NOT NULL COMMENT '批次号',
+  `raw_add_time` TIMESTAMP NULL DEFAULT NULL COMMENT '添加时间',
+  `raw_update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`hotel_refund_id`),
+  UNIQUE KEY `AK_Key_2` (`user_grade`) USING BTREE
+) ENGINE=INNODB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COMMENT='酒店退房时间表';
+alter table `hotels_stock`
+change `discount_price` `market_price` bigint(18) NULL  comment '市场价';
+
+alter table `tbl_order_items`
+add column `begin_time` timestamp default '0000-00-00 00:00:00'  NULL COMMENT '入住时间' after `post_free`,
+add column `end_time` timestamp default '0000-00-00 00:00:00' NULL  COMMENT '离店时间' after `begin_time`,
+add column `days` bigint(10) NULL COMMENT '入住天数' after `end_time`;
+
+
+CREATE TABLE `tbl_hotel_long_set`(
+  `id` BIGINT(18) NOT NULL AUTO_INCREMENT COMMENT '长包房设置ID',
+  `supplier_id` BIGINT(18) COMMENT '商户ID',
+  `product_id` BIGINT(18) COMMENT '房间ID',
+  `type` VARCHAR(32) COMMENT '房间类型',
+  `beginDate` TIMESTAMP DEFAULT '0000-00-00 00:00:00' COMMENT '有效开始日期',
+  `endDate` TIMESTAMP DEFAULT '0000-00-00 00:00:00' COMMENT '有效结束日期',
+  `rule_type` VARCHAR(32) COMMENT '定价规则',
+  `room_num` BIGINT(12) COMMENT '房间数量',
+  `raw_add_time` TIMESTAMP DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `LONG_SET_SUPPLIER_PRODUCT_U` (`supplier_id`, `product_id`)
+) ENGINE=INNODB CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
+CREATE TABLE `tbl_hotel_long_detail`(
+  `id` BIGINT(18) NOT NULL AUTO_INCREMENT COMMENT '长包房设置明细ID',
+  `set_id` BIGINT(18) COMMENT '长包房设置ID',
+  `days` BIGINT(18) COMMENT '设置天数',
+  `discount` BIGINT(18) COMMENT '设置折扣',
+  `amount` BIGINT(18) COMMENT '设置金额',
+  `raw_add_time` TIMESTAMP DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB CHARSET=utf8 COLLATE=utf8_general_ci;
+
+alter table `tbl_hotel_long_set` 
+   change `beginDate` `beginDate` timestamp default '0000-00-00 00:00:00' NULL  comment '有效开始日期', 
+   change `endDate` `endDate` timestamp default '0000-00-00 00:00:00' NULL  comment '有效结束日期';
+
+CREATE TABLE `tbl_order_hotel_detail`(
+  `id` BIGINT(18) NOT NULL AUTO_INCREMENT,
+  `item_id` BIGINT(18) COMMENT '订单明细ID',
+  `in_date` TIMESTAMP DEFAULT '0000-00-00 00:00:00' COMMENT '日期',
+  `room_type` VARCHAR(32) COMMENT '房价类型',
+  `order_num` BIGINT(10) COMMENT '入住数量',
+  `raw_add_time` TIMESTAMP DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` TIMESTAMP DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE `to_card_flow` (
+  `flow_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '流水号',
+  `user_id` bigint(20) NOT NULL COMMENT '用户Id',
+  `yjf_account_id` varchar(32) DEFAULT NULL COMMENT '资金账户Id',
+  `user_name` varchar(64) DEFAULT NULL,
+  `user_real_name` varchar(64) DEFAULT NULL,
+  `out_user_id` bigint(20) DEFAULT NULL,
+  `out_yjf_account_id` varchar(32) DEFAULT NULL,
+  `out_user_name` varchar(64) DEFAULT NULL,
+  `out_user_real_name` varchar(64) DEFAULT NULL,
+  `out_biz_no` varchar(200) DEFAULT NULL COMMENT '金融平台业务流水号',
+  `bank_code` varchar(32) DEFAULT NULL,
+  `bank_name` varchar(200) DEFAULT NULL,
+  `bank_account_no` varchar(200) DEFAULT NULL,
+  `bank_acount_name` varchar(200) DEFAULT NULL,
+  `bank_province` varchar(64) DEFAULT NULL,
+  `bank_city` varchar(64) DEFAULT NULL,
+  `amount` decimal(18,0) DEFAULT NULL,
+  `public_tag` varchar(32) DEFAULT NULL,
+  `pay_type` varchar(32) NOT NULL COMMENT '支付类型:DEDUCT代扣，EBANK网银，WITHDRAW提现',
+  `in_out_type` varchar(32) DEFAULT NULL,
+  `pay_time` datetime NOT NULL COMMENT '支付时间',
+  `status` varchar(32) NOT NULL COMMENT '支付状态',
+  `rem1` varchar(200) DEFAULT NULL COMMENT '备用字段1',
+  `raw_add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`flow_id`,`raw_add_time`),
+  KEY `to_card_flow_out_biz_no` (`out_biz_no`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE `tbl_order_hotel_detail`
+ADD COLUMN `price` BIGINT(20) NULL   COMMENT '单价' AFTER `order_num`;
+
+drop table tbl_order_hotel_detail;
+
+ALTER TABLE `tbl_order_items`
+ADD COLUMN `room_type` VARCHAR(32) NULL   COMMENT '房间类型' AFTER `days`;
+
+ALTER TABLE `hotels_stock`
+ADD COLUMN `long_room_num` BIGINT(18) NULL   COMMENT '长包房预定数' AFTER `special_room_num`;
+
+ALTER TABLE `user_bank_info`
+ADD COLUMN `card_use_type`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '用户卡用途' AFTER `pactNo`;
+
+ALTER TABLE `user_bank_info`
+ADD COLUMN `bank_account_name`  varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '银行账户名' AFTER `card_use_type`;
+
+ALTER TABLE `delivery_person`
+ADD COLUMN `level`  varchar(50) NULL DEFAULT NULL COMMENT '级别' AFTER `raw_update_time`,
+ADD COLUMN `service_type`  varchar(500) NULL DEFAULT NULL COMMENT '服务类型' AFTER `level`;
+
+ALTER TABLE `tbl_scenic_info`
+MODIFY COLUMN `id`  bigint(20) NOT NULL FIRST ;
+
+ALTER TABLE `tbl_supplier`
+ADD COLUMN `around_line`  text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '周边路线' AFTER `product_discount`;
+
+

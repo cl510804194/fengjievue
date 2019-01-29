@@ -1,0 +1,33 @@
+body{ font-size:12px;}
+
+.zwmc A {
+	COLOR: #ff7300; text-decoration:none;
+}
+.zwmcA:visited {
+	COLOR: #ff7300; text-decoration:none;
+}
+.zwmc A:hover {
+	COLOR: #ff7300; text-decoration:none;
+}
+
+
+.navbg{ background:url(../images/job_bg.gif) repeat-x; height:22px;}
+.line{ border:1px solid #e6e6e6;}
+.line_l{border-left:1px solid #e6e6e6;}
+.wz_padding{ padding-left:10px;}
+.zwmc{ font-size:12px; font-weight:bold; color:#ff7300;}
+.lan{color:#0179E7; font-size:12px; font-weight:bold;}
+.line2{ border-top:1px solid #e6e6e6; border-bottom:1px solid #e6e6e6; background:#f6f6f6;}
+.line3{ border-top:1px solid #e6e6e6; border-bottom:1px solid #e6e6e6; background:#f6f6f6;  border-left:1px solid #e6e6e6;}
+.line4{ border-left:1px solid #e6e6e6;}
+
+.xx_titlebg{ background:url(../images/title_bg01.gif) repeat-x; height:29px; font-size:14px; font-weight:bold; color:#ff7300; line-height:29px;}
+.hei{ font-size:12px; font-weight:bold; color:#000; padding-left:10px;}
+.m10{ margin-top:10px;0}
+
+.table_border{ margin-top:10px;}
+.table_border td{border-top:1px #e9edf1 solid;border-right:1px #e9edf1 solid;}
+.table_border{border-bottom:1px #e9edf1 solid;border-left:1px #e9edf1 solid;}
+
+
+.td_bg{ background:#f3f7f9;}

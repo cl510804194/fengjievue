@@ -1,0 +1,96 @@
+package com.yjf.esupplier.service.systemSet.info;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import com.yjf.common.lang.util.money.Money;
+
+public class PenaltyRuleInfo implements Serializable{
+
+	private static final long serialVersionUID = -6860904755527654534L;
+	
+	private int id;
+
+	private int startDay;
+
+	private int endDay;
+
+	private Money penalty = new Money(0, 0);
+
+	private Date rawAddTime;
+
+	private Date rawUpdateTime;
+
+    //========== getters and setters ==========
+
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getStartDay() {
+		return startDay;
+	}
+	
+	public void setStartDay(int startDay) {
+		this.startDay = startDay;
+	}
+
+	public int getEndDay() {
+		return endDay;
+	}
+	
+	public void setEndDay(int endDay) {
+		this.endDay = endDay;
+	}
+
+	public Money getPenalty() {
+		return penalty;
+	}
+
+	public void setPenalty(Money penalty) {
+		this.penalty = penalty;
+	}
+
+	public Date getRawAddTime() {
+		return rawAddTime;
+	}
+	
+	public void setRawAddTime(Date rawAddTime) {
+		this.rawAddTime = rawAddTime;
+	}
+
+	public Date getRawUpdateTime() {
+		return rawUpdateTime;
+	}
+	
+	public void setRawUpdateTime(Date rawUpdateTime) {
+		this.rawUpdateTime = rawUpdateTime;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PenaltyRuleInfo [id=");
+		builder.append(id);
+		builder.append(", startDay=");
+		builder.append(startDay);
+		builder.append(", endDay=");
+		builder.append(endDay);
+		builder.append(", penalty=");
+		builder.append(penalty);
+		builder.append(", rawAddTime=");
+		builder.append(rawAddTime);
+		builder.append(", rawUpdateTime=");
+		builder.append(rawUpdateTime);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

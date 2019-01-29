@@ -1,0 +1,125 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+    require('../content/chineseAmountExchange.js');
+    require('../Y-all/Y-script/Y-imgplayer.js');
+    require('../content/fileUpload.js');
+    Y.create('ImgPlayer', {
+        eleArr: '#guaranteeLicenseUrl_Img',
+        titleInfo: 'alt',
+        content: '',
+        pathInfo: function () {
+            return $(this).attr('src');
+        }
+    });
+
+    $('#rem1PathUpload').uploadify({
+        height: 26,
+        width: 100,
+        buttonClass: 'u-btn u-btn-gray',
+        buttonText: '选择上传文件',
+        multi: false,
+        fileTypeExts :p_type==21||p_type==23||p_type==24||p_type==25? '*.apk':'*.ipa',
+        swf: '/resources/swf/uploadify.swf',
+        uploader: '/admin/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+        fileSizeLimit: '30MB',
+        successTimeout: 180000,
+        onUploadStart: function () {
+            $('body').Y('Window', {
+                content: "<span><img src='/resources/images/common/loadingScroll.gif' /><br/>上传中，请稍后...</span>",
+                key: 'lodding',
+                simple: true
+            });
+        },
+        onUploadSuccess: function (file, data, response) {
+            handdleResult(data, "rem1Path_imgcontainer", "rem1", "rerem1DownUrlm1");
+            Y.getCmp('lodding').close();
+        },
+        onUploadError: function (file, errorCode, errorMsg,
+                                 errorString) {
+            Y.getCmp('lodding').close();
+            alert("文件上传失败！异常信息：" + errorString);
+        },
+        onCancel: function (file) {
+            Y.getCmp('lodding').close();
+            alert("已取消！");
+        }
+    });
+
+    function handdleResult(data, containerId, storePathId,downUrl) {
+        var result = "";
+        if (data.indexOf("pre") > 0) {
+            var startIndex = data.indexOf(">") + 1;
+            var endIndex = data.length - 6;
+            data = data.substring(startIndex, endIndex);
+            data = eval("(" + data + ")");
+            if (data.code == 0) {
+                var imgUrl = data.resData;
+                $("#" + storePathId).val(imgUrl);
+                $("#" + downUrl).attr("href",imgUrl);
+            } else {
+                result = "<span style='color:red;'>" + data.resData + "</span>"
+            }
+        } else {
+            data = eval("(" + data + ")");
+            if (data.code == 0) {
+                var imgUrl = data.resData;
+                $("#" + storePathId).val(imgUrl);
+                $("#" + downUrl).attr("href",imgUrl);
+            } else {
+                result = "<span style='color:red;'>" + data.resData + "</span>"
+            }
+        }
+        $("#" + containerId).append(result);
+    }
+
+
+    //$('textarea[name=content]').xheditor({});
+    var editor = KindEditor.create('#content', {
+        uploadJson: '/admin/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+        fileManagerJson: '/admin/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+        allowFileManager: true
+    });
+
+    /*修改公告*/
+    var updateForm = $('#update_pop_form');
+
+    $('.fn-submit2').click(function () {
+        editor.sync();
+        updateForm.submit();
+    });
+
+    if (updateForm.length) {
+        updateForm.validate({
+            ignore: '',
+            errorClass: 'error-tip',
+            errorElement: 'b',
+            errorPlacement: function (error, element) {
+                if (element.attr('name') == 'imgCode') {
+                    element.next().next().after(error);
+                } else {
+                    element.after(error);
+                }
+            },
+            rules: {
+                title: {
+                    required: true
+                }
+            },
+            messages: {
+                title: {
+                    required: '请输入标题'
+                }
+            },
+            submitHandler: function () {
+                updateForm.ajaxSubmit({
+                    success: function (res) {
+                        alert("修改成功");
+                        window.location.href = "/admin/popModuleCenter/updateNotice.htm?popId=0&type=" + p_type;
+                    }
+                });
+            },
+            onkeyup: false
+
+        });
+    }
+});

@@ -1,0 +1,54 @@
+package com.yjf.esupplier.service.supplier.bean;
+
+import java.io.File;
+
+public class LicenseBean {
+	
+	private String licenseid;
+	private String certName;
+	private String permitUnit;
+	private String certNumber;
+	private String licensebeanid; //修改时候用的;
+	private File certPhoto;
+	
+	public String getLicenseid() {
+		return licenseid;
+	}
+	public void setLicenseid(String licenseid) {
+		this.licenseid = licenseid;
+	}
+	public String getCertName() {
+		return certName;
+	}
+	public void setCertName(String certName) {
+		this.certName = certName;
+	}
+	public String getPermitUnit() {
+		return permitUnit;
+	}
+	public void setPermitUnit(String permitUnit) {
+		this.permitUnit = permitUnit;
+	}
+	public String getCertNumber() {
+		return certNumber;
+	}
+	public void setCertNumber(String certNumber) {
+		this.certNumber = certNumber;
+	}
+	public String getLicensebeanid() {
+		return licensebeanid;
+	}
+	public void setLicensebeanid(String licensebeanid) {
+		this.licensebeanid = licensebeanid;
+	}
+	public File getCertPhoto() {
+		return certPhoto;
+	}
+	public void setCertPhoto(File certPhoto) {
+		this.certPhoto = certPhoto;
+	}
+	
+	
+	
+	
+}

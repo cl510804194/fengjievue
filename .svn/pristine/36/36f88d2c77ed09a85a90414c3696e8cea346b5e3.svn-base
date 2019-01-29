@@ -1,0 +1,159 @@
+#parse("/backstage/layout/logo.vm")
+<body class="m-content">
+
+  <!--toolbar-->
+  <div class="m-toolbar">
+    <!--form-->
+    <form class="m-form horizontal" action="/admin/finance/tailSettlement.htm"  method="post" id="settlement_form">
+      <!--row-->
+      <div class="row">
+
+        <!--group-->
+        <div class="group">
+          <label class="label">合同状态：</label>
+          <select class="select" name="contractStatus">
+			<option value="">所有</option>
+			#foreach($cStatus in $!{contStatus})
+				<option value="$!{cStatus.code}" #if($!{queryConditions.contractStatus.code()}==$!{cStatus.code}) selected #end>$!{cStatus.message}</option>
+			#end
+          </select>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label">结算状态：</label>
+          <select class="select" name="settlementStatus">
+            <option value="">所有</option>
+            #foreach($cStatus in $!{settStatus})
+				<option value="$!{cStatus.code}" #if($!{queryConditions.settlementStatus.code()}==$!{cStatus.code}) selected #end>$!{cStatus.message}</option>
+			#end
+          </select>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label">查询日期：</label>
+          <input class="input2" type="date" name="startDate" value="$!{queryConditions.startDate}"/>-
+		  <input class="input2" type="date" name="endDate" value="$!{queryConditions.endDate}"/>
+        </div>
+        <!--group End-->
+      
+      </div>
+      <!--row End-->
+      
+      <!--row-->
+      <div class="row">
+
+        <!--group-->
+        <div class="group">
+          <label class="label">门店编号：</label>
+          <input class="input full" type="text" name="storeCode" value="$!{queryConditions.storeCode}"/>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label">销售代表：</label>
+          <input class="input full" type="text" name="represent" value="$!{queryConditions.represent}"/>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <a class="u-btn white fn-submit" title="查询" href="javascript:;">查询</a>
+          ##<a class="u-btn white" title="重置" href="javascript:;">重置</a>
+        </div>
+        <!--group End-->
+
+      </div>
+      <!--row End-->
+
+    </form>
+    <!--form End-->
+  </div>
+  <!--toolbar End-->
+
+  <!--grid-->
+  <div class="m-grid f-mt20">
+    <table class="table">
+      <tbody>
+        <!--head-->
+        <tr class="hd">
+		  <th><div>序号</div></th>
+          <th><div>销售日期</div></th>
+          <th><div>门店名称</div></th>
+          <th><div>门店编号</div></th>
+          <th><div>店主姓名</div></th>
+          <th><div>销售代表</div></th>
+          <th><div>订单数量</div></th>
+          <th><div>尾款总额</div></th>
+          <th><div>结算状态</div></th>
+          <th><div>操作</div></th>
+        </tr>
+        <!--head End-->
+        <!--row-->
+		#if($page.result.size()==0)
+			<tr class="even">
+				<td colspan=10 align=center>暂时没有结算信息</td>
+			</tr>
+		#end
+		#set ($i= ($page.currentPageNo - 1)*$page.pageSize + 1 )
+		#set ($odd= true )
+		#foreach($info in $page.result)
+			<tr #if($odd) class="odd" #end>
+				<td>$i</td>
+                <td>$!{info.xsdate}</a></td>
+                <td>$!{info.storeName}</td>
+                <td>$!{info.storeCode}</td>
+				<td>$!{info.legalPerson}</td>
+				<td>$!{info.represent}</td>
+				<td>$!{info.orderNum}</td>
+                <td>$!{info.tailAmount}</td>
+				<td>$!{info.settlementStatus.message}</td>
+				<td>
+					<a class="u-link blue" href="#">查看明细</a>
+                    #if($!{info.settlementStatus.code} !='SUCCESS')
+						<a class="u-link blue" href="#">尾款结算</a>
+                        ##<a href="#" proType="stop" pointsRuleId="$!{info.pointsRuleId}"  class="proRule">停用</a>
+                    #else
+						##<a href="#" proType="stop" pointsRuleId="$!{info.pointsRuleId}"  class="proRule">启用</a>
+                    #end
+				</td>
+			</tr>
+			#if($odd) #set($odd=false) #end
+			#set($i=$i+1)
+		#end
+        <!--row End-->
+      </tbody>
+    </table>
+	#parse("/backstage/page/page.vm")
+  </div>
+  <!--grid End-->
+
+
+  <script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+  <script type="text/javascript" src="/resources/js/global.js"></script>
+  <script type="text/javascript">
+       seajs.use('content/tailSettlement');
+	   
+	   function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/finance/tailSettlement.htm"
+			+"?storeCode=$!{queryConditions.storeCode}"
+			+"&contractStatus=$!{queryConditions.contractStatus.code}"
+			+"&settlementStatus=$!{queryConditions.settlementStatus.code}"
+			+"&startDate=$!{queryConditions.startDate}"
+			+"&endDate=$!{queryConditions.endDate}"
+			+"&represent=$!{queryConditions.represent}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<title>$!appConstantsUtil.getProductName()--商务服务</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/front/platform/member/layout/member_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/front/platform/member/layout/member_left.vm")</td>
+    <td width="792" valign="top" >
+	<!--内容块 -->
+	<table align="center" width="790" height="40" cellpadding="0" cellspacing="0" style="padding-top:10px;">
+		<tr>
+    		<td width="5">&nbsp;</td>
+    		<td width="785" class="sm-title">你试图访问的功能只对资料完整的会员开放</td>			
+		</tr>
+	</table>
+	<p>&nbsp;<img align="middle" src="../../image/icons/stop.jpg" width="64" height="64" /> <strong>你的会员资料还不完整，现在是否要填报资料？</strong></p>
+    <table width="790" border="0" align="center" style="margin-left:4px;margin-top:20px;" cellpadding="0" cellspacing="0">
+        <tr>
+        	<td align="center">
+            	<input type="button" value="现在填报" onClick="javascript:window.location.href='member_update.vm'" />
+            	&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" value="暂不填报" onclick="top.location='../'" />
+        	</td>
+        </tr>
+    </table>
+	<!--内容块 -->
+	</td>
+  </tr>
+</table>
+#parse("/front/platform/member/layout/member_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+</script>
+</body>
+</html>

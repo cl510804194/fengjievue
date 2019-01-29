@@ -1,0 +1,71 @@
+<table sqlname="loan_commodity">
+	<column name="commodity_price" javatype="com.yjf.common.lang.util.money.Money" />
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO loan_commodity(commodity_id,contract_id,commodity_type,commodity_brand,commodity_model,commodity_price,raw_add_time) VALUES (?,?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE loan_commodity SET contract_id=?,commodity_type=?,commodity_brand=?,commodity_model=?,commodity_price=? WHERE commodity_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  commodity_id ,contract_id ,commodity_type ,commodity_brand ,commodity_model ,commodity_price ,raw_add_time ,raw_update_time  FROM loan_commodity WHERE commodity_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+                DELETE FROM loan_commodity WHERE commodity_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM loan_commodity
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findLoanCommodityByCondition" paramtype="object" multiplicity="many">
+	    <sql>
+	        <![CDATA[
+	        SELECT  commodity_id ,contract_id ,commodity_type ,commodity_brand ,commodity_model ,commodity_price ,raw_add_time ,raw_update_time  
+	        FROM loan_commodity WHERE 1=1
+	        ]]>
+	    </sql>
+	    <sqlmap>
+	        <![CDATA[
+	         SELECT  commodity_id ,contract_id ,commodity_type ,commodity_brand ,commodity_model ,commodity_price ,raw_add_time ,raw_update_time  
+	         FROM loan_commodity where 1=1
+	        <dynamic>
+	            <isNotEmpty property="contractId" prepend=" and ">
+	                contract_id = #contractId#
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by raw_add_time;
+	        ]]>
+	    </sqlmap>
+	</operation>
+	
+</table>
+
+
+
+
+
+
+
+
+
+

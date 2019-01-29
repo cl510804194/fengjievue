@@ -1,0 +1,28 @@
+#parse("/front/index/common/header-title.vm")
+<body class="warp">
+    #parse("/front/index/common/header-yrd.vm")
+
+<div class="sub_loginwas sub_loginwas01 ">
+  <div class="sub_logincg sub_loginsb">
+    <P class="login_txt02">亲，由于$!{message}，激活资金账户失败了</P>
+    <p class="login_txt03">再试一次，一定会成功的！ </p>
+    <p class="login_txt04">
+      <a href="" class="fn-g-btn ml10"><span><a href="/login/login?redirect=/userManage/userHome" class="fn-g-btn ml10"><span>进入我的账户去激活</span></a></span></a>
+    </p>
+  </div>
+</div>
+
+
+    #parse("/front/index/common/footer-yrd.vm")
+<script type="text/javascript">
+    	var $_GLOBAL = {};
+</script> 
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script> 
+<script type="text/javascript" src="/resources/js/plugins/jquery.window.js"></script> 
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script> 
+<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+</script> 
+
+</body>
+</html>

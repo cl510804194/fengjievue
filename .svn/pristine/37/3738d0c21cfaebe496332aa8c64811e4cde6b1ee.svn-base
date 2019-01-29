@@ -1,0 +1,84 @@
+#parse("/front/platform/layout/header-title.vm")
+    <title>$!appConstantsUtil.getProductName()--找回密码</title>
+</head>
+<body class="warp">
+	#parse("/front/platform/layout/user_header.vm")
+<!--content begin-->	
+<div class="home-section_bd fn-mt20">
+    <div class="fn-container">
+        <div class="bd-box login-content-box">
+            <div class="m-box-hd">
+                <h3 class="box-title">找回密码</h3>
+            </div>
+            <div class="m-box" style="margin: 150px 0 0 150px">
+                <div class="log-form">
+					#if($!{isExist})
+						#if($!{message})
+						<div class="fn-item error404">
+                            <h1 class="fn-tac" style="margin-top: 125px;">
+                                <em class="icon"></em>
+                                <span>$!{message} </span>
+                            </h1>
+						 </div>
+						#end
+                    <form action="/PasswordManage/checSmsCode.htm" method="post" class=" login-content-box" id="password_smsCode_form">
+						<div class="fn-item">
+        					<label class="fn-label"><span class="required">*</span>手机号码：</label>
+        					<input type="text" id="bundPhone" class="fn-text" maxlength="11" name="mobile" readOnly="true" value="$!{strMobile}"/>
+						</div>
+        				<div class="fn-item getCodeWrap fn-clear">
+        					<label class="fn-label fn-left"><span class="required">*</span>动态手机验证码：</label>
+        					<input type="text" class="fn-text fn-left" id="code" name="code" style="width: 156px" />
+        					<a id="getCode" class="fn-left fn-ml10 green-btn fn-tac" href="javascript:;" style="display: inline-block;">获取验证码</a>
+                            <a id="getCodeD"></a>
+                            <p class="green lh40" style="margin-left: 30px;">注意：服务器保持手机动态密码时间为5分钟，请您及时验证！</p>
+        					<input type="hidden" id="smsBizType" name="business" value="register"/>
+                            #if($!{checSmsCodeFail})
+                                <span class="error" style="margin-left: 155px; top: 80px;">$!{message}</span>
+                            #end
+        				</div>
+                    </div>
+					<input value="$!{randomMD5}" name="randomMD5" type="hidden"/>
+					<input type="hidden" value="$!{md5UserBaseId}" name="md5UserBaseId"/>
+					<input type="hidden" value="$!{userBaseId}" name="userBaseId"/>
+                        <div class="fn-item fn-mt20">
+                            <label class="fn-label fn-left">&nbsp;</label>
+                            <button type="submit" name="next" class="green-btn w140">确认，下一步</button>
+                        </div>
+                    </form>
+					#else
+						<div class="fn-item error404">
+                            <h1 class="fn-tac" style="margin-top: 125px;">
+                                <em class="icon"></em>
+                                <span>找回密码失败：用户不存在 ! </span>
+                            </h1>
+						 </div>
+						<div class="fn-item fn-tac">
+                            <label class="fn-label fn-left">&nbsp;</label>
+                            <a class="green-btn fn-tac" href="/PasswordManage/forgetLogPassword.htm" style="display:inline-block">返回</a>
+                        </div>
+					#end
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="blank50"></div>
+</div>
+
+<!--content end-->	
+<!-- footer begin -->
+#parse("/front/platform/layout/user_footer.vm")
+<!-- footer end -->
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'forgetPassWord');
+</script> 
+
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+package com.yjf.esupplier.service.contract.result;
+
+import com.yjf.esupplier.service.contract.info.ContractInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class ContractClaimResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = 8515092037695348158L;
+	
+	ContractInfo contractInfo;
+	long pendingCount;
+	
+	public ContractInfo getContractInfo() {
+		return this.contractInfo;
+	}
+	
+	public void setContractInfo(ContractInfo contractInfo) {
+		this.contractInfo = contractInfo;
+	}
+	
+	public long getPendingCount() {
+		return this.pendingCount;
+	}
+	
+	public void setPendingCount(long pendingCount) {
+		this.pendingCount = pendingCount;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ContractClaimResult [contractInfo=");
+		builder.append(contractInfo);
+		builder.append(", pendingCount=");
+		builder.append(pendingCount);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

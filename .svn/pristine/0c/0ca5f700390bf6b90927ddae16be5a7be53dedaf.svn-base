@@ -1,0 +1,123 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+    require('../Y-all/Y-script/Y-tip.js');
+    require('../plugins/jquery.box.js');
+    require('../plugins/jquery.combobox.js');
+    require('../plugins/jquery.window.js');
+    require('../Y-all/Y-script/Y-imgplayer.js');
+    require('../Y-all/Y-script/Y-msg.js');
+
+    $("[name=tuijian]").click(function () {
+        var data = $('#recommedBussiness').html();
+        $('body').Y('Window', {
+            content: data,
+            modal: true,
+            key: 'modalwnd',
+            simple: true,
+            closeEle: '.closeBtn'
+        });
+        $("#recommendProductId").val($(this).attr("data"));
+    });
+    $('body').on('click','#recommendSubmit',function(){
+        $.ajax({
+            url: '/admin/product/recommend/recommendProduct.json',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                productId: $("#recommendProductId").val(),
+                recommendType: $("#recommendType").val()
+            },
+            success: function (result) {
+                alert(result.message);
+                location.reload();
+            }
+        })
+    })
+
+    $('.cancelRecommend').click(function () {
+        var _this = this;
+        Y.confirm('请选择', '确定取消推荐该商品？', function (opn) {
+            if (opn == "yes") {
+                $.ajax({
+                    url: '/admin/product/recommend/cancelRecommend.json',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        productId: $(_this).attr("data1"),
+                        recommendType: $(_this).attr("data2")
+                    },
+                    success: function (json) {
+                        alert(json.message);
+                        location.reload();
+                    }
+                })
+            }
+
+        })
+    });
+});
+
+window.publishProduct=function publishProduct(saleType) {
+    document.location = "toCreateProduct.htm?saleType="+saleType+"&itemType=pub&leftMemberOrder=toCreateProduct"+saleType;
+}
+
+window.doRedirect=function doRedirect(url) {
+    window.location.href = url;
+}
+
+window.checkAll=function checkAll() {
+    var checkBoxProductIds = document.getElementsByName("checkBoxProductId");
+    var box = document.getElementById("allSelect");
+    for (var i = 0; i < checkBoxProductIds.length; i++) {
+        var idCheckBox = checkBoxProductIds[i];
+        if (box.checked) {
+            if (!idCheckBox.checked) {
+                idCheckBox.checked = true;
+            }
+        } else {
+            if (idCheckBox.checked) {
+                idCheckBox.checked = false;
+            }
+        }
+    }
+}
+
+window.submitSelectBox=function submitSelectBox(url) {
+    var checkBoxProductIds = document.getElementsByName("checkBoxProductId");
+    var ids = "";
+    for (var i = 0; i < checkBoxProductIds.length; i++) {
+        var idCheckBox = checkBoxProductIds[i];
+        if (idCheckBox.checked) {
+            ids += idCheckBox.value + ",";
+        }
+    }
+    if (ids == "") {
+        alert("请选择要操作的商品");
+        return;
+    }
+    var r = confirm("确认是这些商品吗？");
+    if (r == true) {
+        window.location.href = url + ids;
+    }
+}
+
+window.submitSelectBoxDel=function submitSelectBoxDel(url) {
+    var checkBoxProductIds = document.getElementsByName("checkBoxProductId");
+    var ids = "";
+    for (var i = 0; i < checkBoxProductIds.length; i++) {
+        var idCheckBox = checkBoxProductIds[i];
+        if (idCheckBox.checked) {
+            ids += idCheckBox.value + ",";
+        }
+    }
+    if (ids == "") {
+        alert("请选择要永久删除的商品");
+        return;
+    }
+    var r = confirm("确认要将这些商品永久删除吗？");
+    if (r == true) {
+        window.location.href = url + ids;
+    }
+}
+
+

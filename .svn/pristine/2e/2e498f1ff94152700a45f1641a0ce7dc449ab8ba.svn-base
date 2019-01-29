@@ -1,0 +1,3 @@
+testId,resultCode,resultMessage,supplierId,tableNumber,peopleNo,id,consumeAmount,orderCount,settleAccountsAmount,status,canSettle,tableNumberSeq
+1001,HAVE_NOT_DATA,桌位不存在,1358,10,3,5864,500,5,200,UNWANTED,YES,15258
+1002,HAVE_NOT_DATA,桌位不可取消,1358,10,3,5864,500,5,200,UNWANTED,YES,15258

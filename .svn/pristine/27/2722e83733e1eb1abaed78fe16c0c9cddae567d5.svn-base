@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>公告服务</title>
+	<link type="text/css" href="/resources/css/loan.css" rel="stylesheet" />
+</head>
+<body class="warp">
+	<!--头部-->
+	#parse("/front/index/common/header.vm")
+	
+	<!--内容-->
+	<div class="container brief fn-clear">
+		<div class="h-content mc-border">
+			<h3 style="color:#a60000;">热烈祝贺第一单提前满额!</h3>
+            </br> 
+			<div class="brief-con">
+                </br> 
+     			<p style="color:#a60000;font-size:22px;">热烈祝贺第一单提前满额!</p>
+                </br> 
+				<p style="font-size:22px;">新投资项目拟发布时间：2013年12月02日上午10:30, 期限：3个月</p>
+				</br>
+					<p style="font-size:22px;"> 敬请关注！</p>
+				</br>
+				</br>
+				</br>
+				<p style="font-size:22px;" class="text-r">$!appConstantsUtil.getPlatformName()</p>
+				</br>
+			</div>
+		</div>
+	</div>
+	#parse("/front/index/common/footer.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+    </script>
+</body>
+</html>

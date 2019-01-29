@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--信息订阅人列表</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<table align="center" width="790" height="45" bgcolor="#fffced" cellpadding="0" cellspacing="0"  class="sm-ts">
+		<tr>
+			<td width="55" align="center"><img src="../../image/comdo/pen.png"></td>
+			<td width="737">信息订阅人列表</td>
+		</tr>
+	</table>
+	<form action="toInfoOrderList">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 5px;">
+		<tr>
+			<td nowrap width="70px" align="right">会员名称：</td>
+			<td width="30">
+				<input type="text" name="fullName" size="20" value="$!fullName">
+			</td>
+			<td nowrap width="90px" align="right">订阅信息类别：</td>
+			<td>
+			<select name="infoTypeId">
+				#if($!infoTypeId=='10000')
+				<option value="all">全部</option>
+				<option value="10000" selected="selected">供应信息</option>
+				<option value="20000">求购信息</option>
+				<option value="30000">产品信息</option>
+				#elseif($!infoTypeId=='20000')
+				<option value="all">全部</option>
+				<option value="10000">供应信息</option>
+				<option value="20000" selected="selected">求购信息</option>
+				<option value="30000">产品信息</option>
+				#elseif($!infoTypeId=='30000')
+				<option value="all">全部</option>
+				<option value="10000">供应信息</option>
+				<option value="20000">求购信息</option>
+				<option value="30000" selected="selected">产品信息</option>
+				#else
+				<option value="all" selected="selected">全部</option>
+				<option value="10000">供应信息</option>
+				<option value="20000">求购信息</option>
+				<option value="30000">产品信息</option>
+				#end
+			</select>
+			</td>
+			<td align="left"><input type="submit" value=" 查 询 " /></td>
+		</tr>
+		</table>
+	</form>
+	<br />
+	#if($!listMA.size()>=1)
+		<div>
+		<table width="100%" border="0" cellspacing="0" cellpadding="0"  align="center" class="list" >
+			<tr class="head">
+				<td class="libiaobg" nowrap width="30%">会员名称</td>
+				<td class="libiaobg" nowrap width="20%">订阅信息</td>
+				<td class="libiaobg" nowrap width="20%">订阅email</td>
+				<td class="libiaobg" nowrap width="20%">订阅时间</td>
+				<td class="libiaobg" nowrap width="10%">操作</td>
+			</tr>
+		
+			#foreach($!item in $!listMA)
+			<tr class=#if($!volecityCount%2==0)"row"#else"altRow"#end height="50">
+				<td class="zuo">$!item.fullName</td>
+				<td class="zuo">
+					#if($!$!item.infoTypeId=='10000')供应信息
+					#elseif($!$!item.infoTypeId=='20000')求购信息
+					#elseif($!$!item.infoTypeId=='30000')产品信息
+					#else $!item.infoTypeId
+					#end
+				</td>
+				<td class="zuo"><s:property value="#item.email"/></td>
+				<td class="zuo">
+				#if(!$!item.modifyTime)
+					$!item.createTime
+				#else
+					$!item.modifyTime
+				#end
+				</td>
+				<td class="zuo"><a href="JavaScript:;" onclick="if(confirm('确认要取消订阅该信息吗？')){window.location.href='setInfoOrderOff.htm?id=$!item.id'}">取消订阅</a></td>
+			</tr>
+			#end
+		</table>
+		</div>
+		<div align="right" style="height: 50px; width: 792px;" >
+			<form action="toInfoOrderList">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+					$!pageBar
+				</table>
+    			<input type="hidden" name="fullName" size="20" value="$!fullName">	
+    			<input type="hidden" name="infoTypeId" size="20" value="$!infoTypeId">		
+			</form>&nbsp;&nbsp;
+   		</div>
+	#else
+		<table>
+		    <tr align="center">
+			<td colspan="7" height="100" class="wz-18b" align="center"><img src="../../image/hzx/tous1.gif" /><span>暂时没有相关信息！</span></td>
+			</tr>
+		</table>
+	#end
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

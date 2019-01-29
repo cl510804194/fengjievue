@@ -1,0 +1,30 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header_member2.vm")
+		
+	    <!--centerContent start-->
+	    <div class="content MO person_cntr">
+	    	<div class="w1200">
+		        ##<div class="member-right DIB refund_rslt">
+		            <p class="nav_title"><span class="DIB">退款申请结果</span></p>
+		    		<p class="err_msg"><i class="warn"></i>$!{result.message}</p>
+		    		<p class="err_opt_btn">
+                        <a href="/do/infoOrder/buyer/queryBuyOrder.htm"><input type="button" class="return_pre"  value="返回订单中心"/></a>
+                        <input type="button" class="return_index" value="返回首页" onclick="doRedirect('/front/platform/mall/mallIndex.htm')"/>
+		    		</p>
+		    	##</div>
+	    	</div>
+	    </div><!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer-lg.vm")
+<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'orderConfirm');
+    function doRedirect(url){
+        window.location.href=url;
+    }
+</script>
+</html>

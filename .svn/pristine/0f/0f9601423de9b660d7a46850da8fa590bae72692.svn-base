@@ -1,0 +1,46 @@
+package com.yjf.esupplier.service.bill;
+
+import java.util.Map;
+
+import com.yjf.esupplier.service.bill.info.RefundOrderInfo;
+import com.yjf.esupplier.ws.bill.order.ConfirmReceiptRefundGoodsOrder;
+import com.yjf.esupplier.ws.bill.order.QueryRefundOrder;
+import com.yjf.esupplier.ws.bill.order.RefundGoodsProcessOrder;
+import com.yjf.esupplier.ws.order.ProcessOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface OrderRefundService {
+	/**
+	 * 审核退款
+	 * @param processOrder
+	 * @return
+	 */
+	EsupplierBaseResult checkRefundApply(ProcessOrder processOrder);
+	/**
+	 * 团购退款失败-检查处理
+	 * @return
+	 */
+	EsupplierBaseResult checkO2oOrderRefundError();
+	/**
+	 * 退货已发出
+	 * @param processOrder
+	 * @return
+	 */
+	EsupplierBaseResult processRefundGoods(RefundGoodsProcessOrder processOrder);
+	
+	EsupplierBaseResult confirmReceiptRefundGoods(ConfirmReceiptRefundGoodsOrder processOrder);
+	
+	QueryBaseBatchResult<RefundOrderInfo> queryRefundCondition(QueryRefundOrder queryRefundOrder);
+	
+	RefundOrderInfo findById(long refundId);
+	
+	/**
+	 * 待确认退货条数
+	 * @param userId
+	 * @return
+	 */
+	long findRefundOrderCountByUserId(long userId);
+	
+	EsupplierBaseResult refundProcess(Map<String, String> param);
+}

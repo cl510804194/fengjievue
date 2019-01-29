@@ -1,0 +1,14 @@
+define(function(require) {
+	var Site = require('comp/init.js');
+	require('Y-all/Y-script/Y-tip.js');
+    require('content/fileUpload.js');
+    require('plugins/jquery.box.js');
+    require('plugins/jquery.combobox.js');
+    require('plugins/jquery.window.js');
+	
+	var settlement_form = $('#settlement_form');
+	$('.fn-submit').click(function() {
+		settlement_form.submit();
+	})
+
+});

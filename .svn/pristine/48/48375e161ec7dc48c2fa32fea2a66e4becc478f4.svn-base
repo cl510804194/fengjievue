@@ -1,0 +1,186 @@
+package com.yjf.esupplier.service.common.order;
+
+import com.yjf.common.lang.enums.CertTypeEnum;
+import com.yjf.esupplier.integration.openapi.enums.OccupationEnum;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class GuarantorOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 2410426271740707684L;
+	/**
+	 * 担保人 id 更新时候需要
+	 */
+	private long id;
+	/**
+	 * 担保人编号
+	 */
+	private String guarantorCode;
+	/**
+	 * 名称
+	 */
+	private String guarantorName;
+	/**
+	 * 担保人证件类型
+	 */
+	private CertTypeEnum guaranteeCertType;
+	/**
+	 * 担保证件号
+	 */
+	private String guaranteeCertNo;
+	/**
+	 * 担保人证件有效期
+	 */
+	private String guaranteeCertValidTime;
+	/**
+	 * 担保人证件正面
+	 */
+	private String guaranteeCertFrontPath;
+	/**
+	 * 担保人证件反面
+	 */
+	private String guaranteeCertBackPath;
+	/**
+	 * 担保人手机号码
+	 */
+	private String guaranteePhone;
+	/**
+	 * 担保人职业
+	 */
+	private OccupationEnum guaranteeOccupation;
+	/**
+	 * 担保人地址
+	 */
+	private String guaranteeAddress;
+	
+	@Override
+	public void check() {
+		super.check();
+		validateHasText(guarantorCode, "担保人编号");
+		validateHasText(guarantorName, "担保人名称");
+		validateNotNull(guaranteeCertType, "担保人证件类型");
+		validateHasText(guaranteeCertNo, "担保人证件号");
+		validateHasText(guaranteeCertValidTime, "担保人证件有效期");
+		validateHasText(guaranteeCertFrontPath, "担保人证件正面");
+		validateHasText(guaranteeCertBackPath, "担保人证件反面");
+		validateHasText(guaranteePhone, "担保人手机号码");
+		validateNotNull(guaranteeOccupation, "担保人手机号码");
+		validateHasText(guaranteeAddress, "担保人地址");
+	}
+	
+	public long getId() {
+		return this.id;
+	}
+	
+	public void setId(long id) {
+		this.id = id;
+	}
+	
+	public String getGuarantorCode() {
+		return this.guarantorCode;
+	}
+	
+	public void setGuarantorCode(String guarantorCode) {
+		this.guarantorCode = guarantorCode;
+	}
+	
+	public String getGuarantorName() {
+		return this.guarantorName;
+	}
+	
+	public void setGuarantorName(String guarantorName) {
+		this.guarantorName = guarantorName;
+	}
+	
+	public CertTypeEnum getGuaranteeCertType() {
+		return this.guaranteeCertType;
+	}
+	
+	public void setGuaranteeCertType(CertTypeEnum guaranteeCertType) {
+		this.guaranteeCertType = guaranteeCertType;
+	}
+	
+	public String getGuaranteeCertNo() {
+		return this.guaranteeCertNo;
+	}
+	
+	public void setGuaranteeCertNo(String guaranteeCertNo) {
+		this.guaranteeCertNo = guaranteeCertNo;
+	}
+	
+	public String getGuaranteeCertValidTime() {
+		return this.guaranteeCertValidTime;
+	}
+	
+	public void setGuaranteeCertValidTime(String guaranteeCertValidTime) {
+		this.guaranteeCertValidTime = guaranteeCertValidTime;
+	}
+	
+	public String getGuaranteeCertFrontPath() {
+		return this.guaranteeCertFrontPath;
+	}
+	
+	public void setGuaranteeCertFrontPath(String guaranteeCertFrontPath) {
+		this.guaranteeCertFrontPath = guaranteeCertFrontPath;
+	}
+	
+	public String getGuaranteeCertBackPath() {
+		return this.guaranteeCertBackPath;
+	}
+	
+	public void setGuaranteeCertBackPath(String guaranteeCertBackPath) {
+		this.guaranteeCertBackPath = guaranteeCertBackPath;
+	}
+	
+	public String getGuaranteePhone() {
+		return this.guaranteePhone;
+	}
+	
+	public void setGuaranteePhone(String guaranteePhone) {
+		this.guaranteePhone = guaranteePhone;
+	}
+	
+	public OccupationEnum getGuaranteeOccupation() {
+		return this.guaranteeOccupation;
+	}
+	
+	public void setGuaranteeOccupation(OccupationEnum guaranteeOccupation) {
+		this.guaranteeOccupation = guaranteeOccupation;
+	}
+	
+	public String getGuaranteeAddress() {
+		return this.guaranteeAddress;
+	}
+	
+	public void setGuaranteeAddress(String guaranteeAddress) {
+		this.guaranteeAddress = guaranteeAddress;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("GuarantorOrder [id=");
+		builder.append(id);
+		builder.append(", guarantorCode=");
+		builder.append(guarantorCode);
+		builder.append(", guarantorName=");
+		builder.append(guarantorName);
+		builder.append(", guaranteeCertType=");
+		builder.append(guaranteeCertType);
+		builder.append(", guaranteeCertNo=");
+		builder.append(guaranteeCertNo);
+		builder.append(", guaranteeCertValidTime=");
+		builder.append(guaranteeCertValidTime);
+		builder.append(", guaranteeCertFrontPath=");
+		builder.append(guaranteeCertFrontPath);
+		builder.append(", guaranteeCertBackPath=");
+		builder.append(guaranteeCertBackPath);
+		builder.append(", guaranteePhone=");
+		builder.append(guaranteePhone);
+		builder.append(", guaranteeOccupation=");
+		builder.append(guaranteeOccupation);
+		builder.append(", guaranteeAddress=");
+		builder.append(guaranteeAddress);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,377 @@
+package com.yjf.esupplier.service.bill;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.domain.ProductDomain;
+import com.yjf.esupplier.service.pay.order.OrderNotifyOrder;
+import com.yjf.esupplier.ws.bill.info.DiningOrderInfo;
+import com.yjf.esupplier.ws.bill.info.OrderInfo;
+import com.yjf.esupplier.ws.bill.info.OrderItemInfo;
+import com.yjf.esupplier.ws.bill.info.ProductScoreInfo;
+import com.yjf.esupplier.ws.bill.order.*;
+import com.yjf.esupplier.ws.bill.result.BillSaveResult;
+import com.yjf.esupplier.ws.bill.result.OrderSellerShipResult;
+import com.yjf.esupplier.ws.info.DrawerAddressInfo;
+import com.yjf.esupplier.ws.order.ProcessOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface OrderService {
+	
+	/**
+	 * 查询会员已经买了的商品的订单列表 2010-4-7
+	 * @author yuwenqiang
+	 * @return @
+	 */
+	QueryBaseBatchResult<OrderInfo> findFrontOrderList(	Long memberId, String sta, int pageStart,
+														int pageEnd);
+	
+	public BillSaveResult saveOrderInfo(final BillSaveOrder billSaveOrder);
+	
+	/**
+	 * 订单综合查询
+	 * @param searchOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<OrderInfo> findOrderList(QueryOrderInfoSearchOrder searchOrder);
+	
+	/**
+	 * 订单综合查询数据条数
+	 * @param searchOrder
+	 * @return
+	 */
+	Long findOrderListCount(QueryOrderInfoSearchOrder searchOrder);
+	
+	/**
+	 * 点餐订单综合查询
+	 * @param searchOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<DiningOrderInfo> findDiningOrderList(QueryOrderInfoSearchOrder searchOrder);
+	
+	/**
+	 * 通过批次号和订单状态查询点餐订单详情
+	 * @param searchOrder
+	 * @return
+	 */
+	DiningOrderInfo findDiningOrderInfoByBatchNo(QueryOrderInfoSearchOrder searchOrder);
+	
+	/**
+	 * 销售订单
+	 * @param supplierId
+	 * @param orderStatus
+	 * @param pageStart
+	 * @param pageEnd
+	 * @param orderId
+	 * @param fullName
+	 * @param productName
+	 * @param beginDate
+	 * @param endDate
+	 * @param takeWays
+	 * @param displayAndNone
+	 * @return
+	 */
+	QueryBaseBatchResult<OrderInfo> findSoldOrderList(	Long supplierId, String orderStatus,
+														int pageStart, int pageEnd, Long orderId,
+														String fullName, String productName,
+														String beginDate, String endDate,
+														String takeWays, String displayAndNone);
+	
+	/**
+	 * 会员查询自己将要卖的商品信息
+	 * @param supplierId
+	 * @param orderStatus
+	 * @param pageStart
+	 * @param pageEnd
+	 * @return
+	 */
+	QueryBaseBatchResult<OrderInfo> findSoldOrderList(	Long supplierId, String orderStatus,
+														int pageStart, int pageEnd);
+	
+	/**
+	 * 查询会员已经买了的商品的订单列表 2010-4-7
+	 * @author yuwenqiang
+	 * @return @
+	 */
+	QueryBaseBatchResult<OrderInfo> findFrontOrderList(	Long userId, String orderStatus,
+														int pageStart, int pageEnd, Long orderId,
+														String fullName, String productName,
+														String beginDate, String endDate,
+														String takeWays, String displayAndNone);
+	
+	/*
+	* 获取订单详情
+	* */
+	OrderInfo findOrderById(Long id);
+	
+	/*
+	* 根据外部订单获取外部订单明细
+	*
+	* */
+	OrderInfo findOrderByQrCode(String code, String status, Long supplierId);
+	
+	/*
+	* 获取订单明细
+	* */
+	List<OrderItemInfo> findOrderItemByOrderId(long orderId);
+	
+	/*
+	* 获取地址列表
+	* */
+	List<DrawerAddressInfo> getAddresses(Long mId);
+	
+	/*
+	* 获取地址列表(默认地址）
+	* */
+	List<DrawerAddressInfo> getAddressesAndDefault(Long mId, String isDefault);
+	
+	/*
+	* 查找地址详情
+	* */
+	DrawerAddressInfo findDrawerAddressById(String addId);
+	
+	/*
+	* 删除地址
+	* */
+	void deleteAddressById(String addID);
+	
+	/*
+	* 保存地址
+	* */
+	EsupplierBaseResult saveDrawerAddress(DrawerAddressSaveOrder addressOrder);
+	
+	/*
+	* 新增地址
+	* */
+	EsupplierBaseResult updateDrawerAddress(DrawerAddressSaveOrder addressOrder);
+	
+	/*
+	* 查询商品评分列表
+	* */
+	QueryBaseBatchResult<ProductScoreInfo> queryProductScoreList(SearchProductScoreOrder searchOrder);
+	
+	/*
+	* 评分分数统计列表
+	* */
+	ProductScoreStatisticsRsult statisticsProductScoreList(SearchProductScoreOrder searchOrder);
+	
+	/*
+	* 支付结果确认
+	* */
+	EsupplierBaseResult orderPayNotify(OrderNotifyOrder notifyOrder);
+	
+	/**
+	 * 买家确认发货
+	 * @param deliveryShipOrder
+	 * @return
+	 */
+	OrderSellerShipResult orderSellerShip(SaveDeliveryShipOrder deliveryShipOrder);
+	
+	/*
+	* 取消整个批次订单
+	* */
+	EsupplierBaseResult cancelOrder(CancelBillOrder processOrder);
+	
+	/*
+	* 取消整个批次订单
+	* */
+	EsupplierBaseResult cancelBatchOrder(CancelBillOrder processOrder);
+	
+	/*
+	* 删除订单
+	* */
+	EsupplierBaseResult delOrder(DelBillOrder delBillOrder);
+	
+	/*
+	* 确认收货
+	* */
+	EsupplierBaseResult confirmReceipt(ProcessOrder processOrder);
+	
+	/*
+	* 商品评价
+	* */
+	EsupplierBaseResult tradeReview(TradeReviewOrder processOrder);
+
+	/*
+	* 商品评价点赞
+	* */
+	EsupplierBaseResult tradeReviewLike(TradeReviewLikeOrder processOrder);
+	
+	/*
+	* 申请退款/退货
+	* */
+	EsupplierBaseResult refundApply(RefundApplyOrder processOrder);
+	
+	/*
+	* 根据orderItemId查找OrderItemInfo
+	* */
+	OrderItemInfo findOrderItemById(long orderItemId);
+	
+	/*
+	* 永久删除订单
+	* */
+	EsupplierBaseResult clearDelOrder(DelBillOrder delBillOrder);
+	
+	/*
+	* 恢复订单
+	* */
+	EsupplierBaseResult recoverDelOrder(DelBillOrder delBillOrder);
+	
+	/*
+	* 发送优惠码
+	* */
+	EsupplierBaseResult sendQrCode(SendQrCodeOrder processOrder);
+	
+	/*
+	* 验证优惠码
+	* */
+	EsupplierBaseResult validationQrCode(SendQrCodeOrder processOrder);
+	
+	/*
+	* 消费优惠码
+	* @param qrCode 消费码
+	* @param orderId 订单号（为空表示根据唯一消费码验证）
+	* */
+	EsupplierBaseResult useQrCode(SendQrCodeOrder processOrder);
+	
+	/**
+	 * 买入订单查询
+	 * @param searchOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<OrderInfo> findMyBuyOrderList(QueryOrderInfoSearchOrder searchOrder);
+	
+	/**
+	 * 生成二维码的url
+	 * @param processOrder
+	 * @return
+	 */
+	EsupplierBaseResult makeQRcodeUrl(OrderQRCodeOrder processOrder);
+	
+	/**
+	 * 扫描二维码
+	 * @param processOrder
+	 * @return
+	 */
+	EsupplierBaseResult scanningQRcode(ScanningQRcodeOrder processOrder);
+	
+	/**
+	 * 到店付款
+	 * @param payToShopOrder
+	 * @return
+	 */
+	BillSaveResult payToShop(PayToShopOrder payToShopOrder);
+	
+	/**
+	 * 订单详情
+	 * 
+	 */
+	EsupplierBaseResult loadRefundDetail(long refundId);
+	
+	/**
+	 * 默认收货地址
+	 * 
+	 */
+	EsupplierBaseResult setDefaultAddress(String addID);
+	
+	/**
+	 * 修改运费（买家承担）
+	 * 
+	 */
+	EsupplierBaseResult setPostFee(PostFeeOrder processOrder);
+	
+	/*
+	* 计算每个商品的运费信息
+	* */
+	public void setPostFeeAndItem(	ProductDomain productDomain, Map<Long, Money> supplierMap,
+									Money totalAmontIncludingfreight, String province);
+	
+	/**
+	 * 点餐接口
+	 * @param mealOrder
+	 * @return
+	 */
+	BillSaveResult mealOrder(MealOrder mealOrder);
+	
+	/**
+	 * 确认点餐
+	 * @param mealOrder
+	 * @return
+	 */
+	BillSaveResult confirmMealOrder(ConfirmMealOrder mealOrder);
+	
+	/**
+	 * 更新点餐数据
+	 * @param quantityOrder
+	 * @return
+	 */
+	EsupplierBaseResult updateQuantityMealOrder(UpdateMealQuantityOrder quantityOrder);
+	
+	/**
+	 * 取消点餐
+	 * @param cancelMealOrder
+	 * @return
+	 */
+	EsupplierBaseResult cancelMealOrder(CancelMealOrder cancelMealOrder);
+	
+	/**
+	 * 取消桌位
+	 * @param mealBaseOrder
+	 * @return
+	 */
+	EsupplierBaseResult clearTableNumber(ClearMealOrder mealBaseOrder);
+	
+	/**
+	 * 确认派送
+	 * @param mealOrder
+	 * @return
+	 */
+	EsupplierBaseResult confirmDeliveryMealOrder(ConfirmDeliveryMealOrder mealOrder);
+	
+	/**
+	 * 接收订单
+	 * @param mealOrder
+	 * @return
+	 */
+	EsupplierBaseResult orderTakingMealOrder(OrderTakingMealOrder mealOrder);
+	
+	/**
+	 * 单独申请打印小票（查询待打印的小票 OrderQueryService.findOrderList）
+	 * @param mealOrder
+	 * @return
+	 */
+	EsupplierBaseResult applyPrintReceiptMealOrder(PrintReceiptMealOrder mealOrder);
+	
+	/**
+	 * 配送完成
+	 * @param mealOrder
+	 * @return
+	 */
+	EsupplierBaseResult completeDelivery(ConfirmDeliveryMealOrder mealOrder);
+	
+	/**
+	 * PAD打印小票完成
+	 * @param mealOrder
+	 * @return
+	 */
+	EsupplierBaseResult printReceiptComplete(PrintReceiptMealOrder mealOrder);
+	
+	/**
+	 * 取消app点餐订单
+	 * @param
+	 * @return
+	 */
+	EsupplierBaseResult cancelDiningOrder(CancelDiningOrder cancelOrder);
+	
+	/** 修改批次号 **/
+	int updateBatchNoByOrderId(long orderId, long batchNo);
+	
+	/**
+	 * 选择技师
+	 * @param
+	 * @return
+	 */
+	EsupplierBaseResult bookTec(TecBillOrder tecBillOrder);
+}

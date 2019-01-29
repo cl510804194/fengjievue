@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orderInfo">
+    <typeAlias alias="userOrderSum" type="com.yjf.esupplier.dal.custom.dataobject.UserOrderSumDO"/>
+    <resultMap id="userOrderSumResult" class="userOrderSum">
+        <result property="todayAmount" column="todayAmount" javaType="com.yjf.common.lang.util.money.Money" jdbcType="FLOAT" nullValue="0"/>
+        <result property="todayCount" column="todayCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="todayO2OCount" column="todayO2OCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="todayHotelCount" column="todayHotelCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="sevenAmount" column="sevenAmount" javaType="com.yjf.common.lang.util.money.Money" jdbcType="FLOAT" nullValue="0"/>
+        <result property="sevenCount" column="sevenCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="sevenO2OCount" column="sevenO2OCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="sevenHotelCount" column="sevenHotelCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="monthAmount" column="monthAmount" javaType="com.yjf.common.lang.util.money.Money" jdbcType="FLOAT" nullValue="0"/>
+        <result property="monthCount" column="monthCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="monthO2OCount" column="monthO2OCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+        <result property="monthHotelCount" column="monthHotelCount" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+    </resultMap>
+
+    <!--获取订单汇总信息-->
+    <select id="getUserOrderSum" resultClass="userOrderSum" parameterClass="HashMap">
+        <![CDATA[
+		SELECT IFNULL(SUM(CASE WHEN DATE(OPERATOR_TIME) = CURDATE() THEN total_amount ELSE 0 END),0) todayAmount,
+		IFNULL(SUM(CASE WHEN DATE(OPERATOR_TIME) = CURDATE() THEN 1 ELSE 0 END),0) todayCount,
+		IFNULL(SUM(CASE WHEN DATE(OPERATOR_TIME) = CURDATE() AND sale_type_o2o='YES' AND sale_type_hotels='YES' THEN 1 ELSE 0 END),0) todayO2OCount,
+		IFNULL(SUM(CASE WHEN DATE(OPERATOR_TIME) = CURDATE() AND sale_type_hotels='YES' THEN 1 ELSE 0 END),0) todayHotelCount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 7 DAY)<= DATE(OPERATOR_TIME) THEN total_amount ELSE 0 END),0) sevenAmount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 7 DAY)<= DATE(OPERATOR_TIME) THEN 1 ELSE 0 END),0) sevenCount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 7 DAY)<= DATE(OPERATOR_TIME) AND sale_type_o2o='YES' AND sale_type_hotels='YES' THEN 1 ELSE 0 END),0) sevenO2OCount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 7 DAY)<= DATE(OPERATOR_TIME) AND sale_type_hotels='YES' THEN 1 ELSE 0 END),0) sevenHotelCount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 30 DAY)<= DATE(OPERATOR_TIME) THEN total_amount ELSE 0 END),0) monthAmount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 30 DAY)<= DATE(OPERATOR_TIME) THEN 1 ELSE 0 END),0) monthCount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 30 DAY)<= DATE(OPERATOR_TIME) AND sale_type_o2o='YES' AND sale_type_hotels='YES' THEN 1 ELSE 0 END),0) monthO2OCount,
+		IFNULL(SUM(CASE WHEN DATE_SUB(CURDATE(), INTERVAL 30 DAY)<= DATE(OPERATOR_TIME) AND sale_type_hotels='YES' THEN 1 ELSE 0 END),0) monthHotelCount
+		FROM tbl_order_info   WHERE  DATE_SUB(CURDATE(), INTERVAL 30 DAY)<= DATE(OPERATOR_TIME)  AND refund_status IS NULL
+   ]]>
+        <dynamic>
+            <isGreaterThan  property="supplierId" prepend=" and " compareValue="0">
+                supplier_id = #supplierId#
+            </isGreaterThan>
+            <isGreaterThan property="userId" prepend=" and " compareValue="0">
+                user_id = #userId#
+            </isGreaterThan>
+            <!-- 订单状态 -->
+            <isNotEmpty  property="orderStatus" prepend=" and ">
+                <![CDATA[order_status in]]>
+                <iterate property="orderStatus" open="(" close=")" conjunction=",">
+                    <![CDATA[#orderStatus[]#]]>
+                </iterate>
+            </isNotEmpty>
+        </dynamic>
+    </select>
+
+</sqlMap>

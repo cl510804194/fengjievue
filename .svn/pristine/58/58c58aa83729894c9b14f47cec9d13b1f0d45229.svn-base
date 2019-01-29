@@ -1,0 +1,79 @@
+#parse("/front/index/common/header-title.vm")
+    <style type="text/css">
+	.table {
+       border-collapse:collapse;
+        border-spacing:0;
+    }
+	.brief-con{
+		padding: 0 20px 20px;
+	}
+	.brief-con h4{
+		font-size: 16px;
+        margin-bottom: 5px;
+        font-weight: bold;
+	}
+	
+	</style>
+</head>
+<body class="warp">
+	<!--头部-->
+	#parse("/front/index/common/header-yrd.vm")
+	<!--内容-->
+		<!--右侧内容-->
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="bd-box db-p14 container">
+			#if($!{popHelp})
+                <h3 >$!{popHelp.title}</h3>
+				<div class="brief-con" font-family: "Microsoft Yahei", "微软雅黑", Tahoma, Arial, Helvetica, STHeiti;">
+					#if($!{popHelp.parentId}==-1)
+						<ul>
+						#foreach($info in $childs)
+							<li>
+    							<a style="font-size: 12pt;color: #4f4f4f;" href="/help/popHelp/$!{info.popId}">
+                                    $velocityCount. $!{info.title}
+                                </a>
+							</li>	
+						#end
+						</ul>
+					#else
+						$!{popHelp.content}
+					#end	
+                </div>	
+			#else
+			<h3>
+            </h3>
+			<div class="brief-con" style="height:300px;font-family: "Microsoft Yahei", "微软雅黑", Tahoma, Arial, Helvetica, STHeiti;">
+				#foreach($info in $helpModules)
+				<dl style="width: 220px;padding-right: 20px;float: left;">
+					
+					<dt style="padding-bottom: 15px;">
+						<a style="font-size: 16pt;font-weight: bold;color: #4f4f4f;" href="/help/popHelp/$!{info.popId}">$!{info.title}</a>
+                    </dt>
+					#foreach($child in $helps)
+						#if($!{child.parentId} == $!{info.popId})
+							<dd style="text-align: left;line-height: 26px;">
+        						<a style="font-size: 12pt;color: #4f4f4f;" href="/help/popHelp/$!{child.popId}">$!{child.title}</a>
+                            </dd>
+						#end
+					#end
+				</dl>	
+				#end
+			</div>	
+			#end	
+    </div>
+    <div class="blank50"></div>
+</div>
+	
+	
+	#parse("/front/index/common/footer-yrd.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'helpCenter');
+    </script>
+</body>
+</html>

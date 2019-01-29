@@ -1,0 +1,11 @@
+package com.yjf.esupplier.service.product;
+
+import java.util.List;
+
+import com.yjf.esupplier.ws.product.info.ProductCustomPropertyInfo;
+
+public interface ProductCustomPropertyService {
+	
+	List<ProductCustomPropertyInfo> getProductCustomPropertyList(long productId);
+	
+}

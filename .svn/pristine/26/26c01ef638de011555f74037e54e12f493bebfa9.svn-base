@@ -1,0 +1,49 @@
+<table sqlname="user_level_rule">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO user_level_rule(rule_id,user_level,rule_type,rule_type_param1,rule_type_param,priority,start_value,end_value,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?)
+		]]>
+		</sql>
+		<!-- 
+		<sqlmap>
+			<![CDATA[
+		   insert /*MS-YRD-MESSAGE-INFO-INSERT*/ into message_info(message_id,message_title,message_type,message_status,message_subject,message_content,notification_object,view_type,link_url,notification_type,message_send_date,message_plan_send_date,message_sender_id,message_sender_name,raw_add_time) values (#messageId#, #messageTitle#, #messageType#, #messageStatus#, #messageSubject#, #messageContent#, #notificationObject#, #viewType#, #linkUrl#, #notificationType#, #messageSendDate#, #messagePlanSendDate#, #messageSenderId#, #messageSenderName#, #rawAddTime#)
+	       <selectKey  resultClass ="long"  keyProperty ="messageId" >   
+	          		 SELECT LAST_INSERT_ID() AS ID 
+	      	</selectKey>
+				]]>
+		</sqlmap>
+		 -->
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+				<![CDATA[
+					UPDATE user_level_rule SET user_level=?,rule_type=?,priority=?,start_value=?,end_value=?,rule_type_param=?,rule_type_param1=? WHERE rule_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="long">
+		<sql>
+				<![CDATA[
+				SELECT  rule_id ,user_level ,rule_type ,rule_type_param,rule_type_param1,priority ,start_value ,end_value ,raw_add_time ,raw_update_time  FROM user_level_rule WHERE rule_id=?
+				]]>
+		</sql>
+	</operation>
+	<operation name="findByUserLevel" paramtype="string"  multiplicity="many">
+		<sql>
+				<![CDATA[
+				SELECT  rule_id ,user_level ,rule_type ,rule_type_param,rule_type_param1,priority ,start_value ,end_value ,raw_add_time ,raw_update_time  FROM user_level_rule WHERE user_level=? order by priority desc
+ 
+				]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+				<![CDATA[
+				DELETE FROM user_level_rule WHERE rule_id=?
+				]]>
+		</sql>
+	</operation>
+	
+</table>

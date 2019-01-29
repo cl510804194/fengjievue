@@ -1,0 +1,172 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.integration.openapi.enums.AttributionEnum;
+import com.yjf.esupplier.integration.openapi.enums.PeasonSexEnum;
+import com.yjf.esupplier.ws.enums.CertTypeEnum;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class NonMainlandRealAuthenticateOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 3130314495243540023L;
+	/**
+	 * 名称
+	 */
+	String realName;
+	/**
+	 * 证件号
+	 */
+	String certNo;
+	/**
+	 * 有效期
+	 */
+	String businessPeriod;
+	/**
+	 * 证件正面
+	 */
+	String certFrontPath;
+	/**
+	 * 证件背面
+	 */
+	String certBackPath;
+	/**
+	 * user_id
+	 */
+	String userBaseId;
+	/**
+	 * 性别
+	 */
+	PeasonSexEnum sex;
+	/**
+	 * 证件类别
+	 */
+	CertTypeEnum certTypeEnum;
+	
+	/**
+	 * 归属地
+	 */
+	AttributionEnum attribution;
+	
+	/**
+	 * 地址
+	 */
+	String address;
+	
+	@Override
+	public void check() {
+		validateHasText(realName, "真实姓名");
+		validateHasText(certNo, "证件号");
+		validateHasText(businessPeriod, "证件有效期");
+		validateHasText(certFrontPath, "证件正面");
+		validateHasText(certBackPath, "证件背面");
+		validateHasText(userBaseId, "userBaseId");
+		validateNotNull(certTypeEnum, "证件类型");
+		validateNotNull(sex, "性别");
+		validateNotNull(attribution, "归属地");
+		validateNotNull(address, "地址");
+	}
+	
+	public String getRealName() {
+		return this.realName;
+	}
+	
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+	
+	public String getCertNo() {
+		return this.certNo;
+	}
+	
+	public void setCertNo(String certNo) {
+		this.certNo = certNo;
+	}
+	
+	public String getBusinessPeriod() {
+		return this.businessPeriod;
+	}
+	
+	public void setBusinessPeriod(String businessPeriod) {
+		this.businessPeriod = businessPeriod;
+	}
+	
+	public String getCertFrontPath() {
+		return this.certFrontPath;
+	}
+	
+	public void setCertFrontPath(String certFrontPath) {
+		this.certFrontPath = certFrontPath;
+	}
+	
+	public String getCertBackPath() {
+		return this.certBackPath;
+	}
+	
+	public void setCertBackPath(String certBackPath) {
+		this.certBackPath = certBackPath;
+	}
+	
+	public String getUserBaseId() {
+		return this.userBaseId;
+	}
+	
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	public PeasonSexEnum getSex() {
+		return this.sex;
+	}
+	
+	public void setSex(PeasonSexEnum sex) {
+		this.sex = sex;
+	}
+	
+	public CertTypeEnum getCertTypeEnum() {
+		return this.certTypeEnum;
+	}
+	
+	public void setCertTypeEnum(CertTypeEnum certTypeEnum) {
+		this.certTypeEnum = certTypeEnum;
+	}
+	
+	public AttributionEnum getAttribution() {
+		return this.attribution;
+	}
+	
+	public void setAttribution(AttributionEnum attribution) {
+		this.attribution = attribution;
+	}
+	
+	public String getAddress() {
+		return this.address;
+	}
+	
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("NonMainlandRealAuthenticateOrder [realName=");
+		builder.append(realName);
+		builder.append(", certNo=");
+		builder.append(certNo);
+		builder.append(", businessPeriod=");
+		builder.append(businessPeriod);
+		builder.append(", certFrontPath=");
+		builder.append(certFrontPath);
+		builder.append(", certBackPath=");
+		builder.append(certBackPath);
+		builder.append(", userBaseId=");
+		builder.append(userBaseId);
+		builder.append(", sex=");
+		builder.append(sex);
+		builder.append(", certTypeEnum=");
+		builder.append(certTypeEnum);
+		builder.append(", attribution=");
+		builder.append(attribution);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

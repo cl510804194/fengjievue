@@ -1,0 +1,18 @@
+package com.yjf.esupplier.service.trade;
+
+import com.yjf.esupplier.service.trade.order.PPMWithdrawOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public interface WithdrawYrdService {
+
+	/**
+	 * 网银充值
+	 * 
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult applyPPMWithdraw(PPMWithdrawOrder order);
+
+
+//	EsupplierBaseResult applyBornWithdraw(BornWithdrawOrder order);
+}

@@ -1,0 +1,146 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import java.util.Date;
+
+public class DeliveryShipDO {
+	private long Id;
+	private Long orderId;
+	private Long logisticsId;
+	private String deliveryId; //发货单ID
+	private String logisticsMan;
+	private Date logisticsTime;
+	private String deliverer;
+	private Date delivererTime;
+	private String status;
+	private String createMan;
+	private Date createTime;
+	private LogisticsDO logistics;
+	
+	public long getId() {
+		return this.Id;
+	}
+	
+	public void setId(long id) {
+		Id = id;
+	}
+	
+	public Long getOrderId() {
+		return this.orderId;
+	}
+	
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+	
+	public Long getLogisticsId() {
+		return this.logisticsId;
+	}
+	
+	public void setLogisticsId(Long logisticsId) {
+		this.logisticsId = logisticsId;
+	}
+	
+	public String getDeliveryId() {
+		return this.deliveryId;
+	}
+	
+	public void setDeliveryId(String deliveryId) {
+		this.deliveryId = deliveryId;
+	}
+	
+	public String getLogisticsMan() {
+		return this.logisticsMan;
+	}
+	
+	public void setLogisticsMan(String logisticsMan) {
+		this.logisticsMan = logisticsMan;
+	}
+	
+	public Date getLogisticsTime() {
+		return this.logisticsTime;
+	}
+	
+	public void setLogisticsTime(Date logisticsTime) {
+		this.logisticsTime = logisticsTime;
+	}
+	
+	public String getDeliverer() {
+		return this.deliverer;
+	}
+	
+	public void setDeliverer(String deliverer) {
+		this.deliverer = deliverer;
+	}
+	
+	public Date getDelivererTime() {
+		return this.delivererTime;
+	}
+	
+	public void setDelivererTime(Date delivererTime) {
+		this.delivererTime = delivererTime;
+	}
+	
+	public String getStatus() {
+		return this.status;
+	}
+	
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public String getCreateMan() {
+		return this.createMan;
+	}
+	
+	public void setCreateMan(String createMan) {
+		this.createMan = createMan;
+	}
+	
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+	
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	
+	public LogisticsDO getLogistics() {
+		return this.logistics;
+	}
+	
+	public void setLogistics(LogisticsDO logistics) {
+		this.logistics = logistics;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DeliveryShipDO [Id=");
+		builder.append(Id);
+		builder.append(", orderId=");
+		builder.append(orderId);
+		builder.append(", logisticsId=");
+		builder.append(logisticsId);
+		builder.append(", deliveryId=");
+		builder.append(deliveryId);
+		builder.append(", logisticsMan=");
+		builder.append(logisticsMan);
+		builder.append(", logisticsTime=");
+		builder.append(logisticsTime);
+		builder.append(", deliverer=");
+		builder.append(deliverer);
+		builder.append(", delivererTime=");
+		builder.append(delivererTime);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", createMan=");
+		builder.append(createMan);
+		builder.append(", createTime=");
+		builder.append(createTime);
+		builder.append(", logistics=");
+		builder.append(logistics);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

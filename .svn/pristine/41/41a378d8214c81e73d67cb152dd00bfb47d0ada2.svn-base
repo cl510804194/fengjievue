@@ -1,0 +1,131 @@
+<table sqlname="charge_temple">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO charge_temple(charge_id,charge_name,interest_rate,manage_rate,service_charge,loan_type,commodity_type,stages_num,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE charge_temple SET charge_name=?,interest_rate=?,manage_rate=?,service_charge=?,loan_type=?,commodity_type=?,stages_num=? WHERE charge_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  charge_id ,charge_name,interest_rate ,manage_rate,service_charge ,loan_type ,commodity_type ,stages_num ,raw_add_time ,raw_update_time  FROM charge_temple WHERE charge_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM charge_temple WHERE charge_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM charge_temple
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllList" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  * FROM charge_temple
+			]]>
+		</sql>
+	</operation>
+	
+	
+	
+	<operation name="chargeTempleQueryCount" paramtype="string" >
+	    <extraparams>
+			<param name="chargeName" javatype="java.lang.String" />
+			<param name="serviceCharge" javatype="double" />
+		</extraparams>
+	     <sql>
+				<![CDATA[
+			      SELECT  count(*)  FROM charge_temple WHERE 1=1
+				]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+				SELECT  count(*)  FROM charge_temple WHERE 1=1
+				 <dynamic>
+					<isNotEmpty property="chargeName" prepend=" and ">
+						${cdata-start} charge_name like concat('%',#chargeName#,'%')  ${cdata-end}
+					</isNotEmpty>
+					
+				 	<isGreaterThan property="serviceCharge" compareValue="0" prepend=" and ">
+						${cdata-start} service_charge = #serviceCharge# ${cdata-end}
+					</isGreaterThan>
+	            </dynamic>
+				
+			]]>
+		</sqlmap>
+	</operation>
+	
+	<operation name="chargeTempleQueryList"  multiplicity="many">
+		<extraparams>
+			<param name="chargeName" javatype="java.lang.String" />
+			<param name="serviceCharge" javatype="double" />
+			<param name="limitStart" javatype="long" />
+			<param name="pageSize" javatype="long" />
+		</extraparams>	
+		<sql>
+		   SELECT  charge_id ,charge_name,interest_rate ,manage_rate,service_charge ,loan_type ,commodity_type ,stages_num ,raw_add_time ,raw_update_time from charge_temple where 1=1
+		</sql>
+		<sqlmap>
+				<![CDATA[
+				   SELECT  charge_id ,charge_name,interest_rate ,manage_rate,service_charge ,loan_type ,commodity_type ,stages_num ,raw_add_time ,raw_update_time from charge_temple where 1=1
+				<dynamic>
+					<isNotEmpty property="chargeName" prepend=" and ">
+						${cdata-start} charge_name like concat('%',#chargeName#,'%')  ${cdata-end}
+					</isNotEmpty>
+				 	<isGreaterThan property="serviceCharge" compareValue="0" prepend=" and ">
+						${cdata-start} service_charge = #serviceCharge# ${cdata-end}
+					</isGreaterThan>
+		        </dynamic>  
+		           LIMIT #limitStart#,#pageSize#;
+			]]>
+		</sqlmap>
+	</operation>
+	
+	
+	<operation name="findChargeTempleByTypeAndNum">
+		<extraparams>
+			<param name="loanType" javatype="java.lang.String" />
+			<param name="commodityType" javatype="java.lang.String" />
+			<param name="stagesNum" javatype="int" />
+		</extraparams>	
+		<sql>
+		   SELECT  charge_id ,charge_name,interest_rate ,manage_rate,service_charge ,loan_type ,commodity_type ,stages_num ,raw_add_time ,raw_update_time from charge_temple where 1=1
+		</sql>
+		<sqlmap>
+				<![CDATA[
+				   SELECT  charge_id ,charge_name,interest_rate ,manage_rate,service_charge ,loan_type ,commodity_type ,stages_num ,raw_add_time ,raw_update_time from charge_temple where 1=1
+				<dynamic>
+					<isNotEmpty property="loanType" prepend=" and ">
+						${cdata-start} loan_type = #loanType# ${cdata-end}
+					</isNotEmpty>
+					<isNotEmpty property="commodityType" prepend=" and ">
+						${cdata-start} commodity_type = #commodityType# ${cdata-end}
+					</isNotEmpty>
+				 	<isGreaterThan property="stagesNum" compareValue="0" prepend=" and ">
+						${cdata-start} stages_num = #stagesNum# ${cdata-end}
+					</isGreaterThan>
+		        </dynamic>  
+		          ORDER BY id ASC LIMIT #limitStart#,#pageSize#;
+			]]>
+		</sqlmap>
+	</operation>
+	
+</table>

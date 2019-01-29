@@ -1,0 +1,43 @@
+package com.yjf.esupplier.service.common.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class SendNonMainlandRealNameInfoOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = -4398027638034193125L;
+	String userBaseId;
+	long guarantorId;
+	String guaranteePic;
+	
+	@Override
+	public void check() {
+		super.check();
+		validateHasText(userBaseId, "userBaseId");
+		validateGreaterThan(guarantorId, "担保人id");
+		validateHasText(guaranteePic, "担保涵");
+	}
+	
+	public String getUserBaseId() {
+		return this.userBaseId;
+	}
+	
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	public long getGuarantorId() {
+		return this.guarantorId;
+	}
+	
+	public void setGuarantorId(long guarantorId) {
+		this.guarantorId = guarantorId;
+	}
+	
+	public String getGuaranteePic() {
+		return this.guaranteePic;
+	}
+	
+	public void setGuaranteePic(String guaranteePic) {
+		this.guaranteePic = guaranteePic;
+	}
+	
+}

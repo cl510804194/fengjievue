@@ -1,0 +1,47 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.base.data;
+
+import javax.jws.WebService;
+
+import com.yjf.esupplier.service.openingbank.result.BankInfoResult;
+
+import java.util.List;
+
+/**
+ * 卡bin服务，提供通过银行卡号索引出对应银行的所有支行列表。
+ * @Filename CardBinService.java
+ * 
+ * @Description 卡bin服务，提供通过银行卡号索引出对应银行的所有支行列表。
+ * 
+ * @Version 1.0
+ * 
+ * @Author yangjun
+ * 
+ * @Email yangjun@yiji.com
+ * 
+ * @History
+ * <li>Author: yangjun</li>
+ * <li>Date: 2012-9-16</li>
+ * <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ * 
+ */
+@WebService
+public interface OpeningDistrictService {
+	
+	/**
+	 * 查询所有地区信息
+	 * @param operationContext
+	 * @return 当输入districtId为null时返最上层地区下的地区信息（当前是所有的省/直辖市info）
+	 */
+	public BankInfoResult getAllDistrict();
+	
+	public void clearCache();
+	
+	/** 获取省下面的城市 **/
+	List<String> getCitysByProvinceName(String province);
+	
+}

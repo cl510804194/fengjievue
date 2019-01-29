@@ -1,0 +1,51 @@
+﻿#parse("/front/platform/layout/header-title.vm")
+
+<body>
+		#if($sessionLocal.userBizType.code=="VISITOR_CENTER" || $sessionLocal.userBizType.code=="VISITOR_OPERATOR") 	
+			  #parse("/front/platform/layout/header.vm")
+		#elseif($sessionLocal.userBizType.code=="BUYER")	
+			 #parse("/front/platform/layout/header_member2.vm")
+		#end
+	    <!--centerContent start-->
+	    <div class="content person_cntr MO">
+	    	<div class="MI">
+	    	#if($sessionLocal.userBizType.code=="VISITOR_CENTER" || $sessionLocal.userBizType.code=="VISITOR_OPERATOR") 				
+			 #parse("/front/platform/member/layout/member_left.vm")
+			#elseif($sessionLocal.userBizType.code=="BUYER")		
+			 #parse("/front/platform/member/layout/person_member_left2.vm")
+			#end
+		      
+		        <div class="left_cnt DIB refund_rslt">
+		            <p class="nav_title"><span class="DIB">退款处理结果</span></p>
+		    		<p class="err_msg"><i class="warn"></i>$!{result.message}</p>
+		    		#if($sessionLocal.userBizType.code=="VISITOR_CENTER" || $sessionLocal.userBizType.code=="VISITOR_OPERATOR")
+		    		<p class="err_opt_btn">
+		    			 <input type="button" class="return_pre" value="返回退款管理" onclick="doRedirect('/do/scenic/doCenter/sellerRefundApplyCheckList.htm?orderType=$!orderType')"/>
+		    			<a href="/do/scenic/doCenter/querySoldOrderList.htm?orderType=O2O&itemType=bulk"><input type="button" class="return_index"  value="返回订单中心"/></a>
+		    		</p>
+		    		#elseif($sessionLocal.userBizType.code=="BUYER")
+		    		<p class="err_opt_btn">
+		    			 <input type="button" class="return_pre" value="返回退款管理" onclick="doRedirect('/do/infoOrder/buyer/queryBuyOrder.htm?orderType=$!orderType&itemType=mail')"/>
+		    			<a href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=$!orderType&itemType=bulk"><input type="button" class="return_index"  value="返回订单中心"/></a>
+		    		</p>
+		    		#end
+		    	</div>
+	    	</div>
+	    </div><!--centerContent end-->
+
+<!-- footer begin -->
+#if($sessionLocal.userBizType.code=="VISITOR_CENTER" || $sessionLocal.userBizType.code=="VISITOR_OPERATOR")
+        #parse("/front/platform/layout/footer.vm")
+#elseif($sessionLocal.userBizType.code=="BUYER")
+        #parse("/front/platform/layout/footer-lg.vm")
+#end
+
+<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'orderConfirm');
+    function doRedirect(url){
+        window.location.href=url;
+    }
+</script>
+</html>

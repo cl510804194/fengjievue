@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+     PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+     "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orderOperateLog">
+
+<typeAlias alias="orderLog" type="com.yjf.esupplier.dal.custom.dataobject.OrderOperateLogDO"/>
+<resultMap class="orderLog" id="orderLogResult">
+    <result property="logId" column="logId" />
+    <result property="operateTime" column="operateTime" />
+    <result property="operaterId" column="operaterId" />
+    <result property="orderId" column="orderId" />
+    <result property="operateDes" column="operateDes" />
+</resultMap>
+
+
+
+<insert id="saveOrderOperateLog" parameterClass="orderLog" >
+	     insert into tbl_order_operate_log(
+			logId,
+			operateTime,
+			operaterId,
+			orderId,
+			operateDes
+	     )
+	     values (
+	        #logId#,
+			#operateTime#,
+			#operaterId#,
+			#orderId#,
+			#operateDes#
+	     )
+	</insert>
+	
+	
+</sqlMap>

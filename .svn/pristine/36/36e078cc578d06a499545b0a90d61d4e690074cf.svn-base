@@ -1,0 +1,23 @@
+<link href="/resources/front/css/payment.css" type=text/css rel=stylesheet />
+#parse("/front/platform/layout/header-title.vm")
+<title>$!appConstantsUtil.getPlatformName()--支付成功</title>
+</head>
+<body>
+	<div class="warp">
+		<!-- header begin -->
+		#parse("/front/platform/layout/header.vm")
+		<!-- header end -->
+		<div class="fn-container">
+			<div class="error404 fn-mt20">
+                <div class="bd-box" style="padding: 100px 0 100px 450px">
+                    <h1 style="margin-top: 125px;" class="fn-clear">
+                        <em class="icon icon2 fn-left fn-mr20"></em>
+                        <span class="fn-left">支付成功！</span>
+                    </h1>
+                    <p class="fn-mt20">你可以立即返回 <a href="/do/infoOrder/buyer/queryBuyOrder.htm">查看已买到的宝贝</a>.</p>
+                    <p class="fn-mt10">如果你有未付款的交易，<a href="/do/infoOrder/buyer/queryBuyOrder.htm">查看并继续付款</a>.</p>
+                </div>
+            </div>
+		</div>
+	</div>
+</body>

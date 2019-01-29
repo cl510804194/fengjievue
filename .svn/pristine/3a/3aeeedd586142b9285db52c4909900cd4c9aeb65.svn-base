@@ -1,0 +1,103 @@
+<html>
+<head>
+    <title>
+        权限列表
+    </title>
+    <link type="text/css" href="/resources/css/after.css" rel="stylesheet"/>
+    <link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="/styles/new/backstage.css"/>
+</head>
+<body>
+<div class="warp">
+    <!--头部-->
+    #parse("/backstage/layout/logo.vm")
+    <!--内容-->
+    <div class="container fn-clear">
+        #parse("/backstage/layout/left.vm")
+        <div class="main-content fn-right">
+            <div class="mc t-box">
+                <div class="top">
+                    <p><a href="javascript:;">酒店管理</a> &gt;特殊房型发布条件</p>
+                </div>
+
+                <table class="m-table">
+                    <thead style="font-size: 12px;">
+                    <th>
+                       房型编号
+                    </th>
+                    <th>
+                      应用景区
+                    </th>
+                    <th>                        
+	       应用房间类型
+                    </th>
+                    <th>                     
+	        时间设置
+                    </th>
+                    <th>                      
+	       最低折扣
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                    </thead>
+                    <tbody style="font-size: 12px;">
+
+                        #foreach($info in $!{page.result})
+                        <tr>
+                            <td>$!{info.hotelDiscountId}</td>
+                            <td>$!{info.scenicName}</td>
+                            <td>$!{info.type.message}</td>
+                            <td>$!{info.setTime}</td>
+                            <td>$!{info.discountBegin}折</td>
+                            <td>
+                                <a href="javascript:;" id="editType$!{info.hotelDiscountId}" class="editType" data="$!{info.hotelDiscountId}">修改</a>|
+                                <a href="javascript:;" id="delType$!{info.hotelDiscountId}" class="delType"
+                                   data="$!{info.hotelDiscountId}">删除</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+
+                <div class="p-box pages-b fn-clear">
+                    <a class="p-btn"
+                       href="javascript:document.location.href = '/admin/hotel/discount/addDiscountHotel.htm?redirect=' + document.location.href;">新增</a>
+                </div>
+                #parse("/backstage/page/page.vm")
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var $_GLOBAL =
+    {
+    }
+    ;
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/plugins/jquery.window.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+   seajs.use($_GLOBAL.mode +'hotelDiscountList');
+</script>
+<script type="text/javascript">
+    function toPage(totalPage, current) {
+        if (isNaN(current)) {
+            return;
+        }
+        if (current < 1 || current > totalPage) {
+            return;
+        }
+        var url = "/admin/hotel/discount/hotelDiscountList.htm" +
+                "?pageSize=$!{page.pageSize}&pageNo=" + current;
+        myform.action = url;
+        myform.submit();
+    }
+    
+	
+        
+</script>
+</body>
+</html>

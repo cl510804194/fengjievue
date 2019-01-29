@@ -1,0 +1,45 @@
+package com.yjf.esupplier.dal.custom.daointerface;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.esupplier.dal.custom.dataobject.Discount2productDO;
+import com.yjf.esupplier.dal.custom.dataobject.DiscountDO;
+
+public interface DiscountDAO {
+	/**
+	 * @author chenl
+	 * @date 2010-04-07
+	 * @discription 新增活动
+	 * */
+	void insertDiscount(DiscountDO discount);
+	
+	List<DiscountDO> listDiscount(Map m);
+	
+	Long getDiscountCount(Map m);
+	
+	void delDiscount(long activatyId);
+	
+	DiscountDO getDiscountById(Long activityId);
+	
+	void insertD2product(Discount2productDO d2product);
+	
+	void updateDiscount(DiscountDO d);
+	
+	List getExistProduct(Map m);
+	
+	List getSelfActivity(Map m);
+	
+	Long getSelfActivityCount(Map m);
+	
+	void delselfActivity(Map m);
+	
+	void delDiscount(Map m);
+	
+	List checkjoinSupplier(Map m);
+	
+	Long getJoinSupplierCount(Map m);
+	
+	List<String> getScript(Map m);
+	
+}

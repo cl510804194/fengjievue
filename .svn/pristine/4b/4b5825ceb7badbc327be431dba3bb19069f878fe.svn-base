@@ -1,0 +1,47 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import java.io.Serializable;
+
+public class Pt2dyDO implements Serializable {
+	private static final long serialVersionUID = 6530656393229984961L;
+	private Integer deliveryId;
+	private Integer productId;
+	
+	public Pt2dyDO() {
+		super();
+	}
+	
+	public Pt2dyDO(Integer deliveryId, Integer productId) {
+		super();
+		this.deliveryId = deliveryId;
+		this.productId = productId;
+	}
+	
+	public Integer getDeliveryId() {
+		return deliveryId;
+	}
+	
+	public void setDeliveryId(Integer deliveryId) {
+		this.deliveryId = deliveryId;
+	}
+	
+	public Integer getProductId() {
+		return productId;
+	}
+	
+	public void setProductId(Integer productId) {
+		this.productId = productId;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Pt2dyDO [deliveryId=");
+		builder.append(deliveryId);
+		builder.append(", productId=");
+		builder.append(productId);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

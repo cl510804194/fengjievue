@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>极易贷-会员中心-账户充值状态</title>
+    <link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+<body>
+    #parse("/front/index/common/header-yrd.vm")
+<div class="home-section_bd pt20">
+    <div class="blank20"></div>
+    <div class="bd-box container fn-clear">
+        #parse("/front/user/common/left1.vm")
+        <div class="m-content fn-right">
+            <div class="m-content-box">
+                <div class="title3 mt10"><span>《 返回</span><span class="two ml15">投资人开户</span></div>
+                <div class="blank20"></div>
+                <div class="fn-operate fn-fail  recharge-state mt10">
+                    <em></em>
+                    <h4>您创建的$!appConstantsUtil.getProductName()账户,已开户失败！$!{reason}。</h4>
+                    <p class="mt20">现在去：<a href="/investorManager/investorManage">客户管理</a> | <a href="/investorManager/investorOpenAccount"> 继续开户</a></p>
+                    <div class="blank30"></div>
+                </div>
+                <div class="blank30"></div>
+            </div>
+        </div>
+    </div>
+    <div class="blank50"></div>
+</div>
+    #parse("/front/index/common/footer-yrd.vm")
+</div>
+</body>
+</html>

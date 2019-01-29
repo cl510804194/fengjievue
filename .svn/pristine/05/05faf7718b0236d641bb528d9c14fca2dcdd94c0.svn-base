@@ -1,0 +1,75 @@
+#parse("/front/platform/layout/header-title.vm")
+
+	<body>
+	<div class="lgn_reg MO" id="setHeight">
+			#parse("/front/platform/layout/header-lg.vm")
+			<!--centerContent start-->
+		    <div class="content MO regist-bg">
+		    	<div class="reg_bg MI fn-container">
+		    		<div class="reg_area regist-content clearfix">
+		    			<p class="reg_top clearfix">
+		    				<span class="reg_title">完善账户信息</span>		    				
+		    			</p>
+		    			<ul class="activ_bar">
+		                    <li class="first DIB">1、注册账户</li>
+		                    <li class="mid DIB">2、发送激活邮件成功</li>
+		                    <li class="mid mid_cur DIB">3、用户激活</li>
+		                    ##<li class="mid DIB">4、开通第三方支付</li>
+							##<li class="last DIB">5、完成</li>
+		                </ul>
+		    			<div class="info_area">
+		    				<form action="/anon/activateSubmit.htm" method="post" id="activationUser_form">
+								<div class="text">
+									<span class="input_tl DIB">账户名：</span>
+									<input type="text" class="input_txt" disabled="disabled" value="$!{userName}" />
+								</div>
+								<div class="text">
+									<span class="input_tl DIB"><em>*</em>登录密码：</span>
+									<input type="password" class="input_txt" name="logPassword" id="logPassword"/>
+									<b class="fn-tip">由6—20英文字母、数字或符号组成，建议使用大小写字母与数字混合设置密码，不可输入空格。</b>
+								</div>
+								<div class="text">
+									<span class="input_tl DIB"><em>*</em>确认登录密码：</span>
+									<input type="password" class="input_txt" name="logPasswordTO"/>
+								</div>
+								
+								<div class="text">
+									<span class="input_tl DIB"><em>*</em>手机号码：</span>
+									<input type="text" id="bundPhone" class="input_txt" maxlength="11" name="mobile" />
+									<b class="fn-tip">请填写手机号码,用于手机绑定。</b>
+								</div>
+								#*
+								<div class="text">
+									<span class="input_tl DIB"><em>*</em>动态手机验证码：</span>
+									<input type="text" class="input_txt sms_num" id="code" name="code" />
+									<a href="javascript:;" id="getCode" class="get_num_btn DIB"><span class="timedown">获取验证码</span></a>
+									<li><span>注意：服务器保持手机动态密码时间为5分钟，请您及时验证！</span></li>
+									<input type="hidden" id="smsBizType" name="business" value="addcellphone"/>
+								</div>
+								*#
+								<div class="text btn">
+									<input type="hidden" class="fn-text w235" name="userBaseId" value="$!{userBaseId}" />
+									<input type="hidden" class="fn-text w235" name="token" value="$!{token}" />
+									<input class="conf_btn" type="submit" value="确认，下一步"  name="next"/>
+								</div>	
+							</form>
+		    			</div>
+		    		</div>
+		    	</div>
+		    </div><!--centerContent end-->
+	
+			<!-- footer begin -->
+			#parse("/front/platform/layout/footer-lg.vm")
+			<!-- footer end -->
+		</div>
+	</body>
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'activationUser');
+    </script>
+</body>
+</html>

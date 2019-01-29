@@ -1,0 +1,43 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class AddUserNameLoginOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = -9089991920511330860L;
+	String userBaseId;
+	String userName;
+	
+	@Override
+	public void check() {
+		validateHasText(userBaseId, "userBaseId");
+		validateHasText(userName, "用户名");
+	}
+	
+	public String getUserBaseId() {
+		return this.userBaseId;
+	}
+	
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	public String getUserName() {
+		return this.userName;
+	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AddUserNameLoginOrder [userBaseId=");
+		builder.append(userBaseId);
+		builder.append(", userName=");
+		builder.append(userName);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

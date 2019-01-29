@@ -1,0 +1,14 @@
+<div class="m-hdSeaarch1">
+    <div class="m-ct">
+        <div class="u-logo"></div>
+        <div class="u-ipt">
+        	<div class="fn-clear">
+        		<form action="/front/platform/mall/product/searchProduct-1.htm">
+				<input type="text" id="search-ct" class="search-input" placeholder="请输入品名关键字搜索" name="searchkey">
+				<!-- <button type="submit" id="search" class="search-but">搜索</button> -->
+				</form>
+            </div>
+            
+        </div>
+    </div>
+</div>

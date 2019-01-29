@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>Auto Complete 5.0</title>
+	<script type='text/javascript' src='../jquery-1.4.2.min.js'></script>
+	<script type='text/javascript' src='../butil.js'></script>
+	<script type='text/javascript' src='jquery.auto-complete.js'></script>
+	<link rel='stylesheet' type='text/css' href='jquery.auto-complete.css' />
+	<link rel='stylesheet' type='text/css' href='styles.css' />
+</head>
+<body>
+
+<!--
+Auto Complete 5.0
+November 22, 2009
+Corey Hart @ http://www.codenothing.com
+-->
+
+<h1>Auto Complete 5.0</h1>
+
+
+
+
+<div style='margin:40px 0;'>
+<b>Supply a data set for autoComplete to use.</b>
+<pre>
+// Autocomplete on User Supplied data
+$('input[name=search6]').autoComplete({
+	dataSupply: ['jane', 'john', 'doe', 'amy', 'alice', "美的", "美的家", "泛美", 'louis', 'liz', {value: 'mark'}, {value: 'merideth', display: 'Merideth Johnson'}]
+});
+// Trigger whole list
+$('#search6').click(function(){
+	$('input[name=search6]').autoComplete('button.supply');
+});
+</pre>
+<input type='text' style='width:300px;' name='search6' /><br/><br/><br/><br/><br/><br/><br/><br/>
+<input type='text' style='width:300px;' name='search7' />
+</div>
+
+<script >
+
+$('input[name=search6]').autoComplete({
+	dataSupply: ['xxjane', 'jane', 'john', 'doe', 'amy', "美的", "美的家", "泛美", 'louis', 'liz', {value: 'mark'}, {value: 'merideth', display: 'Merideth Johnson'},
+	             'xxjane', 'jane', 'john', 'doe', 'amy', "美的", "美的家", "泛美", 'louis', 'liz', {value: 'mark'}, {value: 'merideth', display: 'Merideth Johnson'}]
+});
+
+$('input[name=search7]').autoComplete({
+	dataSupply: ['xxjane', 'jane', 'john', 'doe', 'amy', "美的", "美的家", "泛美", 'louis', 'liz', {value: 'mark'}, {value: 'merideth', display: 'Merideth Johnson'},
+	             'xxjane', 'jane', 'john', 'doe', 'amy', "美的", "美的家", "泛美", 'louis', 'liz', {value: 'mark'}, {value: 'merideth', display: 'Merideth Johnson'}]
+});
+
+</script>
+
+
+</body>
+</html>

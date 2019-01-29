@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Y.Combobox</title>
+</head>
+<style>
+    table{
+		border: 1px solid #C8CCD1;
+		border-width: 1px 0 0 1px;
+		border-spacing: 0px;
+		line-height: 1.5em;
+		font-family: Arial, Helvetica, sans-serif,"宋体";
+		vertical-align: middle;
+		border-collapse: separate;
+	}
+	.table_1{
+	}
+	.table_1 td{
+		border: 1px solid #C8CCD1;
+		border-width: 0 1px 1px 0;
+	}
+	table td{
+		padding: 5px 10px;
+		line-height: 18px;
+		text-align: left;
+		vertical-align: top;
+	}
+	.head_tr{background: #E5EFFB;color:#555;}
+	.table_0{color:#2679ba;}
+	.table_0 a{
+		font-size: 12px;
+		line-height: 20px;
+		text-decoration: underline;
+		text-align: -webkit-match-parent;
+		border-collapse: separate;
+		border-spacing: 2px;
+		border-color: gray;
+	}
+	h2{color:#1366b9;}
+	.block{color:block;}
+	.color_0{color:#555;}
+	.color_1{color:#0A8021;}
+</style>
+<body>
+<h2>目录</h2>
+<table class="table_0">
+	<tr>
+		<td><a href="api-selectbranch.htm">支行选择Y.SelectBranch</a></td>
+	</tr>
+</table>
+<h2 id="constructor">构造函数</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>构造函数</td>
+		<td>描述</td>
+	</tr>
+	<tr>
+		<td class="color_1">Countdown</td>
+		<td class="color_0">在容器内渲染一个组合框</td>
+	</tr>
+</table>
+<h2 id="config_args">配置参数</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>配置参数</td>
+		<td>参数说明</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td>store</td>
+		<td>字符串数组或{text:,value:}对象数组</td>
+		<td class="color_0">组合框数据源</td>
+	</tr>
+	<tr class="color_1">
+		<td>editAble</td>
+		<td>默认true </td>
+		<td class="color_0">是否允许编辑</td>
+	</tr>
+	<tr class="color_1">
+		<td>mustSelect</td>
+		<td>默认true </td>
+		<td class="color_0">为true时失去焦点时会给input重新赋值，保证其显示文本必为选中项</td>
+	</tr>
+	<tr class="color_1">
+		<td>autoFill</td>
+		<td>true/false，默认false</td>
+		<td class="color_0">根据容器尺寸充满容器</td>
+	</tr>
+	<tr class="color_1">
+		<td>width</td>
+		<td>数字</td>
+		<td class="color_0">宽度</td>
+	</tr>
+	<tr class="color_1">
+		<td>height</td>
+		<td>数字</td>
+		<td class="color_0">高度</td>
+	</tr>
+	<tr class="color_1">
+		<td>change</td>
+		<td>事件函数</td>
+		<td class="color_0">组件选项发生变化时调用，也可以通过change方法添加该事件函数
+		<br/>function(value,text,item)可获得选中项value,text,选中项jquery对象几个参数</td>
+	</tr>
+	<tr class="color_1">
+		<td>select</td>
+		<td>事件函数</td>
+		<td class="color_0">不管选项是否变化，只要发生选择即调用，也可以通过select方法添加
+		<br/>参数同change</td>
+	</tr>
+	<tr class="color_1">
+		<td>其他</td>
+		<td>无</td>
+		<td class="color_0">参见Y.box配置</td>
+	</tr>
+</table>
+<h2 id="object_function">对象方法</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>方法</td>
+		<td>参数说明</td>
+		<td>返回值</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td>setValue</td>
+		<td>value：设置项的value</td>
+		<td></td>
+		<td class="color_0">为组件设置选项</td>
+	</tr>
+	<tr class="color_1">
+		<td>setIndex</td>
+		<td>index：设置项的index</td>
+		<td></td>
+		<td class="color_0">为组件设置选项</td>
+	</tr>
+	<tr class="color_1">
+		<td>setSelect</td>
+		<td>param，type，noEv</td>
+		<td></td>
+		<td class="color_0">为组件设置选项，param参数可以是选项对象，序号，value，默认下会根据类型自动判断
+		<br/> 但为了避免错误(特殊情况下,自动判断将出错,比如value是一个数字或对象)，可传递第二个参数指定类型('index'或'value'),
+		<br/>默认下该方法触发select事件，若改变了值还触发change事件，但如果传递noEv参数为true，则不触发这两个事件</td>
+	</tr>
+	<tr class="color_1">
+		<td>getValue</td>
+		<td></td>
+		<td>选中项value</td>
+		<td class="color_0"></td>
+	</tr>
+	<tr class="color_1">
+		<td>getItem</td>
+		<td></td>
+		<td>选中项jquery对象</td>
+		<td class="color_0"></td>
+	</tr>
+	<tr class="color_1">
+		<td>getItemList</td>
+		<td></td>
+		<td>所有选项jquery集合</td>
+		<td class="color_0"></td>
+	</tr>
+	<tr class="color_1">
+		<td>getIndex</td>
+		<td>param，选项jquery对象</td>
+		<td>选项的序号</td>
+		<td class="color_0"></td>
+	</tr>
+	<tr class="color_1">
+		<td>hideList</td>
+		<td></td>
+		<td></td>
+		<td class="color_0">隐藏选项</td>
+	</tr>
+	<tr class="color_1">
+		<td>showList</td>
+		<td></td>
+		<td></td>
+		<td class="color_0">展开选项</td>
+	</tr>
+	<tr class="color_1">
+		<td>change</td>
+		<td>fn，事件函数</td>
+		<td></td>
+		<td class="color_0">添加一个change事件函数</td>
+	</tr>
+	<tr class="color_1">
+		<td>select</td>
+		<td>fn，事件函数</td>
+		<td></td>
+		<td class="color_0">添加一个select事件函数</td>
+	</tr>
+	<tr class="color_1">
+		<td>addItem</td>
+		<td>字符串，对象{text:,value:}或对应数组</td>
+		<td></td>
+		<td class="color_0">添加一个或多个选项</td>
+	</tr>
+	<tr class="color_1">
+		<td>clear</td>
+		<td></td>
+		<td></td>
+		<td class="color_0">清除所有选项</td>
+	</tr>
+	<tr class="color_1">
+		<td>其他</td>
+		<td></td><td></td>
+		<td class="color_0">参见Y.box</td>
+	</tr>
+</table>
+</body>
+</html>

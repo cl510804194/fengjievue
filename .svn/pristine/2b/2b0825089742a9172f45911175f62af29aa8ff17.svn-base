@@ -1,0 +1,63 @@
+<table sqlname="deliver">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO deliver(deliver_id,contract_id,customer_id,deliver_name,deliver_mobile,deliver_province,deliver_city,deliver_contry,deliver_address,reference_address,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE deliver SET contract_id=?,customer_id=?,deliver_name=?,deliver_mobile=?,deliver_province=?,deliver_city=?,deliver_contry=?,deliver_address=?,reference_address=? WHERE deliver_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  deliver_id ,contract_id ,customer_id ,deliver_name ,deliver_mobile ,deliver_province ,deliver_city ,deliver_contry ,deliver_address ,reference_address ,raw_add_time ,raw_update_time  FROM deliver WHERE deliver_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM deliver WHERE deliver_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM deliver
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findDeliverByCondition" paramtype="object" multiplicity="many">
+	    <sql>
+	        <![CDATA[
+	        SELECT  deliver_id ,contract_id ,customer_id ,deliver_name ,deliver_mobile ,deliver_province ,deliver_city ,deliver_contry ,deliver_address ,reference_address ,raw_add_time ,raw_update_time
+	        FROM deliver WHERE 1=1
+	        ]]>
+	    </sql>
+	    <sqlmap>
+	        <![CDATA[
+	         SELECT  deliver_id ,contract_id ,customer_id ,deliver_name ,deliver_mobile ,deliver_province ,deliver_city ,deliver_contry ,deliver_address ,reference_address ,raw_add_time ,raw_update_time 
+	         FROM deliver where 1=1
+	        <dynamic>
+	            <isNotEmpty property="contractId" prepend=" and ">
+	                contract_id = #contractId#
+	            </isNotEmpty>
+	            <isNotEmpty property="deliverMobile" prepend=" and ">
+	                deliver_mobile = #deliverMobile#
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by raw_add_time;
+	        ]]>
+	    </sqlmap>
+	</operation>
+	
+</table>

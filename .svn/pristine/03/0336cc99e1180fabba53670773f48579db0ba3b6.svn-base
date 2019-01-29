@@ -1,0 +1,5 @@
+testId,userName,mobile,logPassword,id,orderItemId,refundQuantity,refundAmount,refundDesc,refundReason,refundType,orderStatus,supplierId,totalAmount,workflowStatus,supplierName,saleTypeB2c,saleTypeO2o,facade,paymentFlowId,refundStatus,saleTypeHotels,resortsBusinessId,batchNo,tuneMeal,isPayed,takegoodsId,paymentMethod,saleTypeOrderMeal,tableNumber,tableNumberSeq,itemProductId,itemProductName,quantity,proPrice,picPath,postFree,days
+1001,DL3LL,13767141214,666666,879,5825,1,100,不好,不好,REFUND,YFK,1582,100,HAVE_BEEN_ISSUED,辣条,NO,NO,SEVEN_AFTER,0,EMPTY,NO,0,5585,NO,NO,1258,ONLINE,NO,0,0,5,DS,1,10,25,5,0
+1002,DL3LL,13767141214,666666,879,5825,1,100,不好,不好,REFUND,YFK,1582,100,HAVE_BEEN_ISSUED,辣条,NO,NO,SEVEN_AFTER,0,EMPTY,NO,0,5585,NO,NO,1258,ONLINE,NO,0,0,5,DS,1,10,25,5,0
+1003,DL3LL,13767141214,666666,879,5825,1,100,不好,不好,REFUND,YFK,1582,100,HAVE_BEEN_ISSUED,辣条,NO,NO,SEVEN_AFTER,0,EMPTY,NO,0,5585,NO,NO,1258,ONLINE,NO,0,0,5,DS,1,10,25,5,0
+1004,DL3LL,13767141214,666666,879,5825,1,100,不好,不好,REFUND,YFK,1582,100,HAVE_BEEN_ISSUED,辣条,NO,NO,SEVEN_AFTER,0,EMPTY,NO,0,5585,NO,NO,1258,ONLINE,NO,0,0,5,DS,1,10,25,5,0

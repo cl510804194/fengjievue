@@ -1,0 +1,79 @@
+package com.yjf.esupplier.service.common.services;
+
+import com.yjf.esupplier.service.common.info.MessageInfo;
+import com.yjf.esupplier.service.common.info.MessageReceivedInfo;
+import com.yjf.esupplier.service.common.services.order.MessageOrder;
+import com.yjf.esupplier.service.common.services.order.MyMessageOrder;
+import com.yjf.esupplier.service.common.services.order.QueryMessageOrder;
+import com.yjf.esupplier.service.common.services.order.QueryReceviedMessageOrder;
+import com.yjf.esupplier.service.common.services.order.SendMessageOrder;
+import com.yjf.esupplier.service.common.services.result.MessageResult;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.AsynchronousService;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface SiteMessageService extends AsynchronousService {
+	/**
+	 * 添加消息
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult addMessageInfo(MessageOrder order);
+	
+	/**
+	 * 更新消息
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult updateMessageInfo(MessageOrder order);
+	
+	/**
+	 * 发送消息
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult sendUserMessageInfo(SendMessageOrder order);
+	
+	/**
+	 * 查询收到的消息
+	 * @param queryMessageOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<MessageReceivedInfo> findReceviedMessage(	QueryReceviedMessageOrder queryMessageOrder);
+	
+	/**
+	 * 加载未读的消息
+	 * @param userId
+	 * @return
+	 */
+	QueryBaseBatchResult<MessageReceivedInfo> loadUnReadMyMessage(long userId);
+	
+	/**
+	 * 条件查询
+	 * @param queryMessageOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<MessageInfo> findMessage(QueryMessageOrder queryMessageOrder);
+	
+	/**
+	 * 删除接收到的消息
+	 * @param myMessageOrder
+	 * @return
+	 */
+	MessageResult deleteReceivedMessageInfo(MyMessageOrder myMessageOrder);
+	
+	/**
+	 * 删除未发送的消息
+	 * @param messageId
+	 * @return
+	 */
+	EsupplierBaseResult deleteMessageInfo(long messageId);
+	
+	/**
+	 * 消息修改状态
+	 * @param myMessageOrder
+	 * @return
+	 */
+	MessageResult readMessageInfo(MyMessageOrder myMessageOrder);
+	
+}

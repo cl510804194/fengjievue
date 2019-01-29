@@ -1,0 +1,23 @@
+<div class="b-border borrow-record">
+                    	<ul class="ft-f60">
+                        	<li>
+                            	<h4>一级审核记录</h4>
+								#if($!{auditrecord1})
+                                <p><span class="mr15">$!{auditUser1}</span><span class="mr15">$!dateUtil.simpleFormat($!{auditrecord1.authTime})</span><span>完成审核</span></p>
+								#else
+									<p><em></em><span>暂无一级审核记录！</span></p>
+								#end
+
+							</li>
+                            <li>
+                            	<h4>二级审核记录</h4>
+								#if($!{auditrecord2})
+									
+                                <p><span class="mr15">$!{auditUser2}</span><span class="mr15">$!dateUtil.simpleFormat($!{auditrecord2.authTime})</span><span>完成审核</span></p>
+								#else
+									<p><em></em><span>暂无二级审核记录！</span></p>
+								#end
+							</li>
+                           
+                        </ul>
+                    </div>

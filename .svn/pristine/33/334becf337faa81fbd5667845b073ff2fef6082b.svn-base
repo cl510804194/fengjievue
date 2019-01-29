@@ -1,0 +1,32 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>查收邮件</title>
+</head>
+<body style="background:#fff; font-size:12px; color:#666; font-weight:normal; font-family:'宋体',Verdana; padding:0; margin:0;">
+	<table border="0" align="center" cellspacing="0" width="700" style="width:730px;">
+		<tr>
+			<td>
+				<div style="width:730px; margin:0 auto; border-bottom:1px solid #d7d7d7; margin:0 0 35px 0;">
+					<table border="0" height="64" cellspacing="0" cellpadding="0" width="730" style="font:12px Tahoma, Arial, 宋体;">
+						<tr>
+							<td>
+								<a href="$!{variable_1}" target="_blank"><img src="$!{variable_2}" border="0" alt="$!appConstantsUtil.getProductName()金融" /></a>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div style="padding:0 60px 0 40px; color:#666;">
+					<p style="margin:0 0 30px; font-size:14px">尊敬的会员：<a href="javascript:;" style="color:#3a9f16; text-decoration:none;" target="_blank">$!{variable_3}</a> 你好！</p>
+					<p style="margin:0 0 20px 30px; line-height:20px;">您的$!appConstantsUtil.getProductName()金融账户即将开通！</p>
+					<p style="margin:0 0 20px 30px; line-height:20px;">请在24小时内激活您的$!appConstantsUtil.getProductName()金融账户。激活账户时需要您填写个人信息，$!appConstantsUtil.getProductName()金融对您的信息是完全保密的，请放心填写。</p>
+					<a href="$!{variable_4}" target="_blank" style="display:block; margin:0 0 20px 30px;"><img src="$!{variable_5}" border="0" alt="激活我的$!appConstantsUtil.getProductName()金融投融保账户" /></a>
+					<p style="margin:0 0 100px 30px; line-height:20px;">如果上述文字点击无效，请把下面网页地址复制到浏览器地址栏中打开：<br />$!{variable_4}</p>
+				</div>
+				<p style="padding:10px 50px 0 40px; border-top:1px solid #d7d7d7; color:#999; margin:0 0 20px; line-height:22px;">此为系统邮件，请勿回复<br />请保管好您的邮箱，避免易极付账户被他人盗用<br />如有任何疑问，可查看 $!appConstantsUtil.getProductName()金融投融保相关规则，$!appConstantsUtil.getProductName()金融投融保网站访问 http://www.edaiwang.com</p>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

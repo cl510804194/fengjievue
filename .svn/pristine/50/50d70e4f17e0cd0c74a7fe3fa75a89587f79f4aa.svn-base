@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>新增公告</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="">公告管理</a> > 新增公告</p>
+					</div>
+					<form action="/backstage/noticeCenter/updateNoticeSubmit" method="post" class="ui-form" id="add_pop_form">
+						
+						<fieldset>
+							<legend><h3>新增公告</h3></legend>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>公告标题：</label>
+								<input type="text" class="u-input" style="width:300px;" name="title" value="$!{info.title}"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>公告类型：</label>
+								<input type="radio" name="type" class="radio" #if($!{info.type}==1) checked=checked #end value="1"/><label for="">普通通知</label>
+								<input type="radio" name="type" class="radio" #if($!{info.type}==2) checked=checked #end value="2"/><label for="">新闻通知</label>
+								<input type="radio" name="type" class="radio" #if($!{info.type}==10) checked=checked #end value="10"/><label for="">资讯动态</label>
+								<input type="radio" name="type" class="radio" #if($!{info.type}==11) checked=checked #end value="11"/><label for="">新闻动态</label>
+							
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>公告内容：</label>
+								<textarea name="content" class="u-area" style="width:720px;height:480px;">$!{info.content}</textarea>
+							</div> 
+							<div class="item">
+								<label for="" class="u-label">公告备注：</label>
+								<input type="text" class="u-input" style="width:300px;" name="remark" value="$!{info.remark}"/>
+							</div>
+						</fieldset>
+						<input type="hidden" name="popId" value="$!{info.popId}"/>
+						<input type="hidden" name="status" value="$!{info.status}"/>
+						<div class="item mt10">
+                            <a href="javascript:;"  class="u-btn u-btn-blue fn-submit1">立即保存</a><a href="javascript:history.go(-1);" class="u-btn u-btn-gray">取消</a>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="/resources/js/xheditor/xheditor-1.2.1.min.js"></script>
+	<script type="text/javascript" src="/resources/js/xheditor/xheditor_lang/zh-cn.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'popNotice');
+    </script>
+</body>
+</html>

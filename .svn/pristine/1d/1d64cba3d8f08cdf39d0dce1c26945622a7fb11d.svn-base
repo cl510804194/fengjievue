@@ -1,0 +1,302 @@
+package com.yjf.esupplier.service.hotel.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.dal.custom.daointerface.HotelsStockIbatisDAO;
+import com.yjf.esupplier.dal.daointerface.HotelsStockDAO;
+import com.yjf.esupplier.dal.daointerface.PopInfoDao;
+import com.yjf.esupplier.dal.daointerface.TblHotelDiscountDAO;
+import com.yjf.esupplier.dal.dataobject.TblHotelDiscountDO;
+import com.yjf.esupplier.dal.dataobject.TblHotelDiscountScenicDO;
+import com.yjf.esupplier.domain.service.repository.HotelStockDomainRepository;
+import com.yjf.esupplier.service.base.EsupplierTransServiceBase;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.hotel.HotelsDiscountService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.hotel.enums.HotelTypeEnum;
+import com.yjf.esupplier.ws.hotel.info.HotelDiscountInfo;
+import com.yjf.esupplier.ws.order.HotelDiscountOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+/**
+ * Created by lihu on 2016/10/12.
+ */
+@Service("hotelsDiscountService")
+public class HotelsDiscountServiceImpl extends EsupplierTransServiceBase
+									implements HotelsDiscountService {
+	@Autowired
+	protected HotelsStockIbatisDAO hotelsStockIbatisDAO;
+	@Autowired
+	protected HotelsStockDAO hotelsStockDAO;
+	@Autowired
+	protected HotelStockDomainRepository hotelStockDomainRepository;
+	@Autowired
+	protected TblHotelDiscountDAO tblHotelDiscountDAO;
+	@Autowired
+	protected PopInfoDao popInfoDao;
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+
+
+	@Override
+	public QueryBaseBatchResult<HotelDiscountInfo> searchHotelReleaseList(
+			HotelDiscountOrder discountOrder) {
+		QueryBaseBatchResult<HotelDiscountInfo> baseBatchResult = new QueryBaseBatchResult<HotelDiscountInfo>();
+		TblHotelDiscountDO tblHotelDiscountDO = new TblHotelDiscountDO();
+		tblHotelDiscountDO.setScenicId(discountOrder.getScenicId());
+		if (discountOrder.getType() != null) {
+			tblHotelDiscountDO.setType(discountOrder.getType().code());
+		}
+		long count = tblHotelDiscountDAO.findByConditionCount(tblHotelDiscountDO,discountOrder.getLimitStart(), discountOrder.getPageSize());
+		PageComponent component = new PageComponent(discountOrder, count);
+		if (component.getPageSize() > 0) {
+			List<TblHotelDiscountScenicDO> tblHotelDiscountList = tblHotelDiscountDAO
+				.findByCondition(tblHotelDiscountDO, discountOrder.getLimitStart(),
+					discountOrder.getPageSize(), discountOrder.getSetTimeSort());
+			baseBatchResult.setPageList(converToInfos(tblHotelDiscountList));
+		}
+		baseBatchResult.initPageParam(component);
+		baseBatchResult.setSuccess(true);
+		return baseBatchResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult insertHotelDiscount(HotelDiscountInfo hotelDiscountInfo) {
+		// TODO Auto-generated method stub
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		TblHotelDiscountDO tblHotelDiscountDO = new TblHotelDiscountDO();
+		tblHotelDiscountDO.setScenicId(hotelDiscountInfo.getScenicId());
+		tblHotelDiscountDO.setType(hotelDiscountInfo.getType().getCode());
+		if (hotelDiscountInfo.getType() == HotelTypeEnum.LONGRENT) {
+			tblHotelDiscountDO.setSetTime(hotelDiscountInfo.getSetTime());
+		}
+		List<TblHotelDiscountScenicDO> tblHotelDiscountScenicDOs = tblHotelDiscountDAO
+			.findByCondition(tblHotelDiscountDO, 0, 999, null);
+		if(tblHotelDiscountScenicDOs.size() > 0){
+			result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			if (hotelDiscountInfo.getType() == HotelTypeEnum.LONGRENT) {
+				result.setMessage("同一景区,同一房间类型,同一时间不能重复!");
+			} else {
+				result.setMessage("同一景区,同一房间类型不能重复!");
+			}
+		}else{
+			BeanCopier.staticCopy(hotelDiscountInfo, tblHotelDiscountDO);
+			tblHotelDiscountDO.setType(hotelDiscountInfo.getType().getCode());
+			try {
+				tblHotelDiscountDAO.insert(tblHotelDiscountDO);
+				result.setSuccess(true);
+				result.setMessage("添加成功");
+			} catch (IllegalArgumentException e) {
+				result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			} catch (DataAccessException e) {
+				logger.error(e.getMessage(), e);
+				result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				result.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+			}
+		}
+		return result;
+	}
+	
+
+	@Override
+	public EsupplierBaseResult delHotelDiscount(
+			HotelDiscountInfo hotelDiscountInfo) {
+		// TODO Auto-generated method stub
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		long hotelDiscountId = hotelDiscountInfo.getHotelDiscountId();
+		TblHotelDiscountDO tblHotelDiscountDO = tblHotelDiscountDAO.findById(hotelDiscountInfo.getHotelDiscountId());
+		if(tblHotelDiscountDO == null){
+			result.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			result.setMessage("数据不存在!");
+		}
+		try {
+			tblHotelDiscountDAO.deleteById(hotelDiscountId);
+			result.setSuccess(true);
+			result.setMessage("删除成功");
+		} catch (IllegalArgumentException e) {
+			result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+			result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+		}
+		return result;
+	}
+	
+	@Override
+	public HotelDiscountInfo selectHotelDiscountById(long hotelDiscountId) {
+		// TODO Auto-generated method stub
+		TblHotelDiscountDO tblHotelDiscountDO = tblHotelDiscountDAO.findById(hotelDiscountId);
+		if(tblHotelDiscountDO == null){
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"数据不存在");
+		}
+		HotelDiscountInfo hotelDiscountInfo = new HotelDiscountInfo();
+		BeanCopier.staticCopy(tblHotelDiscountDO, hotelDiscountInfo);
+		hotelDiscountInfo.setType(HotelTypeEnum.getByCode(tblHotelDiscountDO.getType()));
+		return hotelDiscountInfo;
+	}
+
+	
+	private List<HotelDiscountInfo> converToInfos(List<TblHotelDiscountScenicDO> tblHotelDiscountList){
+		
+		List<HotelDiscountInfo> hotelDiscountInfos = new ArrayList<HotelDiscountInfo>();
+		for (TblHotelDiscountScenicDO hotelDiscount : tblHotelDiscountList) {
+			hotelDiscountInfos.add(converToInfo(hotelDiscount));
+		}
+		return hotelDiscountInfos;
+		
+	}
+	private HotelDiscountInfo converToInfo(TblHotelDiscountScenicDO hotelDiscountScenicDO){
+		HotelDiscountInfo hotelDiscountInfo = new HotelDiscountInfo();
+		BeanCopier.staticCopy(hotelDiscountScenicDO, hotelDiscountInfo);
+		hotelDiscountInfo.setType(HotelTypeEnum.getByCode(hotelDiscountScenicDO.getType()));
+		hotelDiscountInfo.setScenicName(hotelDiscountScenicDO.getName());
+		if (hotelDiscountInfo.getType() == HotelTypeEnum.LONGRENT) {
+			String setTime = hotelDiscountInfo.getSetTime();
+			if (StringUtil.isNotBlank(setTime)) {
+				setTime = setTime + "天";
+			}
+		//			String setTimePop = "";
+		//			String setTimeR = "";
+		//			if(StringUtil.isNotEmpty(setTime)){
+		//			String []setTimes = setTime.split(",");			
+		//			for(String sTime : setTimes){
+		//				PopInfoDO popInfoDO = popInfoDao.getByPopId(NumberUtil.parseInt(sTime, 0));
+		//				if(popInfoDO != null){
+		//					setTimePop += popInfoDO.getTitle()+",";
+		//				}
+		//			}
+		//			if(StringUtil.isNotBlank(setTimePop)){
+		//				setTimePop = setTimePop.substring(0, setTimePop.length()-1);
+		//			}
+		//			List<String> setTimeList = Arrays.asList(setTimePop.split(","));
+		//			Collections.sort(setTimeList, new Comparator<String>(){  
+		//				@Override
+		//	            public int compare(String o1, String o2) {  		           
+		//	                if(NumberUtil.parseInt(o1) > NumberUtil.parseInt(o2)){  
+		//	                    return 1;  
+		//	                }  
+		//	                if(NumberUtil.parseInt(o1) > NumberUtil.parseInt(o2)){  
+		//	                    return 0;  
+		//	                }  
+		//	                return -1;  
+		//	            }
+		//		     });   
+		//			for(String setTimR : setTimeList){
+		//				setTimeR += setTimR+"天,";
+		//			}
+		//			if(StringUtil.isNotBlank(setTimeR)){
+		//				setTimeR = setTimeR.substring(0,setTimeR.length()-1);
+		//			}
+		//			}
+			hotelDiscountInfo.setSetTime(setTime);
+		}
+		return hotelDiscountInfo;
+	}
+
+
+	@Override
+	public EsupplierBaseResult modifyHotelDiscount(
+			HotelDiscountInfo hotelDiscountInfo) {
+		// TODO Auto-generated method stub
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		TblHotelDiscountDO tblHotelDiscountDOExits = tblHotelDiscountDAO.findById(hotelDiscountInfo.getHotelDiscountId());
+		if(tblHotelDiscountDOExits == null){
+			result.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			result.setMessage("数据不存在!");
+		}
+		TblHotelDiscountDO tblHotelDiscountDO = new TblHotelDiscountDO();
+		tblHotelDiscountDO.setScenicId(hotelDiscountInfo.getScenicId());
+		tblHotelDiscountDO.setType(hotelDiscountInfo.getType().getCode());
+		if (hotelDiscountInfo.getType() == HotelTypeEnum.LONGRENT) {
+			tblHotelDiscountDO.setSetTime(hotelDiscountInfo.getSetTime());
+		}
+		List<TblHotelDiscountScenicDO> tblHotelDiscountScenicDOs = tblHotelDiscountDAO
+			.findByCondition(tblHotelDiscountDO, 0, 999, null);
+		if(tblHotelDiscountScenicDOs.size() > 1 ||  (tblHotelDiscountScenicDOs.size()==1 && 
+				tblHotelDiscountScenicDOs.get(0).getHotelDiscountId() != hotelDiscountInfo.getHotelDiscountId())){
+			result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			if (hotelDiscountInfo.getType() == HotelTypeEnum.LONGRENT) {
+				result.setMessage("同一景区,同一房间类型,同一时间不能重复!");
+			} else {
+				result.setMessage("同一景区,同一房间类型不能重复!");
+			}
+		}else{
+			tblHotelDiscountDO.setHotelDiscountId(hotelDiscountInfo.getHotelDiscountId());
+			tblHotelDiscountDO.setDiscountBegin(hotelDiscountInfo.getDiscountBegin());
+			tblHotelDiscountDO.setDiscountEnd(hotelDiscountInfo.getDiscountEnd());
+			tblHotelDiscountDO.setScenicId(hotelDiscountInfo.getScenicId());
+			tblHotelDiscountDO.setSetTime(hotelDiscountInfo.getSetTime());
+			tblHotelDiscountDO.setType(hotelDiscountInfo.getType().getCode());
+			tblHotelDiscountDO.setRawUpdateTime(new Date());
+			try{
+				tblHotelDiscountDAO.update(tblHotelDiscountDO);
+				result.setSuccess(true);
+				result.setMessage("修改成功");
+			} catch (IllegalArgumentException e) {
+				result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			} catch (DataAccessException e) {
+				logger.error(e.getMessage(), e);
+				result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				result.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+			}
+		}
+		return result;
+	}
+
+
+	@Override
+	public HotelDiscountInfo selectHotelByScenicIdAndRoomType(long scenicId,
+			HotelTypeEnum type) {
+		// TODO Auto-generated method stub
+		String roomType = type.getCode();
+		HotelDiscountInfo hotelDiscountInfo = new HotelDiscountInfo();
+		TblHotelDiscountDO tblHotelDiscountDO = tblHotelDiscountDAO.findByScenicIdAndRoomType(scenicId, roomType);
+		if(tblHotelDiscountDO==null){
+			return null;
+		}
+		BeanCopier.staticCopy(tblHotelDiscountDO, hotelDiscountInfo);
+		hotelDiscountInfo.setType(HotelTypeEnum.getByCode(tblHotelDiscountDO.getType()));
+		return hotelDiscountInfo;
+	}
+
+
+	@Override
+	public HotelDiscountInfo selectLongHotelByScenicIdAndSetTime(long scenicId, String setTime) {
+		
+		TblHotelDiscountDO tblHotelDiscountDO = new TblHotelDiscountDO();
+		tblHotelDiscountDO.setScenicId(scenicId);
+		tblHotelDiscountDO.setType(HotelTypeEnum.LONGRENT.getCode());
+		tblHotelDiscountDO.setSetTime(setTime);
+		List<TblHotelDiscountScenicDO> tblHotelDiscountScenicDOs = tblHotelDiscountDAO
+			.findByCondition(tblHotelDiscountDO, 0, 999, null);
+		if (tblHotelDiscountScenicDOs != null && tblHotelDiscountScenicDOs.size() > 0) {
+			TblHotelDiscountScenicDO discountScenicDO = tblHotelDiscountScenicDOs.get(0);
+			HotelDiscountInfo hotelDiscountInfo = new HotelDiscountInfo();
+			BeanCopier.staticCopy(discountScenicDO, hotelDiscountInfo);
+			hotelDiscountInfo.setType(HotelTypeEnum.getByCode(discountScenicDO.getType()));
+			return hotelDiscountInfo;
+		}
+		return null;
+	}
+
+}

@@ -1,0 +1,3 @@
+testId,resultCode,batchNo,id,supplierId,userId,orderStatus,totalAmount,workflowStatus,supplierName,saleTypeB2c,saleTypeO2o,facade,paymentFlowId,refundStatus,saleTypeHotels,resortsBusinessId,isPrintTicket,tuneMeal
+1001,EXECUTE_SUCCESS,2586,585,457,3558,PAD_ORDER,1000,HAVE_BEEN_ISSUED,哞哞商户,YES,NO,SEVEN_AFTER,2589,EMPTY,NO,1583,NO,YES
+1002,EXECUTE_SUCCESS,2586,585,457,3558,PAD_ORDER,1000,HAVE_BEEN_ISSUED,哞哞商户,YES,NO,SEVEN_AFTER,2589,EMPTY,NO,1583,NO,YES

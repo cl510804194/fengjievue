@@ -1,0 +1,79 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import java.io.Serializable;
+
+public class ProductFacadeDO implements Serializable {
+	private static final long serialVersionUID = -8664971589616580152L;
+	private String ptCode; //分类编码
+	private String name; //立面名称
+	private String options; //可选项，多个选项之间用分号分隔
+	private String defineId; //立面定义ID
+	private String value; //取值
+	
+	public ProductFacadeDO(String name, String defineId, String value) {
+		this.name = name;
+		this.defineId = defineId;
+		this.value = value;
+	}
+	
+	public ProductFacadeDO() {
+	}
+	
+	public String getPtCode() {
+		return ptCode;
+	}
+	
+	public void setPtCode(String ptCode) {
+		this.ptCode = ptCode;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getOptions() {
+		return options;
+	}
+	
+	public void setOptions(String options) {
+		this.options = options;
+	}
+	
+	public String getDefineId() {
+		return defineId;
+	}
+	
+	public void setDefineId(String defineId) {
+		this.defineId = defineId;
+	}
+	
+	public String getValue() {
+		return value;
+	}
+	
+	public void setValue(String value) {
+		this.value = value;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ProductFacadeDO [ptCode=");
+		builder.append(ptCode);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", options=");
+		builder.append(options);
+		builder.append(", defineId=");
+		builder.append(defineId);
+		builder.append(", value=");
+		builder.append(value);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,198 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	require('../Y-all/Y-script/Y-tip.js');
+	require('../plugins/jquery.box.js');
+	require('../plugins/jquery.combobox.js');
+	require('../plugins/jquery.window.js');
+	require('../Y-all/Y-script/Y-imgplayer.js');
+	require('../Y-all/Y-script/Y-msg.js');
+	$(".udateState").click(function() {
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+			if(opn == 'yes') {
+				$.ajax({
+					url : '/admin/userManage/updateState.htm',
+					type : 'post',
+					dataType : 'json',
+					data : {
+						userBaseId : $(_this).next().val(),
+						state : $(_this).attr("state")
+					},
+					success : function(res) {
+						alert(res.message),
+						location.reload()
+					}
+				});
+			}
+		});
+	});
+	$(".active").click(function() {
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+			if(opn=="yes"){
+				$.ajax({
+					url : '/admin/userManage/sendActiveUrl.htm',
+					type : 'post',
+					dataType : 'json',
+					data : {
+						userBaseId : $(_this).next().val()
+					},
+					success : function(res) {
+						alert(res.message);
+                        location.replace(location.href);
+					}
+				});
+			}
+		});
+	});
+	$(".resetPayPassword").click(function() {
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+			if(opn=="yes"){
+				$.ajax({
+					url : '/admin/userManage/resetPayPassword.htm',
+					type : 'post',
+					dataType : 'json',
+					data : {
+						userBaseId : $(_this).next().val()
+					},
+					success : function(res) {
+						alert(res.message),
+						location.reload()
+					}
+				});
+			}
+		});
+	
+	});
+	$("[name=tuijian]").click(function(){
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+			if(opn=="yes"){
+				$.ajax({
+					url : '/admin/supplier/recommend/recommendSupplier.json',
+					type : 'post',
+					dataType : 'json',
+					data : {
+						supplierId : $(_this).attr("data")
+					},
+					success : function(result) {
+						alert(result.message);
+						location.reload();
+					}
+				})
+			}
+
+		})
+	});
+	$("[name=cancelRecommend]").click(function() {
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+			if(opn=="yes"){
+				$.ajax({
+					url : '/admin/supplier/recommend/cancelRecommend.json',
+					type : 'post',
+					dataType : 'json',
+					data : {
+						supplierId : $(_this).attr("data")
+					},
+					success : function(json) {
+						alert(json.message);
+						location.reload();
+					}
+				})
+			}
+
+		})
+	})
+
+
+
+
+	$(".updateMerchant").click(function() {
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+			if(opn=="yes"){
+				$.ajax({
+					url : '/do/scenic/doCenter/updateMerchantState.htm',
+					type : 'post',
+					dataType : 'json',
+					data : {
+						supplierId : $(_this).next().val(),
+						state : $(_this).attr("state")
+					},
+					success : function(res) {
+						alert(res.message);
+						location.reload()
+					}
+				});
+			}
+		});
+	});
+	//设置等级弹窗
+	$('.setLevel').click(function(){
+		var supplierId = $(this).next().val();
+		var shopGrade = $(this).next().next("[name='shopGradeSet']").val();
+		var gradeSelect = "";
+		var gradeArray = new Array("一级","二级","三级","四级","五级","六级")
+		for(var k =0;k<gradeArray.length;k++){
+			if(shopGrade==gradeArray[k]){
+				gradeSelect = gradeSelect + '<option value="'+gradeArray[k]+'" selected>'+gradeArray[k]+'</option>';
+			}else{
+				gradeSelect = gradeSelect + '<option value="'+gradeArray[k]+'">'+gradeArray[k]+'</option>';
+			}
+		}
+		$('body').Y('Window', {
+            content: ['<div class="m-modal set-level">',
+                '    <div class="apply-org-hd">',
+                '        <span id="boxTitle">设置商户等级</span>',
+                '        <span class="closeBtn" href="javascript:void(0);">×</span>',
+                '    </div>',
+                '    <div class="apply-org-body search_list">',
+                '        <div class="inpt">',
+                '            <label class="inpt_text">',
+                '                商户等级：',
+                '            </label>',
+                '            <select id="chgGrade" name="chgGrade" class="chgGrade" style="width: 180px;">',
+                '               <option value="">请选择</option>'+gradeSelect+
+                '            </select>',
+                '        </div>',
+                '        <div class="button">',
+                '            <a class="btnOk DIB">确定</a>',
+                '            <a class="closeBtn DIB" href="javascript:void(0);">关闭</a>',
+                '        </div>',
+                '    </div>',
+                '</div>'].join(""),
+            modal: true,
+            key: 'modalwnd',
+            simple: true,
+            closeEle: '.closeBtn'
+        });
+		var wnd = Y.getCmp('modalwnd');
+        wnd.bind(wnd.wnd.find('.btnOk'), 'click', function() {
+			Y.confirm('请选择','确定执行该操作？',function(opn){
+				if(opn=="yes"){
+					$.ajax({
+						url : '/do/scenic/doCenter/updateMerchantGrade.htm',
+						type : 'post',
+						dataType : 'json',
+						data : {
+							supplierId : supplierId,
+							chgGrade : $("#chgGrade").val()
+						},
+						success : function(res) {
+							alert(res.message);
+							wnd.close();
+							location.reload()
+						}
+					});
+				}
+			});
+
+        });
+	});
+	//设置等级确定按钮事件
+	//$('body').on('click', '.btnOk',function(){
+    //
+	//})
+});

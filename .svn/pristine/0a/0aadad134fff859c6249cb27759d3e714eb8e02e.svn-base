@@ -1,0 +1,139 @@
+package com.yjf.esupplier.service.giftMoney.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.dal.daointerface.GiftMoneyTradeDAO;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyTemplateQueryService;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTemplateInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTemplateRuleInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTradeInfo;
+import com.yjf.esupplier.ws.gifamount.order.GainMoneyUseOrder;
+
+public abstract class GiftMoneyBaseService extends BaseBizService {
+	
+	@Autowired
+	protected GiftMoneyTradeDAO giftMoneyTradeDAO;
+	@Autowired
+	protected GiftMoneyTemplateQueryService giftMoneyTemplateQueryService;
+	protected boolean validateGainMoneyRule(List<GiftMoneyTemplateRuleInfo> rules,
+											GiftMoneyTradeInfo gain, Money investAmount) {
+		Collections.sort(rules, new Comparator<GiftMoneyTemplateRuleInfo>() {
+			@Override
+			public int compare(GiftMoneyTemplateRuleInfo o1, GiftMoneyTemplateRuleInfo o2) {
+				return o1.getRuleAmount().compareTo(o2.getRuleAmount());
+			}
+		});
+		
+		int len = rules.size();
+		for (int i = len - 1; i >= 0; i--) {
+			GiftMoneyTemplateRuleInfo rule = rules.get(i);
+			Money ruleAmount = rule.getRuleAmount();
+			if (!ruleAmount.greaterThan(investAmount)) {
+				Money money = new Money();
+				money.setAmount(new BigDecimal(rule.getAmount()));
+				gain.setUsedAmount(money);
+			}
+		}
+		
+		return false;
+	}
+	
+	protected double addCanUseTradeGainAmount(GainMoneyUseOrder gainMoneyUseOrder,
+												GiftMoneyTradeInfo tradeInfo,
+												GiftMoneyTemplateInfo giftMoneyTemplateInfo) {
+		double maxAmount = totalUserAmount(giftMoneyTemplateInfo,
+			gainMoneyUseOrder.getInvestAmount());
+		
+		tradeInfo = templateUseMoneyRule(giftMoneyTemplateInfo.getRules(),tradeInfo,gainMoneyUseOrder.getInvestAmount());
+		if (maxAmount > 0) {
+			Money money = new Money();
+			money.setAmount(new BigDecimal(maxAmount));
+			if (money.greaterThan(tradeInfo.getAmount())) {
+				tradeInfo.setPayAmount(tradeInfo.getAmount());
+			} else {
+				tradeInfo.setPayAmount(money);
+			}			
+		}
+		return maxAmount;
+	}
+	
+	protected double totalUserAmount(GiftMoneyTemplateInfo templateInfo, Money amount) {
+		List<GiftMoneyTemplateRuleInfo> ruleInfoList = templateInfo.getRules();
+		if (ruleInfoList.size() == 1) {
+			GiftMoneyTemplateRuleInfo ruleInfo = ruleInfoList.get(0);
+			Money ruleAmount = ruleInfo.getRuleAmount();
+			if (StringUtil.equalsIgnoreCase("Y", templateInfo.getIncrease())) {
+				long n = amount.getCent() / ruleAmount.getCent();
+				if (n != 0) {
+					return ruleInfo.getAmount() * n;
+				}
+			} else {
+				if (amount.compareTo(ruleAmount) == 1 || amount.compareTo(ruleAmount) == 0) {
+					return ruleInfo.getAmount();
+				} else {
+					return -1;
+				}
+			}
+		} else {
+			Collections.sort(ruleInfoList, new Comparator<GiftMoneyTemplateRuleInfo>() {
+				@Override
+				public int compare(GiftMoneyTemplateRuleInfo o1, GiftMoneyTemplateRuleInfo o2) {
+					return o1.getRuleAmount().compareTo(o2.getRuleAmount());
+				}
+			});
+			int len = ruleInfoList.size();
+			GiftMoneyTemplateRuleInfo condition = null;
+			for (int i = len - 1; i >= 0; i--) {
+				GiftMoneyTemplateRuleInfo info = ruleInfoList.get(i);
+				Money ruleAmount = info.getRuleAmount();
+				if (!ruleAmount.greaterThan(amount)) {
+					condition = info;
+					break;
+				}
+			}
+			if (condition != null) {
+				return condition.getAmount();
+			} else {
+				return -1;
+			}
+			
+		}
+		return -1;
+	}
+	
+	protected GiftMoneyTradeInfo templateUseMoneyRule(List<GiftMoneyTemplateRuleInfo> rules,
+											GiftMoneyTradeInfo gain, Money investAmount) {	
+		Collections.sort(rules, new Comparator<GiftMoneyTemplateRuleInfo>() {
+			@Override
+			public int compare(GiftMoneyTemplateRuleInfo o1, GiftMoneyTemplateRuleInfo o2) {
+				return o1.getRuleAmount().compareTo(o2.getRuleAmount());
+			}
+		});
+		int len = rules.size();
+		List <String>giftMoneyTemplateDataList = new ArrayList<String>();
+		for (int i = 0; i < len; i++) {
+			GiftMoneyTemplateRuleInfo rule = rules.get(i);
+			Money ruleAmount = rule.getRuleAmount();	
+			double amount = rule.getAmount();
+			Money moneyAmount = new Money(BigDecimal.valueOf(amount));
+//			if(investAmount.greaterThan(ruleAmount) || investAmount.equals(ruleAmount)){
+//				gain.setUseAmount(ruleAmount.toString());
+//				gain.setUseRuleAmount(moneyAmount.toString());
+//			}
+			giftMoneyTemplateDataList
+			.add("单笔交易满"+ ruleAmount.toString()
+					+ "元可使用" + moneyAmount.toString()+ "元");
+		}
+		gain.setGiftMoneyTemplateDataList(giftMoneyTemplateDataList);
+		return gain;
+	}
+}

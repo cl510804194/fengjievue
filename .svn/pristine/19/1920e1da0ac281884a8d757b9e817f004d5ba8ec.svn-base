@@ -1,0 +1,75 @@
+package com.yjf.esupplier.service.app.equipmentLogin;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+/**
+ * 更新设备登陆信息order
+ * */
+public class EquipmentLoginOrder extends ValidateOrderBase {
+	
+	private static final long serialVersionUID = 8735781855748517236L;
+	/** 设备号 */
+	String equipmentNo;
+	/** 用户Id */
+	Long userId;
+	/** 用户名 */
+	String userName;
+	/** 真实设备号 */
+	String equipmentCardNo;
+	
+	@Override
+	public void check() {
+		validateHasText(equipmentNo, "设备号");
+		//validateHasText(equipmentCardNo, "真实设备号");
+		validateHasZore(userId, "用户Id");
+		validateHasText(userName, "用户名");
+	}
+	
+	public String getEquipmentNo() {
+		return this.equipmentNo;
+	}
+	
+	public void setEquipmentNo(String equipmentNo) {
+		this.equipmentNo = equipmentNo;
+	}
+	
+	public Long getUserId() {
+		return this.userId;
+	}
+	
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+	
+	public String getUserName() {
+		return this.userName;
+	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getEquipmentCardNo() {
+		return equipmentCardNo;
+	}
+
+	public void setEquipmentCardNo(String equipmentCardNo) {
+		this.equipmentCardNo = equipmentCardNo;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("EquipmentLoginOrder [equipmentNo=");
+		builder.append(equipmentNo);
+		builder.append(", userId=");
+		builder.append(userId);
+		builder.append(", userName=");
+		builder.append(userName);
+		builder.append(", equipmentCardNo=");
+		builder.append(equipmentCardNo);
+		builder.append("]");
+		return builder.toString();
+	}
+
+}

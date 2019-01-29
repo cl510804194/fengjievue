@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>商户管理-添加/修改商户</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/css/chosen/chosen.css" rel="stylesheet"/>
+	<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="/styles/new/backstage.css" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")	
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="javascript:;">商户管理</a> > 添加/修改商户</p>
+					</div>
+					<form action="/admin/supplier/addSupplierSubmit.json" class="ui-form" id="addSupplierSubmit_form">
+						<fieldset>
+							<legend><h3>商户资料</h3></legend>
+							<div class="item">
+                                <label for="" class="u-label"><span class="required">*</span>景区：</label>
+								<select class="chzn-select" name="scenicId" id="scenicId" style="width: 150px;"  autocomplete="off">
+									<option value="">选择景区</option>
+                                    #foreach($scenic in $!{scenicList})
+                                        <option value="$scenic.id" #if($scenic.id == $!supplierInfo.scenicId) selected #end>$scenic.name</option>
+                                    #end
+								</select>
+                            </div>
+							<div class="item">
+                                <label for="" class="u-label"><span class="required">*</span>商户名称：</label>
+								<input type="text" name="supplierName" id="supplierName" class="u-input w170" value="$!{userInfo.realName}"/>
+                            </div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required"></span>经营范围：</label>
+								<textarea name="bizDomain" id="bizDomain" cols="59" rows="4">$!supplierInfo.bizDomain</textarea>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>用户名：</label>
+								#if($!userInfo)
+									<input type="text" disabled class="u-input w170" value="$!{userInfo.userName}"/>
+								#else
+								<input type="text" class="u-input w170" id="addUserName"  name="addUserName" maxlength=""/>
+								#end
+								<input type="hidden" name="userName" id="userName" value="$!{userInfo.userName}"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>法人姓名：</label>
+								<input type="text" class="u-input w170" value="$!{info.realName}" name="realName"/>
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>手机电话：</label>
+								<input type="text" class="u-input w170" value="$!{userInfo.mobile}"  name="mobile"/>
+							</div>
+##							#if($!appConstantsUtil.getPlatformType()=="B2B")
+##								#foreach($supplierInvoiceInfo in $supplierInfo.supplierInvoiceInfos)
+##										#if($!{supplierInvoiceInfo.invoiceType}=="REGULAR_INVOICE")
+##											#set($regularInvoiceChecked = true)
+##											#set($regularInvoiceTaxPoint = $!{supplierInvoiceInfo.invoiceTaxPoint})
+##										#elseif($!{supplierInvoiceInfo.invoiceType}=="ELECTRONIC_INVOICE")
+##											#set($electronicInvoiceChecked = true)
+##											#set($electronicInvoiceTaxPoint = $!{supplierInvoiceInfo.invoiceTaxPoint})
+##										#else
+##											#set($addedTaxInvoiceChecked = true)
+##											#set($addedTaxInvoiceTaxPoint = $!{supplierInvoiceInfo.invoiceTaxPoint})
+##										#end
+##								#end
+##								<div class="item">
+##									<label for="" class="u-label"><span class="required"></span>发票能力：</label>
+##									#foreach($invoiceType in $invoiceTypes)
+##										<input type="checkbox" name="invoiceTypes" #if($invoiceType=="REGULAR_INVOICE") id="regular_invoice" #if($regularInvoiceChecked == true) checked #end #elseif($invoiceType=="ELECTRONIC_INVOICE") id="electronic_invoice" #if($electronicInvoiceChecked == true) checked #end #else id="added_tax_invoice" #if($addedTaxInvoiceChecked == true) checked #end #end value="$!{invoiceType.code}"
+##											 /><label for="" class="mr10">$!{invoiceType.message}</label>
+##									#end
+##								</div>
+##								#foreach($invoiceType in $invoiceTypes)
+##									<div class="item" #if($invoiceType=="REGULAR_INVOICE") id="regular_invoice_div" #if($regularInvoiceChecked != true) style="display:none;" #end #elseif($invoiceType=="ELECTRONIC_INVOICE") id="electronic_invoice_div" #if($electronicInvoiceChecked != true) style="display:none;" #end #else id="added_tax_invoice_div" #if($addedTaxInvoiceChecked != true) style="display:none;" #end #end >
+##										<label for="" class="u-label"><span class="required">*</span>$!{invoiceType.message}税点：</label>
+##										<input type="text" #if($!{invoiceType}=="REGULAR_INVOICE") name="regularInvoiceTaxPoint" value="$!{regularInvoiceTaxPoint}" #elseif($!{invoiceType}=="ELECTRONIC_INVOICE") name="electronicInvoiceTaxPoint" value="$!{electronicInvoiceTaxPoint}" #else name="addedTaxInvoiceTaxPoint" value="$!{addedTaxInvoiceTaxPoint}" #end /> %
+##									</div>
+##								#end
+##							#end
+
+	                        <div class="item">
+								<label for="" class="u-label"><span class="required">*</span>身份证号码：</label>
+								<input type="text" class="u-input w170" name="certNo" onChange="javascript:this.value=this.value.toUpperCase();" value="$!{info.certNo}" />
+								<p class="u-tip">
+									身份证号末位为字母"X",只能为大写
+                                </p>
+							</div>
+                                <div class="item">
+                                    <label for="" class="u-label"><span class="required">*</span>身份证到期时间：</label>
+                                    <input type="date" yearRange='[-10,80]' class="u-input w112 fn-isdate" name="businessPeriod" value="$!{info.businessPeriod}" />
+                                    <p class="u-tip"><input id="isForever" name="businessPeriod" type="checkbox" class="checkbox" #if($!{info.businessPeriod}=="longTime") checked="checked" #end value="longTime"/><label for="">长期</label></p>
+                                </div>
+                                <input type='hidden' id="uploadHost" value="$!{uploadHost}"/>
+								<div class="item">
+									<label for="" class="u-label"><span class="required">*</span>身份证正面照：</label>
+									<span class="sl-file">
+										<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="certFrontPathUpload"/>
+										支持图片格式为:jpg、png、bmp,最大为3M.
+									</span>
+									<div id="certFrontPath_imgcontainer"  #if(!$!{info.certFrontPath}) style="display:none;"#end >
+										<div style = "height:265px;">
+											<input type='hidden' id="certFrontPath" name="certFrontPath" value="$!{info.certFrontPath}"/>
+											<a href="javascript:;" id="certFrontPathImgLink" name="certFrontPathImgLink" title="身份证正面照">
+												<img id="certFrontPathImg" name="certFrontPathImg" title="身份证正面照" style = "width:450px;height:260px;"  src="$!{info.certFrontPath}"/>
+											</a>
+										</div>
+									</div>
+								</div>
+								<div class="item">
+									<label for="" class="u-label"><span class="required">*</span>身份证反面照：</label>
+									<span class="sl-file">
+										<input type="file" exts="png|jpg|bmp" class="sl-file-input" id="certBackPathUpload"/>
+										支持图片格式为:jpg、png、bmp,最大为3M.
+									</span>
+									<div id="certBackPath_imgcontainer"  #if(!$!{info.certBackPath}) style="display:none;"#end >
+										<div style = "height:265px;">
+											<input type='hidden' id="certBackPath" name="certBackPath" value="$!{info.certBackPath}"/>
+											<a href="javascript:;" id="certBackPathImgLink" name="certBackPathImgLink" title="身份证反面照">
+												<img id="certBackPathImg" name="certBackPathImg" title="身份证反面照" style = "width:450px;height:260px;"  src="$!{info.certBackPath}"/>
+											</a>
+										</div>
+									</div>
+								</div>
+
+##                            <div class="item fn-clear" style="z-index:20;">
+##                                <label for="" class="u-label"><span class="required">*</span>开户银行：</label>
+##                                <div class="jqtransform jqtransform-select3">
+##                                    <select name="bankType" >
+##                                        <option value="">请选择银行</option>
+##                                    </select>
+##                                </div>
+##                                <input id="bankType"     type="hidden"   value="$!{info.bankType}"/>
+##                                <input id="bankProvince" type="hidden"  value="$!{info.bankProvince}"/>
+##                                <input id="bankCity"     type="hidden"  value="$!{info.bankCity}"/>
+##                            </div>
+##                            <div class="item">
+##                                <label for="" class="u-label"><span class="required">*</span>银行卡号：</label>
+##                                <input type="text" class="u-input w170" name="bankCardNo" value="$!info.bankCardNo"/>
+##                            </div>
+##                            <div class="item fn-clear Y-selectarea" province="$!{info.bankProvince}" city="$!{info.bankCity}">
+##                                <input name="bankProvince" type="hidden" value="$!{info.bankProvince}"/>
+##                                <input name="bankCity" type="hidden"  value="$!{info.bankCity}"/>
+##                                <label  class="u-label"><span class="required">*</span>开户银行地区：</label>
+##                                <div class="jqtransform jqtransform-select3">
+##                                    <select name="bankProvince_p"  class="Y-province">
+##                                        <option value="">请选择</option>
+##                                    </select>
+##                                </div>
+##                                <div class="jqtransform jqtransform-select3">
+##                                    <select name="bankCity_c"  data="thisCity" class="Y-city">
+##                                        <option value="">请选择</option>
+##                                    </select>
+##                                </div>
+##                            </div>
+					#*		<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>支付账户：</label>
+								<input type="text" name="accountName" id="accountName"  readonly="readonly" value="$!userInfo.accountName" />
+								#if($stringUtil.isBlank($userinfo.accountId))<a href="#" target="_blank">开通支付账户</a>#end
+							</div>
+					*#
+						    <div class="item">
+								<label for="" class="u-label"><span class="required">*</span>商户类型：</label>
+								<label for="runState_1"><input  type="checkbox" name="o2o" id="o2o" value="YES"  #if($!supplierInfo.o2o=="YES") checked #end/>美食</label>
+								<label for="runState_1"><input  type="checkbox" name="hotels" id="hotels" value="YES"  #if($!supplierInfo.hotels=="YES") checked #end/>酒店</label>	
+								<label ><i class="saleType_error" style="display:none;color:red">请选择商户类型！</i>   </>	
+							</div>
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>商户经营状态：</label>
+								<label for="runState_1"><input type="radio" name="runState" id="runState_1" value="Opening" class="radiocss" #if($!supplierInfo.runState=="Opening") checked #end/>正在营业</label>
+            					#if($supplierInfo)
+                            	<label for="runState_2"><input type="radio" name="runState" id="runState_2" value="Suspend"  class="radiocss" #if($!supplierInfo.runState=="Suspend") checked #end/>暂停营业</label>
+                            	<label for="runState_3"><input type="radio" name="runState" id="runState_3" value="Closed"  class="radiocss" #if($!supplierInfo.runState=="Closed") checked #end/>清算退出</label>
+            					#end
+							</div>
+							#if($supplierInfo)
+							<div class="item">
+								<label for="" class="u-label"><span class="required">*</span>审核状态：</label>
+								<label for="runState_1">$!supplierInfo.approveState.message</label>
+							</div>
+							#end
+							<div class="item">
+        						<a href="javascript:;" id="formSubmit" class="u-btn u-btn-blue submit_form1">提交</a>
+								<input type="hidden" name="token" value="$!{token}"/>
+        						<a href="javascript:window.history.back(-1);" class="u-btn u-btn-gray">返回</a>
+        					</div>
+						</fieldset>
+					</form>
+                </div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/chosen/chosen.jquery.min.js"></script>
+	<script type="text/javascript">
+		var cansubmitCode = 1;
+		seajs.use($_GLOBAL.mode + 'addSupplier');
+		
+		function onOpen(){
+    		window.open("/admin/supplier/getAllType.htm?show=2","newwindow","height=500, width=650, top=50, left=100, toolbar=no, menubar=no, scrollbars=yes, resizable=no,location=no, status=no");
+    	}
+    
+    </script>
+</body>
+</html>

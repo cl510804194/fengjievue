@@ -1,0 +1,350 @@
+#parse("/front/platform/layout/header-title.vm")
+<link type="text/css" href="/resources/css/chosen/chosen.css" rel="stylesheet"/>
+<link type="text/css" href="/resources/css/common/form.css" rel="stylesheet"/>
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="toCreateProduct">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB push_pro">
+            <p class="nav_title"><span class="DIB">
+                #if($!{saleType}=="O2O,B2C") 发布团|邮购$!{productTypeName}
+                #elseif($!{saleType}=="ORDER_MEAL") 发布点餐$!{productTypeName}
+                #elseif($!{saleType}=="HOTELS") 发布房间
+                #else
+                    发布$!{productTypeName}
+                #end
+            </span><a onclick="javascript:window.history.back();"
+                      class="fn-right">返回</a></p>
+
+            <div class="left_content">
+                <form action="createProduct.htm" method="post" id="form1" theme="simple" class="input-form">
+                    <div class="inpt">
+                        <input type='hidden' id="product.productVary" name="product.productVary" value="product"/>
+                        <span class="inpt_txt DIB"><em>*</em>所属商户：</span>
+                        <select class="chzn-select" id="supplier" name="product.supplierId" autocomplete="off"
+                            #if(${userType}=='SELLER') value="${supplier.supplierId}" disabled #else value="" #end>
+                            #if(${userType}=='SELLER')
+                                <option value="${supplier.supplierId}">${supplier.storeName}</option>
+                            #else
+                                <option value=""></option>
+                                #foreach($item in $!suppliers)
+                                    <option value='$!{item.supplierId}'>$!{item.storeName}</option>
+                                #end
+                            #end
+                        </select>
+                    </div>
+                    <div class="inpt choose_pro">
+                        <span class="inpt_txt DIB"><em>*</em>选择$!{productTypeName}类别：</span>
+
+                        <div class="DIB ch_type" id="productFirst">
+                        </div>
+                        <div class="DIB ch_type" id="productSecond" style="display:none;">
+                        </div>
+                        <div class="DIB ch_type" id="productThird" style="display:none;">
+                        </div>
+                    </div>
+                    <input type="hidden" name="productTypeName" id="productTypeName" size="40">
+                    <input type="hidden" name="productTypeCode" id="productTypeCode" size="40">
+
+                    <div style="display: none;" id="sid"></div>
+                    <span id="errorsDiv_product.productType"></span>
+
+                    <div class="inpt choose_result">
+                        <span class="inpt_txt DIB"><em>*</em>所选$!{productTypeName}类别：</span>
+                        <span id="productTypeName1" style="width:auto;">
+                        </span>
+                        <input type="hidden" name="product.productType" id="productType"/>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}编号：</span>
+                        <input type="text" name="product.productNumber" id="productNumber"/>
+                        <input type="button" value="自动生成" class="shengc" onclick="createNum()"/>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}名称：</span>
+                        <input size="30" type="text" maxlength="30" name="product.productName"></input>
+                        <span id="errorsDiv_product.productName"></span>
+                    </div>
+                    <div id="addDivTag" style="display:none"> #*$!{productTypeName}其他自定义信息*#
+
+                    </div>
+
+                   
+
+                    #if(${saleType}=="ORDER_MEAL")
+                        <input type='hidden' id="isDc_Y" name="saleType" value="orderMeal"/>
+
+                        <div class="inpt check_box">
+                            <span class="inpt_txt DIB"><em>*</em>是否支持调餐：</span>
+                            <input type="radio" name="tuneMeal" value="YES"/><label for="tuneMeal">是</label>
+                            <input type="radio" name="tuneMeal" value="NO"/><label for="tuneMeal">否</label>
+                        </div>
+                    #else
+						#if(${saleType}=="O2O")
+							<input type='hidden' id="isHotel_Y" name="saleType" value="o2o"/>
+						#elseif(${saleType}=="HOTELS")
+							<input type='hidden' id="isHotel_Y" name="saleType" value="hotel"/>
+						#end
+                   ##     <div class="inpt check_box">
+                    ##        <span class="inpt_txt DIB"><em>*</em>退款说明：</span>
+                   ##         #enumRadioIterator("RefundRuleEnum","product.facade")
+                   ##     </div>
+                        <div class="inpt check_box" id="product_tag" style="display:none">
+
+                        </div>
+                        <div class="inpt check_box" id="product_keyWords" style="display:none">
+
+                        </div>
+                        <div class="inpt">
+                            <span class="inpt_txt DIB"><em>*</em>使用有效期：</span>
+                            <input class="pub-input" type="text" name="product.groupPurchaseBeginTime"
+                                   id="groupPurchaseBeginTime"
+                                   onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'groupPurchaseEndTime\')||\'2080-10-01\'}'})"/>&nbsp;-&nbsp;
+                            <input class="pub-input" type="text" name="product.groupPurchaseEndTime"
+                                   id="groupPurchaseEndTime"
+                                   onFocus="WdatePicker({minDate:'#F{$dp.$D(\'groupPurchaseBeginTime\')}',maxDate:'2080-10-01'})">
+                        </div>
+##                        <div class="inpt check_box">
+##                            <span class="inpt_txt DIB"><em>*</em>是否预约：</span>
+##                            <input type='radio' id="appointment_N" name="product.appointment" value="NO" checked/><label
+##                                for="appointment_N">否</label>
+##                            <input type='radio' id="appointment_Y" name="product.appointment" value="YES"/><label
+##                                for="appointment_Y">是</label>
+##                        </div>
+                        <div class="inpt">
+                            <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}积分：</span>
+                            <select name="product.points">
+                                <option value="0">无积分</option>
+                                <option value="1">1倍积分</option>
+                                <option value="2">2倍积分</option>
+                                <option value="3">3倍积分</option>
+                            </select>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB">$!{productTypeName}简介：</span>
+                        <textarea id="groupBuyDetail" name="product.groupBuyDetail" class="area-real" rows="3"
+                                  cols="80">$!product.groupBuyDetail</textarea>
+                            <span id="errorsDiv_product.groupBuyDetail"></span>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB">预约提示：</span>
+                        <textarea id="wholesaleDetail" name="product.wholesaleDetail" class="u-area" rows="12" cols="80"
+                                  style="width:670px;height:280px;">$!product.wholesaleDetail</textarea>
+                            <span id="errorsDiv_product.wholesaleDetail"></span>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB">温馨提示：</span>
+                        <textarea id="transportDetail" name="product.transportDetail" class="u-area" rows="12" cols="80"
+                                  style="width:670px;height:280px;">$!product.transportDetail</textarea>
+                            <span id="errorsDiv_product.transportDetail"></span>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}详情：</span>
+                        <textarea id="productDetail" name="product.productDetail" class="u-area" rows="12" cols="80"
+                                  style="width:670px;height:280px;">$!product.productDetail</textarea>
+                            <span id="errorsDiv_product.productDetail"></span>
+                        </div>
+                    #end
+
+                    #if(${saleTyep}!="ORDER_MEAL")
+
+                    #end
+
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}图片1：</span>
+                        <input class="noTxt" type='text' id="bigPicPath_hidden" name="product.bigPicPath"
+                               value="$!{product.bigPicPath}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath"/>
+                        <input type='hidden' id="bigPicPath_originalPic" name="originalPic"/>
+
+                        <div id="bigPicPath_imgcontainer" class="bigPicPath_imgcontainer" #if(!$!{product.bigPicPath})
+                             style="display:none;"#end>
+                            <a href="javascript:;" id="bigPicPathLink" name="bigPicPathLink" title="$!{productTypeName}图片1">
+                                <img id="bigPicPathImg" name="bigPicPathImg" title="$!{productTypeName}图片1"
+                                     src="$!{product.bigPicPath}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}图片2：</span>
+                        <input class="noTxt" type='text' id="bigPicPath1_hidden" name="product.bigPicPath1"
+                               value="$!{product.bigPicPath1}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath1"/>
+                        <input type='hidden' id="bigPicPath1_originalPic" name="originalPic1"/>
+
+                        <div id="bigPicPath1_imgcontainer"
+                             class="bigPicPath_imgcontainer" #if($stringUtil.isBlank($!product.bigPicPath1))
+                             style="display:none;"#end >
+                            <a href="javascript:;" id="bigPicPath1Link" name="bigPicPathLink1" title="$!{productTypeName}图片1">
+                                <img id="bigPicPath1Img" name="bigPicPath1Img" title="$!{productTypeName}图片1"
+                                     src="$!{product.bigPicPath1}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}图片3：</span>
+                        <input class="noTxt" type='text' id="bigPicPath2_hidden" name="product.bigPicPath2"
+                               value="$!{product.bigPicPath2}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath2"/>
+                        <input type='hidden' id="bigPicPath2_originalPic" name="originalPic2"/>
+
+                        <div id="bigPicPath2_imgcontainer"
+                             class="bigPicPath_imgcontainer"  #if($stringUtil.isBlank($!product.bigPicPath2))
+                             style="display:none;"#end >
+                            <a href="javascript:;" id="bigPicPath2Link" name="bigPicPath2Link" title="$!{productTypeName}图片1">
+                                <img id="bigPicPath2Img" name="bigPicPath2Img" title="$!{productTypeName}图片1"
+                                     src="$!{product.bigPicPath2}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}图片4：</span>
+                        <input class="noTxt" type='text' id="bigPicPath3_hidden" name="product.bigPicPath3"
+                               value="$!{product.bigPicPath3}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath3"/>
+                        <input type='hidden' id="bigPicPath3_originalPic" name="originalPic3"/>
+
+                        <div id="bigPicPath3_imgcontainer"
+                             class="bigPicPath_imgcontainer" #if($stringUtil.isBlank($!product.bigPicPath3))
+                             style="display:none;"#end >
+                            <a href="javascript:;" id="bigPicPath2Link" name="bigPicPath2Link" title="$!{productTypeName}图片1">
+                                <img id="bigPicPath3Img" name="bigPicPath3Img" title="$!{productTypeName}图片1"
+                                     src="$!{product.bigPicPath3}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <input id="product.productUnit" type="hidden" autoCompleteOptions="件" type="text"
+                           name="product.productUnit" size="8" value="件"></input>
+
+                    <!--  <div class="inpt" id="execTimeDiv3">
+                          <span class="inpt_txt DIB"><em>*</em>$!{productTypeName}数量：</span>
+                          <input type="text" name="product.wareCount" size="5" class="fn-mr5 fn-amount" value=""/>
+                          <span id="errorsDiv_product.wareCount"></span>
+                      </div>-->
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>网购价格：</span>
+                        <input type="text" name="product.price1" size="6" class="fn-mr5 fn-price onlyNum" id="price1"
+                               value=""/>
+                        <span id="errorsDiv_range2"></span>
+                        <span id="errorsDiv_product.price1"></span>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>门市价格：</span>
+                        <input type="text" name="product.marketPrice" size="6" class="fn-mr5 fn-price onlyNum"
+                               id="price1"
+                               value=""/>
+                        <span id="errorsDiv_range2"></span>
+                        <span id="errorsDiv_product.marketPrice"></span>
+                    </div>
+                    <div class="inpt isPost" style="display: none">
+                        <span class="inpt_txt DIB"><em>*</em>常规运费：</span>
+                        <input type="text" class="onlyNum" name="postValue1" size="5"></input>
+                    </div>
+                    <div class="inpt isPost" style="display: none">
+                        <span class="inpt_txt DIB">特殊运费：</span>
+
+                        <div class="DIB">
+                            <div class="sp-place">
+                                地区1
+                                <div class="Y-selectarea DIB" province="$!{info.province}">
+                                    <input name="province2" type="hidden" value="$!{info.province}"/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p2" class="Y-province" onchange="provinceChg(2)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c2" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue2" size="5" disabled/>元
+                            </div>
+                            <div class="sp-place">
+                                地区2
+                                <div class="Y-selectarea DIB" province="">
+                                    <input name="province3" type="hidden" value=""/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p3" class="Y-province" onchange="provinceChg(3)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c3" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue3" size="5" disabled/>元
+                            </div>
+                            <div class="sp-place">
+                                地区3
+                                <div class="Y-selectarea DIB" province="">
+                                    <input name="province4" type="hidden" value=""/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p4" class="Y-province" onchange="provinceChg(4)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c4" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue4" size="5" disabled/>元
+                            </div>
+                            <div class="sp-place">
+                                地区4
+                                <div class="Y-selectarea DIB" province="">
+                                    <input name="province5" type="hidden" value=""/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p5" class="Y-province" onchange="provinceChg(5)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c5" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue5" size="5" disabled/>元
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="product.postType" value="2"/>
+                    <input type="hidden" id="hotels" name="hotels" value="NO"/>
+
+                    <div class="inpt publish">
+                        <span class="inpt_txt DIB"><em>*</em>是否直接发布上网：</span>
+                        <label class="pub_txt"><input type="radio" name="product.productStatus" value="ON"
+                                                      checked="checked"/>是（上架）</label>
+                        <label class="pub_txt"><input type="radio" name="product.productStatus"
+                                                      value="OFF"/>否（下架）</label>
+                    </div>
+                    <div class="inpt">
+                        <input type="submit" value="提交" class="submit" id="all"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript">seajs.use($_GLOBAL.mode +'productApply');</script>
+<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="/resources/js/kindeditor/kindeditor.js"></script>
+<script charset="utf-8" src="/resources/js/kindeditor/lang/zh_CN.js"></script>
+<script type="text/javascript" src="/resources/js/chosen/chosen.jquery.min.js"></script>
+<script type="text/javascript">seajs.use($_GLOBAL.mode +'createProduct');</script>
+<script type="text/javascript">
+    var saleType = "$!{saleType}";
+</script>
+</html>

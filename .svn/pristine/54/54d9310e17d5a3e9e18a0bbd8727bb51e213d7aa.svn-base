@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>违约金规则新增</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <link href="/resources/style/global.css" rel="stylesheet">
+  <link href="/resources/style/module.css" rel="stylesheet">
+  <link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+  <link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+</head>
+<body class="m-content">
+<form name="addPenaltyRule_form" id="addPenaltyRule_form">
+  <!--section-->
+  <div class="m-section first">
+
+    <!--head-->
+    <div class="hd">
+      <!--inner-->
+      <div class="in">
+        <span class="title">系统管理  >> 违约金规则  >> 新增</span>
+      </div>
+      <!--inner-->
+    </div>
+    <!--head End-->
+    
+    <!--body-->
+    <div class="bd">
+      
+      <!--form-->
+      <div class="m-form column">
+        
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>逾期天数：</label>
+          <input class="input2" type="text" name="startDay" id="startDay"/>- <input class="input2" type="text" name="endDay" id="endDay"/>
+        </div>
+        <!--group End-->
+        
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>违约金数额：</label>
+          <input class="input" type="text" name="penalty" id="penalty"/>
+        </div>
+        <!--group End-->
+        
+
+
+      </div>
+      <!--form End-->
+
+    </div>
+    <!--body End-->
+  </div>
+  <!--section-->
+
+  
+  <div class="f-tac f-mt20">
+    
+    <button type="submit" class="u-btn2 blue">取消</button>
+    <button type="button" class="u-btn2 blue f-ml20 submit_form" name="submit_form" id="submit_form">确定</button>
+
+  </div>
+
+</form>
+
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+	<script type="text/javascript">
+    	seajs.use('/resources/js/content/penaltyRule');
+    </script>
+</body>
+</html>

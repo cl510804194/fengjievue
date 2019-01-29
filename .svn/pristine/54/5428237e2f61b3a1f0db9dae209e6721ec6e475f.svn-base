@@ -1,0 +1,25 @@
+package com.yjf.esupplier.service.tocard.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class UpdateBatchNoProcessingOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 1278521541455643390L;
+	/**
+	 * 批次号
+	 */
+	String outBizNo;
+	
+	@Override
+	public void check() {
+		validateHasText(outBizNo, "批次号");
+	}
+	
+	public String getOutBizNo() {
+		return this.outBizNo;
+	}
+	
+	public void setOutBizNo(String outBizNo) {
+		this.outBizNo = outBizNo;
+	}
+	
+}

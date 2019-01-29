@@ -1,0 +1,59 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import java.io.Serializable;
+
+public class StorageInOutDetailDO implements Serializable {
+	private static final long serialVersionUID = -1145836771284839056L;
+	private Long id;
+	private Long storageInOutId;
+	private long productId;
+	private Integer billAmount;
+	
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public Long getStorageInOutId() {
+		return storageInOutId;
+	}
+	
+	public void setStorageInOutId(Long storageInOutId) {
+		this.storageInOutId = storageInOutId;
+	}
+	
+	public long getProductId() {
+		return productId;
+	}
+	
+	public void setProductId(long productId) {
+		this.productId = productId;
+	}
+	
+	public Integer getBillAmount() {
+		return billAmount;
+	}
+	
+	public void setBillAmount(Integer billAmount) {
+		this.billAmount = billAmount;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("StorageInOutDetailDO [id=");
+		builder.append(id);
+		builder.append(", storageInOutId=");
+		builder.append(storageInOutId);
+		builder.append(", productId=");
+		builder.append(productId);
+		builder.append(", billAmount=");
+		builder.append(billAmount);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

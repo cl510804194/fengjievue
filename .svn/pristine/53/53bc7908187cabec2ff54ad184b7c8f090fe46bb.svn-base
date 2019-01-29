@@ -1,0 +1,124 @@
+package com.yjf.esupplier.service.pop;
+
+import java.util.List;
+
+import com.yjf.esupplier.common.page.Page;
+import com.yjf.esupplier.common.page.PageParam;
+import com.yjf.esupplier.ws.info.PopModuleVOInfo;
+import com.yjf.esupplier.ws.order.PopModuleOrder;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+
+public interface IPopModuleService {
+
+	/**
+	 * 分页查询
+	 * @param pageParam
+	 * @param statusList
+	 * @param popModuleOrder
+	 * @return
+	 */
+	Page<PopModuleVOInfo> getPageByConditions(PageParam pageParam,
+			List<Integer> statusList, PopModuleOrder popModuleOrder);
+
+	/**
+	 * 获取单个PopModule
+	 * @param moduleId
+	 * @return
+	 */
+	PopModuleVOInfo getPopModule(long moduleId);
+	
+	PopModuleVOInfo getPopModule(String moduleCode);
+	
+	/**
+	 * 获取所有信息模块（在线状态的）
+	 * @return
+	 */
+	public List<PopModuleVOInfo> getOnlineModulesFromCache();
+	
+	/**
+	 * 获取所有信息模块（在线状态的）
+	 * @return
+	 */
+	public List<PopModuleVOInfo> getOnlineModules();
+
+
+    public List<PopModuleVOInfo> getOnlineModules(int type);
+	/**
+	 * 获取所有信息模块（自定义条件）
+	 * @return
+	 */
+	public List<PopModuleVOInfo> getModules(PopModuleOrder popModuleOrder);
+	
+	/**
+	 * 获取所有信息模块（下线状态的）
+	 * @return
+	 */
+	public List<PopModuleVOInfo> getOfflineModules();
+	
+	/**
+	 * 获取所有信息模块
+	 * @return
+	 */
+	public List<PopModuleVOInfo> getAllModules();
+
+	/**
+	 * 新增信息模块
+	 * @param popModuleOrder
+	 * @return
+	 */
+	long addPopModule(PopModuleOrder popModuleOrder);
+	
+    /**
+     * 更新信息模块
+     * @param popModuleOrder
+     * @return
+     */
+	long updatePopModule(PopModuleOrder popModuleOrder);
+
+	/**
+	 * 下线
+	 * @param moduleId
+	 * @return
+	 */
+	long offlinePopModule(long moduleId);
+	/**
+	 * 上线
+	 * @param moduleId
+	 * @return
+	 */
+	long onlinePopModule(long moduleId);
+	
+	
+	/**
+	 * 下线
+	 * @param moduleId
+	 * @return
+	 */
+	int deletePopModule(long moduleId);
+	
+    /**
+     * 增加点击次数
+     * @param moduleId
+     * @return
+     */
+	long increaseHit(long moduleId);
+	
+	public void reloadModuleList();
+	
+//	public void reloadModuleAllList();
+
+	/**
+	 * 获取攻略模块（上线状态的）
+	 * @return
+	 */
+	public QueryBaseBatchResult<PopModuleVOInfo> getOnlineModulesForGl();
+
+	/**
+	 * 获取帮助模块（上线状态的）
+	 * @return
+	 */
+	public QueryBaseBatchResult<PopModuleVOInfo> getOnlineModulesForHelp();
+	
+	List<PopModuleVOInfo> getLevelModules();
+}

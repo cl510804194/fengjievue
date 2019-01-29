@@ -1,0 +1,72 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.openingbank.result;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import com.yjf.common.lang.result.ResultBase;
+import com.yjf.esupplier.ws.enums.SettleResultEnum;
+
+/**
+ * 查询所有地区信息的返回值                      
+ * @Filename DistrictRestult.java
+ *
+ * @Description 
+ *
+ * @Version 1.0
+ *
+ * @Author yangjun
+ *
+ * @Email yangjun@yiji.com
+ *       
+ * @History
+ *<li>Author: yangjun</li>
+ *<li>Date: 2012-9-16</li>
+ *<li>Version: 1.0</li>
+ *<li>Content: create</li>
+ *
+ */
+public class BankIdRestult extends ResultBase {
+	
+	/** Comment for <code>serialVersionUID</code> */
+	private static final long	serialVersionUID	= -2549498738906898533L;
+	
+	private SettleResultEnum	resultCode			= SettleResultEnum.UN_KNOWN_EXCEPTION;
+	
+	private String				bankId				= null;
+	
+	@Override
+	public boolean isExecuted() {
+		
+		return resultCode == SettleResultEnum.EXECUTE_SUCCESS ? true : false;
+	}
+	
+	public SettleResultEnum getResultCode() {
+		return resultCode;
+	}
+	
+	public void setResultCode(SettleResultEnum resultCode) {
+		this.resultCode = resultCode;
+	}
+	
+	public String getBankId() {
+		return bankId;
+	}
+	
+	public void setBankId(String bankId) {
+		this.bankId = bankId;
+	}
+	
+	/**
+	 * @return
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+	
+}

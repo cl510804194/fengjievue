@@ -1,0 +1,64 @@
+package com.yjf.esupplier.service.user.convert;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.integration.openapi.enums.CertifyLevelEnum;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.MerchantStateEnum;
+import com.yjf.esupplier.ws.enums.RealNameAuthStatusEnum;
+import com.yjf.esupplier.ws.enums.RealNameCertifyStatusEnum;
+import com.yjf.esupplier.ws.enums.UserBizTypeEnum;
+import com.yjf.esupplier.ws.enums.UserRegisterFromEnum;
+import com.yjf.esupplier.ws.enums.UserStateEnum;
+import com.yjf.esupplier.ws.enums.UserTypeEnum;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelEnum;
+
+public class UserConvertUtils {
+	
+	public static void UserDOConvertInfo(UserBaseInfoDO baseInfoDO, UserInfo userInfo) {
+		BeanCopier.staticCopy(baseInfoDO, userInfo);
+		userInfo.setMailBinding(BooleanEnum.getByCode(baseInfoDO.getMailBinding()));
+		userInfo.setMobileBinding(BooleanEnum.getByCode(baseInfoDO.getMobileBinding()));
+		userInfo.setRealNameAuthentication(RealNameAuthStatusEnum.getByCode(baseInfoDO
+			.getRealNameAuthentication()));
+		userInfo.setState(UserStateEnum.getByCode(baseInfoDO.getState()));
+		userInfo.setType(UserTypeEnum.getByCode(baseInfoDO.getType()));
+		userInfo.setUserRegisterFrom(UserRegisterFromEnum.getByCode(baseInfoDO
+			.getUserRegisterFrom()));
+		userInfo.setUserLevel(UserLevelEnum.getByCode(baseInfoDO.getUserLevel()));
+		if (StringUtil.isNotBlank(baseInfoDO.getUserCustomType())) {
+			userInfo.setUserBizType(UserBizTypeEnum.getByCode(baseInfoDO.getUserCustomType()));
+		}
+		userInfo.setUserBizType(UserBizTypeEnum.getByCode(baseInfoDO.getUserCustomType()));
+		userInfo.setUserRealStatus(RealNameCertifyStatusEnum.getByCode(baseInfoDO
+			.getUserRealStatus()));
+		userInfo.setCertifyLevelEnum(CertifyLevelEnum.getByCertifyLevel(baseInfoDO
+			.getCertifyLevel()));
+	}
+	
+	public static void UserIndoConvertDO(UserBaseInfoDO baseInfoDO, UserInfo userInfo) {
+		BeanCopier.staticCopy(userInfo, baseInfoDO);
+		if (userInfo.getMailBinding() != null)
+			baseInfoDO.setMailBinding(userInfo.getMailBinding().code());
+		if (userInfo.getMobileBinding() != null)
+			baseInfoDO.setMobileBinding(userInfo.getMobileBinding().code());
+		if (userInfo.getRealNameAuthentication() != null)
+			baseInfoDO.setRealNameAuthentication(userInfo.getRealNameAuthentication().code());
+		if (userInfo.getState() != null)
+			baseInfoDO.setState(userInfo.getState().code());
+		if (userInfo.getType() != null)
+			baseInfoDO.setType(userInfo.getType().code());
+		if (userInfo.getUserRegisterFrom() != null)
+			baseInfoDO.setUserRegisterFrom(userInfo.getUserRegisterFrom().code());
+		if (userInfo.getUserLevel() != null)
+			baseInfoDO.setUserLevel(userInfo.getUserLevel().code());
+		if (userInfo.getUserRealStatus() != null) {
+			baseInfoDO.setUserRealStatus(userInfo.getUserRealStatus().code());
+		}
+		if (userInfo.getUserBizType() != null) {
+			baseInfoDO.setUserCustomType(userInfo.getUserBizType().code());
+		}
+	}
+}

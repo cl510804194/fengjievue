@@ -1,0 +1,817 @@
+#parse("/front/platform/layout/header-title.vm")
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css"/>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css"/>
+<link rel="stylesheet" type="text/css" href="/resources/front/css/car.css" media="screen"/>
+<link href="/resources/js/yav/yav-style.css" type="text/css" rel="stylesheet"/>
+##<link rel="stylesheet" type="text/css" href="/resources/front/css/css/index-v1.css" media="screen" />
+<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet"/>
+<body>
+     #parse("/front/platform/layout/header-order.vm")
+<!--centerContent start-->
+<div class="content show_cart pay_m MO">
+   <div class="fn-container" style="margin-bottom: 50px;">
+        <div id="masthead2" class="fn-mt20">
+            <ul>
+                <li class="second_title">填写并核对订单信息</li>
+            </ul>
+        </div>
+        <div id="doc">
+            <div id="supply">
+                <form name="confirmOrderListForm" id="confirmOrderListForm" action="/front/saveOrderInfo.htm"
+                      method="post">
+					<input type="hidden" value="$!payType" name="payType" id="confirPayType"/>
+                    <input type="hidden" value="$!token" name="token" id="token"/>
+                #set($addressIndex=0)
+                #if($!payType == "B2C")
+                    <div class="accountstitle">
+                        <div class="leftpart">收货人信息<span
+                                class="fn-fs14 fn-666 fn-fwn fn-ml10">您已经创建<a>$listAddressesCount</a>个收货地址，最多可同时创建<a>15</a>个</span>
+                        </div>
+                        <div class="rightpart">
+                            #if($listAddressesCount<15)
+                                <a href="javascript:void(0)" class="newadr">新增收货地址</a>
+                            #end
+                        </div>
+                    </div>
+                    <div style="clear: both;"></div>
+                    <ul id="address" class="m-v clr">
+
+                        #foreach($address in $listAddresses)
+                            <li class="selected">
+                                <label>
+                                    <input type="radio" id="addressId" name="addressId" value="$address.id"
+                                           #if($address.isDefault.code=="YES")checked="checked" #end
+                                           #*没有默认地址，则勾选第一个地址*#
+                                        #if($addressIndex==0 && !$!stringUtil.isNotEmpty($drawerAddressInfo.province))
+                                           checked="checked"
+                                        #end
+                                           type="radio"  class="checkbox "/>
+                                    <a class="tabb chooseAdr fn-ml40 fn-mr20  
+                                    #if($address.isDefault.code=="YES")select-on#end 
+                                    #if($addressIndex==0 && !$!stringUtil.isNotEmpty($drawerAddressInfo.province))
+                                               select-on #end "
+                                       href="javascript:;" fun="daikou">$address.drawerName</a>
+                                    
+                                    <span class="fn-lh45 adrMsg"><span class="ck-city fn-mr15">$address.province$address.city$address.detailAddress</span><span class="ck-name fn-mr15">$address.drawerName</span><span class="ck-phone fn-mr15">$!address.mobileNumber #if($!stringUtil.isNotBlank($!address.drawerNumber))
+                                        固话:  $!address.drawerNumber  #end</span></span>
+                                    #if($address.isDefault.code=="YES")
+                                        <span class="mr-adr">默认地址</span>
+                                    #end
+                                </label>
+                            </li>
+                            #set($addressIndex=$addressIndex+1)
+                        #end
+                        <!-- <li class="selected">
+                            <label>
+                                <input id="addressOther" name="addressId" tabindex="15" value="-1" type="radio" onclick="openOtherAddress();"/>        
+                                使用其它地址 （ <font color="#666666">如果该用其它地址，必须详细填写下面信息</font>）
+                            </label>
+                        </li> -->
+
+                    </ul>
+				#end
+                #* <div class="accountstitle">
+                     <div class="leftpart fn-mb20">支付方式</div>
+                     <a class="tabb mr20 fn-ml40" href="javascript:;" fun="daikou"><img class="fn-vam"
+                                                                                        src="/styles/images/home/weixin-icon.png">&nbsp;&nbsp;微信支付</a>
+                     <a class="tabb mr20 select-on" href="javascript:;" fun="daikou"><img class="fn-vam"
+                                                                                          src="/styles/images/home/zfb-icon.png">&nbsp;&nbsp;支付宝支付</a>
+                 </div>*#
+
+                    <div class="accountstitle">
+                        <div class="leftpart">确认订单</div>
+                    </div>
+                    <div style="width:100%;float: left;height:35px; line-height: 35px;background:#E5E5E5;margin-bottom: 2px;">
+                        <div style="float:left;width: 100%;">
+                            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" width="55%" colspan="2">商品信息</td>
+                                    <td align="center" width="15%">单价(元)</td>
+                                    <td align="center" width="15%">数量</td>
+                                    <td align="center" width="15%">总额(元)</td>
+##                                  <td align="center" width="150">运费</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <table class="supply-table" id="J_supplyEnable" cellpadding="0" cellspacing="0">
+                        <colgroup valign="middle">
+                            <col width="10%"></col>
+                            <col width="45%"></col>
+                            <col width="15%"></col>
+                            <col width="15%"></col>
+                            <col width="15%"></col>
+##                        <col width="150"></col>
+                        </colgroup>
+
+
+                        #set($indexM=0)
+                        #foreach($cartItem in $!newConfirmListInfo)
+                            <thead>
+                            <tr>
+                                <td class="s-company s-btline" colspan="5">
+                                    <div style="padding-top:15px;padding-left: 15px;display:none;">卖家名称:&nbsp; 
+                                       <span class="company">
+                                         <a href="/front/supplier/searchSupplierInfo.htm?supplierid=$!cartItem.supplierId"
+                                            target="_blank">
+                                             $!cartItem.supplierFullName
+                                         </a>
+                                       </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                #foreach($cartItemInfo in $cartItem.itemInfos)
+                                <tr class="selected selmixclass mixed order-item fnGoods"
+                                    productId="$!cartItemInfo.productId" supplierId="$!cartItemInfo.supplierId"
+                                    userselected="1" style="background: #F4F4F4;">
+                                    <td class="s-mixed " height="70" align="center">
+                                        <input type="hidden" name="productIds" value="$!cartItemInfo.productId"/>
+                                        <a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!cartItemInfo.productId"
+                                           target="_blank" class="fn-mt30" style="border: 1px solid #ccc;">
+                                            <img src="$!cartItemInfo.image" width="75" height="80" border="0"/>
+                                        </a>
+                                    </td>
+                                    <td class="s-name" align="left" valign="top">
+                                        <a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!cartItemInfo.productId"
+                                           target="_blank" class="fn-lh25">
+                                            $!cartItemInfo.name
+                                        </a>
+                                    </td>
+                                    <td class="s-price" align="center"><span class="priceLbl fnPrice"
+                                                                             productId="$!{cartItemInfo.productId}"
+                                                                             supplierId="$!cartItemInfo.supplierId">$!cartItemInfo.price</span>
+                                    </td>
+                                    #if($!payType == "HOTELS")
+                                    <td class="s-amount" align="center">
+                                    <input type="hidden" name="productId" id="_productId" value="$!productId"/>
+                                    <input type="hidden" name="roomType" id="_roomType" value="$!roomType"/>
+                                    <input type="hidden" name="beginDate" id="_beginDate" value="$!beginDate"/>
+                                    <input type="hidden" name="endDate" id="_endDate" value="$!endDate"/>
+                                    <input type="hidden" id="_payType" value="$!payType"/>
+                         ##           <input type="hidden" name="checkNum" id="_checkNum" value="$!checkNum"/>
+                                       <span class="prod_num DIB num_change">
+                                            <input type="button" class="fnBtn  DIB sub" value="-" count="minus">
+                                            <input type="text" class="num_txt DIB fnNum" value="$!checkNum" name="checkNum" id="_checkNum">
+                                            <input type="button" class="fnBtn DIB add" value="+" count="add">
+                                           <input type="hidden" class="fixOldNum" value="$!checkNum">
+                                        </span>
+                                        	<span id="maxHotelNum">最多可预订$!maxHotelNum间</span>
+                                    </td>
+                                   <td class="s-price" align="center"><span class="priceLbl fnPrice"
+                                                                             productId="$!{cartItemInfo.productId}"
+                                                                             supplierId="$!cartItemInfo.supplierId" id="refresh_totalAmount_car">$!totalAmount</span>
+                                    
+                                    #else
+                                    <td class="s-amount" align="center">
+                                        x<span class="quantityLbl fnNum" productId="$!{cartItemInfo.productId}" supplierId="$!cartItemInfo.supplierId">$!cartItemInfo.quantity</span>
+                                    </td>
+                                    <td class="s-total" align="center">
+                                        <em class="fnSubtotal">$!cartItemInfo.totalAmountNoShipment.toStandardString()</em>
+                                    </td>
+
+                                    #end
+                                   #* <td align="center" class="linetb" style="display: none">
+                                        #if($!cartItemInfo.getPostType() == 2)
+                                            <select id='postMoney$!{cartItemInfo.productId}' class="selectPostMoney" name='postFree[$indexM]' style='width:100px;height:20px;' productId="$!cartItemInfo.productId" supplierId="$!cartItemInfo.supplierId"  onchange='calTotalAmount();'>
+                                                <option selected='selected' value='express;$!{cartItemInfo.deliveryInfo.express}'>快递  $!{cartItemInfo.deliveryInfo.express.toStandardString()} 元</option>
+                                                <option value='post;$!{cartItemInfo.deliveryInfo.post}'>平邮  $!{cartItemInfo.deliveryInfo.post.toStandardString()}元</option>
+                                                <option value='ems;$!{cartItemInfo.deliveryInfo.ems}'>EMS $!{cartItemInfo.deliveryInfo.ems.toStandardString()}元</option>
+                                            </select>
+                                            <input type='hidden' name='recordPost$!{cartItemInfo.productId}'  id='recordPost$!{cartItemInfo.productId}' value='$!{cartItemInfo.deliveryInfo.express}' />
+                                        #elseif($!cartItemInfo.getPostType() == 0)
+                                            卖家承担 <input type="hidden" value="-1" name="postFree[$indexM]"  />
+                                        #elseif($!cartItemInfo.getPostType() == 1)
+                                            联系卖家商定  <input type="hidden" value="-2" name="postFree[$indexM]"  />
+                                        #end
+                                    </td>*#
+
+                                </tr>
+                               #if($!payType == "HOTELS")
+                               	<tr style="background:#F4F4F4;">
+                                    <td height="50" align="right"> <em class="red">*</em>预计到店时间:</td>
+                                    <td colspan="3" style="text-align: left;">
+                                        <div style="width:100%;float:left;">
+                                              <input type="text" class="in_input" onclick="WdatePicker({startDate:'%y-%M-01 00:00:00',dateFmt:'yyyy-MM-dd HH',alwaysUseStartDate:true})" id="arriveTime" name="specialExplain" onchange="arriveTimeChange()">
+                							 <b class="error-tip" id="arriveTimeError" for="area" generated="true" style="display: none;">请选择到店时间</b>
+                                        </div>
+                                    </td>
+                                    <td colspan="2" style="padding-right: 10px;text-align:right;">
+                                    ## 合计：<em id="supplierTotal$!{cartItem.supplierId}" style="color:#FF7300; font-size:14px;font-weight:700;" class="fnSubtotal">$!cartItemInfo.totalAmount</em>元
+                                    </td>
+                                </tr>
+                               #else
+                                <tr style="background:#F4F4F4;">
+                                    <td height="50" align="right"> 给卖家留言:</td>
+                                    <td colspan="3" style="text-align: left;">
+                                        <div style="width:100%;float:left;"><textarea
+                                                id="messagetextarea_$!cartItem.supplierId" class="liuyan"
+                                                name="specialExplain" onfocus="onSelliuyan(this)"
+                                                onblur="onSelliuyanClose(this)">选填，可告诉卖家你对商品的特殊要求，如颜色、尺码</textarea>
+                                        </div>
+                                    </td>
+                                    <td colspan="2" style="padding-right: 10px;text-align:right;">
+                                    ## 合计：<em id="supplierTotal$!{cartItem.supplierId}" style="color:#FF7300; font-size:14px;font-weight:700;" class="fnSubtotal">$!cartItemInfo.totalAmount</em>元
+                                    </td>
+                                </tr>
+                                #end
+                                    #set($indexM=$indexM+1)
+                                #end
+                            </tbody>
+                        #end
+                    </table>
+                    #if($listUtil.isNotEmpty($!gainMoneyTrades))
+                        <div class="messagebox">
+                            优惠券:
+                            <select id='gainMoneyTradesId' class="gainMoneyTradesId" name='gainMoneyTradesId'
+                                    style='height:20px;' onchange='calTotalAmount();'>
+                                <option value='' amount="0.00">0.00 元</option>
+                                #foreach($item in $!gainMoneyTrades)
+                                    <option value='$item.giftTradeId'
+                                            amount="$!{item.payAmount.toString()}">$!{item.amount.toString()}元
+                                        #if($!{item.amount.greaterThan($!item.payAmount)})
+                                            ,抵$!{item.payAmount.toString()}元
+                                        #end
+                                    </option>
+                                #end
+                            </select>
+                            &nbsp;&nbsp;
+                        </div>
+                    #end
+                    <div class="messagebox">
+
+                        <input type="hidden" id="userPointHidden" value="$!{userAccountDataInfo.userIntegral}">
+                        可用积分：$!{userAccountDataInfo.userIntegral}
+                        使用积分:<input name="userPoint" id="userPoint" class="fn-points" onKeyUp="calTotalAmount();">
+                        <input type="hidden" id="integralDeductionCoefficient" name="integralDeductionCoefficient" value="$integralDeductionCoefficient">
+                        
+
+                    </div>
+                    <div class="p-total fn-tar">
+                        <p class="fn-lh25"><a id="refresh_num">$indexM</a>件商品 总金额：￥<span style="min-width: 60px; text-align: left;" class="fn-dc0" id="refresh_totalAmount">$!{totalAmount}</span>
+                        </p>
+                        #if($listUtil.isNotEmpty($!gainMoneyTrades))
+                            <p class="fn-lh25">优惠券：<span id="gainMoneySub" style="min-width: 60px; text-align: left;"
+                                                         class="fn-dc0"></span></p>
+                        #end
+                        <p class="fn-lh25">积分抵现：<span id="userPointSub" style="min-width: 60px; text-align: left;"
+                                                    class="fn-dc0"></span></p>
+                       #if($!payType == "B2C")
+                        <p class="fn-lh25">运费：<span class="fn-dc0" style="min-width: 60px; text-align: left;"
+                                                            id="postFee"></span></p>
+                      #end         
+                        <input type="hidden" id="postFeeHidden" value="$!{postFee}"/>
+                    </div>
+                    <!--以上为订购信息 -->
+                    <div class="messagebox">
+                        <input type="hidden" id="payPriceTotal" value="$!{payPriceTotal}"/>
+                        实际付款金额：<span class="fn-fs16 fn-dc0" id="totalprice"></span>&nbsp;&nbsp;
+                     #if($!payType == "B2C")
+                        <p class="fn-lh25 fn-pb10">寄送至:
+                            <span class="to-adr fn-mr20">
+                            #if($stringUtil.isNotEmpty($drawerAddressInfo.province))
+                                $drawerAddressInfo.province$drawerAddressInfo.city$drawerAddressInfo.detailAddress&nbsp;&nbsp;&nbsp;&nbsp;
+                            #end
+                            </span>
+                            收货人:
+                            <span class="to-name fn-mr20">
+                                #if($stringUtil.isNotEmpty($drawerAddressInfo.province))
+                                $drawerAddressInfo.drawerName&nbsp;
+                                #end
+                            </span>
+                            手机号码:
+                            <span class="to-phone">
+                                #if($stringUtil.isNotEmpty($drawerAddressInfo.province))
+                                $!drawerAddressInfo.mobileNumber
+                                #end
+                            </span>
+                            
+                            </p>
+                       #end
+                    </div>
+
+                    <table width="100%" cellpadding="0" cellspacing="0" class="fn-mb20">
+                        <tr>
+                            <td align="right"><a href="/front/platform/mall/toConfirmInfoPage.htm" class="back-icon">返回购物车</a>
+                            </td>
+                            <td width="220">
+                            	#if($!payType!='B2C')
+                            		<input class="submitbutton" value="提交订单" type="button"/>
+                            	#else
+	                                #if($addressIndex==0)<p class="fn-ml20 fn-dc0">尚未新增收货地址,不能提交订单</p>
+	                                    #else
+	                                 <input class="submitbutton" value="提交订单" type="button"/>
+	                                #end
+                                #end
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                
+            </div>
+        </div>
+
+    </div>
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer-lg.vm")
+<!-- footer end -->
+</div>
+
+<div class="adr-bg fn-hide" id="addressInfo">
+    <div class="adr-dialog">
+        <form id="form1" name="form1" method="post" action="/do/addressManager/buyer/saveOrderAddressInfo.htm">
+
+            <table align="center" width="100%" height="40" cellpadding="0" cellspacing="0"
+                   style="padding: 15px 0; border-bottom: 1px solid #ccc;">
+                <tr>
+                    <td width="5">&nbsp;</td>
+                    <td width="785" class="sm-title fn-fs16">
+                    	  新增收货地址信息
+                        <a href="javascript:void(0)" class="close fn-right fn-fs20 fn-mr10">x</a>
+                    </td>
+                </tr>
+            </table>
+
+            <table align="center" width="98%" cellpadding="0" cellspacing="0"
+                   style="padding-top:10px; border-collapse:collapse; line-height: 40px;">
+
+
+                <tr>
+                    <td height="30" align="right"><em class="red">*</em>&nbsp;所在地区：</td>
+                    <td>
+                        <div class="item fn-clear Y-selectarea ml10" province="$!{addressesInfo.province}"
+                             city="$!{addressesInfo.city}">
+
+                            <input name="province" type="hidden" value="$!{addressesInfo.province}"/>
+                            <input name="city" type="hidden" value="$!{addressesInfo.city}"/>
+                            <div class="jqtransform jqtransform-select3">
+                                <select name="p" class="Y-province">
+                                </select>
+                            </div>
+                            <div class="jqtransform jqtransform-select3 fn-mt10">
+                                <select name="c" data="thisCity" class="Y-city">
+                                </select>
+                            </div>
+                            <input type="hidden" name="area" id="area"/>
+                        </div>
+                    </td>
+                    <td>
+                        <span id="errorsDiv_area"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td height="50" align="right"><em class="red">*</em>&nbsp;详细地址：</td>
+                    <td>
+                                <textarea class="ml10 fn-mt10" style="width: 370px; height: 80px;" placeholder="无需重复填写省市，小于75字"
+                                          cols="60" rows="3" name="detailAddress"
+                                          maxlength="60">$!addressesInfo.detailAddress</textarea>
+
+
+                    </td>
+                    <td>
+                        <span id="errorsDiv_detailAddress"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td height="30" width="120" align="right"><em class="red">*</em>收货人姓名：</td>
+                    <td width="520">
+                        <input type="text" style="width:360px; padding:5px;" placeholder="请使用真实姓名，长度不超过12个字"
+                               class="ml10" maxlength="20" name="drawerName"
+                               value="$!addressesInfo.drawerName"/>
+                    </td>
+                    <td>
+                        <span id="errorsDiv_drawerName"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="30" width="20" align="right"><em class="red">*</em>邮政编码： </td>
+                    <td>&nbsp;
+                        <input type="text" maxlength="6" name="zipCode" size="20" id="storeName"
+                               value="$!addressesInfo.zipCode"/>
+                    </td>
+                    <td>
+                        <span id="errorsDiv_zipCode"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td height="30" width="20" align="right"><em class="red">*</em>&nbsp;手机号码：</td>
+                    <td>
+                        <input type="text" class="ml10" style="width:360px; padding:5px;" placeholder="请填写正确的手机号码(必填)"
+                               name="mobileNumber" id="mobileNumber" size="20" maxlength="11"
+                               value="$!addressesInfo.mobileNumber"/>
+                    </td>
+                    <td>
+                        <!--<span id="errorsDiv_drawerNumber"></span>-->
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td height="30" width="20" align="right">电话号码：<em class="red"></em>&nbsp; </td>
+                    <td>
+                        <input type="text" class="ml10" name="drawerNumber" id="drawerNumber" size="20" maxlength="18"
+                               value="$!addressesInfo.drawerNumber"/>
+                    </td>
+                    <td>
+                        <span id="errorsDiv_drawerNumber"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="30" align="right"></td>
+                    <td>
+                        <label>&nbsp;&nbsp;<input type="checkbox" name="defaultAddress"
+                                                  value="Y" #if($!addressesInfo.defaultAddress=="Y")
+                                                  checked="checked" #end
+                                                  class="frmrd"/>&nbsp;设为默认收货地址</label>
+
+                        <span id="errorsDiv_defaultAddress"></span></td>
+                </tr>
+            </table>
+
+            <table align="center" width="98%" cellpadding="0" class="fn-mt20 fn-mb20" cellspacing="0">
+                <tr>
+                    <td height="50" align="center">
+                        <a href="javascript:;" class="sm-submit8 quxiao"
+                               style="background: #f3f3f3;color:#333; text-align: center;display:inline-block;">取消</a>
+                        <a  href="javascript:;" style="display:inline-block;" class="sm-submit8 baocun">保存</a>
+                        <input type="hidden" name="addId" size="20" value="$!addId"/>
+                    </td>
+                </tr>
+            </table>
+
+        </form>
+    </div>
+</div>
+<!--centerContent end-->
+
+
+</body>
+<input id="listAddressesSize" type="hidden" value="$!listAddresses.size()">
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/comp/swfobject.js"></script>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode+'orderConfirm');
+</script>
+<script type="text/javascript">
+    $('.fnNum').each(function () {
+        $(this).val($(this).siblings('.fixOldNum').val());
+    })
+
+    //进入页面的时候判断选择
+    var sv_ = document.getElementById('listAddressesSize').value;
+    if (sv_ == 0) {
+        $(document).ready(function () {
+          //  document.getElementById("other_ad").style.display = "block";
+            // document.getElementById("addressOther").checked = "checked";
+        });
+    }
+    function countPrice() {
+        /* var s=document.getElementById("s_price").value;
+                     if(v==""){
+               $("#totalprice").text(parseFloat(s).toFixed(1));
+               $("#tPrice").val(parseFloat(s).toFixed(1));
+         }
+         else{
+               $("#tPrice").val((parseFloat(s)+parseFloat(v)).toFixed(1));
+               $("#totalprice").text((parseFloat(s)+parseFloat(v)).toFixed(1));
+             }  
+         */
+    }
+
+
+    //返回到已购物的列表页面
+    function shopProductList() {
+        window.location.href = "toConfirmInfoPage.action";
+    }
+
+
+    //展开其它地址的层
+    function openOtherAddress() {
+        if ($("#addressOther").prop("checked")) {
+            document.getElementById("other_ad").style.display = "block";
+        }
+
+    }
+
+    //关闭其它地址的层
+    $("input[name='addressId']").click(function(event) {
+        $(this).next('a.chooseAdr').trigger('click');
+    });
+    
+
+
+    function onSelliuyan(obj) {
+        obj.className = "messagetextarea";
+        var str = "选填，可告诉卖家你对商品的特殊要求，如颜色、尺码";
+        if (obj.value == str) {
+            obj.value = "";
+        }
+    }
+
+    function onSelliuyanClose(obj) {
+        if (obj.value.trim() == "") {
+            obj.className = "liuyan";
+            obj.value = "选填，可告诉卖家你对商品的特殊要求，如颜色、尺码";
+        }
+    }
+
+    function onselPostMoney(val, valSUP) {
+
+        var postOld = document.getElementById("recordPost" + val).value; //记录修改前的运费
+        var postValue = document.getElementById("postMoney" + val).value; //得到需要修改的运费 
+        var postArray = postValue.split(";");
+        var post = postArray[1];
+        var totalprice = $("#totalprice").text().replace(",", ""); //得到总的价格
+        var supplierTotal = $("#supplierTotal" + valSUP).text().replace(",", ""); //供应商总价
+        var value = 0.0;
+        var valueSU = 0.0;
+
+        value = parseFloat(post) + parseFloat(totalprice) - parseFloat(postOld);
+        valueSU = parseFloat(post) + parseFloat(supplierTotal) - parseFloat(postOld);
+
+        $("#totalprice").text(format(value, '#.00')); //显示总的价格
+        $("#recordPost" + val).val(post); //修改记录价格         
+        $("#supplierTotal" + valSUP).text(format(valueSU, '#.00'));
+    }
+    //格式化数据
+    var format = function (number, form) {
+        var forms = form.split('.'),
+                number = '' + number,
+                numbers = number.split('.'),
+                leftnumber = numbers[0].split(''),
+                exec = function (lastMatch) {
+                    if (lastMatch == '0' || lastMatch == '#') {
+                        if (leftnumber.length) {
+                            return leftnumber.pop();
+                        } else if (lastMatch == '0') {
+                            return lastMatch;
+                        } else {
+                            return leftnumber;
+                        }
+                    } else {
+                        return lastMatch;
+                    }
+                },
+                string;
+
+        string = forms[0].split('').reverse().join('').replace(/./g, exec).split('').reverse().join('');
+        string = leftnumber.join('') + string;
+
+        if (forms[1] && forms[1].length) {
+            leftnumber = (numbers[1] && numbers[1].length) ? numbers[1].split('').reverse() : [];
+            string += '.' + forms[1].replace(/./g, exec);
+        }
+        return string.replace(/\.$/, '');
+    };
+    function formatCurrency(num) {
+        num = num.toString().replace(/\$|\,/g, '');
+        if (isNaN(num))
+            num = "0";
+        sign = (num == (num = Math.abs(num)));
+        num = Math.floor(num * 100 + 0.50000000001);
+        cents = num % 100;
+        num = Math.floor(num / 100).toString();
+        if (cents < 10)
+            cents = "0" + cents;
+        for (var i = 0; i < Math.floor((num.length - (1 + i)) / 3); i++)
+            num = num.substring(0, num.length - (4 * i + 3)) + ',' +
+                    num.substring(num.length - (4 * i + 3));
+        return (((sign) ? '' : '-') + num + '.' + cents);
+    }
+
+    /** 优惠券+积分抵扣 计算应付金额 */
+    function calTotalAmount() {
+        var index = 0;
+        var totalvalue = 0.0
+        var supplierTotal = 0.0;
+        var oldSupplierId = null;
+        var payPriceTotal = 0.0;
+        if($("#_payType").val() == "HOTELS"){
+          payPriceTotal = $("#refresh_totalAmount").text();
+   
+        }else{
+         payPriceTotal = $("#payPriceTotal").val();
+        }
+       
+        var postFee = $("#postFeeHidden").val();
+
+     	totalvalue = payPriceTotal.replace(",", "");
+        postFee = postFee.replace(",", "");
+ 
+        /*if ($(".priceLbl").length > 0) {
+            $(".priceLbl").each(function () {
+                var price = $(this).text();
+                price = price.replace(",", "");
+                var productId = $(this).attr("productId");
+                supplierId = $(this).attr("supplierId");
+                if (oldSupplierId != null && supplierId != oldSupplierId) {
+                    $("#supplierTotal" + oldSupplierId).text(format(supplierTotal, '#.00'));
+                    supplierTotal = 0.0;
+                }
+                var quantity = $(".quantityLbl").eq(index).text();
+                totalvalue += parseFloat(price) * parseFloat(quantity);
+                supplierTotal += parseFloat(price) * parseFloat(quantity);
+                if ($("#postMoney" + productId).length>0) {     	
+                     var postValue = $("#postMoney" + productId).val();
+                       var postArray = postValue.split(";");
+                       var post = postArray[1];
+                       totalvalue += parseFloat(post);
+                       supplierTotal += parseFloat(post);
+                    
+                }
+                oldSupplierId = supplierId;
+                index++;
+            });
+        }*/
+ 
+        if (oldSupplierId != null) {
+            $("#supplierTotal" + oldSupplierId).text(format(supplierTotal, '#.00'));
+            supplierTotal = 0.0;
+        }
+      
+        if ($('#gainMoneyTradesId').length > 0) {
+            totalvalue = totalvalue - parseFloat($('#gainMoneyTradesId  option:selected').attr("amount"));
+            $("#gainMoneySub").text("-￥"+formatCurrency(parseFloat($('#gainMoneyTradesId  option:selected').attr("amount")))); //优惠券
+        }
+        
+        if(parseFloat($("#userPoint").val()) > parseFloat($("#userPointHidden").val())){
+            alert("使用的积分不能超过现拥有的积分!");
+            $("#userPoint").val("");
+            window.location.reload();
+            $(".submitbutton").unbind("click");
+            return;
+        }else{
+        	$(".submitbutton").unbind("click")
+            $(".submitbutton").bind("click",function(){ 
+            	if($("#confirPayType")=="HOTELS"){
+	            	var arriveTime = $("#arriveTime").val();  
+	            }else{
+	            	var arriveTime = "arriveTime"
+	            }                  	
+            	if(arriveTime.length <= 0){
+            		$("#arriveTimeError").show();
+            		return false;
+            	}else{  
+	            	if(parseFloat($("#userPoint").val()) < $("#integralDeductionCoefficient").val() 
+	            	&& parseFloat($("#userPoint").val())>0){
+	            		alert("积分兑换"+$("#integralDeductionCoefficient").val()+"分起,请重新输入！");  		
+			            return false;
+	            	}else{
+	               	 $("#confirmOrderListForm").submit();
+	                }
+                }
+            });
+        }
+        if($("#userPoint").val() > 0){
+            var userPoint = ($("#userPoint").val()/$("#integralDeductionCoefficient").val())
+            totalvalue = totalvalue - parseFloat(userPoint);
+            if(totalvalue < 0){
+                alert("使用的积分值已超过购买商品金额!");
+                $(".submitbutton").unbind("click")
+                return;
+            }
+        }else{                 	
+            $(".submitbutton").bind("click",function(){
+            	if($("#confirPayType")=="HOTELS"){
+	            	var arriveTime = $("#arriveTime").val();  
+	            }else{
+	            	var arriveTime = "arriveTime"
+	            }   
+            	if(arriveTime.length <= 0){
+	        		$("#arriveTimeError").show();
+	        		return ;
+	        	}
+                $("#confirmOrderListForm").submit();
+            });
+            
+        }
+        if (totalvalue < 0) {
+            totalvalue = 0
+        }
+    
+        $("#postFee").text("￥"+formatCurrency(postFee)); //邮费
+        $("#totalprice").text("￥"+formatCurrency(totalvalue)); //显示应付价格
+        $("#userPointSub").text("-￥"+formatCurrency($("#userPoint").val()/$("#integralDeductionCoefficient").val())); //积分
+    }
+    calTotalAmount();
+
+	function arriveTimeChange(){
+		var arriveTime = $("#arriveTime").val();
+		if(arriveTime.length > 0){
+			$("#arriveTimeError").hide();		
+		}
+	}
+
+    //选择支付方式
+    function paymentConfirm() {
+        if ($("#payType").val() == "") {
+            alert("请选择支付方式")
+            return false;
+        }
+        if ($("#payType").val() == "ONLINE_BANKING") {
+            if ($("#bankCode").val() == "") {
+                alert("请选择银行")
+                return false;
+            } else {
+                if (isSubmit == false) {
+                    isSubmit = true;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        if (isSubmit == false) {
+            isSubmit = true;
+        }
+        return true;
+    }
+    
+    	//限制只能输入正整数
+	$('.fn-points').blur(function() {
+		var _sum = $('.fn-points').val();
+		if (_sum > 0) {
+			var _newSum = Math.ceil(_sum);
+			$(".fn-points").attr("value", _newSum);
+		} else {
+			$(".fn-points").val(0);
+			return false;
+		}
+	});
+	
+	
+    $('body').on('click','.num_change .fnBtn',function () {
+        var _this = $(this);
+        var _optNum = _this.attr('count') == 'minus' ? -1 : 1;
+        var _fnNum = _this.siblings('.fnNum');
+        var _oldVal = parseInt(_fnNum.val());
+        var _newVal = _oldVal + _optNum;
+        var _productId = $("#_productId").val();
+        var _roomType = $("#_roomType").val();
+        var _beginDate = $("#_beginDate").val();
+        var _endDate = $("#_endDate").val();
+        var _maxHotelNum = $("maxHotelNum").val();
+        if(_newVal > _maxHotelNum){
+        	alert('数量不能超过'+_maxHtotelNum);
+        	return;
+        }
+        if(_newVal <= 0) {
+            alert('数量不能低于1');
+            return;
+        }
+         $.ajax({
+            url: '/front/buyNowRefresh.json',
+            data: {
+                productId:_productId,
+                roomType:_roomType,
+                beginDate:_beginDate,
+                endDate:_endDate,
+                checkNum:_newVal
+            },
+            dataType: 'json',
+            type: 'POST',
+            success: function (res) {
+             	if(res.code=="1"){
+             	
+             		_fnNum.val(_newVal);
+             		var jpayPriceTotal = res.payPriceTotal;
+             		var jtotalAmount = res.totalAmount;
+             		var jmaxHotelNum = res.maxHotelNum;
+             		var javgTotalAmount = res.avgTotalAmount;
+             		var jgainMoneyTrades = res.gainMoneyTrades;
+             		$("#payPriceTotal").val(jpayPriceTotal);
+             		$("#refresh_totalAmount").text(jtotalAmount);
+             		$("#maxHotelNum").text(jmaxHotelNum);
+             		$(".fnSubtotal").text(jpayPriceTotal);
+             		$("#refresh_num").text(_newVal);
+             		$(".refresh_amount").text(jpayPriceTotal);
+             		$("#refresh_totalAmount_car").text(jtotalAmount);
+             		var message_htm = "<option value='' amount='0.00'>0.00 元</option>";
+             	
+             		for(var i=0;i<jgainMoneyTrades.length;i++){
+  
+             			if(jgainMoneyTrades[i].amount.cent > jgainMoneyTrades[i].payAmount.cent){
+             				message_htm +="<option value='"+jgainMoneyTrades[i].giftTradeId+"'amount='"+formatCurrency(jgainMoneyTrades[i].payAmount.cent/100)+"'>"+formatCurrency(jgainMoneyTrades[i].amount.cent/100)+"元 ";
+             				message_htm +=",抵jgainMoneyTrades.payAmount.toString()元</option>"
+             			}else{
+             				message_htm +="<option value='"+jgainMoneyTrades[i].giftTradeId+"'amount='"+formatCurrency(jgainMoneyTrades[i].amount.cent/100)+"'>"+formatCurrency(jgainMoneyTrades[i].amount.cent/100)+"元 </option>";
+             			}
+
+             		}        
+                     
+             		$(".gainMoneyTradesId").html(message_htm);
+             		    calTotalAmount();
+             	}else if(res.code=="0"){
+             		alert(res.message);
+             	}
+            }
+        });
+       
+        
+    })
+</script>
+</html>

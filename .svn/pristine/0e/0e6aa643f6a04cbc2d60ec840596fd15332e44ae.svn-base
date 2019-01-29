@@ -1,0 +1,62 @@
+<!-- header start-->
+<div class="head MO">
+    <div class="MI clearfix">
+        <div class="wel_ws">
+        	#if($!webSessionUtil.isLogin())
+            	<a href="/login/frontLogout.htm"><i class="icon login-out"></i>退出登录</a>
+            	<label href="#" class="wel_info"><i class="icon top-line"></i>您好，$!webSessionUtil.getUserViewName()</label>
+            #else
+                <a href="/login/frontLogin.htm">登录</a>
+                ##<a href="/anon/newInvestorsOpen.htm" target="_blank"><i class="icon top-line"></i>注册</a>
+            #end
+        </div>
+        <div class="ls_ol">
+              <a href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=O2O&itemType=bulk" class="my_order"><i class="icon user-mine"></i>我的订单</a>    
+         	  	<a href="/do/mainHome.htm" class="my_user"><i class="icon top-line"></i>个人中心</a>
+        </div>
+    </div>
+</div>
+<div class="warp logo-box2">
+	<div class="fn-container fn-clear">
+		<a href="/" class="logo fn-left fn-mt20">
+	##		<img src="/styles/images/home/logo-2.png" class="fn-mt5">
+		</a>
+		<div class="fn-left home-title">
+			<p style="color:#fff;margin-top: 5px;">我的$!appConstantsUtil.getPlatformName()</p>
+			<a href="/" alias="index">返回$!appConstantsUtil.getPlatformName()首页</a>
+		</div>
+		<div class="fn-left home-title home-set">
+			<select id="user-set">
+			  <option selected="selected">账户设置</option>
+			  <option value="edit" >修改密码</option>
+			  <option value="forget" >忘记密码</option>
+			  <option value="pay" >修改支付密码</option>
+			</select>
+		</div>
+		<div class="search-box fn-right fn-clear fn-mt35">
+			<form action="/front/platform/mall/product/searchProduct-1.htm">
+			<input type="text" class="search-input" placeholder="请输入商品名称关键字搜索" name="searchkey">
+			<button type="submit" class="search-but">搜索</button>
+			</form>
+		</div>
+
+	</div>
+</div>
+<script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript">
+//<a href="/PasswordManage/modifyPassword.htm" target="_blank"></a>
+//<a href="/PasswordManage/forgetLogPassword.htm" target="_blank">忘记密码</a>
+	$(document).ready(function(){ 
+		$('#user-set').change(function(){ 
+			var p1=$(this).children('option:selected').val();//这就是selected的值 
+			if (p1 == "edit") {
+				window.location.href="/PasswordManage/modifyPassword.htm";
+			}else if (p1 == "forget") {
+				window.location.href="/PasswordManage/forgetLogPassword.htm";
+			}else if (p1 == "pay") {
+				window.location.href="/PasswordManage/modifyPayPassword.htm";
+			}
+		}) 
+	}) 
+</script>
+<!--header end-->

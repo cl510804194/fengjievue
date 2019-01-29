@@ -1,0 +1,47 @@
+/* newProductType css */
+.hidden {
+	display: none;
+}
+
+.item {
+	margin: 1px;
+	border-bottom: 1px solid;
+	border-color: #f6f5f5;
+}
+
+.second {
+	color: #348a03;
+}
+
+.third {
+	color: #555555;
+}
+
+.extend_item {
+	 cursor: pointer;
+}
+
+.pop_subentry {
+	position: absolute;
+	background-color: #fbfcf9;
+	width: 400px;
+	z-index: 500;
+	border: 2px solid;
+	border-color: #348a03;
+	text-align: left;
+}
+
+.fl {
+	float: left;
+}
+
+.triangle {
+	background: url("../../image/platform/triangle.jpg") no-repeat scroll
+		10% 50% transparent;
+	height: 28px;
+	line-height: 28px;
+	padding-left: 20px;
+	text-align: left;
+}
+
+.bottom_line {}

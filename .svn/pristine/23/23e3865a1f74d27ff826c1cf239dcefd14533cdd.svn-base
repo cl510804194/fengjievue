@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>服务费模块编辑</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <link href="/resources/style/global.css" rel="stylesheet">
+  <link href="/resources/style/module.css" rel="stylesheet">
+  <style type="text/css">
+		input.error-tip{ border:1px solid #ff9999; }
+		b.error-tip{ display:inline-block; vertical-align:middle; font-weight:normal; color:#ff9999; background:url(/resources/images/common/icon.gif) no-repeat -105px -272px; padding-left:20px; line-height:16px; width:320px; }
+  </style>
+</head>
+<body class="m-content">
+<form name="editChargeTemple_form" id="editChargeTemple_form" action="/admin/chargeTempleManager/updateChargeTempleInfo.htm" method="post" class="ui-form">
+  <!--section-->
+  <div class="m-section first">
+
+    <!--head-->
+    <div class="hd">
+      <!--inner-->
+      <div class="in">
+        <span class="title">服务费模块编辑</span>
+      </div>
+      <!--inner-->
+    </div>
+    <!--head End-->
+    
+    <!--body-->
+    <div class="bd">
+      
+      <!--form-->
+      <div class="m-form column">
+        
+        <!--group-->
+		<div class="group">
+		<err class="label err"></err>
+        </div>
+		<br/>
+        <div class="group">
+          <label class="label"><i>*</i>模版名称：</label>
+		  <input class="input" type="hidden" name="chargeId" id="chargeId" value="$!{info.chargeId}"/>
+          <input class="input" type="text" name="chargeName" id="chargeName" value="$!{info.chargeName}"/>
+        </div>
+        <!--group End-->
+        
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>月供利息：</label>
+          <input class="input" type="text" name="interestRate" id="interestRate" value="$!{info.interestRate}"/>%
+        </div>
+        <!--group End-->
+
+		        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>管理费率：</label>
+          <input class="input" type="text" name="manageRate" id="manageRate" value="$!{info.manageRate}"/>%
+        </div>
+        <!--group End-->
+		
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>服务费率：</label>
+          <input class="input" type="text" name="serviceCharge" id="serviceCharge" value="$!{info.serviceCharge}"/>%
+        </div>
+        <!--group End-->
+
+
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>适用的信贷品种：</label>
+          <select class="select" name="loanType" id="loanType">
+            <option value="">请选择</option>
+				#foreach($loan in $loanTypes)
+                    <option value="$!{loan}" #if($!{info.loanType} == $!{loan} ) selected #end >$!{loan}</option>
+				#end
+          </select>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>适用的商品品类：</label>
+          <select class="select" name="commodityType" id="commodityType">
+            <option value="">请选择</option>
+				#foreach($commodity in $commodityTypes)
+                    <option value="$!{commodity}" #if($!{info.commodityType} == $!{commodity} ) selected #end>$!{commodity}</option>
+				#end
+          </select>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>适用的分期期数：</label>
+          <select class="select" name="stagesNum" id="stagesNum">
+            <option value="">请选择</option>
+				#foreach($stages in $stageNums)
+                    <option value="$!{stages}" #if($!{info.stagesNum} == $!{stages} ) selected #end>$!{stages}期</option>
+				#end
+          </select>
+        </div>
+        <!--group End-->
+      </div>
+      <!--form End-->
+
+    </div>
+    <!--body End-->
+  </div>
+  <!--section-->
+
+  
+  <div class="f-tac f-mt20">
+    
+    <a href="/admin/chargeTempleManage/chargeTempleManage.htm" class="u-btn u-btn-gray">取消</a>
+    <button type="button" class="u-btn2 blue f-ml20 editSubmit_form">确定</button>
+
+  </div>
+
+</form>
+    <script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+    <script type="text/javascript" src="/resources/js/global.js"></script>
+  	<script type="text/javascript">
+    	seajs.use('content/chargeTemple');
+    </script>
+</body>
+</html>

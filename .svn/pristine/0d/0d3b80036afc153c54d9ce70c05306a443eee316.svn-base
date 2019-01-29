@@ -1,0 +1,45 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelEnum;
+
+public class UpdateUserLevelOrder extends ValidateOrderBase {
+	
+	private static final long serialVersionUID = 455883342405097947L;
+	long userId;
+	UserLevelEnum levelEnum;
+	
+	@Override
+	public void check() {
+		validateHasZore(userId, "平台会员id");
+		validateNotNull(levelEnum, "用户等级不能为空");
+	}
+	
+	public long getUserId() {
+		return this.userId;
+	}
+	
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	
+	public UserLevelEnum getLevelEnum() {
+		return this.levelEnum;
+	}
+	
+	public void setLevelEnum(UserLevelEnum levelEnum) {
+		this.levelEnum = levelEnum;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UpdateUserLevelOrder [userId=");
+		builder.append(userId);
+		builder.append(", levelEnum=");
+		builder.append(levelEnum);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

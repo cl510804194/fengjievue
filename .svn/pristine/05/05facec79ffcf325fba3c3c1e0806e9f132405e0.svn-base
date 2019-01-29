@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--折扣管理</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<form action="/admin/discount/listAdminDiscount.htm" method="post" name="myform" id="myform">
+    	<table align="center" width="792" height="51" cellpadding="0" cellspacing="0">
+           	<tr>
+                 <td height="39" class="title">折扣列表</td>
+           	</tr>  
+        	<tr>
+        		<td height="51" class="boder_y">
+        	 	 <table width="85%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td width="80%" class="color_h">
+                    	名称<input type="text" name="discountbean.discountName" value="$!discountbean.discountName">
+        			  	开始日期<input type="text" name="discountbean.beginDate" id="beginDate" size="10" value="$!discountbean.beginDate">
+        			  	结束日期<input type="text" name="discountbean.endDate" id="endDate" size="10" value="$!discountbean.endDate">
+        		  	</td>
+                    <td width="20%" align="center"><img src="../../image/comdo/button_qd.gif" width="50" height="25" onClick="myform.action='/admin/discount/listAdminDiscount.htm?pageType=sub';myform.submit();" style="cursor:pointer;" /></td>
+                  </tr>
+                </table>
+        		</td>
+        	</tr>
+        	<tr>
+        	    <td>
+        		    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:20px;" class="table_border">
+                           <tr>
+                           		<td height="28" align="center" bgcolor="#e8f5fb"><label><input type="checkbox" name="allSelect" id="allSelect" onclick="checkAll(this)" class="cbborder"></input>编号</label></td>
+        						<td align="center" bgcolor="#e8f5fb" width="200">活动名称</td>
+        						<td align="center" bgcolor="#e8f5fb">开始时间</td>
+        						<td align="center" bgcolor="#e8f5fb">结束时间</td>	
+        						<td align="center" bgcolor="#e8f5fb">折扣公式</td>
+        						<td align="center" bgcolor="#e8f5fb">操作</td>
+                          </tr>
+    					  #foreach($info in $discountList)
+    					  <tr>
+    						<td height="40"><label><input type="checkbox" name="tblistbox" id="tblistbox" class="cbborder" value="$info.activityId">$info.activityId</label></td>
+    						<td>&nbsp;<a href="${rc.contextPath}/admin/discount/listAdminSupplierJoinInfo.htm?activityId=$info.activityId">$info.discountName</a></td>
+    						<td align="center">$info.beginTime</td>	
+    						<td align="center">$info.endTime</td>
+    						<td>&nbsp;$info.discountType</td>
+    						<td align="center">
+    							<input type="button" class="sm-buttom2-2" value="修改" onclick="location.href='${rc.contextPath}/admin/discount/toUpdateAdminDiscount.htm?activityId=$info.activityId'">
+    						</td>
+    					  </tr>
+    				      #end
+    				</table>
+    				<table width="790" border="0" align="center" cellspacing="1" cellpadding="2" style="border-top:1px #6cbc48 solid;">
+    					<tr>
+    						<td align="left">
+    							<input type="button" value="新增活动" onclick="window.location.href='/admin/discount/toInsertAdminDiscount.htm'" class="sm-buttom4-2" >
+    							<input type="button" value="删除" onclick="operationDiscount()" class="sm-buttom2-2">
+    						</td>		
+    					</tr>
+    				</table>
+    
+    				<table width="790" border="0" cellspacing="1" cellpadding="2" align="center">
+    					$!pageBar
+    				</table>
+        		</td>
+        	</tr>
+        </table>
+    </form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+function checkAll(obj){
+	var checkbox=document.getElementsByName("tblistbox");
+	for(var i = 0;i < checkbox.length; i++){
+		if(checkbox[i].type == "checkbox")
+        {
+			checkbox[i].checked = obj.checked;
+        }
+	}
+}
+
+$(document).ready(function() {
+	$("#beginDate").datepicker();
+	$("#beginDate").datepicker("option", {dateFormat:"yy-mm-dd"});
+	$("#endDate").datepicker();
+	$("#endDate").datepicker("option", {dateFormat:"yy-mm-dd"});
+	$("#beginDate").attr("value","${requestScope.discountbean.beginDate}");
+	$("#endDate").attr("value","${requestScope.discountbean.endDate}");
+});
+
+function operationDiscount(){
+	var checkboxArray = document.getElementsByName("tblistbox");
+	var value = "";
+	for(var i = 0;i < checkboxArray.length; i++){
+		if(checkboxArray[i].checked)
+        {
+			if(value == ""){
+				value += checkboxArray[i].value;
+			}else{
+				value += ","+checkboxArray[i].value;
+			} 
+        }
+	}
+	if(confirm('你确定删除?')){
+		location.href="./admin/discount/delAdminDiscount.htm?discountIdset="+value;
+	}
+}
+</script>
+</body>
+</html>

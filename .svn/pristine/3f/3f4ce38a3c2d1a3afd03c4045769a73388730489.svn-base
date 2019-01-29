@@ -1,0 +1,75 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+    <!--centerContent start-->
+        <div class="content med_hlth MO med_list">
+            <div class="med_banner MO"><!-- <img src="/styles/images/banner/banner.jpg"/> --></div>
+            <div class="MI">
+                <div class="mod">
+                    <p class="m_tl m_tl_1">运动医学天地</p>
+                    <div class="guide_lst">
+                        #foreach(${articleItem} in ${articleList})
+                            <div class="g_lst_i DIB">
+                                <a href="/front/platform/world/displayArticle.htm?popId=$!articleItem.popId">
+                                    #if($stringUtil.isEmpty($!articleItem.rem1))
+                                        <img src='/resources/images/photo_not_exits_small.gif'>
+                                    #else
+                                        <img src='$!articleItem.rem1'>
+                                    #end
+                                    <span class="toum DIB">
+    	    							<label class="lst_i_txt DIB">$!articleItem.title?</label>
+    	    				</span>
+                                </a>
+                            </div>
+                        #end
+                    </div>
+                    <div class="pageBox">
+                        <div class="page DIB">
+                            #if($!{page.currentPageNo}==1)
+                                <a  class="fst_pg none">首页</a>
+                                <a   class="pre_pg none">上一页</a>
+                            #else
+                                <a href="javaScript:toPage($!{page.totalPageCount},1)" class="fst_pg abled">首页</a>
+                                <a href="javaScript:toPage($!{page.totalPageCount},$!{page.currentPageNo}-1)" class="pre_pg abled">上一页</a>
+                            #end
+                            #set($start=$!{page.currentPageNo}/10*10+1)
+                            #set($end=$!start+9)
+                            #if($!{page.currentPageNo}%10==0)
+                                #set($start=($!{page.currentPageNo}/10 - 1)*10+1)
+                                #set($end=$!start+9)
+                            #end
+                            #if($end>=$!{page.totalPageCount})
+                                #set($end=$!{page.totalPageCount})
+                            #end
+                            #foreach($i in [$start..$end])
+                                #if($i==$!{page.currentPageNo})
+                                    <a  class="crn_pg">$i</a>
+                                #else
+                                    <a  href="javaScript:toPage($!{page.totalPageCount},$i)" class="abled">$i</a>
+                                #end
+
+                            #end
+                            #if($!{page.currentPageNo}==$!{page.totalPageCount})
+                                <a  class="nxt_pg none">下一页</a>
+                                <a  class="lst_pg none">尾页</a>
+                            #else
+                                <a href="javaScript:toPage($!{page.totalPageCount},$!{page.currentPageNo}+1)" class="abled">下一页</a>
+                                <a href="javaScript:toPage($!{page.totalPageCount},$!{page.totalPageCount})" class="abled">尾页</a>
+                            #end
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'malllist');
+
+</script>
+</html>

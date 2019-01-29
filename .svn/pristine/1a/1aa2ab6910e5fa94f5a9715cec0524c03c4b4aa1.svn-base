@@ -1,0 +1,93 @@
+﻿#parse("/front/platform/layout/header-title.vm")
+<body style="background: #fdfaf1;">
+<!-- header begin -->
+    #parse("/front/platform/layout/headLog2.vm")
+    <!-- header end -->
+<div class="warp" style="padding-bottom: 100px;">
+
+    <!-- content begin -->
+    <div class=" gl-cont1 ">
+        <span class="fn-ml20">攻略</span> > <span class="fn-666">攻略详情</span>
+    </div>
+    <div class="fn-container gl-cont2">
+        <div class="title">
+       		<span class="biaoji"></span>    景区介绍
+        </div>
+        <div class="content">
+             $!{popInfo.scenicInfo.detail}
+        </div>
+    </div>
+    <div class="fn-container gl-cont2">
+        <div class="title">
+            <span class="biaoji"></span>    攻略介绍
+        </div>
+        <div class="content">
+            $!{popInfo.content}
+        </div>
+    </div>
+    <div class="fn-container gl-cont3 fn-clear" style="margin-top: 100px;">
+        <div class="function">
+            <dt>
+            	#if($!{COLLECT} == "YES")
+            		<dl class="collect collected" id="collect" actionType="DEL"></dl>
+            	#else
+                	<dl class="collect" id="collect" actionType="ADD"></dl>
+                #end
+                #if($!{AGREE} == "YES")
+                 <dl class="zan zaned" actionType="DEL"><span class="fn-fs20 fn-999 zanedColor">$!{agreeCount}</span></dl>
+                #else
+                <dl class="zan" actionType="ADD"><span class="fn-fs20 fn-999">$!{agreeCount}</span></dl>
+                #end
+                ##<dl id="share"></dl>
+            </dt>
+        </div>
+    </div>
+    <!-- content end -->
+
+    
+</div>
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer-lg.vm")
+    <!-- footer end -->
+<!-- fixed begin -->
+    <script type="text/javascript">
+        $('#collect').click(function(event) {
+        	var actionType=$(this).attr("actionType");
+        	$.ajax({
+            url: '/front/platform/strategy/strategyCollectAgree.json?type=COLLECT&action='+actionType+'&popId=$!{popInfo.popId}',
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                if(res.code == 1){
+                	alert(res.message);
+                	window.location.reload();
+                }else if(res.code == 0){
+                	alert(res.message);
+                }
+            }
+       		});
+           
+      });
+	    $('.zan').click(function(event) {
+	    var actionType=$(this).attr("actionType");
+	    	$.ajax({
+	        url: '/front/platform/strategy/strategyCollectAgree.json?type=AGREE&action='+actionType+'&popId=$!{popInfo.popId}',
+	        type: 'post',
+	        dataType: 'json',
+	        success: function (res) {
+	            if(res.code == 1){
+	            	alert(res.message);
+	            	window.location.reload();
+	            }else if(res.code == 0){
+	            	alert(res.message);
+	            }
+	        }
+	      })
+	    });
+        $('#share').click(function(event) {
+            /*分享*/
+        });
+    </script>
+
+</body>
+</html>

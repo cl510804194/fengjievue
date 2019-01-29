@@ -1,0 +1,58 @@
+#parse("/front/platform/layout/header-title.vm") 
+<title>$!appConstantsUtil.getProductName()修改密码</title>
+</head>
+<body class="warp">
+	#parse("/front/platform/layout/header.vm")
+<!--content begin-->
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="fn-container">
+        <div class="bd-box login-content-box">
+            <div class="m-box-hd">
+                <h3 class="box-title">忘记密码</h3>
+            </div>
+            <div class="m-box" style="margin: 150px 0 0 150px">
+                <div class="log-form">
+                    <form action="/PasswordManage/updatePassword.htm" method="post" class="mt20" id="password_form">
+                        <div class="fn-item">
+                            <label class="fn-label"><span class="required">*</span>新登录密码：</label>
+                            
+                            <input type="password" class="fn-text fn-t-disable w230" name="newPassword" id="newPassword"/>
+                            
+                            <p class="fn-tip"></p>
+                        </div>
+						
+						<div class="fn-item">
+                            <label class="fn-label"><span class="required">*</span>确认登录密码：</label>
+                            
+                            <input type="password" class="fn-text fn-t-disable w230" name="newPasswordTo" id="newPasswordTo"/>
+                            
+                            <p class="fn-tip"></p>
+                        </div>
+							<input value="$!{randomMD5}" name="randomMD5" id="randomMD5" type="hidden"/>
+						<input type="hidden" value="$!{md5UserBaseId}" name="md5UserBaseId" id="md5UserBaseId"/>
+						<input type="hidden" value="$!{userBaseId}" name="userBaseId" id="userBaseId"/>
+                        <div class="fn-item">
+                            <label class="fn-label fn-left">&nbsp;</label>
+                            <button class="green-btn fn-tac" type="button" name="next" id="bt_password_form">确定</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--content end-->	
+<!-- footer begin -->
+#parse("/front/platform/layout/footer1.vm")
+<!-- footer end -->
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'forgetPassWord');
+</script> 
+</body>
+</html>

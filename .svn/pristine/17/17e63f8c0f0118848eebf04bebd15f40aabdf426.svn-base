@@ -1,0 +1,8 @@
+# filename: excep.error.msg.properties
+# desc: \u6240\u6709\u63cf\u8ff0\u6027\u7684\u932f\u8aa4\u4fe1\u606f
+#  
+#\u7570\u5e38\u932f\u8aa4\u6a21\u677f
+asn.exceptmsg.temple.action_except=<h1>\u767c\u751f\u932f\u8aa4:</h1><br>\
+<h3>\u932f\u8aa4\u540d\u7a31\uff1a @0</h3><br>\
+<h4>\u932f\u8aa4\u8a73\u60c5\uff1a @1</h4>
+asn.exceptmsg.temple.default_except=\u932f\u8aa4\u64cd\u4f5c\uff0c\u8acb\u7a0d\u5019\u518d\u8a66<h3>\u5730\u5740\uff1a@0</h3><br>

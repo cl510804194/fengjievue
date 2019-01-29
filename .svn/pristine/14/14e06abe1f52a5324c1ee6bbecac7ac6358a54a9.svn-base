@@ -1,0 +1,45 @@
+package com.yjf.esupplier.service.contract.result;
+
+import com.yjf.esupplier.service.contract.info.ContractInfo;
+import com.yjf.esupplier.service.contract.info.CustomerInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+/**
+ *
+ * @Filename CustomerInfoResult.java
+ *
+ * @Description
+ *
+ * @Version 1.0
+ *
+ * @Author sxiaomeng
+ *
+ * @Email weizhi@yiji.com
+ *
+ * @History <li>Author: sxiaomeng</li> <li>Date: 2015-3-26</li> <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ *
+ */
+public class CustomerInfoResult extends EsupplierBaseResult {
+	
+	/**
+	 * 用户合同信息
+	 */
+	private CustomerInfo customerInfo;
+
+	public CustomerInfo getCustomerInfo() {
+		return customerInfo;
+	}
+
+	public void setCustomerInfo(CustomerInfo customerInfo) {
+		this.customerInfo = customerInfo;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("CustomerInfoResult{");
+		sb.append("customerInfo=").append(customerInfo);
+		sb.append('}');
+		return sb.toString();
+	}
+}

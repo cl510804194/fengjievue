@@ -1,0 +1,48 @@
+<table sqlname="loan_param">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO loan_param(loan_param_id,month_rate,month_manager_fee_rate,month_service_fee_rate,loan_type,commodity_type,stage_num,raw_add_time) VALUES (?,?,?,?,?,?,?,?)
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE loan_param SET month_rate=?,month_manager_fee_rate=?,month_service_fee_rate=?,loan_type=?,commodity_type=?,stage_num=? WHERE loan_param_id=?
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  loan_param_id ,month_rate ,month_manager_fee_rate ,month_service_fee_rate ,loan_type ,commodity_type ,stage_num ,raw_add_time ,raw_update_time  FROM loan_param WHERE loan_param_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findLoanParam" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  loan_param_id ,store_id ,loan_type ,commodity_type ,stage_num ,raw_add_time ,raw_update_time  FROM loan_param WHERE stage_num=? and commodity_type=? and loan_type=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM loan_param WHERE loan_param_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM loan_param
+			]]>
+		</sql>
+	</operation>
+	
+</table>

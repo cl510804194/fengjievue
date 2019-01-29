@@ -1,0 +1,849 @@
+package com.yjf.esupplier.service.product.impl;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.yjf.esupplier.ws.product.enums.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.service.base.AfterProcessInvokeService;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.esupplier.common.util.ImageSize;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.common.util.Watermark;
+import com.yjf.esupplier.dal.custom.dataobject.SupplierProductDO;
+import com.yjf.esupplier.dal.dataobject.TblDeliverDO;
+import com.yjf.esupplier.dal.dataobject.TblProductCustomPropertyDO;
+import com.yjf.esupplier.dal.dataobject.TblProductDO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.domain.ProductDomain;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.service.common.services.DateSeqService;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.product.ProductBaseService;
+import com.yjf.esupplier.service.product.ProductService;
+import com.yjf.esupplier.service.product.ProductTypeService;
+import com.yjf.esupplier.service.product.StorageService;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.service.session.SessionLocal;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.common.enums.SeqNameEnum;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.UserBizTypeEnum;
+import com.yjf.esupplier.ws.hotel.enums.HotelStockStatusEnum;
+import com.yjf.esupplier.ws.hotel.order.HotelStockInfoOrder;
+import com.yjf.esupplier.ws.product.info.DeliveryInfo;
+import com.yjf.esupplier.ws.product.info.ProductCustomPropertyInfo;
+import com.yjf.esupplier.ws.product.info.ProductInfo;
+import com.yjf.esupplier.ws.product.info.ProductTypeInfo;
+import com.yjf.esupplier.ws.product.order.ProductInfoOrder;
+import com.yjf.esupplier.ws.product.order.ProductSearchOrder;
+import com.yjf.esupplier.ws.product.order.SupplierProductSearchOrder;
+import com.yjf.esupplier.ws.product.order.UpdateProductStatusOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.storage.enums.StorageBillTypeEnum;
+import com.yjf.esupplier.ws.storage.order.StorageUpdateOrder;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+
+@Service("productService")
+public class ProductServiceImpl extends ProductBaseService implements ProductService {
+	
+	final static String viewProductUrl = "http://pubsvr.aiecp.com/asn/front/mall/product/displayDetailProduct.action";
+	@Autowired
+	DateSeqService dateSeqService;
+	@Autowired
+	StorageService storageService;
+	@Autowired
+	ProductTypeService productTypeService;
+	@Override
+	public EsupplierBaseResult insertProduct(final ProductInfoOrder productOrder,
+												final List<ProductCustomPropertyInfo> list,
+												final File paramOriginalPic,
+												final File paramOriginalPic1,
+												final File paramOriginalPic2,
+												final File paramOriginalPic3,
+												final List<DeliveryInfo> deliveryInfoList,
+												final File pic, final String serverPath) {
+		logger
+			.info(
+				"insertProduct productOrder={},list={},paramOriginalPic={},paramOriginalPic1={},paramOriginalPic2={},paramOriginalPic3={},deliveryInfoList={},pic={},serverPath={}",
+				productOrder, list, paramOriginalPic, paramOriginalPic1, paramOriginalPic2,
+				paramOriginalPic3, deliveryInfoList, pic, serverPath);
+		final String logoPath = serverPath + "\\resources\\image\\button46.gif";
+		final SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+		return commonProcess(productOrder, "新建商品", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				EsupplierBaseResult baseResult = new EsupplierBaseResult();
+				
+				ProductDomain product = new ProductDomain();
+				BeanCopier.staticCopy(productOrder, product, "productStatus");
+				product.setProductId(dateSeqService.getNextSeqNumber(SeqNameEnum.PRODUCT_ID_SEQ));
+				/*写入小图片*/
+				try {
+					setImagePath(product, paramOriginalPic, paramOriginalPic1, paramOriginalPic2,
+						paramOriginalPic3, serverPath, logoPath);
+				} catch (Throwable e) {
+					logger.error("写入图片失败", e);
+					EsupplierBaseResult result = (EsupplierBaseResult) EsupplierDomainHolder.get()
+						.getAttribute(CONTEXT_RESULT_KEY);
+					result.setMessage("保存商品信息成功，图片处理失败");
+				}
+				/**
+				 * 产品审核
+				 */
+				//				if (productOrder.getProductStatus() == ProductStatusEnum.ON) {
+				//					product.setProductStatus(ProductStatusEnum.CHECK_ON);
+				//					product.setCensor(ProductCheckEnum.WAIT_CHECK);
+				//				} else {
+				//					product.setCensor(ProductCheckEnum.DRAFT);
+				//					product.setProductStatus(ProductStatusEnum.OFF);
+				//				}
+				//无审核
+				if (productOrder.getProductStatus() == ProductStatusEnum.ON) {
+					product.setProductStatus(ProductStatusEnum.ON);
+					product.setCensor(ProductCheckEnum.CHECK_PASS);
+				} else {
+					product.setCensor(ProductCheckEnum.DRAFT);
+					product.setProductStatus(ProductStatusEnum.OFF);
+				}
+				if (productOrder.getTuneMeal() != null) {
+					product.setTuneMeal(productOrder.getTuneMeal());
+				}
+				
+				product.setRecommend(BooleanEnum.NO);
+				product.setSpecialRoom(BooleanEnum.NO);
+				product.setMorningRoom(BooleanEnum.NO);
+				product.setLongRentRoom(BooleanEnum.NO);
+				product.setRawAddTime(new Date());
+				product.setProductStartDate(new Date());
+				product.setResortsBusinessId(sessionLocal.getBelongToUserInfo().getUserId());
+				product.setResortsBusinessName(sessionLocal.getBelongToUserInfo().getUserName());
+				product
+					.setResortsBusinessRealName(sessionLocal.getBelongToUserInfo().getRealName());
+				productDomainRepository.store(product);
+				/*酒店预订*/
+				if (product.getSaleTypeHotels() == BooleanEnum.YES&&product.getStartOrderCount()>0) {
+					HotelStockInfoOrder ibatisDO = new HotelStockInfoOrder();
+					ibatisDO.setProductId(product.getProductId());
+					ibatisDO.setSupplierId(product.getSupplierId());
+					ibatisDO.setProductName(product.getProductName());
+					ibatisDO.setBeginDate(product.getExecBeginTime());
+					ibatisDO.setEndDate(product.getExecEndTime());
+					ibatisDO.setInStock(product.getStartOrderCount());
+					ibatisDO.setAvailableStock(product.getStartOrderCount());
+					ibatisDO.setProductPrice(product.getPrice1());
+					ibatisDO.setMarketPrice(product.getMarketPrice());
+					ibatisDO.setExecPrice(product.getPrice1());
+					ibatisDO.setStatus(HotelStockStatusEnum.ON);
+					hotelsStockService.initHotelStockData(ibatisDO);
+					/*修改酒店最低价*/
+					EsupplierBaseResult updatePriceResult = supplierService
+						.updateLowestPrice(product.getSupplierId());
+					if (!updatePriceResult.isSuccess()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.EXECUTE_FAILURE,
+							"更新商户信息失败");
+					}
+				}
+				if (list != null && list.size() > 0) {
+					for (ProductCustomPropertyInfo pcp : list) {
+						pcp.setProductId(product.getProductId());
+						TblProductCustomPropertyDO customPropertyDO = new TblProductCustomPropertyDO();
+						BeanCopier.staticCopy(pcp, customPropertyDO);
+						tblProductCustomPropertyDAO.insert(customPropertyDO);
+					}
+				}
+				for (DeliveryInfo delivery : deliveryInfoList) {
+					delivery.setProductId(product.getProductId());
+					TblDeliverDO deliveryDO = new TblDeliverDO();
+					BeanCopier.staticCopy(delivery, deliveryDO);
+					tblDeliverDAO.insert(deliveryDO);
+				}
+				StorageUpdateOrder updateOrder = new StorageUpdateOrder();
+				updateOrder.setProductId(product.getProductId());
+				updateOrder.setStockAmount(product.getWareCount());
+				updateOrder.setSupplierId(product.getSupplierId());
+				updateOrder.setUnit(product.getProductUnit());
+				updateOrder.setStorageBillTypeEnum(StorageBillTypeEnum.NEW_PRODUCT);
+				storageService.saveStorageProductChange(updateOrder);
+				baseResult.setSuccess(true);
+				
+				return product;
+			}
+		}, null, new AfterProcessInvokeService() {
+			
+			@Override
+			public Domain after(Domain domain) {
+				return null;
+			}
+		});
+		
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getProductList(ProductSearchOrder productSearchOrder) {
+		QueryBaseBatchResult<ProductInfo> baseBatchResult = new QueryBaseBatchResult<ProductInfo>();
+		try {
+			productSearchOrder.check();
+			TblProductDO searchDo = new TblProductDO();
+			BeanCopier.staticCopy(productSearchOrder, searchDo);
+			if (productSearchOrder.getSaleTypeB2c() == BooleanEnum.YES) {
+				searchDo.setSaleTypeB2c(BooleanEnum.YES.code());
+			}
+			if (productSearchOrder.getSaleTypeHotels() == BooleanEnum.YES) {
+				searchDo.setSaleTypeHotels(BooleanEnum.YES.code());
+			}
+			if (productSearchOrder.getSaleTypeO2O() == BooleanEnum.YES) {
+				searchDo.setSaleTypeO2o(BooleanEnum.YES.code());
+				//searchDo.setSaleTypeB2c(BooleanEnum.NO.code());
+			}
+			if (productSearchOrder.getProductStatus() != null) {
+				searchDo.setProductStatus(productSearchOrder.getProductStatus().getCode());
+			}
+			long count = tblProductDAO.findByConditionCount(searchDo,
+				productSearchOrder.getBeginDate(), productSearchOrder.getEndDate(),
+				productSearchOrder.getBeginPrice(), productSearchOrder.getEndPrice());
+			PageComponent component = new PageComponent(productSearchOrder, count);
+			if (component.getPageSize() > 0) {
+				List<TblProductDO> productDOs = tblProductDAO.findByCondition(searchDo,
+					component.getFirstRecord(), component.getPageSize(),
+					productSearchOrder.getBeginDate(), productSearchOrder.getEndDate(),
+					productSearchOrder.getBeginPrice(), productSearchOrder.getEndPrice(),
+					productSearchOrder.getSaleCountSort(), productSearchOrder.getPriceSort());
+				baseBatchResult.setPageList(converProductInfos(productDOs));
+			}
+			baseBatchResult.initPageParam(component);
+			baseBatchResult.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		return baseBatchResult;
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getProductList(long supplierId, String productStatus,
+															int page, int pageSize) {
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		productSearchOrder.setSupplierId(supplierId);
+		productSearchOrder.setProductStatus(ProductStatusEnum.getByCode(productStatus));
+		productSearchOrder.setPageSize(pageSize);
+		productSearchOrder.setPageNumber(page);
+		return getProductList(productSearchOrder);
+		
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getAllProductList(long supplierId,
+																String supplierName,
+																String productStatus,
+																String searchName, long searchId,
+																int page, int pageSize, String type) {
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		productSearchOrder.setSupplierId(supplierId);
+		productSearchOrder.setSupplierName(supplierName);
+		productSearchOrder.setProductStatus(ProductStatusEnum.getByCode(productStatus));
+		
+		productSearchOrder.setProductName(searchName);
+		productSearchOrder.setProductId(searchId);
+		productSearchOrder.setProductType(type);
+		productSearchOrder.setPageSize(pageSize);
+		productSearchOrder.setPageNumber(page);
+		return getProductList(productSearchOrder);
+		
+	}
+	
+	@Override
+	public ProductInfo getProductById(long productId) {
+		return findProductById(productId);
+	}
+	
+	/**
+	 * 根据产品ID查询产品信息 2010-4-1
+	 * 
+	 * @return @
+	 * @author yuwenqiang
+	 */
+	@Override
+	public ProductInfo findProductById(long prodId) {
+		
+		TblProductDO tblProductDO = tblProductDAO.findById(prodId);
+		if (tblProductDO != null) {
+			ProductInfo productInfo = new ProductInfo();
+			productInfoCovertDO(productInfo, tblProductDO);
+			productInfo.setProductStatus(ProductStatusEnum.getByCode(tblProductDO
+				.getProductStatus()));
+			productInfo.setFacade(RefundRuleEnum.getByCode(tblProductDO.getFacade()));
+			productInfo.setPostType(PostFeeTypeEnum.getByDBValue(NumberUtil.parseInt(tblProductDO
+				.getPostType())));
+			productInfo.setProductVary(ProductVaryEnum.getByCode(tblProductDO.getProductVary()));
+			return productInfo;
+		} else {
+			return null;
+		}
+	}
+	
+	@Override
+	public ProductInfo findSupplierProductById(long prodId) {
+		SupplierProductDO supplierProductDO = supplierProductDAO.findSupplierProductById(prodId);
+		if (supplierProductDO != null) {
+			ProductInfo productInfo = new ProductInfo();
+			productInfoCovertDO(productInfo, supplierProductDO);
+			TblSupplierDO supplierDO = supplierProductDO.getSupplierDO();
+			SupplierInfo supplierInfo = new SupplierInfo();
+			supplierConvertInfo(supplierInfo, supplierDO);
+			productInfo.setSupplierInfo(supplierInfo);
+			return productInfo;
+		} else {
+			return null;
+		}
+	}
+	
+	public long getProductCount(ProductInfoOrder productOrder) {
+		TblProductDO tblProduct = new TblProductDO();
+		BeanCopier.staticCopy(productOrder, tblProduct);
+		tblProduct.setProductStatus(productOrder.getProductStatus().getCode());
+		if (productOrder.getSaleTypeB2c() != null) {
+			tblProduct.setSaleTypeB2c(productOrder.getSaleTypeB2c().getCode());
+		}
+		if (productOrder.getSaleTypeO2o() != null) {
+			tblProduct.setSaleTypeO2o(productOrder.getSaleTypeO2o().getCode());
+		}
+		if (productOrder.getProductStatus() != null) {
+			tblProduct.setProductStatus(productOrder.getProductStatus().getCode());
+		}
+		if (productOrder.getSaleTypeOrderMeal() != null) {
+			tblProduct.setSaleTypeOrderMeal(productOrder.getSaleTypeOrderMeal().getCode());
+		}
+		if (productOrder.getSaleTypeHotels() != null) {
+			tblProduct.setSaleTypeHotels(productOrder.getSaleTypeHotels().getCode());
+		}
+		if (productOrder.getTuneMeal() != null) {
+			tblProduct.setTuneMeal(productOrder.getTuneMeal().getCode());
+		}
+		return tblProductDAO.findByConditionCount(tblProduct, null, null, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult updateProduct(final ProductInfoOrder productOrder,
+												final List<ProductCustomPropertyInfo> list,
+												final File originalPic, final File originalPic1,
+												final File originalPic2, final File originalPic3,
+												final List<DeliveryInfo> deliveryInfoList,
+												final File pic, final String serverPath) {
+		logger
+			.info(
+				"insertProduct productOrder={},list={},paramOriginalPic={},paramOriginalPic1={},paramOriginalPic2={},paramOriginalPic3={},deliveryInfoList={},pic={},serverPath={}",
+				productOrder, list, originalPic, originalPic1, originalPic2, originalPic3,
+				deliveryInfoList, pic, serverPath);
+		final String logoPath = serverPath + "\\resources\\image\\\button46.gif";
+		
+		final SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+		return commonProcess(productOrder, "修改商品", new BeforeProcessInvokeService() {
+			@Override
+			public Domain before() {
+				ProductDomain product = productDomainRepository.active(productOrder.getProductId(),
+					true);
+				boolean hotelInit = false;
+				boolean changeName = false;
+				if (productOrder.getSaleTypeHotels() == BooleanEnum.YES&&product.getStartOrderCount()>0) {
+					if (!product.getProductName().equals(productOrder.getProductName())) {
+						changeName = true;
+					}
+					if (product.getExecBeginTime() != productOrder.getExecBeginTime()
+						|| product.getExecEndTime() != productOrder.getExecEndTime()
+						|| product.getStartOrderCount() != productOrder.getStartOrderCount()) {
+						hotelInit = true;
+					}
+				}
+				BeanCopier.staticCopy(productOrder, product, "productStatus");
+				if (product.getResortsBusinessId() != sessionLocal.getBelongTo().longValue()
+					&& sessionLocal.getUserBizType() != UserBizTypeEnum.ADMIN) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS, "无操作权限");
+				}
+				try {
+					setImagePath(product, originalPic, originalPic1, originalPic2, originalPic3,
+						serverPath, logoPath);
+				} catch (Throwable e) {
+					logger.error("写入图片失败", e);
+					EsupplierBaseResult result = (EsupplierBaseResult) EsupplierDomainHolder.get()
+						.getAttribute(CONTEXT_RESULT_KEY);
+					result.setMessage("保存商品信息成功，图片处理失败");
+				}
+				/**
+				 * 需要审核时候的代码
+				 */
+				//				if (product.getCensor() == ProductCheckEnum.WAIT_CHECK
+				//					|| product.getCensor() == ProductCheckEnum.CHECK_PASS) {
+				//					if (productOrder.getProductStatus() == ProductStatusEnum.ON) {
+				//						product.setProductStatus(ProductStatusEnum.CHECK_ON);
+				//					}
+				//				} else {
+				//					product.setProductStatus(ProductStatusEnum.OFF);
+				//				}
+				
+				//不需要审核的代码
+				if (productOrder.getProductStatus() == ProductStatusEnum.ON) {
+					product.setProductStatus(ProductStatusEnum.ON);
+				} else {
+					product.setProductStatus(ProductStatusEnum.OFF);
+				}
+				if (productOrder.getTuneMeal() != null) {
+					product.setTuneMeal(productOrder.getTuneMeal());
+				}
+				
+				if (pic != null && product != null) {
+					product.setPicPath(product.getBigPicPath());
+				}
+				
+				product.setProductModifyDate(new Date());
+				productDomainRepository.reStore(product);
+				/*酒店预订重新初始化*/
+				if (changeName) {
+					hotelsStockService.updateProductName(productOrder.getProductName(),
+						productOrder.getProductId());
+				}
+				if (hotelInit) {
+					HotelStockInfoOrder ibatisDO = new HotelStockInfoOrder();
+					ibatisDO.setProductId(product.getProductId());
+					ibatisDO.setSupplierId(product.getSupplierId());
+					ibatisDO.setProductName(product.getProductName());
+					ibatisDO.setBeginDate(product.getExecBeginTime());
+					ibatisDO.setEndDate(product.getExecEndTime());
+					ibatisDO.setInStock(product.getStartOrderCount());
+					ibatisDO.setAvailableStock(product.getStartOrderCount());
+					ibatisDO.setProductPrice(product.getPrice1());
+					ibatisDO.setMarketPrice(product.getMarketPrice());
+					ibatisDO.setExecPrice(product.getPrice1());
+					ibatisDO.setStatus(HotelStockStatusEnum.ON);
+					hotelsStockService.initHotelStockData(ibatisDO);
+					/*修改酒店最低价*/
+					EsupplierBaseResult updatePriceResult = supplierService
+						.updateLowestPrice(product.getSupplierId());
+					if (!updatePriceResult.isSuccess()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.EXECUTE_FAILURE,
+							"更新商户信息失败");
+					}
+				}
+				tblProductCustomPropertyDAO.deleteByProductId(product.getProductId());
+				if (list != null && list.size() > 0) {
+					for (ProductCustomPropertyInfo pcp : list) {
+						TblProductCustomPropertyDO productCustomPropertyDO = new TblProductCustomPropertyDO();
+						BeanCopier.staticCopy(pcp, productCustomPropertyDO);
+						tblProductCustomPropertyDAO.insert(productCustomPropertyDO);
+					}
+				}
+				/*重置运费设置*/
+				tblDeliverDAO.deleteByProductId(product.getProductId());
+				for (DeliveryInfo delivery : deliveryInfoList) {
+					delivery.setProductId(product.getProductId());
+					TblDeliverDO deliveryDO = new TblDeliverDO();
+					BeanCopier.staticCopy(delivery, deliveryDO);
+					tblDeliverDAO.insert(deliveryDO);
+				}
+				return product;
+			}
+		}, null, new AfterProcessInvokeService() {
+			
+			@Override
+			public Domain after(Domain domain) {
+				ProductDomain product = (ProductDomain) domain;
+				//				try {
+				//					setImagePath(product, originalPic, originalPic1, originalPic2, originalPic3,
+				//						serverPath, logoPath);
+				//				} catch (Throwable e) {
+				//					logger.error("写入图片失败", e);
+				//					EsupplierBaseResult result = (EsupplierBaseResult) EsupplierDomainHolder.get()
+				//						.getAttribute(CONTEXT_RESULT_KEY);
+				//					result.setMessage("保存商品信息成功，图片处理失败");
+				//				}
+				return product;
+			}
+		});
+		
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getProductSearchList(long supplierId,
+																	String supplierName,
+																	String productStatus,
+																	String sName, String sNumber,
+																	int page, int pageSize,
+																	String type) {
+		
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		if (supplierId != 0) {
+			productSearchOrder.setSupplierId(supplierId);
+		}
+		if (StringUtil.isNotEmpty(supplierName)) {
+			productSearchOrder.setSupplierName(supplierName);
+		}
+		productSearchOrder.setProductNumber(sNumber);
+		productSearchOrder.setProductStatus(ProductStatusEnum.getByCode(productStatus));
+		productSearchOrder.setProductName(sName);
+		productSearchOrder.setProductType(type);
+		productSearchOrder.setPageSize(pageSize);
+		productSearchOrder.setPageNumber(page);
+		return getProductList(productSearchOrder);
+		
+	}
+	
+	/*查询商品和供应商信息*/
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getSupplierAndProductList(	SupplierProductSearchOrder searchOrder) {
+		QueryBaseBatchResult<ProductInfo> baseBatchResult = new QueryBaseBatchResult<ProductInfo>();
+		try {
+			searchOrder.check();
+			TblProductDO tblProductDO = new TblProductDO();
+			TblSupplierDO tblSupplierDO = new TblSupplierDO();
+			/*商品查询条件*/
+			tblProductDO.setSupplierId(searchOrder.getSupplierId());
+			BeanCopier.staticCopy(searchOrder, tblProductDO);
+			if (StringUtil.isNotEmpty(searchOrder.getSupplierSearchName())) {
+				tblProductDO.setProductName(searchOrder.getProductName());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getProductName())) {
+				tblProductDO.setProductName(searchOrder.getProductName());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getProductType())) {
+				tblProductDO.setProductType(searchOrder.getProductType());
+			}
+			if (searchOrder.getSaleTypeB2c() != null) {
+				tblProductDO.setSaleTypeB2c(searchOrder.getSaleTypeB2c().getCode());
+			}
+			if (searchOrder.getSaleTypeO2O() != null) {
+				tblProductDO.setSaleTypeO2o(searchOrder.getSaleTypeO2O().getCode());
+			}
+			if (searchOrder.getProductStatus() != null) {
+				tblProductDO.setProductStatus(searchOrder.getProductStatus().getCode());
+			}
+			if (searchOrder.getSaleTypeOrderMeal() != null) {
+				tblProductDO.setSaleTypeOrderMeal(searchOrder.getSaleTypeOrderMeal().getCode());
+			}
+			if (searchOrder.getSaleTypeHotels() != null) {
+				tblProductDO.setSaleTypeHotels(searchOrder.getSaleTypeHotels().getCode());
+			}
+			if (searchOrder.getTuneMeal() != null) {
+				tblProductDO.setTuneMeal(searchOrder.getTuneMeal().getCode());
+			}
+			/*商品扩展属性*/
+			if (searchOrder.getProductVaryEnum() != null) {
+				tblProductDO.setProductVary(searchOrder.getProductVaryEnum().getCode());
+			}
+			/*供应商条件*/
+			if (StringUtil.isNotEmpty(searchOrder.getSpStoreName())) {
+				tblSupplierDO.setStoreName(searchOrder.getSpStoreName());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getSpNickname())) {
+				tblSupplierDO.setNickname(searchOrder.getSpNickname());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getSpRealName())) {
+				tblSupplierDO.setRealName(searchOrder.getSpRealName());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getApproveState())) {
+				tblSupplierDO.setApproveState(searchOrder.getApproveState());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getShopGrade())) {
+				tblSupplierDO.setShopGrade(searchOrder.getShopGrade());
+			}
+			if (StringUtil.isNotEmpty(searchOrder.getMerchantState())) {
+				tblSupplierDO.setMerchantState(searchOrder.getMerchantState());
+			}
+			String o2oAndB2c = "";
+			if (searchOrder.getSaleTypeO2OAndB2C() == BooleanEnum.YES) {
+				o2oAndB2c = "true";
+			}
+			String o2oAndHotels = "";
+			if(searchOrder.getSaleTypeO2OAndHotels() == BooleanEnum.YES){
+				o2oAndHotels = "true";
+			}
+			long count = supplierProductDAO.findSupplierProductCount(tblSupplierDO, tblProductDO,
+				searchOrder.getSupplierSearchName(), searchOrder.getName(),
+				searchOrder.getBeginDate(), searchOrder.getEndDate(), searchOrder.getBeginPrice(),
+				searchOrder.getEndPrice(), o2oAndB2c, o2oAndHotels);
+			PageComponent component = new PageComponent(searchOrder, count);
+			long firstRecord = component.getFirstRecord();
+			if (searchOrder.getFirstRecord() >= 0) {
+				firstRecord = searchOrder.getFirstRecord();
+			}
+			if (component.getPageSize() > 0) {
+				List<SupplierProductDO> productDOs = supplierProductDAO.findSupplierProduct(
+					tblSupplierDO, tblProductDO, NumberUtil.parseDouble(searchOrder.getLatitude()),
+					NumberUtil.parseDouble(searchOrder.getLongitude()),
+					searchOrder.getSupplierSearchName(), searchOrder.getName(), firstRecord,
+					component.getPageSize(), searchOrder.getBeginDate(), searchOrder.getEndDate(),
+					searchOrder.getBeginPrice(), searchOrder.getEndPrice(),
+					searchOrder.getSaleCountSort(), searchOrder.getPriceSort(),
+					searchOrder.getScoreSort(), searchOrder.getSupplierScoreSort(), o2oAndB2c, o2oAndHotels);
+				baseBatchResult.setPageList(convertSupplierProductInfos(productDOs,
+					searchOrder.getLongitude(), searchOrder.getLatitude()));
+			} else {
+				List<ProductInfo> productInfos = new ArrayList<ProductInfo>();
+				baseBatchResult.setPageList(productInfos);
+			}
+			baseBatchResult.initPageParam(component);
+			baseBatchResult.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		return baseBatchResult;
+	}
+	
+	@Override
+	public List<ProductInfo> getProductListBySupplierId(long supplierId) {
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		productSearchOrder.setSupplierId(supplierId);
+		return getProductList(productSearchOrder).getPageList();
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getProductListByType(String type, int startCount,
+																	int endCount, String payType) {
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		productSearchOrder.setProductType(type);
+		productSearchOrder.setLimitStart(startCount);
+		productSearchOrder.setPageSize(endCount);
+		productSearchOrder.setProductStatus(ProductStatusEnum.ON);
+		if (StringUtil.isNotBlank(payType)) {
+			if (SaleTypeEnum.getByCode(payType) == SaleTypeEnum.B2C) {
+				productSearchOrder.setSaleTypeB2c(BooleanEnum.YES);
+			}
+			if (SaleTypeEnum.getByCode(payType) == SaleTypeEnum.O2O) {
+				productSearchOrder.setSaleTypeO2O(BooleanEnum.YES);
+				//productSearchOrder.setSaleTypeB2c(BooleanEnum.NO);
+			}
+		}
+		return getProductList(productSearchOrder);
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ProductInfo> getProductListOrderByView(Integer start, Integer end) {
+		
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		return getProductList(productSearchOrder);
+		
+	}
+	
+	@Override
+	public boolean checkExistProductNumber(long supplierId, String productNumber, String productId) {
+		ProductSearchOrder productSearchOrder = new ProductSearchOrder();
+		productSearchOrder.setSupplierId(supplierId);
+		productSearchOrder.setProductNumber(productNumber);
+		productSearchOrder.setPageSize(10);
+		QueryBaseBatchResult<ProductInfo> batchResult = getProductList(productSearchOrder);
+		if (StringUtil.isNotEmpty(productId)) {
+			for (ProductInfo productInfo : batchResult.getPageList()) {
+				if (productInfo.getProductId() != NumberUtil.parseLong(productId)) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return getProductList(productSearchOrder).getTotalCount() > 0;
+		}
+		
+	}
+	
+	private void setImagePath(final ProductDomain product, final File originalPic,
+								final File originalPic1, final File originalPic2,
+								final File originalPic3, final String serverPath,
+								final String logoPath) throws Exception, Throwable {
+		String[] picPaths = new String[] { "", "" };
+		String[] middlePaths = new String[] { "", "" };
+		if (originalPic != null && product != null) {
+			picPaths = ImageSize.drawImage(originalPic, serverPath);
+			middlePaths = ImageSize.drawMiddleImage(originalPic, serverPath);
+			product.setBigPicPath(product.getBigPicPath());
+			product.setSmallPicPath(picPaths[0]);
+			product.setMiddlePicPath(middlePaths[0]);
+			String realPath = serverPath + File.separator + (picPaths[0]);
+			try {
+				Watermark.drawWatermark(originalPic.getAbsolutePath(), logoPath);
+			} catch (Throwable e) {
+				logger.error("------>>>>>>>>>>>>>>>>大图添加水印出错", e);
+				throw e;
+			}
+		}
+		if (originalPic1 != null && product != null) {
+			picPaths = ImageSize.drawImage(originalPic1, serverPath);
+			middlePaths = ImageSize.drawMiddleImage(originalPic1, serverPath);
+			product.setBigPicPath1(product.getBigPicPath1());
+			product.setSmallPicPath1(picPaths[0]);
+			product.setMiddlePicPath1(middlePaths[0]);
+			String realPath = serverPath + File.separator + (picPaths[0]);
+			try {
+				Watermark.drawWatermark(originalPic1.getAbsolutePath(), logoPath);
+			} catch (Throwable e) {
+				logger.error("------>>>>>>>>>>>>>>>>大图添加水印出错", e);
+				throw e;
+			}
+		}
+		if (originalPic2 != null && product != null) {
+			picPaths = ImageSize.drawImage(originalPic2, serverPath);
+			middlePaths = ImageSize.drawMiddleImage(originalPic2, serverPath);
+			product.setBigPicPath2(product.getBigPicPath2());
+			product.setSmallPicPath2(picPaths[0]);
+			product.setMiddlePicPath2(middlePaths[0]);
+			String realPath = serverPath + File.separator + (picPaths[0]);
+			try {
+				Watermark.drawWatermark(originalPic2.getAbsolutePath(), logoPath);
+			} catch (Throwable e) {
+				logger.error("------>>>>>>>>>>>>>>>>大图添加水印出错", e);
+				throw e;
+			}
+		}
+		if (originalPic3 != null && product != null) {
+			picPaths = ImageSize.drawImage(originalPic3, serverPath);
+			middlePaths = ImageSize.drawMiddleImage(originalPic3, serverPath);
+			product.setBigPicPath3(product.getBigPicPath3());
+			product.setSmallPicPath3(picPaths[0]);
+			product.setMiddlePicPath3(middlePaths[0]);
+			String realPath = serverPath + File.separator + (picPaths[0]);
+			try {
+				Watermark.drawWatermark(originalPic3.getAbsolutePath(), logoPath);
+			} catch (Throwable e) {
+				logger.error("------>>>>>>>>>>>>>>>>大图添加水印出错", e);
+				throw e;
+			}
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult updateProductStatusOff(	final UpdateProductStatusOrder productStatusOrder) {
+		final ProductStatusEnum changeProductStatusEnum = ProductStatusEnum.OFF;
+		return changeProductStatus(productStatusOrder, changeProductStatusEnum);
+		
+	}
+	
+	@Override
+	public EsupplierBaseResult updateProductStatusOn(	final UpdateProductStatusOrder productStatusOrder) {
+		final ProductStatusEnum changeProductStatusEnum = ProductStatusEnum.ON;
+		return changeProductStatus(productStatusOrder, changeProductStatusEnum);
+		
+	}
+	
+	private EsupplierBaseResult changeProductStatus(final UpdateProductStatusOrder productStatusOrder,
+													final ProductStatusEnum changeProductStatusEnum) {
+		final SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+		return commonProcess(productStatusOrder, "产品" + changeProductStatusEnum.message(),
+			new BeforeProcessInvokeService() {
+				
+				@Override
+				public Domain before() {
+					/*酒店预订的房间*/
+					List<Long> supplierIds = new ArrayList<Long>();
+					for (long productId : productStatusOrder.getProductId()) {
+						ProductDomain productDomain = productDomainRepository.active(productId,
+							true);
+						/*酒店预订的房间*/
+						if (productDomain.getSaleTypeHotels() == BooleanEnum.YES
+							&& !supplierIds.contains(productDomain.getSupplierId())) {
+							supplierIds.add(productDomain.getSupplierId());
+						}
+						if ((productDomain.getResortsBusinessId() != sessionLocal
+							.getBelongToUserInfo().getUserId() && sessionLocal.getUserBizType() != UserBizTypeEnum.ADMIN)
+							&& (productDomain.getSupplierId() != sessionLocal.getUserId())) {
+							throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+								"无数据操作权限");
+						}
+						if (changeProductStatusEnum == ProductStatusEnum.ON) {
+							if(productDomain.getProductVary() != ProductVaryEnum.line){					
+								ProductTypeInfo productTypeInfo = productTypeService.findByPtCode(productDomain.getProductType());
+								if(productTypeInfo == null){
+									throw ExceptionFactory.newYrdException(
+											EsupplierResultEnum.HAVE_NOT_DATA, "该商品类型已经不存在,请联系平台管理员!");
+								}
+							}
+							if (productDomain.getProductStatus() == ProductStatusEnum.ON) {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "数据状态不对");
+							}
+							if (productDomain.getCensor() == ProductCheckEnum.CHECK_PASS) {
+								productDomain.setProductStatus(ProductStatusEnum.ON);
+							} else {
+								productDomain.setProductStatus(ProductStatusEnum.CHECK_ON);
+								productDomain.setCensor(ProductCheckEnum.WAIT_CHECK);
+							}
+						} else if (changeProductStatusEnum == ProductStatusEnum.OFF) {
+							if (productDomain.getProductStatus() == ProductStatusEnum.OFF) {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "数据状态不对");
+							}
+							productDomain.setProductStatus(ProductStatusEnum.OFF);
+						} else if (changeProductStatusEnum == ProductStatusEnum.DEL) {
+							if (productDomain.getProductStatus() == ProductStatusEnum.DEL) {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "数据状态不对");
+							}
+							productDomain.setProductStatus(ProductStatusEnum.DEL);
+						}
+						productDomainRepository.reStore(productDomain);
+						
+					}
+					for (long supplierId : supplierIds) {
+						/*修改酒店最低价*/
+						EsupplierBaseResult updatePriceResult = supplierService
+							.updateLowestPrice(supplierId);
+					}
+					return null;
+				}
+			}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult updateProductStatusDel(	final UpdateProductStatusOrder productStatusOrder) {
+		final ProductStatusEnum changeProductStatusEnum = ProductStatusEnum.DEL;
+		return changeProductStatus(productStatusOrder, changeProductStatusEnum);
+		
+	}
+	
+	@Override
+	public List<ProductInfo> getProductListByProductType(ProductInfoOrder productInfoOrder,
+															long limitStart, long pageSize,
+															String saleCountSort) {
+		// TODO Auto-generated method stub
+		TblProductDO tblProductDO = new TblProductDO();
+		BeanCopier.staticCopy(productInfoOrder, tblProductDO);
+		tblProductDO.setProductType(productInfoOrder.getProductType() + "%");
+		tblProductDO.setProductStatus(productInfoOrder.getProductStatus().code());
+		List<TblProductDO> productList = tblProductDAO.findByProductType(tblProductDO, limitStart,
+			pageSize, null);
+		List<ProductInfo> productInfoList = converProductInfos(productList);
+		return productInfoList;
+	}
+	
+	@Override
+	public EsupplierBaseResult refreshProductSpeMor(long productId) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		try {
+			TblProductDO tblProductDO = new TblProductDO();
+			tblProductDO.setProductId(productId);
+			productCusDAO.refreshProductSpeMor(tblProductDO);
+			result.setSuccess(true);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			result.setMessage(e.getMessage());
+		}
+		return result;
+	}
+}

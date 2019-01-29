@@ -1,0 +1,174 @@
+#parse("/front/index/common/js.vm")
+<script type="text/javascript" src="/resources/js/jquery-ui-1.8rc3.custom.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/front/js/bcart/bcart.js"></script>
+<!-- footer begin -->
+    <footer class="footer-new">
+        <div class="fn-container fn-clear" style=" width: 1200px;">
+            <!-- <div class="footer-1 fn-left">
+                <img src="/styles/images/home/logo-f.png">
+                <p class="fn-mt5">公司名称：</p>
+                <p>$!appConstantsUtil.getPlatformName()</p>
+                <p class="fn-mt5">公司地址：</p>
+                <p>$!appConstantsUtil.getPlatformAddress()</p>
+            </div> -->
+            <div class="footer-2 fn-left" id="fnBottomDl">
+                <dl style="margin-left: 0px;">
+                   <dt>关于我们</dt>
+                   <dd><a href="#" >平台介绍</a></dd>
+                   <dd><a href="#" >平台介绍</a></dd>
+                   <dd><a href="#" >平台介绍</a></dd>
+                </dl>
+                <dl>
+                   <dt>常见问题</dt>
+                   <dd><a href="#" >平台介绍</a></dd>
+                   <dd><a href="#" >平台介绍</a></dd>
+                   <dd><a href="#" >平台介绍</a></dd>
+                </dl>
+                <dl>
+                   <dt>新手指南</dt>
+                   <dd><a href="#" >平台介绍</a></dd>
+                   <dd><a href="#" >平台介绍</a></dd>
+                   <dd><a href="#" >平台介绍</a></dd>
+                </dl>
+            </div>
+            <div class="footer-3 fn-right">
+                <p class="f-kefu">在线客服</p>
+                <p>服务时间： 周一到周五 9:00-18:00</p>
+                <p class="f-shouhou">售后服务</p>
+                <p>热线电话： $!appConstantsUtil.getCustomerServicePhone()</p>
+                <p>服务时间：周一到周五 9:00-18:00</p>
+            </div>
+        </div>
+        <div class="footer-b">
+            ICP备案号  域名    $!appConstantsUtil.getProductICP()
+        </div>
+    </footer>
+<!-- footer end -->
+ <div class="fixed" id="divStayTopleft">
+##    <a onclick=Close() href="javascript:;" class="close">X</a>
+##    <a class="shop-car fn-mt30" href="javascript:void(bcart.showCart());">
+    <a class="shop-car fn-mt30" href="/front/platform/mall/toConfirmInfoPage.htm">
+        <p class="fn-fff">购物车<span id="shul">$!{webSessionUtil.getCurrentCart().count}</span></p>
+    </a>
+    <a href="/do/productCollect/myCollectProductList.htm" class="collect">
+        <p class="fn-fff">收藏夹<span id="shul2">0</span></p>
+    </a>
+    <!-- <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=3214240035&amp;site=qq&amp;menu=yes"
+       class="service">
+        <p>在线客服</p>
+    </a> -->
+    <a href="#top" class="top">
+        <p class="fn-fff">返回顶部</p>
+    </a>
+</div> 
+
+<script language="javascript">
+
+    $(function () {
+        $.ajax({
+            url: '/front/platform/help/getPopModuleList.json',
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                var _list = res.moduleList,
+                        _html = '',
+                        _subHtml = '';
+				
+                for (var i = 0; i < _list.length; i++) {
+					if(i<3){
+                    _subHtml = '';
+
+                    if (_list[i].moduleArray.length) {
+                        for (var j = 0; j < _list[i].moduleArray.length; j++) {
+                            _subHtml += '<dd><a  href="/front/platform/help/infoCenter.htm?defaultMCode=' + _list[i].moduleArray[j].moduleCode + '" class="fn-666">' + _list[i].moduleArray[j].moduleName + '</a></dd>';
+                        }
+                    } else {
+                        _subHtml = '';
+                    }
+					if(i==0){
+						_html += '<dl style="margin-left: 0px;"><dt>' + _list[i].parentModule.moduleName + '</dt>' + _subHtml + '</dl>';
+					}else{
+                    	_html += '<dl><dt>' + _list[i].parentModule.moduleName + '</dt>' + _subHtml + '</dl>';
+                    }
+                    }
+                }
+             
+                $('#fnBottomDl').html(_html);
+            }
+        });
+    });
+
+    function picsize(obj, MaxWidth) {
+        img = new Image();
+        img.src = obj.src;
+        if (img.width > MaxWidth) {
+            return MaxWidth;
+        } else {
+            return img.width;
+        }
+    }
+
+    function Close() {
+        divStayTopleft.style.display = "none";
+        return true;
+    }
+    var online = new Array();
+</script>
+<script type="text/javascript">
+    ~function () {
+        var timerId,
+                msgCountField = $('em.msgCount');
+        var collectionId = $('#shul2');
+        checkCollect(); 
+        checkMessage();
+        /**
+         * 检查已收藏的商品
+         */
+         
+        function checkCollect() {
+            $.ajax({
+                url: '/do/productCollect/collectStatis.json',
+                type: 'get',
+                success: collectCallback
+            })
+        }
+
+        function collectCallback(data) {
+            if (data.totalCount != "0")
+                $('#shul2').text(data.totalCount);
+            else{
+                $('#shul2').text(0);
+            }
+        }
+        
+        /**
+         * 检查未读消息
+         */
+        function checkMessage() {
+            $.ajax({
+                url: '/do/message/ajaxLoadUnReadData.json',
+                type: 'get',
+                success: callback 
+            })
+        }
+
+        /**
+         * 检查未读消息回调
+         *
+         * {
+             *  success:true,
+             *  count:123
+             * }
+         */
+        function callback(data) {
+           // if (data.count != "0")
+                msgCountField.text(data.count);
+          
+            timerId = setTimeout(checkMessage, 60000);
+        }
+        
+    }()
+ 
+
+</script>

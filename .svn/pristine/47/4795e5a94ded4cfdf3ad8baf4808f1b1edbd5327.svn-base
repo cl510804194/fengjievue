@@ -1,0 +1,106 @@
+<html>
+<head>
+    <title>订单列表</title>
+    <link type="text/css" href="/resources/css/after.css" rel="stylesheet"/>
+    <link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="warp">
+    <!--头部-->
+    #parse("/backstage/layout/logo.vm")
+    <!--内容-->
+    <div class="container fn-clear">
+        #parse("/backstage/layout/left.vm")
+        <div class="main-content fn-right">
+            <div class="mc t-box">
+                <div class="top">
+                    <p><a href="javascript:;">订单管理</a> &gt; 商品评价管理</p>
+                </div>
+                <div class="search fn-clear">
+                    <form action="/admin/tradeReview/queryTradeAll.htm" id="myform" name="myform" method="post">
+                        <dl>
+                            <dt>订单编号：</dt>
+                            <dd><input type="text" class="u-input" name="orderId" value="$!{orderId}"/></dd>
+                        </dl>
+                        <button type="submit" class="s-btn" style="cursor:pointer;">搜索</button>
+                    </form>
+                </div>
+                #if($!list.size()<1)
+                    <table class="m-table">
+                        <tr>
+                            <td colspan="6" height="100" class="wz-18b"><img src="../../image/hzx/tous1.gif"/><span>暂时没有商品评价</span>
+                            </td>
+                        </tr>
+                    </table>
+                #end
+                <table class="m-table">
+                    <thead style="font-size: 12px;">
+                    <th width="88">评论编号</th>
+                    <th width="100">供应商编号</th>
+                    <th width="180">订单编号</th>
+                    <th width="130">评价人</th>
+                    <th width="360">评语</th>
+                    <th width="50">操作</th>
+                    </thead>
+                    <tbody style="font-size: 12px;">
+                        #foreach($info in $!{page.result})
+                        <tr>
+                            <td>$!{info.reviewId}</td>
+                            <td>$!{info.supplierId}</td>
+                            <td>$!{info.orderId}</td>
+                            <td>$!{info.buyerName}</td>
+                            <td>$!{info.remark}</td>
+                            <td>
+                                <a href="javascript:if(window.confirm('此操作将会删除该条评价,您确定删除吗?')){document.location.href = '/admin/tradeReview/deleteTradeReview.htm?reviewId=$!{info.reviewId}&redirect=' + document.location.href;}">删除</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+                <div class="p-box pages-b fn-clear">
+                    #parse("common/page.vm")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var $_GLOBAL =
+    {
+    }
+    ;
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode+'personalManage');
+##    function toPage(totalPage, pageNo) {
+##        if (totalPage < pageNo) {
+##            return false;
+##        }
+##        var url = "/admin/tradeReview/queryTradeAll.htm"
+##                + "&payNo=$!{order.payNo}"
+##                + "&pageSize=$!{page.pageSize}&pageNo=" + pageNo;
+##        window.location.href = url;
+##    }
+</script>
+<script type="text/javascript">
+    function toPage(totalPage, current) {
+        if (isNaN(current)) {
+            return;
+        }
+        if (current < 1 || current > totalPage) {
+            return;
+        }
+
+        var url = "/admin/tradeReview/queryTradeAll.htm?pageSize=$!{page.pageSize}&page=" + current;
+        myform.action = url;
+        myform.submit();
+    }
+        #if($message)
+        alert('$message');
+        #end
+</script>
+</body>
+</html>

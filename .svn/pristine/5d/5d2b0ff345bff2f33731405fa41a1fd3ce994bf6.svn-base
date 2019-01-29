@@ -1,0 +1,29 @@
+package com.yjf.esupplier.service.security.util;
+
+import java.util.List;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.dal.dataobject.PermissionDO;
+import com.yjf.esupplier.dal.dataobject.RoleDO;
+import com.yjf.esupplier.service.security.info.PermissionInfo;
+import com.yjf.esupplier.service.security.info.RoleInfo;
+import com.yjf.esupplier.ws.enums.UserBizTypeEnum;
+
+public class SecurityConvertor {
+	public static void convertPermissionInfoList(List<PermissionDO> dos, List<PermissionInfo> infos) {
+		for (PermissionDO do1 : dos) {
+			PermissionInfo permissionInfo = new PermissionInfo();
+			BeanCopier.staticCopy(do1, permissionInfo);
+			infos.add(permissionInfo);
+		}
+	}
+	
+	public static void convertRoleInfoList(List<RoleDO> dos, List<RoleInfo> infos) {
+		for (RoleDO do1 : dos) {
+			RoleInfo roleInfo = new RoleInfo();
+			BeanCopier.staticCopy(do1, roleInfo);
+			roleInfo.setUserBizTypeEnum(UserBizTypeEnum.getByCode(do1.getUserBizType()));
+			infos.add(roleInfo);
+		}
+	}
+}

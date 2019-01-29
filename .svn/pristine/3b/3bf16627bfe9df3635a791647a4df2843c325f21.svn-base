@@ -1,0 +1,83 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.service.user.enums.PasswordSyncEnum;
+import com.yjf.esupplier.service.user.enums.PasswordTypeEnum;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class SynPwdInfoOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 6718479508875327637L;
+	
+	/**
+	 * 用户会员id
+	 */
+	String customerId;
+	/**
+	 * 密码类型
+	 */
+	PasswordTypeEnum passwdType;
+	/**
+	 * 原始密码
+	 */
+	String oldPwd;
+	/**
+	 * 新密码
+	 */
+	String newPwd;
+	
+	@Override
+	public void check() {
+		validateNotNull(customerId, "线下会员ID");
+		validateNotNull(passwdType, "密码类型");
+		validateHasText(oldPwd, "原始密码");
+		validateHasText(newPwd, "新密码");
+	}
+	
+	public String getCustomerId() {
+		return this.customerId;
+	}
+	
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+	
+	public PasswordTypeEnum getPasswdType() {
+		return this.passwdType;
+	}
+	
+	public void setPasswdType(PasswordTypeEnum passwdType) {
+		this.passwdType = passwdType;
+	}
+	
+	public String getOldPwd() {
+		return this.oldPwd;
+	}
+	
+	public void setOldPwd(String oldPwd) {
+		this.oldPwd = oldPwd;
+	}
+	
+	public String getNewPwd() {
+		return this.newPwd;
+	}
+	
+	public void setNewPwd(String newPwd) {
+		this.newPwd = newPwd;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SynPwdInfoOrder [customerId=");
+		builder.append(customerId);
+		builder.append(", passwdType=");
+		builder.append(passwdType);
+		builder.append(", oldPwd=");
+		builder.append(oldPwd);
+		builder.append(", newPwd=");
+		builder.append(newPwd);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,147 @@
+package com.yjf.esupplier.service.pdf.template.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.common.page.Page;
+import com.yjf.esupplier.common.page.PageParam;
+import com.yjf.esupplier.common.page.PageParamUtil;
+import com.yjf.esupplier.dal.daointerface.PdfTemplateDAO;
+import com.yjf.esupplier.dal.dataobject.PdfTemplateDO;
+import com.yjf.esupplier.service.base.BaseAutowiredDAOService;
+import com.yjf.esupplier.service.pdf.template.PdfTemplateService;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.PDFTypeCodeEnum;
+import com.yjf.esupplier.ws.enums.StateEnum;
+import com.yjf.esupplier.ws.info.PdfTemplateInfo;
+import com.yjf.esupplier.ws.order.PdfTemplateOrder;
+
+@Service("PdfTemplateService")
+public class PdfTemplateServiceImpl extends BaseAutowiredDAOService implements PdfTemplateService {
+	
+	@Autowired
+	PdfTemplateDAO pdfTemplateDAO;
+	
+	@Override
+	public PdfTemplateInfo getById(long id) {
+		PdfTemplateInfo pdfTemplateInfo = new PdfTemplateInfo();
+		PdfTemplateDO pdfTemplateDO = new PdfTemplateDO();
+		pdfTemplateDO = pdfTemplateDAO.findById(id);
+		if (pdfTemplateDO != null) {
+			BeanCopier.staticCopy(pdfTemplateDO, pdfTemplateInfo);
+			pdfTemplateInfo.setTypeCode(PDFTypeCodeEnum.getByTypeCode(pdfTemplateDO.getTypeCode()));
+			pdfTemplateInfo.setIsDefault(BooleanEnum.getByCode(pdfTemplateDO.getIsDefault()));
+			pdfTemplateInfo.setState(StateEnum.getByCode(pdfTemplateDO.getState()));
+		}
+		return pdfTemplateInfo;
+	}
+	
+	@Override
+	public Page<PdfTemplateInfo> getPageByConditions(PageParam pageParam,
+														Map<String, Object> conditions) {
+		PdfTemplateDO doParam = new PdfTemplateDO();
+		if (conditions.get("name") != null) {
+			doParam.setName(conditions.get("name").toString());
+		}
+		if (conditions.get("pdfName") != null) {
+			doParam.setPdfName(conditions.get("pdfName").toString());
+		}
+		if (conditions.get("typeCode") != null) {
+			doParam.setTypeCode(conditions.get("typeCode").toString());
+		}
+		if (conditions.get("isDefault") != null) {
+			doParam.setIsDefault(conditions.get("isDefault").toString());
+		}
+		if (conditions.get("state") != null) {
+			doParam.setState(conditions.get("state").toString());
+		}
+		long limitStart = (pageParam.getPageNo() - 1) * pageParam.getPageSize();
+		long pageSize = pageParam.getPageSize();
+		long totalSize = pdfTemplateDAO.findByConditionCount(doParam, limitStart, pageSize);
+		List<PdfTemplateDO> result = pdfTemplateDAO.findByCondition(doParam, limitStart, pageSize);
+		List<PdfTemplateInfo> infoList = new ArrayList<PdfTemplateInfo>();
+		for (PdfTemplateDO tmpDO : result) {
+			PdfTemplateInfo info = new PdfTemplateInfo();
+			BeanCopier.staticCopy(tmpDO, info);
+			info.setTypeCode(PDFTypeCodeEnum.getByTypeCode(tmpDO.getTypeCode()));
+			info.setIsDefault(BooleanEnum.getByCode(tmpDO.getIsDefault()));
+			info.setState(StateEnum.getByCode(tmpDO.getState()));
+			infoList.add(info);
+		}
+		int start = PageParamUtil.startValue((int) totalSize, pageParam.getPageSize(),
+			pageParam.getPageNo());
+		return new Page<PdfTemplateInfo>(start, totalSize, pageParam.getPageSize(), infoList);
+	}
+	
+	@Override
+	public long insertPdfTemplate(PdfTemplateOrder pdfTemplate) {
+		pdfTemplate.check();
+		PdfTemplateDO pdfTemplateDO = new PdfTemplateDO();
+		BeanCopier.staticCopy(pdfTemplate, pdfTemplateDO);
+		pdfTemplateDO.setRawAddTime(getSysdate());
+		long identity = pdfTemplateDAO.insert(pdfTemplateDO);
+		return identity;
+		
+	}
+	
+	@Override
+	public void updatePdfTemplate(PdfTemplateOrder pdfTemplate) {
+		pdfTemplate.check();
+		PdfTemplateDO pdfTemplateDO = pdfTemplateDAO.findById(pdfTemplate.getId());
+		pdfTemplateDO.setName(pdfTemplate.getName());
+		pdfTemplateDO.setPdfName(pdfTemplate.getPdfName());
+		pdfTemplateDO.setTypeCode(pdfTemplate.getTypeCode());
+		pdfTemplateDO.setXslContent(pdfTemplate.getXslContent());
+		pdfTemplateDO.setState(pdfTemplate.getState());
+		pdfTemplateDO.setIsDefault(pdfTemplate.getIsDefault());
+		pdfTemplateDAO.update(pdfTemplateDO);
+		
+	}
+	
+	@Override
+	public void deletePdfTemplateById(long id) {
+		pdfTemplateDAO.deleteById(id);
+	}
+	
+	@Override
+	public List<PdfTemplateInfo> getOnlineListByTypeCode(String typeCode) {
+		
+		List<PdfTemplateInfo> rs = new ArrayList<PdfTemplateInfo>();
+		PageParam pageParam = new PageParam();
+		pageParam.setPageNo(1);
+		pageParam.setPageSize(99999);
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("typeCode", typeCode);
+		conditions.put("state", StateEnum.ONLINE.code());
+		Page<PdfTemplateInfo> page = this.getPageByConditions(pageParam, conditions);
+		if (page.getTotalCount() > 0) {
+			return page.getResult();
+		} else {
+			return rs;
+		}
+	}
+	
+	@Override
+	public long getDefaulPdfTemplateIdByCode(String typeCode) {
+		PageParam pageParam = new PageParam();
+		pageParam.setPageNo(1);
+		pageParam.setPageSize(1);
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put("typeCode", typeCode);
+		conditions.put("isDefault", BooleanEnum.YES.code());
+		conditions.put("state", StateEnum.ONLINE.code());
+		Page<PdfTemplateInfo> page = this.getPageByConditions(pageParam, conditions);
+		if (page.getTotalCount() > 0) {
+			return page.getResult().get(0).getId();
+		} else {
+			return 0;
+		}
+	}
+	
+}

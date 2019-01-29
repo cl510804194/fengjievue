@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--折扣活动详细信息</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<form action="/admin/discount/listAdminSupplierJoinInfo?activityId=$!discount.activityId" method="post" name="myform" id="myform">
+    <table align="center" width="792" height="51" cellpadding="0" cellspacing="0">
+       	<tr>
+             <td height="39" class="title">查看供应商参与活动详细列表</td>
+       	</tr>  
+    	
+    	<tr>
+    		<td>
+    			<table width="790" border="0" align="center" cellspacing="1" cellpadding="2" style="margin-bottom:10px;">
+    				<tr>
+    					<td align="left" height="40" style="font-size:24px;border-bottom:1px solid #999999;"><strong>$!discount.discountName</strong></td>		
+    				</tr>
+    				<tr>
+    					<td height="25" style="border-bottom:1px solid #999999;">活动时间：<strong><font color="red">$!discount.beginTime</font> 至 <font color="red">$!discount.endTime</font></strong></td>
+    				</tr>
+    				<tr>
+    					<td height="25" style="border-bottom:1px solid #999999;">折扣公式：$!discount.discountType</td>
+    				</tr>
+    			</table>
+    		</td>
+    	</tr>
+    	
+    	<tr>
+    		<td height="51" class="boder_y">
+    	 	 <table width="50%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td width="60%" class="color_h">
+                	名称<input type="text" name="discountbean.discountName" value="$!discountbean.discountName">
+    		  	</td>
+                <td width="20%" align="center"><img src="../../image/comdo/button_qd.gif" width="50" height="25" onClick="myform.action='/admin/discount/listAdminSupplierJoinInfo.htm?pageType=sub&activityId=$!discount.activityId';myform.submit();" style="cursor:pointer;" /></td>
+              	<td width="20%"  align="right"><input type="button" value="返回列表" class="sm-buttom4" onclick="window.history.go(-1)"></td>
+              </tr>
+            </table>
+    		</td>
+    	</tr>
+    	
+    	<tr class="head">
+    		<td><table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:20px;" class="table_border">
+                   <tr>			
+    					<td height="28" bgcolor="#e8f5fb"><label><input type="checkbox" name="allSelect" id="allSelect" onclick="checkAll(this)" class="cbborder"></input>编号</label></td>
+    					<td align="center" bgcolor="#e8f5fb" width="200">供应商名称</td>
+    					<td align="center" bgcolor="#e8f5fb" width="400">参与产品</td>	
+  					</tr>
+      
+				    #foreach($info in $list)
+				  	<tr class=#if($velocityCount%2 == 0)"row"#else"altRow"#end >
+    					<td height="50" width="60"><label><input type="checkbox" name="tblistbox" id="tblistbox" class="cbborder" value="$info.supplierId">$info.supplierId</label></td>
+    					<td width="280" style="padding:0 10px;">
+    						<a href="$!{rc.contextPath}/admin/supplier/getSupplierById.htm?id=$info.supplierId">$info.fullName</a></td>
+    					<td style="padding:0 10px;">
+							#foreach($p in $productlist)
+								$p.productName、
+							#end
+    					</td>
+				   </tr>
+				   #end
+    			</table>
+    		</td>
+    	</tr>
+    </table>
+    
+    
+    <table width="790" align="center" border="0" cellspacing="1" cellpadding="2" style="border-top:1px #6cbc48 solid;">
+    	$!pageBar
+    </table>	
+    
+    </form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+function checkAll(obj){
+	var checkbox=document.getElementsByName("tblistbox");
+	for(var i = 0;i < checkbox.length; i++){
+		if(checkbox[i].type == "checkbox")
+        {
+			checkbox[i].checked = obj.checked;
+        }
+	}
+}
+
+$(document).ready(function() {
+	$("#beginDate").datepicker();
+	$("#beginDate").datepicker("option", {dateFormat:"yy-mm-dd"});
+	$("#endDate").datepicker();
+	$("#endDate").datepicker("option", {dateFormat:"yy-mm-dd"});
+	$("#beginDate").attr("value","${requestScope.discountbean.beginDate}");
+	$("#endDate").attr("value","${requestScope.discountbean.endDate}");
+});
+</script>
+</body>
+</html>

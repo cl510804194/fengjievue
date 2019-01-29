@@ -1,0 +1,27 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>模板管理-分润模板管理</title>
+	<link type="text/css" href="$!{rc.contextPath}/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					$!appConstantsUtil.getProductName()金融后台管理系统欢迎您！
+				</div>
+			</div>
+		</div>
+	</div>	
+</body>
+</html>
+
+

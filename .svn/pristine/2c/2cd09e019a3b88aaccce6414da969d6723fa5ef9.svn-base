@@ -1,0 +1,312 @@
+package com.yjf.esupplier.service.bill.impl;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.dal.custom.dataobject.vo.OrderDetailVO;
+import com.yjf.esupplier.dal.custom.dataobject.vo.OrderFlowStatusCountVO;
+import com.yjf.esupplier.dal.dataobject.TblOrderInfoDO;
+import com.yjf.esupplier.dal.dataobject.TblOrderItemDO;
+import com.yjf.esupplier.service.bill.OrderBaseService;
+import com.yjf.esupplier.service.bill.OrderQueryService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.bill.enums.OrderFlowStatus;
+import com.yjf.esupplier.ws.bill.enums.OrderRefundStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.OrderStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.PaymentMethodEnum;
+import com.yjf.esupplier.ws.bill.info.DiningOrderInfo;
+import com.yjf.esupplier.ws.bill.info.OrderFlowStatusCountInfo;
+import com.yjf.esupplier.ws.bill.info.OrderInfo;
+import com.yjf.esupplier.ws.bill.info.OrderItemInfo;
+import com.yjf.esupplier.ws.bill.order.MealBaseOrder;
+import com.yjf.esupplier.ws.bill.order.QueryOrderInfoSearchOrder;
+import com.yjf.esupplier.ws.orderfood.info.DiningTableSituationInfo;
+import com.yjf.esupplier.ws.orderfood.order.QureyDiningTableOrder;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+
+@Service("orderQueryService")
+public class OrderQueryServiceImpl extends OrderBaseService implements OrderQueryService {
+	
+	@Override
+	public OrderFlowStatusCountInfo loadOrderStausCount(long userId) {
+		OrderFlowStatusCountInfo flowStatusCountInfo = new OrderFlowStatusCountInfo();
+		
+		TblOrderInfoDO tblOrderInfoDO = new TblOrderInfoDO();
+		tblOrderInfoDO.setUserId(userId);
+		List<OrderFlowStatusCountVO> orderFlowStatusCountVOs = tblOrderInfoSearchDAO
+			.findByUserGroupByFlow(tblOrderInfoDO, null, null);
+		for (OrderFlowStatusCountVO countVO : orderFlowStatusCountVOs) {
+			if (OrderFlowStatus.WAIT_BUYER_PAY.code().equals(countVO.getWorkflowStatus())) {
+				flowStatusCountInfo.setWaitPayCount(countVO.getTotalCount());
+			} else if (OrderFlowStatus.WAIT_SELLER_SHIP.code().equals(countVO.getWorkflowStatus())) {
+				flowStatusCountInfo.setWaitForDeliveryCount(countVO.getTotalCount());
+			} else if (OrderFlowStatus.HAVE_BEEN_ISSUED.code().equals(countVO.getWorkflowStatus())) {
+				flowStatusCountInfo.setWaitConfirmReceiptCount(countVO.getTotalCount());
+			} else if (OrderFlowStatus.CONFIRMATION_OF_RECEIPT.code().equals(
+				countVO.getWorkflowStatus())) {
+				flowStatusCountInfo.setWaitEvaluateCount(countVO.getTotalCount());
+			}
+		}
+		return flowStatusCountInfo;
+	}
+	
+	@Override
+	public List<OrderInfo> loadOrderByPaymentFlowId(String paymentFlowId) {
+		List<TblOrderInfoDO> orderInfoDOs = tblOrderInfoDAO.findByPaymentFlowId(paymentFlowId);
+		
+		return converProductInfos(orderInfoDOs);
+	}
+	
+	@Override
+	public QueryBaseBatchResult<OrderInfo> findOrderList(QueryOrderInfoSearchOrder searchOrder) {
+		
+		QueryBaseBatchResult<OrderInfo> baseBatchResult = new QueryBaseBatchResult<OrderInfo>();
+		logger.info("findOrderList starts ......searchOrder={}", searchOrder);
+		try {
+			searchOrder.check();
+			TblOrderInfoDO searchTblOrderInfoDO = new TblOrderInfoDO();
+			BeanCopier.staticCopy(searchOrder, searchTblOrderInfoDO);
+			searchTblOrderInfoDO.setPaymentMethod(searchOrder.getPaymentMethod());
+			/*所属景区*/
+			searchTblOrderInfoDO.setResortsBusinessId(searchOrder.getBelongTo());
+			List<String> statusList = Lists.newArrayList();
+			if (ListUtil.isNotEmpty(searchOrder.getStatusList())) {
+				for (OrderStatusEnum statusEnum : searchOrder.getStatusList()) {
+					statusList.add(statusEnum.code());
+				}
+			}
+			List<String> refundList = Lists.newArrayList();
+			if (ListUtil.isNotEmpty(searchOrder.getRefundStatusList())) {
+				for (OrderRefundStatusEnum refundStatusEnum : searchOrder.getRefundStatusList()) {
+					refundList.add(refundStatusEnum.code());
+				}
+			}
+			
+			if (searchOrder.getOrderStatus() != null) {
+				searchTblOrderInfoDO.setOrderStatus(searchOrder.getOrderStatus().code());
+			}
+			if (searchOrder.getRefundStatus() != null) {
+				searchTblOrderInfoDO.setRefundStatus(searchOrder.getRefundStatus().code());
+			}
+			if (searchOrder.getWorkflowStatus() != null) {
+				searchTblOrderInfoDO.setWorkflowStatus(searchOrder.getWorkflowStatus().code());
+			}
+			if (PaymentMethodEnum.ONLINE.code().equals(searchOrder.getPaymentMethod())) {
+				searchTblOrderInfoDO.setSaleTypeB2c(searchOrder.getSaleTypeB2c().code());
+				searchTblOrderInfoDO.setSaleTypeO2o(searchOrder.getSaleTypeO2o().code());
+			} else {
+				searchTblOrderInfoDO.setPaymentMethod(searchOrder.getPaymentMethod());
+			}
+			if (searchOrder.getSaleTypeHotels() != null) {
+				searchTblOrderInfoDO.setSaleTypeHotels(searchOrder.getSaleTypeHotels().code());
+			}
+			if (searchOrder.getSaleTypeOrderMeal() != null) {
+				searchTblOrderInfoDO
+					.setSaleTypeOrderMeal(searchOrder.getSaleTypeOrderMeal().code());
+			}
+			if (searchOrder.getTuneMeal() != null) {
+				searchTblOrderInfoDO.setTuneMeal(searchOrder.getTuneMeal().code());
+			}
+			if (StringUtil.isNotBlank(searchOrder.getBatchNo())) {
+				searchTblOrderInfoDO.setBatchNo(NumberUtil.parseLong(searchOrder.getBatchNo()));
+			}
+			if (searchOrder.getReceiptStatusEnum() != null) {
+				searchTblOrderInfoDO.setPrintReceipt(searchOrder.getReceiptStatusEnum().code());
+			}
+			long totalCount = tblOrderInfoDAO.findByConditionCount(searchTblOrderInfoDO,
+				searchOrder.getBeginDate(), searchOrder.getEndDate(), statusList, null);
+			
+			if (searchOrder.getPageSize() > 0) {
+				PageComponent component = new PageComponent(searchOrder, totalCount);
+				baseBatchResult.initPageParam(component);
+				
+				List<TblOrderInfoDO> orders = tblOrderInfoDAO.findByCondition(searchTblOrderInfoDO,
+					component.getFirstRecord(), component.getPageSize(),
+					searchOrder.getBeginDate(), searchOrder.getEndDate(), statusList, null);
+				
+				baseBatchResult.setPageList(converProductInfos(orders));
+			} else {
+				baseBatchResult.setTotalCount(totalCount);
+			}
+			baseBatchResult.setSuccess(true);
+			return baseBatchResult;
+		} catch (IllegalArgumentException e) {
+			baseBatchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+			baseBatchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			baseBatchResult.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+		}
+		return baseBatchResult;
+	}
+	
+	@Override
+	public QueryBaseBatchResult<DiningOrderInfo> findPadDiningOrderList(MealBaseOrder order) {
+		
+		QueryBaseBatchResult<DiningOrderInfo> batchResult = new QueryBaseBatchResult<>();
+		
+		try {
+			order.check();
+			QureyDiningTableOrder diningTableOrder = new QureyDiningTableOrder();
+			diningTableOrder.setSupplierId(order.getPadSupplierId());
+			diningTableOrder.setTableNumber(order.getTableNumber());
+			DiningTableSituationInfo tableSituationInfo = orderfoodService
+				.getUseingDiningTable(diningTableOrder);
+			if (tableSituationInfo == null) {
+				batchResult.setSuccess(false);
+				batchResult.setMessage("还未选择桌号");
+				return batchResult;
+			}
+			TblOrderInfoDO searchTblOrderInfoDO = new TblOrderInfoDO();
+			searchTblOrderInfoDO.setTableNumberSeq(tableSituationInfo.getTableNumberSeq());
+			Map<String, Object> totalMap = tblOrderInfoSearchDAO.findByConditionCount(
+				searchTblOrderInfoDO, null, null, null, 0, null, null);
+			Long totalCount = (Long) totalMap.get("totalCount");
+			String orderBy = null;
+			List<OrderDetailVO> orders = tblOrderInfoSearchDAO.findByCondition(
+				searchTblOrderInfoDO, null, null, null, 0, null, null, 0, totalCount, orderBy);
+			Map<Long, DiningOrderInfo> map = new HashMap<Long, DiningOrderInfo>();
+			//根据商户号分类
+			for (OrderDetailVO odv : orders) {
+				DiningOrderInfo diningOrderInfo = map.get(odv.getSupplierId());
+				if (diningOrderInfo == null) {
+					diningOrderInfo = new DiningOrderInfo();
+					List<OrderInfo> infos = Lists.newArrayList();
+					diningOrderInfo.setOrderInfos(infos);
+					SupplierInfo supplierInfo = supplierService.getSupplier(odv.getSupplierId());
+					if (supplierInfo != null) {
+						diningOrderInfo.setServiceChargeRate(supplierInfo.getServiceChargeRate());
+						
+					}
+					diningOrderInfo.setSupplierName(odv.getSupplierName());
+					diningOrderInfo.setSupplierId(odv.getSupplierId());
+					diningOrderInfo.setOrderStatus(OrderStatusEnum.getByCode(odv.getOrderStatus()));
+					diningOrderInfo.setConsumeTime(odv.getConfirmReceiptTime());
+					diningOrderInfo.setDiningAddress(odv.getDetailAddress());
+					map.put(odv.getSupplierId(), diningOrderInfo);
+				}
+				diningOrderInfo.setTotalAmount(diningOrderInfo.getTotalAmount().add(
+					odv.getTotalAmount()));
+				diningOrderInfo.setTotalPostFee(diningOrderInfo.getTotalPostFee().add(
+					odv.getPostFee()));
+				odv.setSupplierName(diningOrderInfo.getSupplierName());
+				OrderInfo info = new OrderInfo();
+				convertOrderDOByOrderInfo(odv, info);
+				OrderItemInfo orderItemInfo = new OrderItemInfo();
+				BeanCopier.staticCopy(odv, orderItemInfo);
+				orderItemInfo.setId(odv.getOrderItemId());
+				orderItemInfo.setPostFree(odv.getItemPostFree());
+				info.setOrderItemInfo(orderItemInfo);
+				diningOrderInfo.getOrderInfos().add(info);
+			}
+			List<DiningOrderInfo> diningOrderInfos = Lists.newArrayList();
+			Iterator<Entry<Long, DiningOrderInfo>> iterator = map.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<Long, DiningOrderInfo> entry = iterator.next();
+				DiningOrderInfo value = entry.getValue();
+				if (value.getSupplierId() == order.getPadSupplierId()) {
+					diningOrderInfos.add(0, value);
+				} else {
+					diningOrderInfos.add(value);
+				}
+			}
+			batchResult.setSuccess(true);
+			batchResult.setPageList(diningOrderInfos);
+		} catch (IllegalArgumentException e) {
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+		}
+		
+		return batchResult;
+	}
+	
+	@Override
+	public Long findDayDeliverCount(QueryOrderInfoSearchOrder searchOrder) {
+		try {
+			TblOrderInfoDO searchTblOrderInfoDO = new TblOrderInfoDO();
+			BeanCopier.staticCopy(searchOrder, searchTblOrderInfoDO);
+			searchTblOrderInfoDO.setPaymentMethod(searchOrder.getPaymentMethod());
+			/*所属景区*/
+			searchTblOrderInfoDO.setResortsBusinessId(searchOrder.getBelongTo());
+			List<String> statusList = Lists.newArrayList();
+			if (ListUtil.isNotEmpty(searchOrder.getStatusList())) {
+				for (OrderStatusEnum statusEnum : searchOrder.getStatusList()) {
+					statusList.add(statusEnum.code());
+				}
+			}
+			if (searchOrder.getOrderStatus() != null) {
+				searchTblOrderInfoDO.setOrderStatus(searchOrder.getOrderStatus().code());
+			}
+			if (searchOrder.getRefundStatus() != null) {
+				searchTblOrderInfoDO.setRefundStatus(searchOrder.getRefundStatus().code());
+			}
+			if (searchOrder.getWorkflowStatus() != null) {
+				searchTblOrderInfoDO.setWorkflowStatus(searchOrder.getWorkflowStatus().code());
+			}
+			if (searchOrder.getSaleTypeHotels() != null) {
+				searchTblOrderInfoDO.setSaleTypeHotels(searchOrder.getSaleTypeHotels().code());
+			}
+			
+			if (searchOrder.getSaleTypeOrderMeal() != null) {
+				searchTblOrderInfoDO
+					.setSaleTypeOrderMeal(searchOrder.getSaleTypeOrderMeal().code());
+			}
+			if (searchOrder.getTuneMeal() != null) {
+				searchTblOrderInfoDO.setTuneMeal(searchOrder.getTuneMeal().code());
+			}
+			if (searchOrder.getReceiptStatusEnum() != null) {
+				searchTblOrderInfoDO.setPrintReceipt(searchOrder.getReceiptStatusEnum().code());
+			}
+			Long totalCount = tblOrderInfoDAO.findDayDeliverCount(searchTblOrderInfoDO, statusList);
+			return totalCount;
+		} catch (Exception e) {
+			logger.error(e.getLocalizedMessage());
+		}
+		return 0l;
+	}
+	
+	/**
+	 * 根据订单的ID查询该订单细项的信息 2010-4-14
+	 * @author yuwenqiang
+	 * @return
+	 */
+	@Override
+	public List<OrderItemInfo> findOrderItemByOrderId(long orderId) {
+		List<TblOrderItemDO> orderItemDOs = tblOrderItemDAO.findByOrderId(orderId);
+		return converOrderItemInfos(orderItemDOs);
+	}
+	
+	@Override
+	public List<OrderInfo> queryOutDateOrder() {
+		// TODO Auto-generated method stub
+		List<TblOrderInfoDO> tblOrderInfoDOs = tblOrderInfoSearchDAO.queryOutDateOrder();
+		return converProductInfos(tblOrderInfoDOs);
+	}
+	
+	@Override
+	public List<OrderInfo> queryOutDateRefundOrder() {
+		
+		List<TblOrderInfoDO> tblOrderInfoDOs = tblOrderInfoDAO.queryOutDateRefundOrder();
+		return converProductInfos(tblOrderInfoDOs);
+	}
+}

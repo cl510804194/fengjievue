@@ -1,0 +1,493 @@
+package com.yjf.esupplier.service.directsend;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.DateUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.common.service.Order;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.esupplier.common.util.BusinessNumberUtil;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.dal.daointerface.LotteryDrawCountDAO;
+import com.yjf.esupplier.dal.dataobject.LotteryDrawCountDO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.domain.context.EsupplierDomainContext;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.common.services.LoadUserByNotifyTypeService;
+import com.yjf.esupplier.service.exception.CreditsysBizException;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyQueryService;
+import com.yjf.esupplier.service.job.AsynchronousTaskJob;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.integral.UserPointsService;
+import com.yjf.esupplier.service.user.query.order.UserQueryOrder;
+import com.yjf.esupplier.service.user.result.UserQueryResult;
+import com.yjf.esupplier.ws.directsend.DirectSendService;
+import com.yjf.esupplier.ws.directsend.enums.DirectSendTypeEnum;
+import com.yjf.esupplier.ws.directsend.enums.DirectTypeEnum;
+import com.yjf.esupplier.ws.directsend.order.DirectSendOrder;
+import com.yjf.esupplier.ws.enums.NotificationTypeEnum;
+import com.yjf.esupplier.ws.enums.UserStateEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyGiveTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTypeEnum;
+import com.yjf.esupplier.ws.gifamount.order.HandGiftMoneyOrder;
+import com.yjf.esupplier.ws.gifamount.services.GiftMoneyAssignProcessService;
+import com.yjf.esupplier.ws.integral.UserPointsOrder;
+import com.yjf.esupplier.ws.integral.enums.PointsTypeEnum;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service("directSendService")
+public class DirectSendServiceImpl extends BaseBizService implements DirectSendService {
+	
+	@Autowired
+	protected UserPointsService userPointsService;
+	@Autowired
+	protected LoadUserByNotifyTypeService loadUserByNotifyTypeService;
+	@Autowired
+	protected GiftMoneyAssignProcessService giftMoneyAssignProcessService;
+	@Autowired
+	protected GiftMoneyQueryService giftMoneyQueryService;
+	@Autowired
+	AsynchronousTaskJob asynchronousTaskJob;
+	@Autowired
+	LotteryDrawCountDAO lotteryDrawCountDAO;
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+	
+	@Override
+	public EsupplierBaseResult directSend(DirectSendOrder directSendOrder) {
+		logger.info("进入定向发红包 directSendOrder:{}", directSendOrder);
+		EsupplierBaseResult result = createResult();
+		if (directSendOrder == null) {
+			result.setSuccess(false);
+			result.setMessage("参数为空！");
+			return result;
+		}
+		
+		try {
+			directSendOrder.check();
+		} catch (Exception e) {
+			result.setSuccess(false);
+			result.setMessage(e.getMessage());
+			return result;
+		}
+		
+		try {
+			if (directSendOrder.getRegistrationStartTime() != null) {
+				directSendOrder.setRegistrationStartTime(DateUtil
+					.getStartTimeOfTheDate(directSendOrder.getRegistrationStartTime()));
+			}
+			if (directSendOrder.getRegistrationEndTime() != null) {
+				directSendOrder.setRegistrationEndTime(DateUtil.getEndTimeOfTheDate(directSendOrder
+					.getRegistrationEndTime()));
+			}
+			
+			directSendValue(directSendOrder);
+		} catch (CreditsysBizException e) {
+			result.setSuccess(false);
+			result.setMessage(e.getMessage());
+			return result;
+		}
+		result.setSuccess(true);
+		if (result.isSuccess()) {
+			addOperationJournalInfo("定向发红包", "定向发红包", directSendOrder.toString());
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public EsupplierBaseResult batchDirectSend(DirectSendOrder directSendOrder) {
+		
+		EsupplierBaseResult result = createResult();
+		
+		if (directSendOrder == null) {
+			result.setSuccess(false);
+			result.setMessage("参数为空！");
+			return result;
+		}
+		
+		try {
+			directSendOrder.check();
+		} catch (Exception e) {
+			result.setSuccess(false);
+			result.setMessage(e.getMessage());
+			return result;
+		}
+		
+		String userName = directSendOrder.getUserName();
+		String[] userNames = userName.split(",");
+		List<String> successList = Lists.newArrayList();
+		List<JSONObject> failList = Lists.newArrayList();
+		String message = "";
+		if (userNames != null && userNames.length > 0) {
+			for (String uName : userNames) {
+				if (uName != null && uName.length() > 0) {
+					directSendOrder.setUserName(uName);
+					directSendOrder.setSendType(DirectSendTypeEnum.SINGLEUSER);
+					EsupplierBaseResult singleResult = directSend(directSendOrder);
+					if (singleResult.isSuccess()) {
+						successList.add(uName);
+						message += "   ["+uName + "用户已成功发送]   ";
+					} else {
+						JSONObject failReason = new JSONObject();
+						failReason.put(uName, singleResult.getMessage());
+						failList.add(failReason);
+						message += "   ["+uName + singleResult.getMessage()+"]   ";
+					}
+				}
+			}
+		}
+		
+//		JSONObject message = new JSONObject();
+//		message.put("successList", JSONObject.toJSONString(successList) + "用户已成功发送");
+//		message.put("failureList", JSONObject.toJSONString(failList));
+		
+		if (successList.size() == 0) {
+			result.setSuccess(false);
+		} else {
+			result.setSuccess(true);
+		}
+
+		result.setMessage(message);
+		
+		return result;
+	}
+	
+	private void directSendValue(DirectSendOrder directSendOrder) {
+		
+		if (directSendOrder == null) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "没有符合条件的用户");
+		}
+		
+		String directType = directSendOrder.getDirectType().code();
+		if (DirectTypeEnum.POINT.code().equals(directType)) {//积分
+			addUserPoints(directSendOrder);
+		} else if (DirectTypeEnum.GIFT_MONEY.code().equals(directType)
+					|| DirectTypeEnum.EXPERIENCE_AMOUNT.code().equals(directType)
+					|| DirectTypeEnum.GIFT_MONEY_CASH.code().equals(directType)) {//红包,体验金
+			addGiftMoney(directSendOrder);
+		} else if (DirectTypeEnum.GAIN_MONEY.code().equals(directType)) {//加息券
+			addGiftMoney(directSendOrder);
+		} else if (DirectTypeEnum.DRAW_COUNT.code().equals(directType)) {
+			addLotteryCount(directSendOrder);
+		}
+	}
+	
+	private void addUserPoints(DirectSendOrder directSendOrder) {
+		
+		if (DirectSendTypeEnum.SINGLEUSER == directSendOrder.getSendType()) {//指定用户
+			sendSingleValue(directSendOrder);
+		} else {//指定用户群
+			asynchronousTaskJob.addAsynchronousService(this, new Object[] { directSendOrder });
+		}
+	}
+	
+	private void addGiftMoney(DirectSendOrder directSendOrder) {
+		
+		if (DirectSendTypeEnum.SINGLEUSER == directSendOrder.getSendType()) {//指定用户
+			sendSingleValue(directSendOrder);
+		} else {//指定用户群
+		
+			//check红包金额
+			HandGiftMoneyOrder handGiftMoneyOrder = new HandGiftMoneyOrder();
+			handGiftMoneyOrder.setAmount(getTotalSendMoney(directSendOrder));
+			handGiftMoneyOrder.setGiveType(GiftMoneyGiveTypeEnum.DIRECT);
+			if (DirectTypeEnum.GIFT_MONEY == directSendOrder.getDirectType()) {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.GIFT_MONEY);//红包
+			} else if (DirectTypeEnum.GAIN_MONEY == directSendOrder.getDirectType()) {
+				handGiftMoneyOrder.setGainMoneyNum(getTotalSendNum(directSendOrder));
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.GAIN_AMOUNT);//体验金
+			} else if (DirectTypeEnum.GIFT_MONEY_CASH == directSendOrder.getDirectType()) {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.GIFT_MONEY_CASH);//体验金
+			} else {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.EXPERIENCE_AMOUNT);//体验金
+			}
+			EsupplierBaseResult result = giftMoneyAssignProcessService
+				.checkHandGiftMoney(handGiftMoneyOrder);
+			if (!result.isSuccess())
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					result.getMessage());
+			
+			asynchronousTaskJob.addAsynchronousService(this, new Object[] { directSendOrder });
+		}
+	}
+	
+	private void sendSingleValue(DirectSendOrder directSendOrder) {
+		UserInfo userInfo = getSingleUserinfo(directSendOrder);
+		long userId = userInfo != null ? userInfo.getUserId() : 0;
+		sendSingleValue(userId, directSendOrder);
+	}
+	
+	private void sendSingleValue(long userId, DirectSendOrder directSendOrder) {
+		EsupplierBaseResult result = null;
+		
+		if (DirectTypeEnum.POINT == directSendOrder.getDirectType()&&Long.valueOf(directSendOrder.getS_sendValue())>0) {//积分
+			UserPointsOrder userPointsOrder = new UserPointsOrder();
+			userPointsOrder.setUserId(userId);
+			userPointsOrder.setPointsTypeEnum(PointsTypeEnum.SOUDONG);
+			userPointsOrder.setPointValue(Long.valueOf(directSendOrder.getS_sendValue()));
+			userPointsOrder.setContent(directSendOrder.getContent());
+			result = userPointsService.addUserPointsDetail(userPointsOrder);
+			
+		} else if (DirectTypeEnum.GIFT_MONEY == directSendOrder.getDirectType()
+					|| DirectTypeEnum.EXPERIENCE_AMOUNT == directSendOrder.getDirectType()
+					|| DirectTypeEnum.GAIN_MONEY == directSendOrder.getDirectType()
+					|| DirectTypeEnum.GIFT_MONEY_CASH == directSendOrder.getDirectType()) {//红包,体验金
+			final HandGiftMoneyOrder handGiftMoneyOrder = new HandGiftMoneyOrder();
+			handGiftMoneyOrder.setUserId(userId);
+			if (DirectTypeEnum.GAIN_MONEY == directSendOrder.getDirectType()) {
+				String sendValue = directSendOrder.getS_sendValue();
+				handGiftMoneyOrder.setYearOfRate(Double.valueOf(sendValue));
+			} else {
+				handGiftMoneyOrder.setAmount(new Money(directSendOrder.getS_sendValue()));
+			}
+			handGiftMoneyOrder.setDescription(directSendOrder.getContent());
+			handGiftMoneyOrder.setGiveType(GiftMoneyGiveTypeEnum.DIRECT);
+			if (DirectTypeEnum.GIFT_MONEY == directSendOrder.getDirectType()) {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.GIFT_MONEY);//红包
+			} else if (DirectTypeEnum.GAIN_MONEY == directSendOrder.getDirectType()) {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.GAIN_AMOUNT);//红包
+			} else if (DirectTypeEnum.GIFT_MONEY_CASH == directSendOrder.getDirectType()) {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.GIFT_MONEY_CASH);//红包
+			} else {
+				handGiftMoneyOrder.setType(GiftMoneyTypeEnum.EXPERIENCE_AMOUNT);//体验金
+			}
+			
+			handGiftMoneyOrder.setOutBizNo(BusinessNumberUtil.gainOutBizNoNumber());
+			handGiftMoneyOrder.setSendAccountCode(directSendOrder.getSendAccountCode());
+			handGiftMoneyOrder.setSendAccountName(directSendOrder.getSendAccountName());
+			handGiftMoneyOrder.setSendReason(directSendOrder.getSendReason());
+			result = commonProcess(handGiftMoneyOrder, "发(红包,体验金，收益券)",
+				new BeforeProcessInvokeService() {
+					@Override
+					public Domain before() {
+						giftMoneyAssignProcessService.handGiftMoney(handGiftMoneyOrder);
+						return null;
+					}
+				}, null, null);
+		} else if (DirectTypeEnum.DRAW_COUNT == directSendOrder.getDirectType()) {
+			sendLotteryCount(userId, NumberUtil.parseLong(directSendOrder.getS_sendValue()));
+		}
+		
+		if (result != null && !result.isSuccess()) {
+			throw ExceptionFactory.newYrdException(result.getCreditsysResultEnum(),
+				result.getMessage());
+		}
+	}
+	
+	private UserInfo getSingleUserinfo(DirectSendOrder directSendOrder) {
+		
+		try {
+			String userName = directSendOrder.getUserName();
+			UserQueryResult userResult = userQueryService.queryByUserName(userName);
+			if (userResult != null && userResult.getQueryUserInfo() != null) {
+				return userResult.getQueryUserInfo();
+			} else {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+					"用户名不存在");
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.UN_KNOWN_EXCEPTION,
+				e.getMessage());
+		}
+	}
+	
+	private long getTotalSendNum(DirectSendOrder directSendOrder) {
+		long num = 0;
+		try {
+			EsupplierDomainHolder.set(new EsupplierDomainContext<Order>(new Date(),
+				directSendOrder, null));
+			String sendType = directSendOrder.getSendType().getCode();
+			if (DirectSendTypeEnum.USERGROUP.code().equals(sendType)) {
+				String[] userTypes = directSendOrder.getUserType();
+				for (int i = 0; i < userTypes.length; i++) {
+					String userType = NotificationTypeEnum.getByCode(userTypes[i])
+						.getSearchUserMethodName();
+					QueryBaseBatchResult<UserInfo> userInfos = loadUserByNotifyTypeService
+						.loadUserData(1, 1, userType);
+					if (userInfos != null && userInfos.getPageList() != null)
+						num = num + userInfos.getTotalCount();
+				}
+				
+			} else {
+				return num;
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.UN_KNOWN_EXCEPTION,
+				e.getMessage());
+		} finally {
+			EsupplierDomainHolder.clear();
+		}
+		
+		return num;
+	}
+	
+	private Money getTotalSendMoney(DirectSendOrder directSendOrder) {
+		Money totalMoney = Money.zero();
+		try {
+			
+			EsupplierDomainHolder.set(new EsupplierDomainContext<Order>(new Date(),
+				directSendOrder, null));
+			String sendType = directSendOrder.getSendType().getCode();
+			if (DirectSendTypeEnum.USERGROUP.code().equals(sendType)) {
+				String[] userTypes = directSendOrder.getUserType();
+				String[] sendValues = directSendOrder.getSendValue();
+				for (int i = 0; i < userTypes.length; i++) {
+					String userType = NotificationTypeEnum.getByCode(userTypes[i])
+						.getSearchUserMethodName();
+					Money sendMoney = new Money(sendValues[i]);
+					QueryBaseBatchResult<UserInfo> userInfos = loadUserByNotifyTypeService
+						.loadUserData(10, 1, userType);
+					if (userInfos != null && userInfos.getPageList() != null)
+						totalMoney = totalMoney.add(sendMoney.multiplyBy(userInfos.getPageList()
+							.size()));
+				}
+			} else {
+				totalMoney = new Money(directSendOrder.getS_sendValue());
+			}
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.UN_KNOWN_EXCEPTION,
+				e.getMessage());
+		} finally {
+			EsupplierDomainHolder.clear();
+		}
+		
+		return totalMoney;
+	}
+	
+	@Override
+	public void execute(Object[] objects) {
+		if (objects == null || objects.length < 1) {
+			logger.error("execute(Object[] objects)" + "参数为空");
+			return;
+		}
+		DirectSendOrder directSendOrder = (DirectSendOrder) objects[0];
+		try {
+			EsupplierDomainHolder.set(new EsupplierDomainContext<Order>(new Date(),
+				directSendOrder, null));
+			
+			if (directSendOrder.getSendType() == DirectSendTypeEnum.USERGROUP) {
+				
+				String[] userTypes = directSendOrder.getUserType();
+				String[] sendValues = directSendOrder.getSendValue();
+				for (int i = 0; i < userTypes.length; i++) {
+					NotificationTypeEnum userType = NotificationTypeEnum.getByCode(userTypes[i]);
+					long pageSize = 200;
+					long pageNumber = 1;
+					QueryBaseBatchResult<UserInfo> batchResult = new QueryBaseBatchResult<UserInfo>();
+					batchResult.setPageNumber(1);
+					while (pageNumber <= batchResult.getPageCount()) {
+						batchResult = loadUserByNotifyTypeService.loadUserData(pageSize,
+							pageNumber, userType.getSearchUserMethodName());
+						for (UserInfo userInfo : batchResult.getPageList()) {
+							DirectSendOrder newSendOrder = new DirectSendOrder();
+							BeanCopier.staticCopy(directSendOrder, newSendOrder);
+							newSendOrder.setS_sendValue(sendValues[i]);
+							sendSingleValue(userInfo.getUserId(), newSendOrder);
+						}
+						pageNumber = batchResult.getPageNumber() + 1;
+					}
+				}
+			} else {
+				
+				String userName = directSendOrder.getUserName();
+				UserBaseInfoDO user = null;
+				if (StringUtil.isNotBlank(userName)) {
+					user = userBaseInfoDAO.findByUserName(userName);
+				}
+				if (user != null) {
+					UserQueryOrder userQueryOrder = new UserQueryOrder();
+					userQueryOrder.setState(UserStateEnum.NORMAL);
+					userQueryOrder.setRegistrationStartTime(directSendOrder
+						.getRegistrationStartTime());
+					userQueryOrder.setPageSize(200);
+					userQueryOrder.setRegistrationEndTime(directSendOrder.getRegistrationEndTime());
+					
+					long pageNumber = 1;
+					QueryBaseBatchResult<UserInfo> batchResult = new QueryBaseBatchResult<UserInfo>();
+					
+					batchResult.setPageNumber(1);
+					while (pageNumber <= batchResult.getPageCount()) {
+						userQueryOrder.setPageNumber(pageNumber);
+						for (UserInfo userInfo : batchResult.getPageList()) {
+							sendSingleValue(userInfo.getUserId(), directSendOrder);
+						}
+						pageNumber = batchResult.getPageNumber() + 1;
+					}
+					
+				}
+				
+			}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+			
+		} finally {
+			EsupplierDomainHolder.clear();
+		}
+		
+	}
+	
+	private void addLotteryCount(DirectSendOrder directSendOrder) {
+		
+		if (DirectSendTypeEnum.SINGLEUSER == directSendOrder.getSendType()) {//指定用户
+			sendSingleValue(directSendOrder);
+		} else {//指定用户群
+			asynchronousTaskJob.addAsynchronousService(this, new Object[] { directSendOrder });
+		}
+	}
+	
+	/**
+	 * 送抽奖次数
+	 * @param userId
+	 * @param count
+	 * @return
+	 */
+	public EsupplierBaseResult sendLotteryCount(long userId, long count) {
+		EsupplierBaseResult EsupplierBaseResult = new EsupplierBaseResult();
+		try {
+			UserInfo userInfo = userQueryService.queryByUserId(userId).getQueryUserInfo();
+			LotteryDrawCountDO lotteryDrawCountDO = lotteryDrawCountDAO
+				.findByUserIdForUpdate(userId);
+			if (lotteryDrawCountDO == null) {
+				lotteryDrawCountDO = new LotteryDrawCountDO();
+				lotteryDrawCountDO.setRawAddTime(getSysdate());
+				lotteryDrawCountDO.setUserId(userId);
+				if (userInfo.getRealName() == null)
+					userInfo.setRealName("");
+				lotteryDrawCountDO.setRealName(userInfo.getRealName());
+				lotteryDrawCountDO.setUserName(userInfo.getUserName());
+				lotteryDrawCountDO.setTotalCount(count);
+				lotteryDrawCountDAO.insert(lotteryDrawCountDO);
+			} else {
+				lotteryDrawCountDO.setTotalCount(lotteryDrawCountDO.getTotalCount() + count);
+				lotteryDrawCountDAO.update(lotteryDrawCountDO);
+			}
+			EsupplierBaseResult.setSuccess(true);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return EsupplierBaseResult;
+	}
+}

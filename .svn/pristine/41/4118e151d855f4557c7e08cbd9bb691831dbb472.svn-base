@@ -1,0 +1,117 @@
+package com.yjf.esupplier.service.contract.service;
+
+import com.yjf.esupplier.service.contract.order.CalculateChangeOrder;
+import com.yjf.esupplier.service.contract.order.ContractOrder;
+import com.yjf.esupplier.service.contract.order.ContractProcessOrder;
+import com.yjf.esupplier.service.contract.order.RefundOrder;
+import com.yjf.esupplier.service.contract.order.RefundSuccessOrder;
+import com.yjf.esupplier.service.contract.order.UpdateContractOrder;
+import com.yjf.esupplier.service.contract.result.CalculateChangeResult;
+import com.yjf.esupplier.service.contract.result.ContractClaimResult;
+import com.yjf.esupplier.ws.order.ProcessOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+/**
+ * 
+ * @Filename ContractService.java
+ * 
+ * @Description 合同服务
+ * 
+ * @Version 1.0
+ * 
+ * @Author sxiaomeng
+ * 
+ * @Email weizhi@yiji.com
+ * 
+ * @History <li>Author: sxiaomeng</li> <li>Date: 2015-3-26</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ * 
+ */
+public interface ContractService {
+	
+	/**
+	 * 申请合同
+	 * @param contractOrder
+	 * @return
+	 */
+	public EsupplierBaseResult applayContractInfo(ContractOrder contractOrder);
+	
+	/**
+	 * 领单第一步
+	 * @param processOrder
+	 * @return
+	 */
+	public ContractClaimResult claimContractInfo(ProcessOrder processOrder);
+	
+	/**
+	 * 修改合同状态
+	 */
+	public EsupplierBaseResult updateContractStatus(UpdateContractOrder updateContractOrder);
+	
+	/**
+	 * 保存草稿
+	 * @param contractOrder
+	 * @return
+	 */
+	EsupplierBaseResult saveContractDraft(ContractOrder contractOrder);
+	
+	/**
+	 * 确定领单
+	 * @param processOrder
+	 * @return
+	 */
+	ContractClaimResult selectClaimContractInfo(ProcessOrder processOrder);
+	
+	/**
+	 * 审核合同
+	 * @param contractOrder
+	 * @return
+	 */
+	EsupplierBaseResult checkContract(ContractProcessOrder contractOrder);
+	
+	/**
+	 * 确认发货
+	 * @param contractOrder
+	 * @return
+	 */
+	EsupplierBaseResult confirmDeliver(ContractProcessOrder contractOrder);
+	
+	/**
+	 * 计算收费金额
+	 * @param calculateChangeOrder
+	 * @return
+	 */
+	CalculateChangeResult calculateChangeAmount(CalculateChangeOrder calculateChangeOrder);
+	
+	/**
+	 * 合同校对
+	 */
+	EsupplierBaseResult matchContract(ContractProcessOrder contractOrder);
+	
+	/**
+	 * 自动还款
+	 */
+	void autoRepay();
+	
+	/**
+	 * 手动还款
+	 * @param refundOrder
+	 * @return
+	 */
+	EsupplierBaseResult repayItem(RefundOrder refundOrder);
+	
+	/**
+	 * 单笔还款
+	 * @param refundOrder
+	 * @return
+	 */
+	EsupplierBaseResult repayItemResult(RefundSuccessOrder refundOrder);
+	
+	/**
+	 * 后期资金结算给门店
+	 * @param contractOrder
+	 * @return
+	 */
+	EsupplierBaseResult settlement(ContractProcessOrder contractOrder);
+	
+}

@@ -1,0 +1,1 @@
+INSERT INTO `user_role` VALUES (1, 1, 1, NULL, '2015-3-25 11:34:43');

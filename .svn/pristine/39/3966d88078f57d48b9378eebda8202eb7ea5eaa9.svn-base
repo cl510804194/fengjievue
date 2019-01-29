@@ -1,0 +1,20 @@
+package com.yjf.esupplier.dal.custom.daointerface;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.esupplier.dal.custom.dataobject.ProductStorageDO;
+
+public interface StorageDAO {
+	
+	List<ProductStorageDO> getStorageList(Map m);
+	
+	long getStorageListCount(Map m);
+	
+	ProductStorageDO getStorageById(long i);
+	
+	Object insertStorage(Map<String, Object> m);
+	
+	int updateStorage(Map<String, Object> m);
+	
+}

@@ -1,0 +1,92 @@
+package com.yjf.esupplier.service.lottery.query.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import rop.thirdparty.com.google.common.collect.Lists;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.dal.dataobject.PrizeRuleDO;
+import com.yjf.esupplier.domain.lottery.PrizeRuleDetailDomain;
+import com.yjf.esupplier.domain.lottery.PrizeRuleDomain;
+import com.yjf.esupplier.service.lottery.LotteryActivityBaseService;
+import com.yjf.esupplier.service.lottery.query.PrizeRuleQueryService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.lottery.info.PrizeRuleDetailInfo;
+import com.yjf.esupplier.ws.lottery.info.PrizeRuleInfo;
+import com.yjf.esupplier.ws.lottery.query.order.PrizeRuleQueryOrder;
+import com.yjf.esupplier.ws.lottery.query.result.PrizeRuleResult;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service("prizeRuleQueryService")
+public class PrizeRuleQueryServiceImpl extends LotteryActivityBaseService implements
+																			PrizeRuleQueryService {
+	
+	@Override
+	public PrizeRuleResult findByPrizeRuleId(long actityId) {
+		PrizeRuleResult prizeRuleResult = new PrizeRuleResult();
+		PrizeRuleDomain prizeRuleDomain = prizeRuleDomainRepository.load(actityId);
+		if (prizeRuleDomain != null) {
+			PrizeRuleInfo prizeRuleInfo = new PrizeRuleInfo();
+			BeanCopier.staticCopy(prizeRuleDomain, prizeRuleInfo);
+			List<PrizeRuleDetailInfo> ruleDetailInfos = Lists.newArrayList();
+			if (ListUtil.isNotEmpty(prizeRuleDomain.getPrizeRuleDetailDomains())) {
+				for (PrizeRuleDetailDomain conditionDomain : prizeRuleDomain
+					.getPrizeRuleDetailDomains()) {
+					PrizeRuleDetailInfo conditionInfo = new PrizeRuleDetailInfo();
+					BeanCopier.staticCopy(conditionDomain, conditionInfo);
+					ruleDetailInfos.add(conditionInfo);
+				}
+			}
+			prizeRuleInfo.setRuleDetailInfos(ruleDetailInfos);
+			prizeRuleResult.setPrizeRuleDetailInfos(ruleDetailInfos);
+			prizeRuleResult.setPrizeRuleInfo(prizeRuleInfo);
+		}
+		return prizeRuleResult;
+	}
+	
+	@Override
+	public QueryBaseBatchResult<PrizeRuleInfo> queryPrizeRuleInfo(	PrizeRuleQueryOrder prizeRuleQueryOrder) {
+		QueryBaseBatchResult<PrizeRuleInfo> batchResult = new QueryBaseBatchResult<PrizeRuleInfo>();
+		try {
+			prizeRuleQueryOrder.check();
+			List<PrizeRuleInfo> pageList = Lists.newArrayList();
+			PrizeRuleDO prizeRuleSearchDO = new PrizeRuleDO();
+			if (StringUtil.isNotBlank(prizeRuleQueryOrder.getPrizeRuleName())) {
+				prizeRuleSearchDO.setPrizeRuleName("%" + prizeRuleQueryOrder.getPrizeRuleName()
+													+ "%");
+			}
+			long totalCount = prizeRuleDAO.findCountByCondition(prizeRuleSearchDO);
+			PageComponent component = new PageComponent(prizeRuleQueryOrder, totalCount);
+			List<PrizeRuleDO> recordList = prizeRuleDAO.findByCondition(prizeRuleSearchDO,
+				component.getFirstRecord(), component.getPageSize());
+			for (PrizeRuleDO item : recordList) {
+				PrizeRuleInfo info = new PrizeRuleInfo();
+				BeanCopier.staticCopy(item, info);
+				pageList.add(info);
+			}
+			batchResult.initPageParam(component);
+			batchResult.setSuccess(true);
+			batchResult.setPageList(pageList);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		return batchResult;
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+}

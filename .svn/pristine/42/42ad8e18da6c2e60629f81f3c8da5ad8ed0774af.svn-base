@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>演示-列表页</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <link href="/resources/style/global.css" rel="stylesheet">
+  <link href="/resources/style/module.css" rel="stylesheet">
+</head>
+<body class="m-content">
+
+  <!--toolbar-->
+  <div class="m-toolbar">
+    <!--form-->
+    <form class="m-form horizontal" action="/admin/sysPerformanceManage/performanceManage.htm" method="post">
+      <div class="row">
+
+        <!--group-->
+        <div class="group">
+          <label class="label">单笔贷款金额：</label>
+          <input class="input2" type="text" name="saleAmount" id="saleAmount" #if($!{queryConditions.saleAmount}==0) value="" #else value="$!{queryConditions.saleAmount}"  #end />元
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+		   <input type="submit" class="u-btn white search" value="查询">
+           <a class="u-btn white" href="/admin/sysPerformanceManage/editPerformance.htm">修改</a>
+        </div>
+        <!--group End-->
+      
+      </div>
+
+    </form>
+    <!--form End-->
+  </div>
+  <!--toolbar End-->
+
+  <!--grid-->
+  <div class="m-grid f-mt20">
+    <table class="table">
+      <tbody>
+        <!--head-->
+        <tr class="hd">
+          <th><div>序号</div></th>
+          <th><div>单笔贷款金额（元）</div></th>
+          <th><div>销售代表提成</div></th>
+        </tr>
+        <!--head End-->
+		#foreach($info in $page.result)
+    	    <!--row-->
+            <tr class="odd">
+              <td>$!{info.id}</td>
+              <td>$!{info.startAmount}-$!{info.endAmount}</td>
+              <td>$!{info.amount}</td>
+            </tr>
+            <!--row End-->
+		#end
+      </tbody>
+    </table>
+    	<div class="p-box pages-b fn-clear">
+    		#parse("/backstage/page/page.vm")
+    	</div>
+  </div>
+  <!--grid End-->
+
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+	<script type="text/javascript">
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/sysPerformanceManage/performanceManage.htm"
+			+"?saleAmount=$!{queryConditions.saleAmount}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

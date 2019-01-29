@@ -1,0 +1,173 @@
+package com.yjf.esupplier.service.user.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.esupplier.service.user.enums.PasswordTypeEnum;
+import com.yjf.esupplier.service.user.order.MobileBindingOrder;
+import com.yjf.esupplier.service.user.order.PwdInfoOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.dal.daointerface.IOperatorInfoDao;
+import com.yjf.esupplier.dal.dataobject.OperatorInfoDO;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.user.IOperatorInfoService;
+import com.yjf.esupplier.service.user.UserBaseInfoManager;
+import com.yjf.esupplier.service.user.info.PersonalInfo;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.enums.OperatorInfoEnum;
+import com.yjf.esupplier.ws.order.UpdateAuthPasswordOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+@Service
+public class OperatorInfoServiceImpl extends BaseBizService implements IOperatorInfoService {
+	@Autowired
+	IOperatorInfoDao operatorInfoDao;
+	
+	@Autowired
+	UserQueryService userQueryService;
+	@Autowired
+	UserBaseInfoManager userBaseInfoManager;
+	
+	@Transactional(rollbackFor = Throwable.class, value = "transactionManager")
+	@Override
+	public long addOperatorInfo(OperatorInfoDO info) {
+		long operatorId = operatorInfoDao.addOperatorInfo(info);
+		addOperationJournalInfo("新增操作员", "新增操作员", info.toString());
+		return operatorId;
+	}
+	
+	@Override
+	public List<OperatorInfoDO> queryOperatorsByProperties(Map<String, Object> conditions) {
+		
+		return operatorInfoDao.queryOperatorsByProperties(conditions);
+	}
+	
+	@Override
+	public OperatorInfoDO queryOperatorByUserBaseId(String userBaseId) {
+		Map<String, Object> condition = new HashMap<String, Object>();
+		condition.put("userBaseId", userBaseId);
+		condition.put("limitStart", 0);
+		condition.put("pageSize", 1);
+		List<OperatorInfoDO> list = operatorInfoDao.queryOperatorsByProperties(condition);
+		if (ListUtil.isNotEmpty(list)) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+		
+	}
+	
+	//	@Override
+	//	public Page<OperatorInfoDO> queryOperatorPage(QueryConditions queryConditions,
+	//													PageParam pageParam) {
+	//		Map<String, Object> condition = new HashMap<String, Object>();
+	//		condition.put("parentId", queryConditions.getUserId());
+	//		if (StringUtil.isNotBlank(queryConditions.getUserName())) {
+	//			condition.put("userName", queryConditions.getUserName());
+	//		}
+	//		if (StringUtil.isNotBlank(queryConditions.getRealName())) {
+	//			condition.put("remark", queryConditions.getRealName());
+	//		}
+	//		long totalSize = operatorInfoDao.queryOperatorsByPropertiesCount(condition);
+	//		condition.put(
+	//			"limitStart",
+	//			PageParamUtil.startValue((int) totalSize, pageParam.getPageSize(),
+	//				pageParam.getPageNo()));
+	//		condition.put("pageSize", pageParam.getPageSize());
+	//		List<OperatorInfoDO> result = operatorInfoDao.queryOperatorsByProperties(condition);
+	//		int start = PageParamUtil.startValue((int) totalSize, pageParam.getPageSize(),
+	//			pageParam.getPageNo());
+	//		return new Page<OperatorInfoDO>(start, totalSize, pageParam.getPageSize(), result);
+	//	}
+	
+	@Transactional
+	@Override
+	public OperatorInfoEnum updateOperatorInfo(OperatorInfoDO operatorInfo, String mobile,
+												String password) {
+		
+		OperatorInfoEnum returnEnum = OperatorInfoEnum.EXECUTE_FAILURE;
+		Map<String, Object> condition = new HashMap<String, Object>();
+		condition.put("userBaseId", operatorInfo.getUserBaseId());
+		condition.put("remark", operatorInfo.getRemark());
+		condition.put("operatorType", operatorInfo.getOperatorType());
+		
+		int resultSet = operatorInfoDao.updateOperatorInfo(condition);
+		userBaseInfoManager.resetCheckPassword(operatorInfo.getUserBaseId(), password);
+		MobileBindingOrder mobileBindingOrder = new MobileBindingOrder();
+		mobileBindingOrder.setUserBaseId(operatorInfo.getUserBaseId());
+		mobileBindingOrder.setMobile(mobile);
+		userBaseInfoManager.mobileBinding(mobileBindingOrder);
+		if (resultSet > 0) {
+			returnEnum = OperatorInfoEnum.EXECUTE_SUCCESS;
+			addOperationJournalInfo("更新操作员", "更新操作员", operatorInfo.toString() + "mobile=" + mobile);
+		}
+		return returnEnum;
+	}
+	
+	@Override
+	public boolean isFromSameOrgan(String userId1, String userId2) {
+		Map<String, Object> condition = new HashMap<String, Object>();
+		condition.put("userId1", userId1);
+		condition.put("userId2", userId2);
+		return operatorInfoDao.isFromSameOrgan(condition);
+	}
+	
+	@Override
+	public EsupplierBaseResult updateAuthPassword(UpdateAuthPasswordOrder order) {
+		
+		PersonalInfo userInfo = userQueryService.queryPersonalInfoByBaseId(order.getUserBaseId())
+			.getQueryPersonalInfo();
+		String password = order.getPassword();
+		String newPassword = order.getNewPassword();
+		String newPassword2 = order.getNewPassword2();
+		
+		String type = order.getType();
+		EsupplierBaseResult baseResult;
+		
+		if ("lvOne".equals(type)) {
+			PwdInfoOrder pwdInfoOrder = new PwdInfoOrder();
+			pwdInfoOrder.setUserBaseId(order.getUserBaseId());
+			pwdInfoOrder.setPasswdType(PasswordTypeEnum.PAY_PASSWORD);
+			pwdInfoOrder.setOldPwd(password);
+			pwdInfoOrder.setNewPwd(newPassword);
+			baseResult = userBaseInfoManager.updateUserPassword(pwdInfoOrder);
+		} else {
+			PwdInfoOrder pwdInfoOrder = new PwdInfoOrder();
+			pwdInfoOrder.setUserBaseId(order.getUserBaseId());
+			pwdInfoOrder.setPasswdType(PasswordTypeEnum.PAY_PASSWORD);
+			pwdInfoOrder.setOldPwd(password);
+			pwdInfoOrder.setNewPwd(newPassword2);
+			baseResult = userBaseInfoManager.updateUserPassword(pwdInfoOrder);
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public boolean validationAuditPassword(String userBaseId, String auditPassword) {
+		Map<String, Object> condition = new HashMap<String, Object>();
+		condition.put("userBaseId", userBaseId);
+		condition.put("limitStart", 0);
+		condition.put("pageSize", 1);
+		List<OperatorInfoDO> list = operatorInfoDao.queryOperatorsByProperties(condition);
+		if (ListUtil.isNotEmpty(list)) {
+			OperatorInfoDO operatorInfoDO = list.get(0);
+			if (StringUtil
+				.equals(MD5Util.getMD5_32(auditPassword), operatorInfoDO.getPayPassword()))
+				return true;
+		}
+		return false;
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return null;
+	}
+	
+}

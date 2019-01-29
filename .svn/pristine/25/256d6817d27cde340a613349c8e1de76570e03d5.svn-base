@@ -1,0 +1,55 @@
+#parse("/front/index/common/header-title.vm")
+
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+<!--content begin----------------->	
+
+
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="container">
+        <div class="bd-box">
+            <div class="m-box-hd">
+                <h3 class="box-title">找回密码</h3>
+            </div>
+            <div class="m-box">
+                <ul class="m-step fn-clear">
+                    <li class="first z-visited">1、查收邮件</li>
+                    <li class="mid z-visited">2、设置新密码</li>
+                    <li class="last last-cur">3、设置成功</li>
+                </ul>
+                <div class="blank5"></div>
+                
+                
+                <div class="fn-operate fn-success mt15">
+					<em></em>
+					<h4>您的#if($!{pwdType} == 'pay')支付#else登录#end密码重新设置成功，请妥善保存您的密码。</h4>
+					<p class="mt5">#if($!{pwdType} == 'pay')您将使用新密码进行资金操作#else您将使用新密码登录账户#end。</p>
+					<p class="mt5">您可能需要：#if($!{pwdType} == 'pay')进入<a href="/userManage/userHome">我的账户</a>#else<a href="/login/login">立即登录</a>#end</p>
+				</div>
+                
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+    <div class="blank50"></div>
+</div>
+
+
+<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+
+
+<!--content end----------------->	
+	#parse("/front/index/common/footer-yrd.vm")
+</body>
+</html>

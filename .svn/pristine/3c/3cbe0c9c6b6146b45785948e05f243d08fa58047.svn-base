@@ -1,0 +1,73 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * Administrator 下午5:17:39 创建
+ */
+package com.yjf.esupplier.service.trade.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+/**
+ * 
+ * 
+ * @author Administrator
+ * 
+ */
+public class PPMWithdrawOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = -4020421813668928262L;
+	
+	long userId;
+	/** 银行卡号 和银行编码 组合 */
+	protected String cardInfos;
+	/** 业务编码 */
+	protected String bizType;
+	
+	@Override
+	public void check() {
+		validateHasZore(userId, "userId");
+	}
+	
+	public long getUserId() {
+		return this.userId;
+	}
+	
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	
+	public String getCardInfos() {
+		return this.cardInfos;
+	}
+	
+	public void setCardInfos(String cardInfos) {
+		this.cardInfos = cardInfos;
+	}
+	
+	public String getBizType() {
+		return this.bizType;
+	}
+	
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PPMWithdrawOrder [userId=");
+		builder.append(userId);
+		builder.append(", cardInfos=");
+		builder.append(cardInfos);
+		builder.append(", bizType=");
+		builder.append(bizType);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,88 @@
+package com.yjf.esupplier.service.contract.order;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ *
+ * @Filename UpdateContractOrder.java
+ *
+ * @Description
+ *
+ * @Version 1.0
+ *
+ * @Author sxiaomeng
+ *
+ * @Email weizhi@yiji.com
+ *
+ * @History <li>Author: sxiaomeng</li> <li>Date: 2015-3-26</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ *
+ */
+public class UpdateContractOrder {
+
+    /**
+     * 合同id
+     */
+    @NotEmpty
+    private String contractId;
+
+    /**
+     * 审核人id
+     */
+    @NotEmpty
+    private String userId;
+
+    /**
+     * 审核人姓名
+     */
+    @NotEmpty
+    private String userName;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    public String getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(String contractId) {
+        this.contractId = contractId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("UpdateContractOrder{");
+        sb.append("contractId='").append(contractId).append('\'');
+        sb.append(", userId='").append(userId).append('\'');
+        sb.append(", userName='").append(userName).append('\'');
+        sb.append(", remark='").append(remark).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+}

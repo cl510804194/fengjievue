@@ -1,0 +1,559 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * jiajie 下午3:22:10 创建
+ */
+package com.yjf.esupplier.service.test;
+
+import java.security.MessageDigest;
+import java.text.ParseException;
+import java.util.*;
+
+import org.apache.commons.codec.binary.Hex;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.yjf.common.lang.security.DigestUtil;
+import com.yjf.common.lang.security.DigestUtil.DigestALGEnum;
+import com.yjf.common.lang.util.DateUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.common.net.HttpUtil;
+import com.yjf.common.net.HttpUtil.HttpResult;
+import com.yjf.esupplier.common.util.*;
+import com.yjf.esupplier.dal.custom.dataobject.HotelsStockIbatisDO;
+import com.yjf.esupplier.dal.daointerface.UserPointsDetailDAO;
+import com.yjf.esupplier.dal.dataobject.UserPointsDetailDO;
+import com.yjf.esupplier.integration.industrial.api.LogisticsInfoQueryService;
+import com.yjf.esupplier.integration.openapi.*;
+import com.yjf.esupplier.integration.openapi.context.OpenApiContext;
+import com.yjf.esupplier.integration.openapi.order.EBankDepositDeductOrder;
+import com.yjf.esupplier.integration.openapi.order.WithdrawOrder;
+import com.yjf.esupplier.integration.openapi.result.CustomerResult;
+import com.yjf.esupplier.integration.openapi.result.DeductDepositResult;
+import com.yjf.esupplier.integration.openapi.result.WithdrawResult;
+import com.yjf.esupplier.integration.youmenSend.order.youmengOrder;
+import com.yjf.esupplier.integration.youmenSend.service.YoumenMessageSendService;
+import com.yjf.esupplier.service.bill.OrderService;
+import com.yjf.esupplier.service.common.services.DateSeqService;
+import com.yjf.esupplier.service.common.services.SmsManagerService;
+import com.yjf.esupplier.service.common.services.SysParameterService;
+import com.yjf.esupplier.service.hotel.HotelsStockService;
+import com.yjf.esupplier.service.pay.PayService;
+import com.yjf.esupplier.service.user.RegisterService;
+import com.yjf.esupplier.service.user.integral.IntegralService;
+import com.yjf.esupplier.service.user.integral.PointsRuleService;
+import com.yjf.esupplier.service.user.integral.UserPointsService;
+import com.yjf.esupplier.service.user.order.OffineUserRegisterOrder;
+import com.yjf.esupplier.ws.bill.order.ScanningQRcodeOrder;
+import com.yjf.esupplier.ws.common.enums.SeqNameEnum;
+import com.yjf.esupplier.ws.enums.SmsBizType;
+import com.yjf.esupplier.ws.hotel.enums.HotelStockStatusEnum;
+import com.yjf.esupplier.ws.hotel.order.HotelStockInfoOrder;
+import com.yjf.esupplier.ws.integral.UserPointsOrder;
+import com.yjf.esupplier.ws.integral.enums.PointsTypeEnum;
+import com.yjf.esupplier.ws.integral.order.AddPointsOrder;
+import com.yjf.esupplier.ws.integral.order.UserPointsDetailQueryOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelRuleType;
+
+/**
+ * 
+ * 
+ * @author jiajie
+ * 
+ */
+public class OfflineDepositTest extends SeviceTestBase {
+	@Autowired
+	private DeductDepositService deductDepositService;
+	
+	@Autowired
+	private WithdrawService withdrawService;
+	private OpenApiContext openApiContext;
+	@Autowired
+	SysParameterService sysParameterService;
+	
+	@Autowired
+	CustomerService customerService;
+	@Autowired
+	SignService signService;
+	
+	@Autowired
+	SmsManagerService smsManagerService;
+	@Autowired
+	protected SMSService smsService;
+	@Autowired
+	RegisterService registerService;
+	@Autowired
+	LogisticsInfoQueryService logisticsInfoQueryService;
+	@Autowired
+	PayService payService;
+	@Autowired
+	UserPointsDetailDAO userPointsDetailDAO;
+	@Autowired
+	UserPointsService userPointsService;
+	@Autowired
+	IntegralService integralService;
+	@Autowired
+	OrderService orderService;
+	@Autowired
+	protected PointsRuleService pointsRuleService;
+	@Autowired
+	protected DateSeqService dateSeqService;
+	@Autowired
+	protected HotelsStockService hotelsStockService;
+	@Autowired
+	protected YoumenMessageSendService youmenMessageSendService;
+	@Before
+	public void init() {
+		openApiContext = new OpenApiContext();
+		
+		openApiContext.setPartnerId(sysParameterService
+			.getSysParameterValue(ApplicationConstant.SYS_PARAM_YJF_BUSINESS_USER_ID));
+		openApiContext.setSecurityCheckKey(sysParameterService
+			.getSysParameterValue(ApplicationConstant.SYS_PARAM_SECURITY_CHECK_KEY));
+		openApiContext.setOpenApiUrl(sysParameterService
+			.getSysParameterValue(ApplicationConstant.SYS_PARAM_OPEN_API_URL_KEY));
+		
+		openApiContext.setNotifyUrl(sysParameterService
+			.getSysParameterValue(ApplicationConstant.SYS_PARAM_RETURN_URL_KEY));
+		openApiContext.setOpenApiBizNo(BusinessNumberUtil.gainOutBizNoNumber());
+	}
+	
+	@Test
+	public void testPayService() {
+/*		Map<String, String> param = new HashMap<String, String>();
+		param.put("orderNo", "1603074807927550");
+		param.put("tradeNo", "2016030721001004850250145823");
+		param.put("resultCode", "EXECUTE_SUCCESS");
+		EsupplierBaseResult infoResult = payService.paymentProcess(param);
+		
+		logger.info("result==url=={}", infoResult);*/
+	}
+	
+	@Test
+	public void testShunfeng() {
+		//		LogisticsInfoResult infoResult = logisticsInfoQueryService.queryShunfengLogisticsInfo(
+		//			"444502371052", openApiContext);
+		//		logger.info("result==url=={}", infoResult);
+		UserPointsDetailQueryOrder detailQueryOrder = new UserPointsDetailQueryOrder();
+		userPointsService.queryDetailUserPoints(detailQueryOrder);
+		
+		UserPointsDetailDO pointsDetailDO = new UserPointsDetailDO();
+		HashMap resultMap = userPointsDetailDAO.queryCount(pointsDetailDO, null, null);
+		System.out.println(resultMap);
+	}
+	
+	@Test
+	public void testNextDateSeq() {
+		
+		EBankDepositDeductOrder deductOrder = new EBankDepositDeductOrder();
+		deductOrder.setUserId("20140411010055683423");
+		DeductDepositResult result = deductDepositService.applyEBankDeposit(deductOrder,
+			openApiContext);
+		logger.info("result==url=={}", result.getUrl());
+		Assert.assertEquals(true, result.isSuccess());
+	}
+	
+	@Test
+	public void testWithdrawUrl() {
+		
+		WithdrawOrder deductOrder = new WithdrawOrder();
+		deductOrder.setUserId("20140411010055683423");
+		WithdrawResult result = withdrawService.gotoWithdrawUrl(deductOrder, openApiContext);
+		logger.info("result==url=={}", result.getUrl());
+		Assert.assertEquals(true, result.isSuccess());
+	}
+	
+	@Test
+	public void testPoint() {
+		AddPointsOrder addPointsOrder = new AddPointsOrder();
+		addPointsOrder.setPointsTypeEnum(PointsTypeEnum.LOGIN);
+		addPointsOrder.setUserId(31353);
+		addPointsOrder.setTradeMoney(new Money(12));
+		addPointsOrder.setOutBizNo(openApiContext.getOpenApiBizNo());
+		integralService.expireUserIntegralJob();
+		//		integralService.paidUserIntegralByRule(addPointsOrder);
+	}
+
+	@Test
+	public void testHotelsStock() {
+		List<HotelsStockIbatisDO> objList = new ArrayList<HotelsStockIbatisDO>();
+		for(int i =1;i<2;i++){
+			HotelsStockIbatisDO ibatisDO = new HotelsStockIbatisDO();
+			ibatisDO.setProductId(i);
+			ibatisDO.setProductName("测试_" + i);
+			ibatisDO.setPriceDate(new Date());
+			ibatisDO.setInStock(i);
+			ibatisDO.setAvailableStock(i);
+			ibatisDO.setProductPrice(new Money(i));
+			ibatisDO.setStatus("ON");
+			objList.add(ibatisDO);
+		}
+		HotelStockInfoOrder ibatisDO  = new HotelStockInfoOrder();
+		ibatisDO.setProductId(18230);
+		ibatisDO.setSupplierId(18200);
+		ibatisDO.setProductName("测试_" + 100);
+		ibatisDO.setBeginDate(com.yjf.esupplier.common.util.DateUtil.getStartTimeOfTheDate(new Date()));
+		ibatisDO.setEndDate(com.yjf.esupplier.common.util.DateUtil.increaseDate(com.yjf.esupplier.common.util.DateUtil.getStartTimeOfTheDate(new Date()), 60));
+		ibatisDO.setInStock(100);
+		ibatisDO.setAvailableStock(100);
+		ibatisDO.setProductPrice(new Money(100));
+		ibatisDO.setStatus(HotelStockStatusEnum.ON);
+		hotelsStockService.initHotelStockData(ibatisDO);
+//		hotelsStockService.insertBatchHotelStock(objList,100);
+		//		integralService.paidUserIntegralByRule(addPointsOrder);
+	}
+
+	@Test
+	public void testQcxfPoint() {
+		ScanningQRcodeOrder qRcodeOrder = new ScanningQRcodeOrder();
+		long lngMerchantId = 31353;
+		qRcodeOrder.setBelongTo(lngMerchantId);
+		qRcodeOrder.setMerchantId(lngMerchantId);
+		qRcodeOrder.setBizNo(Long.parseLong("2016080100000001"));
+		qRcodeOrder.setCreateDate(new Date());
+		qRcodeOrder.setProcessorId(lngMerchantId);
+		orderService.scanningQRcode(qRcodeOrder);
+		AddPointsOrder addPointsOrder = new AddPointsOrder();
+		addPointsOrder.setValueType(UserLevelRuleType.GROWTH_VALUE);
+		addPointsOrder.setUserId(31353);
+		addPointsOrder.setPointsTypeEnum(PointsTypeEnum.LOGIN);
+		addPointsOrder.setOutBizNo("2016080100000001");
+		/*		PointsRuleQueryOrder ruleQueryOrder = new PointsRuleQueryOrder();
+				ruleQueryOrder.setRuleType(PointsTypeEnum.SINGLE_CONSUME_PAY);
+				ruleQueryOrder.setValueType(UserLevelRuleType.GROWTH_VALUE);
+				ruleQueryOrder.setState(PointsRuleStateEnum.NORMAL);
+		//		ruleQueryOrder.setStartDate(EsupplierDomainHolder.get().getSysDate());
+		//		ruleQueryOrder.setEndDate(EsupplierDomainHolder.get().getSysDate());
+				QueryBaseBatchResult<PointsRuleInfo> batchResult = pointsRuleService
+						.queryPointsRule(ruleQueryOrder);
+				for (PointsRuleInfo ruleInfo : batchResult.getPageList()) {
+						List<PointsRuleDetailInfo> ruleDetailInfos = pointsRuleService
+								.queryRuleDetailByRuleId(ruleInfo.getPointsRuleId());
+					double pointValue = MoneyUtil.getMoneyInt(new Money(366))
+							* ruleDetailInfos.get(0).getCoefficient();
+					System.out.println("");
+					}*/
+	}
+	
+	@Test
+	public void testSynMerchantInfo() {
+		String serviceName = "synMerchantInfo";
+		String merchantNo = "15";
+		String merchantName = "张忠荣15";
+		String merchantAcct = "15_15";
+		String dataFlag = "Y";
+		String touristAreaId = "15";
+		String timestamp = "20160808131038";
+		String createTime = "20160805224615";
+
+		
+	}
+	
+	@Test
+	public void testCustomerSyn() {
+		//		String serviceName = "synMerchantInfo";
+		//		String merchantNo = "20";
+		//		String merchantName = "张忠荣20";
+		//		String merchantAcct = "20_20";
+		//		String dataFlag = "Y";
+		//		String touristAreaId = "20";
+		//		String timestamp = "20160808131038";
+		//		String createTime = "20160805224620";
+		String mobile = "13588827915";
+		String cardNo = "00001235";
+		String realName = "kwkw";
+		String certNo = "440882191010101234";
+		String payPwd = "21218cca77804d2ba1922c33e0151105";
+		String timestamp = "20160808101010";
+		String customerId = "101";
+
+		
+	}
+	
+	@Test
+	public void testTradeSyn() {
+		String buyerId = "001";
+		String sellerId = "10772";
+		String goodsMemo = "goodsMemo";
+		String payableAmount = "12";
+		String payedAmount = "0.01";
+		String tradeTime = "2016-10-12 14:42:41";
+		String timestamp = "20161109170118";
+		String waterNo = "PT20130728000020";
+		String payMode = "1";
+
+		
+	}
+	@Test
+	public void testYouMengSend() {
+		youmengOrder order = new youmengOrder();
+		String title = "系统后台推送测试";
+		order.setTitle("系统后台推送测试");
+		order.setText("系统后台推送测试内容");
+		youmenMessageSendService.send(order);
+
+	}
+
+
+	@Test
+	public void testPasswordSyn() {
+		//		ThreadTest test1 = new ThreadTest(dateSeqService);
+		//		ThreadTest test2 = new ThreadTest(dateSeqService);
+		//		Thread thread_test1 = new Thread(test1);
+		//		Thread thread_test2 = new Thread(test2);
+		//		thread_test1.start();
+		//		thread_test2.start();
+		long itemId = dateSeqService.getNextSeqNumber(SeqNameEnum.ORDER_ITEM_SEQ);
+		//		integralService.expireUserIntegralJob();
+		//		String buyerId = "001";
+		//		String sellerId = "002";
+		//		String goodsMemo = "goodsMemo";
+		//		String payableAmount = "12";
+		//		String payedAmount = "0.01";
+		//		String tradeTime = "20130808131038";
+		//		String timestamp = "20130808131038";
+		//		String waterNo = "PT20130728000020";
+		//		String payMode = "1";
+		//		HuaInputPwdSynOrder order = new HuaInputPwdSynOrder();
+		//		order.setCustomerId("001");
+		//		order.setOldPwd("21218cca77804d2ba1922c33e0151105");
+		//		order.setNewPwd("96e79218965eb72c92a549dd5a330112");
+		//		order.setOperatorType("M");
+		//		order.setTimestamp(timestamp);
+		//		order.setOrderNo(waterNo);
+		//		huaHongDistanceService.passwordSyn(order);
+	}
+	
+	@Test
+	public void testSendSms() {
+		String buyerId = "001";
+		String sellerId = "002";
+		String goodsMemo = "goodsMemo";
+		String payableAmount = "12";
+		String payedAmount = "0.01";
+		String tradeTime = "20130808131038";
+		String timestamp = "20130808131038";
+		String waterNo = "PT20130728000020";
+		String payMode = "1";
+
+	}
+	
+	@Test
+	public void testAcountActiveUrl() {
+		CustomerResult result = this.customerService.applyAccountActivate("20140415010055695450",
+			openApiContext);
+		logger.info("result==url=={}", result.getUrl());
+		Assert.assertEquals(true, result.isSuccess());
+	}
+	
+	@Test
+	public void testGotoYjfActiveUrl() {
+		CustomerResult result = this.customerService.gotoYjfSit("20140415010055695450",
+			openApiContext);
+		logger.info("result==url=={}", result.getUrl());
+		Assert.assertEquals(true, result.isSuccess());
+	}
+	
+	@Test
+	public void testSignService() {
+		OffineUserRegisterOrder registerOrder = new OffineUserRegisterOrder();
+		registerOrder.setRealName("马钰杰");
+		registerOrder.setLogPassword("7f7c351ee977c765aa8cd5c7020bc38f");
+		registerOrder.setMobile("15769411175");
+		registerOrder.setPayPassword("94721BC85543532F7E029C56FE6DA990");
+		registerOrder.setCertNo("620123199107202734");
+		registerOrder.setCustomerId("295");
+		registerOrder.setVerfied(true);
+		registerService.offineUserRegister(registerOrder);
+	}
+	
+	@Test
+	public void testSms() {
+		openApiContext.setOpenApiUrl("http://internetapi.cqbornsoft.com/gateway.html");
+		openApiContext.setPartnerId("20160315020010580298");
+		openApiContext.setSecurityCheckKey("38ba992b364204cfc217ae5a5cbdab39");
+		EsupplierBaseResult bankResult = this.smsService.sendValidateCode(SmsBizType.REGISTER,
+			"888888", "13368232702", null, openApiContext);
+		
+		logger.info("result==url=={}", bankResult);
+		Assert.assertEquals(true, bankResult.isSuccess());
+	}
+	
+	@Test
+	public void testCardValidate() {
+		UserPointsOrder userPointsOrder = new UserPointsOrder();
+		userPointsOrder.setUserId(34446);
+		userPointsOrder.setPointsTypeEnum(PointsTypeEnum.USE);
+		userPointsOrder.setPointValue(5);
+		EsupplierBaseResult baseResult = userPointsService.addUserPointsDetail(userPointsOrder);
+		logger.info("baseResult={}", baseResult);
+		try {
+			Thread.currentThread().sleep(10 * 1000);
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
+	public static void main(String[] args) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		calendar.set(Calendar.MONTH, 0);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		//calendar.add(Calendar.MONTH, ((-1) * 12));
+		System.out.println(calendar.getTime() + "==" + DateUtil.simpleFormat(calendar.getTime()));
+		Date date = new Date();
+		try {
+			date = DateUtil.simpleFormatDate("2016-05-05 8:25");
+		} catch (ParseException e) {
+			
+		}
+
+		String hms = DateUtil.hmsFormat(date);
+		hms = "  08 : 50 ";
+		hms = hms.trim();
+		hms = hms.replace("：", ":");
+		hms = hms.replace(" ", "");
+		if (hms.startsWith("0")) {
+			hms = hms.substring(1);
+		}
+		String[] hm = hms.split(":");
+		hms = hm[0] + "." + hm[1];
+		double hmsd = NumberUtil.parseDouble(hms);
+		System.out.println("hmsd=" + hmsd);
+	}
+	
+	@Test
+	public void testAccountInfo() {
+		Map<String, String> paramMap = new HashMap<String, String>();
+		paramMap.put("partnerId", "20141226020000099880");
+		paramMap.put("partnerUserId", "123444");
+		String sign = DigestUtil.digest(paramMap, "d588dd8f67237dfb81656a6ba3757d08",
+			DigestALGEnum.MD5);
+		//		System.out.println(sign);//d017bf3ac5747cd9660b33b022d4a4e4
+		//"https://mpay.yijifu.net/pf/cardList.html?partnerId=20141226020000099880&partnerUserId=123444&sign=d017bf3ac5747cd9660b33b022d4a4e4";
+		
+		//		openApiContext.setPartnerId("20140612020000522722");
+		//		openApiContext.setOpenApiUrl("https://openapi.yiji.com/gateway.html");
+		//		openApiContext.setSecurityCheckKey("c92553235a7f773c0062a00d5136e54c");
+		//		String aaaa = "20140714010000882332";
+		//		String[] ar = aaaa.split(",");
+		//		for (String accountId : ar) {
+		//			QueryAccountResult bankResult = this.customerService.queryUserAccount(accountId,
+		//				openApiContext);
+		//			if (bankResult.isSuccess()) {
+		//				if (bankResult.getYjfAccountInfo().getBalance().greaterThan(Money.zero())) {
+		//					logger.info("                                         ");
+		//					logger.info("                                         ");
+		//					logger.info("                                         ");
+		//					logger.info("                                         ");
+		//					logger.info("result==url=={}", bankResult);
+		//					logger.info("                                         ");
+		//					logger.info("                                         ");
+		//					logger.info("                                         ");
+		//					logger.info("                                         ");
+		//				}
+		//			}
+		//		}
+	}
+	
+	@Test
+	public void testHuaHong() {
+		String url = "http://127.0.0.1:8085/openApi/gateway.htm";
+		Map<String, String> paramMap = new HashMap<String, String>();
+		paramMap.put("merchantNo", "21");
+		paramMap.put("merchantName", "模拟商户5");
+		paramMap.put("merchantAcct", "moni25");
+		paramMap.put("serviceName", "synMerchantInfo");
+		paramMap.put("timestamp", DateUtil.longDate(new Date()));
+		paramMap.put("orderNo", BusinessNumberUtil.gainOutBizNoNumber());
+		paramMap.put("payPwd", MD5Util.getMD5_32("888888"));
+		paramMap.put("loginPwd", MD5Util.getMD5_32("888888"));
+		paramMap.put("dataFlag", "N");
+		paramMap.put("touristAreaId", "213");
+		paramMap.put("createTime", "2014-08-09 00:00:01");
+		paramMap.put("telephone", "13368232594");
+		String signT1 = getDigestString(paramMap, AppConstantsUtil.getBornSecurityCheckKey());
+		String sign = encryptMD5(signT1, "UTF-8");
+		paramMap.put("sign", sign);
+		
+		HttpResult httpResult = HttpUtil.getInstance().connectTimeout(10000).readTimeout(60000)
+			.maxPerRoute(500).maxTotal(1000).post(url, paramMap, "utf-8");
+		logger.info(httpResult.getBody());
+		
+		//		Map<String, String> paramMap2 = new HashMap<String, String>();
+		//		paramMap2.put("merchantNo", "128881");
+		//		paramMap2.put("merchantName", "qchtest1m");
+		//		paramMap2.put("merchantAcct", "qchtest2");
+		//		paramMap2.put("serviceName", "synMerchantInfo");
+		//		paramMap2.put("timestamp", DateUtil.longDate(new Date()));
+		//		paramMap2.put("orderNo", BusinessNumberUtil.gainOutBizNoNumber());
+		//		paramMap2.put("payPwd", MD5Util.getMD5_32("payPwd"));
+		//		paramMap2.put("loginPwd", MD5Util.getMD5_32("payPwd"));
+		//		paramMap2.put("dataFlag", "N");
+		//		paramMap2.put("touristAreaId", "12888");
+		//		paramMap2.put("createTime", "2014-08-09 00:00:01");
+		//		paramMap2.put("telephone", "13368232704");
+		//		String signT2 = getDigestString(paramMap2, AppConstantsUtil.getBornSecurityCheckKey());
+		//		String sign2 = encryptMD5(signT2, "UTF-8");
+		//		paramMap2.put("sign", sign2);
+		//		HttpResult httpResult2 = HttpUtil.getInstance().connectTimeout(10000).readTimeout(60000)
+		//			.maxPerRoute(500).maxTotal(1000).post(url, paramMap2, "utf-8");
+		//		logger.info(httpResult2.getBody());
+		
+	}
+	
+	/**
+	 * 执行md5加密
+	 * @param string
+	 * @param charset
+	 * @return
+	 */
+	public static String encryptMD5(String string, String charset) {
+		try {
+			/** 执行签名 **/
+			byte[] toDigest = string.getBytes(charset);
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(toDigest);
+			return new String(Hex.encodeHex(md.digest()));
+		} catch (Exception ex) {
+		}
+		return "";
+	}
+	
+	/**
+	 * 获取待签名的字符串
+	 * @param dataMap
+	 * @param securityCheckKey
+	 * @return
+	 */
+	private String getDigestString(Map<String, String> dataMap, String securityCheckKey) {
+		/** 按a~z、A~Z排序 **/
+		TreeMap<String, String> treeMap = new TreeMap<String, String>(dataMap);
+		
+		/** 拼接签名字符串 **/
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<String, String> entry : treeMap.entrySet()) {
+			if (SIGN.equals(entry.getKey())) {
+				continue;
+			}
+			sb.append(entry.getKey()).append("=")
+				.append(StringUtil.defaultIfBlank(entry.getValue(), "")).append("&");
+		}
+		
+		/** 整理字符串 **/
+		sb.deleteCharAt(sb.length() - 1);
+		sb.append(securityCheckKey);
+		logger.info("待签名的字符串:{}", sb);
+		return sb.toString();
+	}
+}

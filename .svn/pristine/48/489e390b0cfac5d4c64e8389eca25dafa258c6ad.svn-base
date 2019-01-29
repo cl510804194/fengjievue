@@ -1,0 +1,123 @@
+<html>
+<head>
+    <title>
+        权限列表
+    </title>
+    <link type="text/css" href="/resources/css/after.css" rel="stylesheet"/>
+    <link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="/styles/new/backstage.css"/>
+</head>
+<body>
+<div class="warp">
+    <!--头部-->
+    #parse("/backstage/layout/logo.vm")
+    <!--内容-->
+    <div class="container fn-clear">
+        #parse("/backstage/layout/left.vm")
+        <div class="main-content fn-right">
+            <div class="mc t-box">
+                <div class="top">
+                    <p><a href="javascript:;">产品管理</a> &gt;产品分类管理</p>
+                </div>
+
+                <div class="search fn-clear">
+                    <form action="/admin/product/productType/productTypeList.htm" id="myform" name="myform"
+                          method="post">
+                        <dl>
+                            <dt>产品类型名称：</dt>
+                            <dd><input type="text" class="u-input" name="ptTypeName" value="$!{ptTypeName}"/></dd>
+                        </dl>
+                        <dl>
+                            <dt>产品类型编码：</dt>
+                            <dd><input type="text" class="u-input" name="ptCode" value="$!{ptCode}"/></dd>
+                        </dl>
+                        <button type="submit" class="s-btn" style="cursor:pointer;">搜索</button>
+                    </form>
+                </div>
+
+
+                <table class="m-table">
+                    <thead style="font-size: 12px;">
+                    <th>
+                        产品类型ID
+                    </th>
+                    <th>
+                        产品类型编码
+                    </th>
+                    <th>
+                        产品类型名称
+                    </th>
+                    <th>
+                        全称名称
+                    </th>
+                    <th>
+                        产品分类标签
+                    </th>
+                    <th>
+                        产品关键词
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                    </thead>
+                    <tbody style="font-size: 12px;">
+
+                        #foreach($info in $!{page.result})
+                        <tr>
+                            <td>$!{info.ptId}</td>
+                            <td>$!{info.ptCode}</td>
+                            <td>$!{info.ptTypeName}</td>
+                            <td>$!{info.fullTypeName}</td>
+                            <td>$!{info.ptTag}</td>
+                            <td>$!{info.ptKeyWords}</td>
+                            <td>
+                                <a href="javascript:;" id="editType$!{info.ptId}" class="editType" data="$!{info.ptId}">修改</a>|
+                                <a href="javascript:;" id="delType$!{info.ptId}" class="delType"
+                                   data="$!{info.ptId}">删除</a>
+                            </td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+
+                <div class="p-box pages-b fn-clear">
+                    <a class="p-btn"
+                       href="javascript:document.location.href = '/admin/product/productType/viewProductTypeInfo.htm?redirect=' + document.location.href;">添加产品分类</a>
+                </div>
+                #parse("/backstage/page/page.vm")
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var $_GLOBAL =
+    {
+    }
+    ;
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/plugins/jquery.window.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode +'productType_list');
+</script>
+<script type="text/javascript">
+    function toPage(totalPage, current) {
+        if (isNaN(current)) {
+            return;
+        }
+        if (current < 1 || current > totalPage) {
+            return;
+        }
+        var url = "/admin/product/productType/productTypeList.htm" +
+                "?pageSize=$!{page.pageSize}&pageNo=" + current;
+        myform.action = url;
+        myform.submit();
+    }
+        #if($message)
+        alert('$message');
+        #end
+</script>
+</body>
+</html>

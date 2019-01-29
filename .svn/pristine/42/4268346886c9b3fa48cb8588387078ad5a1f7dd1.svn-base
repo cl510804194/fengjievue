@@ -1,0 +1,45 @@
+package com.yjf.esupplier.service.common.services.result;
+
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelRuleType;
+
+public class AddPointsResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = 8969648130682531875L;
+	long points = 0;
+	private UserLevelRuleType valueType = UserLevelRuleType.POINT;
+	
+	public long getPoints() {
+		return points;
+	}
+	
+	public void setPoints(long points) {
+		this.points = points;
+	}
+	
+	public long addPoints(long points) {
+		return points + points;
+	}
+	
+	public UserLevelRuleType getValueType() {
+		return this.valueType;
+	}
+	
+	public void setValueType(UserLevelRuleType valueType) {
+		this.valueType = valueType;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("AddPointsResult [points=");
+		builder.append(points);
+		builder.append(", valueType=");
+		builder.append(valueType);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

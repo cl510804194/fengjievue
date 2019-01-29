@@ -1,0 +1,182 @@
+<table sqlname="contract">
+	<column name="penalty_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="commodity_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="percentage_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="loan_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="down_payment" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="monthly_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO contract(contract_id,store_id,user_id,user_name,customer_name,mobile_number,yjf_account_id,yjf_account_name,penalty_amount,loan_type,loan_purpose,commodity_type,commodity_amount,percentage_amount,stages_num,loan_amount,down_payment,monthly_amount,monthly_loan_time,frist_loan_time,loan_bank_number,bank,post_address,refund_status,status,take_status,take_user_id,audit_time,audit_user_id,audit_user_name,match_status,match_time,match_user_id,match_user_name,settlement_status,audit_remark,match_remark,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE contract SET store_id=?,user_id=?,user_name=?,customer_name=?,mobile_number=?,yjf_account_id=?,yjf_account_name=?,penalty_amount=?,loan_type=?,loan_purpose=?,commodity_type=?,commodity_amount=?,percentage_amount=?,stages_num=?,loan_amount=?,down_payment=?,monthly_amount=?,monthly_loan_time=?,frist_loan_time=?,loan_bank_number=?,bank=?,post_address=?,refund_status=?,status=?,take_status=?,take_user_id=?,audit_time=?,audit_user_id=?,audit_user_name=?,match_status=?,match_time=?,match_user_id=?,match_user_name=?,settlement_status=?,audit_remark=?,match_remark=? WHERE contract_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  contract_id ,store_id ,user_id ,user_name ,customer_name ,mobile_number ,yjf_account_id ,yjf_account_name ,penalty_amount ,loan_type ,loan_purpose ,commodity_type ,commodity_amount ,percentage_amount ,stages_num ,loan_amount ,down_payment ,monthly_amount ,monthly_loan_time ,frist_loan_time ,loan_bank_number ,bank ,post_address ,refund_status ,status ,take_status ,take_user_id ,audit_time ,audit_user_id ,audit_user_name ,match_status ,match_time ,match_user_id ,match_user_name ,settlement_status ,audit_remark ,match_remark ,raw_add_time ,raw_update_time  FROM contract WHERE contract_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByIdForUpdate" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  contract_id ,store_id ,user_id ,user_name ,customer_name ,mobile_number ,yjf_account_id ,yjf_account_name ,penalty_amount ,loan_type ,loan_purpose ,commodity_type ,commodity_amount ,percentage_amount ,stages_num ,loan_amount ,down_payment ,monthly_amount ,monthly_loan_time ,frist_loan_time ,loan_bank_number ,bank ,post_address ,refund_status ,status ,take_status ,take_user_id ,audit_time ,audit_user_id ,audit_user_name ,match_status ,match_time ,match_user_id ,match_user_name ,settlement_status ,audit_remark ,match_remark ,raw_add_time ,raw_update_time
+				  FROM contract WHERE contract_id=? for update
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM contract WHERE contract_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM contract
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findContractByCondition" paramtype="object" multiplicity="many">
+	     <extraparams>
+			<param name="limitStart" javatype="long" />
+			<param name="pageSize" javatype="long" />
+			<param name="startRawAddTime" javatype="java.util.Date"></param>
+			<param name="endRawAddTime" javatype="java.util.Date"></param>
+		</extraparams>
+	    <sql>
+	        <![CDATA[
+	        SELECT  contract_id ,store_id ,user_id ,user_name ,customer_name ,mobile_number ,yjf_account_id ,yjf_account_name ,penalty_amount ,loan_type ,loan_purpose ,commodity_type ,commodity_amount ,percentage_amount ,stages_num ,loan_amount ,down_payment ,monthly_amount ,monthly_loan_time ,frist_loan_time ,loan_bank_number ,bank ,post_address ,refund_status ,status ,take_status ,take_user_id ,audit_time ,audit_user_id ,audit_user_name ,match_status ,match_time ,match_user_id ,match_user_name ,settlement_status ,audit_remark ,match_remark ,raw_add_time ,raw_update_time  
+	        FROM contract WHERE 1=1
+	        ]]>
+	    </sql>
+	    <sqlmap>
+	        <![CDATA[
+	        SELECT  contract_id ,store_id ,user_id ,user_name ,customer_name ,mobile_number ,yjf_account_id ,yjf_account_name ,penalty_amount ,loan_type ,loan_purpose ,commodity_type ,commodity_amount ,percentage_amount ,stages_num ,loan_amount ,down_payment ,monthly_amount ,monthly_loan_time ,frist_loan_time ,loan_bank_number ,bank ,post_address ,refund_status ,status ,take_status ,take_user_id ,audit_time ,audit_user_id ,audit_user_name ,match_status ,match_time ,match_user_id ,match_user_name ,settlement_status ,audit_remark ,match_remark ,raw_add_time ,raw_update_time 
+	         FROM contract WHERE 1=1
+	        <dynamic>
+	            <isNotEmpty property="contract.contractId" prepend=" and ">
+	                contract_id = #contract.contractId#
+	            </isNotEmpty>
+	            <isGreaterThan property="contract.storeId" compareValue="0" prepend=" and ">
+					store_id = #contract.storeId#
+				</isGreaterThan>
+	            <isNotEmpty property="contract.customerName" prepend=" and ">
+	                customer_name = #contract.customerName#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.userName" prepend=" and ">
+	                user_name = #contract.userName#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.commodityType" prepend=" and ">
+	                commodity_type = #contract.commodityType#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.loanType" prepend=" and ">
+	                loan_type = #contract.loanType#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.refundStatus" prepend=" and ">
+	                refund_status = #contract.refundStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.status" prepend=" and ">
+	                status = #contract.status#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.matchStatus" prepend=" and ">
+	                match_status = #contract.matchStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.settlementStatus" prepend=" and ">
+	                settlement_status = #contract.settlementStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.takeStatus" prepend=" and ">
+	                take_status = #contract.takeStatus#
+	            </isNotEmpty>
+	            <isGreaterThan property="contract.takeUserId" compareValue="0" prepend=" and ">
+						take_user_id = #contract.takeUserId#
+				</isGreaterThan>
+	            <isNotEmpty property="startRawAddTime" prepend=" and ">
+				 ${cdata-start}	raw_add_time >= #startRawAddTime#  ${cdata-end}
+				</isNotEmpty>
+				<isNotEmpty property="endRawAddTime" prepend=" and ">
+					 ${cdata-start}	raw_add_time <= #endRawAddTime#  ${cdata-end}
+				</isNotEmpty>
+	        </dynamic>
+            order by raw_add_time LIMIT #limitStart#,#pageSize#;
+	        ]]>
+	    </sqlmap>
+	</operation>
+	
+	<operation name="findCountByCondition" paramtype="object">
+	     <extraparams>
+			<param name="startRawAddTime" javatype="java.util.Date"></param>
+			<param name="endRawAddTime" javatype="java.util.Date"></param>
+		</extraparams>
+		<sql>
+				<![CDATA[
+				SELECT  count(*)  FROM contract 
+
+				]]>
+		</sql>
+		<sqlmap>
+		<![CDATA[
+		SELECT  count(*)  FROM contract
+		WHERE 1=1
+		    <dynamic>
+	            <isNotEmpty property="contract.contractId" prepend=" and ">
+	                contract_id = #contract.contractId#
+	            </isNotEmpty>
+	            <isGreaterThan property="contract.storeId" compareValue="0" prepend=" and ">
+					store_id = #contract.storeId#
+				</isGreaterThan>
+	            <isNotEmpty property="contract.customerName" prepend=" and ">
+	                customer_name = #contract.customerName#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.userName" prepend=" and ">
+	                user_name = #contract.userName#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.commodityType" prepend=" and ">
+	                commodity_type = #contract.commodityType#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.loanType" prepend=" and ">
+	                loan_type = #contract.loanType#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.refundStatus" prepend=" and ">
+	                refund_status = #contract.refundStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.status" prepend=" and ">
+	                status = #contract.status#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.matchStatus" prepend=" and ">
+	                match_status = #contract.matchStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.settlementStatus" prepend=" and ">
+	                settlement_status = #contract.settlementStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="contract.takeStatus" prepend=" and ">
+	                take_status = #contract.takeStatus#
+	            </isNotEmpty>
+	            <isGreaterThan property="contract.takeUserId" compareValue="0" prepend=" and ">
+						take_user_id = #contract.takeUserId#
+				</isGreaterThan>
+	            <isNotEmpty property="startRawAddTime" prepend=" and ">
+				 ${cdata-start}	raw_add_time >= #startRawAddTime#  ${cdata-end}
+				</isNotEmpty>
+				<isNotEmpty property="endRawAddTime" prepend=" and ">
+					 ${cdata-start}	raw_add_time <= #endRawAddTime#  ${cdata-end}
+				</isNotEmpty>
+	        </dynamic>
+		]]>
+		</sqlmap>
+	</operation>
+	
+</table>

@@ -1,0 +1,167 @@
+﻿#parse("/front/platform/layout/header-title.vm")
+<title>我的消息</title>
+<meta name="description" content="$!appConstantsUtil.getProductName()"/>
+<meta name="keywords" content="$!appConstantsUtil.getProductName()"/>
+<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+<body style="background: #fdfaf1;">
+<div class="warp" style="margin-top: -20px;">
+  #parse("/front/platform/layout/header_member2.vm")
+    <div class="fn-container fn-pt20 fn-clear">
+    	#parse("/front/platform/member/layout/person_member_left2.vm")
+        <div class="member-right fn-right fn-bgf fn-mt25">
+			<div class="tit-box fn-clear">
+				<p class="fn-left">消息中心</p>
+			</div>
+            <div class="m-tab2 mt30">
+                <!--header-->
+                <div class="hd">
+                    <!--title-->
+                    <h3 class="title">选择类型：</h3>
+                    <!---->
+                    <ul class="tags">
+                        <li #if(!$!{status})class="active" #end><a href="/do/message/messageInfoList.htm">全部</a></li>
+                        <li #if($!{status}=='READ')class="active" #end><a href="/do/message/messageInfoList.htm?status=READ">已读</a></li>
+                        <li #if($!{status}=='UNREAD')class="active" #end><a href="/do/message/messageInfoList.htm?status=UNREAD">未读</a></li>
+                        ##<li #if($!{status}=='COLLECT')class="active" #end><a href="/do/message/messageInfoList?status=COLLECT">收藏</a></li>
+                    </ul>
+                    #*<a class="u-btn2 pink tool" data-command="READ" href="javascript:;">全部标记为已读</a>*#
+                </div>
+                <!--header End-->
+                <!--content-->
+                <div class="content">
+                    <form action="#" method="post" id="dataForm" class="ui-form" id="guaranteeOpenOperator_form">
+                    <table class="m-table2">
+                        <tbody>
+                        <!--head-->
+                        <tr>
+                            <th width="65%">摘要</th>
+                            <th width="15%" class="f-tac">类别</th>
+                            <th width="20%" class="f-tac">时间</th>
+                        </tr>
+                        <!--head End-->
+
+                        <!--row-->
+                            #foreach($info in $page.result)
+                            <tr class="row">
+                                <td><input class="checkbox" type="checkbox" value="$!{info.receivedId}" name="receivedId" />
+                                    $!{info.messageTitle}
+                                #*    #if($!{info.messageContent.length()} > 33)
+                                        $stringUtil.substring($!{info.messageContent},0,33)...
+                                    #else
+                                        $!{info.messageContent}
+                                    #end*#
+                                </td>
+                                <td class="f-tac">$!{info.messageType.message}</td>
+                                <td class="f-tac">$!dateUtil.simpleFormat($!{info.rawAddTime})</td>
+                            </tr>
+                            <!--row End-->
+                            <!--detail-->
+                            <tr class="detail">
+                                <td colspan="3">
+                                    $!{info.messageContent}
+                                </td>
+                            </tr>
+                            #end
+                        <!--detail End-->
+
+                        <!--footer-->
+                        <tr class=" fbar">
+                            <td colspan="3">
+                                <!--checkbox-->
+                                <label>
+                                    <input id="allCheckedId" name="allChecked" class="checkbox" type="checkbox"  onclick="selectAll()"/>
+                                    全选/全不选
+                                </label>
+                                <!-- <label>
+                                    <input id="allCheckedId" name="allCheckedNone" class="checkbox" type="checkbox"  onclick="selectNone()"/>
+                                    全不选
+                                </label> -->
+                                #if($!{status}  != 'READ')
+                                   <a class="u-link gray" data-command="READ" href="javascript:;">已读</a>
+                                #end
+                                <a class="u-link gray" data-command="DELETE" href="javascript:;">删除</a>
+                                ##<a class="u-link gray" data-command="COLLECT" href="javascript:;">收藏</a>
+                            </td>
+                        </tr>
+                        <!--footer End-->
+
+                        </tbody>
+                    </table>
+                    </form>
+                    <!--分页-->
+                    <div class="fn-tb-bottom fn-clear">
+                        #parse("/backstage/page/page.vm")
+
+                    </div>
+                </div>
+                <!--content End-->
+            </div>
+            <!---->
+
+        </div>
+
+    </div>
+    <div class="blank50"></div>
+</div>
+    #parse("/front/platform/layout/footer-lg.vm")
+<script type="text/javascript">
+     seajs.use($_GLOBAL.mode + 'messageInfoList');
+    function toPage(totalPage, pageNo){
+        if(totalPage<pageNo){
+            return false;
+        }
+        var url = "/do/message/messageInfoList.htm"
+                +"?payNo=$!{order.payNo}"
+                +"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+        window.location.href=url;
+    }
+     seajs.use($_GLOBAL.mode + 'userHome');
+    //var int=self.setInterval("refreshTime()",1000);
+    function refreshTime(){
+        var myDate = new Date();
+        if(!document.getElementById("curTime")) {
+            clearInterval(int);
+        }
+        document.getElementById("curTime").innerHTML= "当前时间："+myDate.toLocaleString();   //获取日期与时间
+    }
+
+    var footbar=$('.fbar'),
+        form=$('#dataForm'),
+        urls={},
+        table=$('.m-table2');
+
+    urls['COLLECT']='/do/message/updateMessageInfo.htm?type=COLLECT';
+    urls['READ']='/do/message/updateMessageInfo.htm?type=READ';
+    urls['DELETE']='/do/message/deleteReceivedMessageInfo.htm'
+
+    footbar.on('click','[data-command]',function(){
+        var me=$(this),
+        command=me.attr('data-command');
+
+        if(!table.find('.checkbox:checked').length){
+            alert('请选择');
+            return;
+        }
+
+        if(command in urls){
+            form.attr('action',urls[command]);
+            form.trigger('submit');
+        }
+    })
+
+    function selectAll(){
+        if ($('#allCheckedId').attr("checked")) {
+            $("[name = receivedId]:checkbox").attr("checked", true);
+        }else{
+            $("[name = receivedId]:checkbox").attr("checked", false);
+        }
+            
+           
+        }
+    
+     $('#a008').css('color', 'red');   
+    $('.left-mesg').addClass('fn-dc0');
+</script>
+</body>
+</html>

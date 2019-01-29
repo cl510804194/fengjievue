@@ -1,0 +1,45 @@
+<table sqlname="file_elec_certificate">
+
+
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO file_elec_certificate(file_key,preservation_id,docHash,link,raw_add_time,preservation_time,link_expire_time,local_link) VALUES (?,?,?,?,?,?,?,?)
+
+			]]>
+		</sql>
+       
+	</operation>
+
+
+	<operation name="update" paramtype="object">
+		<sql>
+				<![CDATA[
+					
+				UPDATE file_elec_certificate SET preservation_id=?,docHash=?,link=?,preservation_time=?,link_expire_time=?,local_link=? WHERE file_key=?
+			]]>
+		</sql>
+	</operation>
+	
+	
+	<operation name="deleteFilekey" paramtype="string">
+		<sql>
+				<![CDATA[
+					
+				DELETE FROM file_elec_certificate WHERE file_key=?
+	
+				]]>
+		</sql>
+	</operation>
+	
+
+	<operation name="findFilekey" paramtype="string">
+		<sql>
+				<![CDATA[
+			SELECT  file_key ,preservation_id ,docHash ,link ,raw_add_time ,preservation_time ,link_expire_time ,local_link  FROM file_elec_certificate WHERE file_key=?
+		]]>
+		</sql>
+	</operation>
+
+
+</table>

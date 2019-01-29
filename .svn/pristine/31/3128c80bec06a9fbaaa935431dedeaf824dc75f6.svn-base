@@ -1,0 +1,51 @@
+#parse("/front/index/common/header-title.vm")
+<body class="warp">
+	<!--头部-->
+	#parse("/front/index/common/header-yrd.vm")
+	
+	<!--内容-->
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="bd-box db-p14 container">
+    	<h2 class="title1 mt10"><span>收益</span></h2>
+        <div class="about-us mt20">
+        	<div class="about-txt">
+
+			
+			<div class="brief-con" style="line-height:30px;">
+				<h4 style="font-weight:bold;">无忧宝一号：到期一次性还本付息的投资理财收益：</h4>
+				<p><img src="/styles/images/home/img_01.jpg"/></p>
+				</br>
+				<h4 style="font-weight:bold;">无忧宝对比其他理财方式：</h4>
+				
+				<p><img src="/styles/images/home/tu2.jpg"/></p>
+				</br>
+				<h4 style="font-weight:bold">银行定存：</h4>
+				<p style="text-indent:2em;">目前人民银行规定的一年期定存利率远低于国家统计局公布CPI指数。假设把钱存在银行，一年后就将因为各种因素所造成的物价上涨导致实际货币价值缩水。银行保障了资金的绝对安全，但是得到的低收益让理财失去意义。并且较差的流动性设置导致客户如果提前终止，定期存款会自动转换成为活期利率进行计算收益，从而对投资人造成严重的损失。</p>
+				</br>
+				<h4 style="font-weight:bold;">银行理财：</h4>
+				<p style="text-indent:2em;">银行理财产品多有投资金额门槛限制，而且一般投资者选择的安全低风险理财产品的利率低于6%。且银行理财产品的资金流向不够透明，部分产品的风险保障也不够完善。从而导致部分银行理财产品会发生到期无法兑付其投资利息的情况。</p>
+				</br>
+				<h4 style="font-weight:bold;">信托： </h4>
+				<p style="text-indent:2em;">信托理财不为大多数投资者所熟悉，主要原因就在于其高门槛，信托公司推出的各款信托产品的资金门槛大多在100万元以上。目前，市场上推出的信托产品投资期限以1—2年的居多，投资期间信托产品变现能力较差，若投资者信托资产配置较多，容易导致流动性紧张。</p>
+				
+				
+				
+				
+			</div>
+        </div>
+    </div>
+    <div class="blank50"></div>
+	</div>
+</div>
+	#parse("/front/index/common/footer-yrd.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+    </script>
+</body>
+</html>

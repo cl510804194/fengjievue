@@ -1,0 +1,123 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.biz.util;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.yjf.esupplier.common.util.ConstraintUtil;
+
+/**
+ * 
+ * @Filename Constraints.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2013-4-27</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ * 
+ */
+public class Constraints {
+	public static ConstraintUtil SMS_OR_MAIL_CON = ConstraintUtil.newBuilder().count(5)
+		.interval(59).build();
+	//TODO 为了手机app间隔从60改为2
+	public static ConstraintUtil DATA_CON = ConstraintUtil.newBuilder().count(5).interval(59)
+		.build();
+	//按手机和业务
+	public static ConstraintUtil DATA_CON_MAX = ConstraintUtil.newBuilder().count(5).interval(10)
+		.build();
+	
+	public static ConstraintUtil DATA_CON_LOGIN = ConstraintUtil.newBuilder().count(5).interval(10)
+		.build();
+	//按ip地址限制手机发送次数
+	public static ConstraintUtil DATA_CON_IPADDRESS_MAX = ConstraintUtil.newBuilder().count(30)
+		.build();
+	//按userId加业务类型 限制手机发送次数
+	public static ConstraintUtil DATA_CON_USERID_BIZ_MAX = ConstraintUtil.newBuilder().count(10)
+		.interval(59).build();
+	
+	public static ConstraintUtil DATA_CON_ERROR_3_TIMES = ConstraintUtil.newBuilder()
+		.count(3, true).interval(59).build();
+	
+	public static ConstraintUtil DATA_CON_ERROR_5_TIMES = ConstraintUtil.newBuilder()
+		.count(5, true).interval(59).build();
+	
+	public static ConstraintUtil DATA_CON_ERROR_10_TIMES = ConstraintUtil.newBuilder()
+		.count(5, true).interval(59).build();
+	
+	public static ConstraintUtil DATA_CON_BUSSINESS_50MAX = ConstraintUtil.newBuilder().count(50)
+		.build();
+	public static ConstraintUtil DATA_CON_BUSSINESS_200MAX = ConstraintUtil.newBuilder().count(200)
+		.build();
+	
+	public static class IPMessageInfo {
+		String ipAddress = null;
+		long lastTime = System.currentTimeMillis();
+		long expirationTimes = 0;
+		long accessCount = 1;
+		Map<String, String> moblieMap = new HashMap<String, String>();
+		
+		public String getIpAddress() {
+			return this.ipAddress;
+		}
+		
+		public void setIpAddress(String ipAddress) {
+			this.ipAddress = ipAddress;
+		}
+		
+		public long getLastTime() {
+			return this.lastTime;
+		}
+		
+		public void setLastTime(long lastTime) {
+			this.lastTime = lastTime;
+		}
+		
+		public long getExpirationTimes() {
+			return this.expirationTimes;
+		}
+		
+		public void setExpirationTimes(long expirationTimes) {
+			this.expirationTimes = expirationTimes;
+		}
+		
+		public long getAccessCount() {
+			return this.accessCount;
+		}
+		
+		public void setAccessCount(long accessCount) {
+			this.accessCount = accessCount;
+		}
+		
+		public Map<String, String> getMoblieMap() {
+			return this.moblieMap;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("IPMessageInfo [ipAddress=");
+			builder.append(ipAddress);
+			builder.append(", lastTime=");
+			builder.append(lastTime);
+			builder.append(", expirationTimes=");
+			builder.append(expirationTimes);
+			builder.append(", accessCount=");
+			builder.append(accessCount);
+			builder.append(", moblieMap=");
+			builder.append(moblieMap);
+			builder.append("]");
+			return builder.toString();
+		}
+		
+	}
+	
+}

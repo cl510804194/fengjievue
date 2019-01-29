@@ -1,0 +1,1039 @@
+ALTER TABLE `loan_demand`
+ADD UNIQUE INDEX `Index_guarantee_licence_no` (`guarantee_licence_no`) ;
+
+ALTER TABLE `trade`
+ADD COLUMN `invest_count`  int NULL COMMENT '已投资数量' AFTER `trade_finish_date`;
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `real_name`  varchar(60) NULL AFTER `user_id`;
+
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `original_amount`  bigint(17) NULL COMMENT '原始资金' AFTER `amount`;
+
+ALTER TABLE `trade`
+ADD COLUMN `invest_finish_date`  datetime NULL COMMENT '投资完成时间' AFTER `trade_finish_date`;
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `trade_flow_code`  varchar(60) NULL   COMMENT '交易流水号' AFTER `profit_rate`
+
+ALTER TABLE `operation_journal`
+MODIFY COLUMN `memo`  varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '操作详情' AFTER `operation_content`;
+
+ALTER TABLE `loan_demand`
+ADD COLUMN `loaner_name`  varchar(60) NULL COMMENT '借款人姓名' AFTER `user_name`;
+
+ALTER TABLE `amount_flow_item`
+ADD COLUMN `in_user_name`  varchar(32) NULL AFTER `amount_in`,
+ADD COLUMN `out_user_name`  varchar(32) NULL AFTER `in_user_name`,
+ADD COLUMN `in_user_real_name`  varchar(60) NULL AFTER `out_user_name`,
+ADD COLUMN `out_user_real_name`  varchar(60) NULL AFTER `in_user_real_name`;
+
+ALTER TABLE `amount_flow_item`
+ADD COLUMN `raw_update_time`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `note`;
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `status`  varchar(60) NULL AFTER `trade_flow_code`;
+
+ALTER TABLE `trade_detail_item`
+MODIFY COLUMN `status`  varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT 'UN_PROCESS' AFTER `trade_flow_code`;
+
+ALTER TABLE `division_detail`
+ADD COLUMN `user_name`  varchar(32) NULL AFTER `user_id`,
+ADD COLUMN `real_name`  varchar(64) NULL AFTER `user_name`;
+
+---2014-5-15 by qichunhai
+ALTER TABLE `loan_demand`
+ADD COLUMN `repay_division_way`  varchar(32) NULL COMMENT '还款方式（sit：到期归还本金及利息,month:按月还息，到期还本）' AFTER `guarantee_audit`;
+
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `original_real_name`  varchar(60) NULL AFTER `original_amount`,
+ADD COLUMN `original_user_name`  varchar(32) NULL AFTER `original_real_name`;
+
+
+---2014-5-21 by qichunhai
+CREATE TABLE `user_bank_info` (
+  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_base_id` varchar(50) DEFAULT NULL COMMENT '外键',
+  `bank_card_no` varchar(200) DEFAULT NULL COMMENT '银行卡号',
+  `bank_type` varchar(200) DEFAULT NULL COMMENT '银行英文简称',
+  `bank_key` varchar(200) DEFAULT NULL COMMENT '联行号',
+  `bank_province` varchar(200) DEFAULT NULL COMMENT '省份',
+  `bank_city` varchar(200) DEFAULT NULL COMMENT '城市',
+  `is_default` varchar(20) DEFAULT NULL COMMENT '是否默认',
+  `bank_order` int DEFAULT NULL COMMENT '顺序号，用于排序',
+  `raw_add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
+  `raw_update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+
+ALTER TABLE `user_bank_info`
+ADD INDEX `index_user_bank_base_id` (`user_base_id`) USING BTREE ;
+
+ALTER TABLE `bank_base_info`
+ADD COLUMN `day_withholding_amount`  decimal(17,0) NULL COMMENT '代扣日线' AFTER `withdraw_amount`;
+
+
+---2014-5-22 by wangqinghe 系统参数表 加个备注字段
+ALTER TABLE sys_param ADD description  VARCHAR(250);
+
+
+
+
+
+
+---债权转让20140711
+ CREATE TABLE `trade_detail_transfer` (
+  `trade_transfer_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '转让明细ID',
+  `apply_user_id` bigint(20) NOT NULL COMMENT '申请转让用户ID',
+  `apply_user_name` varchar(32) DEFAULT NULL COMMENT '申请转让用户登录名',
+  `apply_real_name` varchar(60) DEFAULT NULL COMMENT '申请转让用户真实名称',
+  `amount` bigint(20) DEFAULT NULL COMMENT '转让金额',
+  `original_amount` bigint(17) DEFAULT NULL COMMENT '原始金额',
+  `note` varchar(256) DEFAULT NULL COMMENT '备注',
+  `profit_rate` decimal(6,4) DEFAULT '0.0000' COMMENT '年化收益率',
+  `trade_id` bigint(20) DEFAULT NULL COMMENT '关联交易id',
+  `trade_name` varchar(60) DEFAULT NULL COMMENT '交易名称',
+  `trade_detail_id` bigint(20) DEFAULT NULL COMMENT '关联投资id',
+  `status` varchar(30) DEFAULT NULL COMMENT '转让中transferring cancel 取消 success 转让成功',
+  `ext_order` varchar(32) DEFAULT NULL COMMENT '外部订单号（预留字段）',
+  `recipient_id` bigint(20)  NULL COMMENT '转让接受用户ID',
+  `recipient_name` varchar(60) NULL COMMENT '转让接受用户登录名',
+  `recipient_real_name` varchar(60) NULL COMMENT '转让接受用户真实名称',
+  `transfer_date` timestamp NULL DEFAULT NULL COMMENT '转让日期',
+  `time_limit` int(11) NOT NULL COMMENT '借款期限',
+  `time_limit_unit` enum('D','W','M','Y') NOT NULL COMMENT '借款期限单位：D：天，W：周期，M：月，Y：年',
+  `trade_effective_date` datetime DEFAULT NULL COMMENT '借款成立日期',
+  `trade_expire_date` datetime DEFAULT NULL COMMENT '借款到期日期',
+  `real_profit_rate` decimal(6,4) DEFAULT '0.0000' COMMENT '实际年化收益率',
+  `raw_add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`trade_transfer_id`),
+  UNIQUE KEY `trade_detail_id` (`trade_detail_id`),
+  KEY `apply_user_id` (`apply_user_id`) USING BTREE,
+  KEY `apply_user_name` (`apply_user_name`) USING BTREE,
+  KEY `apply_real_name` (`apply_real_name`) USING BTREE,
+  KEY `trade_id` (`trade_id`) USING BTREE,
+  KEY `recipient_id` (`recipient_id`) USING BTREE,
+  KEY `status` (`status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='债权转让';
+
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `transfer_status`  varchar(30) NOT NULL DEFAULT 'NOT_TRANSFER' COMMENT '转让状态' AFTER `status`;
+
+
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `trade_source`  varchar(30) NULL DEFAULT 'INVEST' COMMENT '交易来源' AFTER `transfer_status`;
+
+---还款计划20140715
+CREATE TABLE `repay_plan` (
+  `repay_plan_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '借款明细ID',
+  `period_no` int(11) NOT NULL COMMENT '期间编号',
+  `trade_name` varchar(64) NOT NULL COMMENT '交易名称',
+  `trade_id` bigint(20) NOT NULL COMMENT '交易ID',
+  `repay_user_id` bigint(20) NOT NULL COMMENT '还款人',
+  `repay_user_name` varchar(32) NOT NULL COMMENT '还款人userName',
+  `repay_user_real_name` varchar(64) NOT NULL COMMENT '还款人userName',
+  `repay_division_way` varchar(32) DEFAULT NULL COMMENT '还款方式',
+  `amount` bigint(20) DEFAULT NULL COMMENT '还款金额',
+  `original_amount` bigint(17) DEFAULT NULL COMMENT '借款资金',
+  `status` varchar(30) DEFAULT NULL COMMENT '还款状态',
+  `repay_date` datetime DEFAULT NULL COMMENT '还款日期',
+  `raw_add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `raw_update_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `note` varchar(256) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`repay_plan_id`),
+  KEY `FK_repay_plan_trade_id` (`trade_id`) USING BTREE,
+  KEY `FK_repay_plan_repay_user_id` (`repay_user_id`) USING BTREE,
+  KEY `FK_repay_plan_status` (`status`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='还款计划';
+
+---2014-07-15 
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `repay_date`  datetime NULL COMMENT '还款日期' AFTER `transfer_status`,
+ADD COLUMN `repay_period_no`  int NULL COMMENT '还款周期日' AFTER `repay_date`;
+
+
+
+
+
+
+--20140722  
+CREATE TABLE `common_attachment` (
+   `attachment_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '附件id',
+   `biz_no` varchar(30) DEFAULT NULL COMMENT '交易(引用外部数据id)流水号',
+   `module_type` varchar(40) DEFAULT NULL COMMENT '附件所属模块类型，暂时初审带的附件',
+   `check_status` varchar(40) DEFAULT NULL COMMENT '是否已经被审核',
+   `file_name` varchar(100) DEFAULT NULL COMMENT '文件名',
+   `isort` bigint(20) DEFAULT NULL COMMENT '序号',
+   `file_physical_path` varchar(500) DEFAULT NULL COMMENT '物理路径',
+   `request_path` varchar(500) DEFAULT NULL COMMENT '请求路径',
+   `raw_add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间',
+   `raw_update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+   PRIMARY KEY (`attachment_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8 ;
+ 
+ 
+ 
+ ###2014-08-04   还款计划  
+ALTER TABLE `repay_plan` 
+   CHANGE `actual_repay_date` `actual_repay_date` DATETIME DEFAULT '0000-00-00 00:00:00' NULL  COMMENT '实际还款时间',
+   DROP PRIMARY KEY, 
+   ADD PRIMARY KEY(`repay_plan_id`) ; 
+   
+   
+ ###2014-08-18   定向融资添加字段loan_password
+alter table `loan_demand` 
+   add column `loan_password` varchar(20) NULL COMMENT '融资用户密码' after `biz_type`;
+
+##2014-8-13  用户积分
+create table `user_points`( 
+   `user_points_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键', 
+   `user_base_id` varchar(50) COMMENT '外键', 
+   `points_total` bigint(20) DEFAULT '0' COMMENT '积分总额', 
+   `state` enum('normal','freeze','disable','inactive','locked') DEFAULT 'normal' COMMENT '积分状态', 
+   PRIMARY KEY (`user_points_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+##2014-8-13  用户积分明细
+create table `user_points_detail`( 
+   `points_detail_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键', 
+   `user_points_id` bigint(20) COMMENT '外键', 
+   `points_type` enum('invset','use') COMMENT '积分类型:投资积分,消费积分', 
+   `state` enum('points_sent','goods_sent','goods_wait') COMMENT '状态:已发放,已寄送,待寄送', 
+   `goods` varchar(128) COMMENT '商品名称', 
+   `point_value` bigint(20) COMMENT '积分值', 
+   `point_balance` bigint(20) COMMENT '积分余额', 
+   `source` varchar(128) NULL COMMENT '积分来源：trade_detail_id',
+   `add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间', 
+   PRIMARY KEY (`points_detail_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+##2014-9-11
+alter table `user_points_detail` 
+   change `points_type` `points_type` enum('invset','use','referee') character set utf8 collate utf8_general_ci NULL  comment '积分类型:投资积分,消费积分,推荐积分', 
+   change `source` `source` varchar(128) character set utf8 collate utf8_general_ci NULL  comment '积分来源：投资积分trade_detail_id,推荐积分user_id';
+   
+##2014-8-18  用户积分商品寄送信息
+create table `points_goods_detail`( 
+   `points_goods_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键', 
+   `points_detail_id` bigint(20) COMMENT '外键', 
+   `delivery_company` varchar(128) COMMENT '快递公司', 
+   `billno` varchar(128) COMMENT '快递单号', 
+   `remarks` varchar(256) COMMENT '备注',
+   `add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间', 
+   `update_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '修改时间', 
+   PRIMARY KEY (`points_goods_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+##2014-8-28 实际还款人信息
+alter table `yjf_yrde8`.`repay_plan` 
+   add column `actual_user_id` bigint(20) NULL COMMENT '实际还款人id' after `note`, 
+   add column `actual_repay_user_name` varchar(32) NULL COMMENT '实际还款人' after `actual_user_id`, 
+   add column `actual_repay_user_real_name` varchar(64) NULL COMMENT '实际还款人姓名' after `actual_repay_user_name`, 
+   add column `repay_role_id` bigint(20) NULL COMMENT '还款角色id' after `actual_repay_user_real_name`;
+   
+##2014-8-28 app帮助中心
+CREATE TABLE `app_pop_info` (
+   `base_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '表主键',
+   `title` varchar(128) NOT NULL COMMENT '标题',
+   `type` tinyint(4) NOT NULL COMMENT '类型',
+   `parent_id` bigint(20) DEFAULT NULL COMMENT '父级模块id',
+   `parent_name` varchar(128) DEFAULT NULL COMMENT '父级模块名称',
+   `content` mediumtext COMMENT '内容',
+   `status` tinyint(4) DEFAULT NULL COMMENT '状态',
+   `add_time` datetime DEFAULT NULL COMMENT '新增时间',
+   `modify_time` datetime DEFAULT NULL COMMENT '修改时间',
+   `remark` varchar(256) DEFAULT NULL COMMENT '备注',
+   `rem1` varchar(256) DEFAULT NULL COMMENT '备用字段',
+   PRIMARY KEY (`base_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8
+ 
+ ---我要借款20140901
+CREATE TABLE `loan_apply` (
+   `apply_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '贷款申请ID',
+   `loaner_id` bigint(20) NOT NULL COMMENT '贷款人ID',
+   `loaner_name` varchar(60) NOT NULL COMMENT '贷款人姓名',
+   `loan_name` varchar(200) NOT NULL COMMENT '贷款名称',
+   `loan_amount` bigint(20) NOT NULL COMMENT '贷款金额',
+   `time_limit` int(11) NOT NULL COMMENT '贷款期限',
+   `loaner_phone` varchar(16) NOT NULL COMMENT '贷款人手机号码',
+   `loaner_address` varchar(200) NOT NULL COMMENT '贷款人居住地址',
+   `loaner_identity` varchar(200) NOT NULL COMMENT '贷款人身份证号',
+   `apply_time` datetime NOT NULL COMMENT '贷款申请时间',
+   `status` enum('wite','pass','dismiss') NOT NULL DEFAULT 'wite' COMMENT '状态',
+   `user_name` varchar(20) NOT NULL COMMENT '贷款人用户名',
+   `loan_purpose` varchar(200) NOT NULL COMMENT '贷款用途',
+   `guarantee_id` bigint(20) DEFAULT NULL COMMENT '担保机构ID',
+   `guarantee_name` varchar(32) DEFAULT NULL COMMENT '担保机构名称',
+   PRIMARY KEY (`apply_id`),
+   UNIQUE KEY `apply_id` (`apply_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8 COMMENT='我要贷款'
+ 
+--qichunhai 修改资金流类型为字符串
+ ALTER TABLE `amount_flow_item`
+MODIFY COLUMN `amount_flow_type`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '流水类型' AFTER `status`;
+
+
+
+
+ ## feihong 报表-查询规则 20140911
+ CREATE TABLE `report_rule` (
+   `report_id` bigint(10) NOT NULL AUTO_INCREMENT COMMENT '报表id',
+   `report_name` varchar(200) NOT NULL COMMENT '报表名称',
+   `sql_str` varchar(10000) NOT NULL COMMENT '报表SQL主体',
+   `access_roles` varchar(50) DEFAULT NULL COMMENT '可访问改报表的角色列表',
+   `note` varchar(1000) DEFAULT NULL COMMENT '报表内容备注',
+   `filter1_name` varchar(100) DEFAULT NULL COMMENT '查询条件1名称',
+   `filter1_type` varchar(50) DEFAULT NULL COMMENT '查询条件1页面录入值的数据类型',
+   `filter1_sql` varchar(500) DEFAULT NULL COMMENT '查询条件1对应的SQL',
+   `filter2_name` varchar(100) DEFAULT NULL COMMENT '查询条件2名称',
+   `filter2_type` varchar(50) DEFAULT NULL COMMENT '查询条件2页面录入值的数据类型',
+   `filter2_sql` varchar(500) DEFAULT NULL COMMENT '查询条件2对应的SQL',
+   `filter3_name` varchar(100) DEFAULT NULL COMMENT '查询条件3名称',
+   `filter3_type` varchar(50) DEFAULT NULL COMMENT '查询条件3页面录入值的数据类型',
+   `filter3_sql` varchar(500) DEFAULT NULL COMMENT '查询条件3对应的SQL',
+   `filter4_name` varchar(100) DEFAULT NULL COMMENT '查询条件4名称',
+   `filter4_type` varchar(50) DEFAULT NULL COMMENT '查询条件4页面录入值的数据类型',
+   `filter4_sql` varchar(500) DEFAULT NULL COMMENT '查询条件4对应的SQL',
+   `filter5_name` varchar(100) DEFAULT NULL COMMENT '查询条件5名称',
+   `filter5_type` varchar(50) DEFAULT NULL COMMENT '查询条件5页面录入值的数据类型',
+   `filter5_sql` varchar(500) DEFAULT NULL COMMENT '查询条件5对应的SQL',
+   `filter6_name` varchar(100) DEFAULT NULL COMMENT '查询条件6名称',
+   `filter6_type` varchar(50) DEFAULT NULL COMMENT '查询条件6页面录入值的数据类型',
+   `filter6_sql` varchar(500) DEFAULT NULL COMMENT '查询条件6对应的SQL',
+   `sort_order` int(11) NOT NULL DEFAULT '0' COMMENT '排列顺序',
+   PRIMARY KEY (`report_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
+ 
+ 
+## 借款人个人信息 20140928 统一和投资无忧一样 
+CREATE TABLE `loaner_base_info` (
+   `demand_id` bigint(20) NOT NULL COMMENT '贷款ID',
+   `loaner_user_name` varchar(200) DEFAULT NULL COMMENT '账户名',
+   `loaner_real_name` varchar(200) DEFAULT NULL COMMENT '真实姓名',
+   `gender` varchar(2) DEFAULT '男' COMMENT '性别(（男 女）',
+   `age` int(2) unsigned zerofill DEFAULT '00' COMMENT '年龄',
+   `education` varchar(10) DEFAULT '大学' COMMENT '学历（:小学-）',
+   `married` varchar(2) DEFAULT '否' COMMENT '是否结婚（无 有）',
+   `have_child` varchar(2) DEFAULT '无' COMMENT '是否有小孩（无 有）',
+   `have_house` varchar(2) DEFAULT '无' COMMENT '是否有房',
+   `have_car` varchar(2) DEFAULT '无' COMMENT '是否有车',
+   `household_register` varchar(200) DEFAULT 'null' COMMENT '户籍',
+   `salary` bigint(20) DEFAULT '0' COMMENT '薪资',
+   `other_assets` varchar(200) DEFAULT 'null' COMMENT '其他资产情况',
+   `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+   `other_loans` varchar(20) DEFAULT '无' COMMENT '其他贷款',
+   `salary_level` varchar(20) DEFAULT NULL COMMENT '收入水平',
+   PRIMARY KEY (`demand_id`)
+ ) ENGINE=MyISAM DEFAULT CHARSET=utf8
+
+
+ --####2014-09-17 融资需求 标的类型
+ ALTER TABLE loan_demand ADD insure_way VARCHAR(10)  DEFAULT '0000000000' NOT NULL  COMMENT '担保方式';  
+ 
+ 
+ 
+ ---##前台信息分类  20140917
+CREATE TABLE `pop_module` (
+   `module_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '模块ID',
+   `module_name` VARCHAR(128)  NOT NULL COMMENT '模块名称',
+   `sort_order` INT(10) NOT NULL DEFAULT '0' COMMENT '排列顺序',
+   `show_top` CHAR(1)   NOT NULL DEFAULT 'N' COMMENT '是否只显示第一条（N：显示该模块下所有记录）',
+   `hits` BIGINT(10) DEFAULT '0' COMMENT '点击次数',
+   `vm_page` VARCHAR(200)    DEFAULT NULL COMMENT '模块对应的前台展示页面',
+   `status` INT(4) DEFAULT '1' COMMENT '状态（1启用,2下线,0删除）',
+   PRIMARY KEY (`module_id`)
+ ) ENGINE=INNODB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8
+
+
+alter table `pop_module` 
+   add column `module_code` varchar(100) DEFAULT 'DEFAULT_CODE' NOT NULL COMMENT '模块编码' after `module_name` 
+ 
+ 
+ ALTER TABLE `pop_info` 
+   ADD COLUMN `sort_order` INT(10) NULL COMMENT '排列顺序' AFTER `rem1`, 
+   ADD COLUMN `hits` BIGINT(20) NOT NULL DEFAULT '0' COMMENT '点击次数' AFTER `sort_order`, 
+   ADD COLUMN `ishot` CHAR(1) DEFAULT 'N' NULL COMMENT '是否热点信息' AFTER `hits`;
+   
+ alter table  `pop_info` 
+   add column `is_parent` char(1) DEFAULT 'N' NOT NULL COMMENT '是否有子节点' after `parent_id` ; 
+   
+ 
+  --####2014-09-24  融资项目所属地区
+ alter table `loan_demand` 
+   add column `area_nb_no` varchar(20) DEFAULT '001' NOT NULL COMMENT '项目所属地区的代码（common_district.nb_no）' after `insure_way`;
+   
+   
+   ----abing 20140930
+   CREATE TABLE `o2o_join_application` (
+   `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+   `company_name` VARCHAR(50) DEFAULT '"未知"' COMMENT '公司名字',
+   `contact_name` VARCHAR(50) NOT NULL COMMENT '联系人姓名',
+   `human_resources` VARCHAR(50) DEFAULT '"未知"' COMMENT '人力资源',
+   `contact_phone` VARCHAR(50) NOT NULL COMMENT '联系电话',
+   `industry` VARCHAR(200) DEFAULT '"未知"' COMMENT '从事行业',
+   `age` INT(2) DEFAULT '0' COMMENT '年龄',
+   `sales_products` VARCHAR(200) DEFAULT '"未知"' COMMENT '销售的产品',
+   `company_address` VARCHAR(200) DEFAULT '"未知"' COMMENT '所在地址',
+   `status` VARCHAR(10) DEFAULT NULL COMMENT '当前申请的状态',
+   `row_update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+   `row_add_time` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '申请时间',
+   `annex_url` VARCHAR(50) DEFAULT 'null' COMMENT '附件',
+   PRIMARY KEY (`id`)
+ ) ENGINE=INNODB DEFAULT CHARSET=utf8;
+ 
+ 
+ 
+ 
+  ---文件对应的数字证书20141009
+CREATE TABLE `file_elec_certificate` (
+   `file_key` varchar(50) NOT NULL COMMENT '文件标识',
+   `preservation_id` varchar(50) DEFAULT NULL COMMENT '数字证书备案号',
+   `docHash` varchar(500) DEFAULT NULL COMMENT '保全特征码',
+   `link` varchar(500) DEFAULT NULL COMMENT '数字证书查询链接',
+   `raw_add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '数据插入日期',
+   `preservation_time` timestamp NULL DEFAULT NULL COMMENT '保全时间',
+   `link_expire_time` timestamp NULL DEFAULT NULL COMMENT '链接失效时间',
+   `local_link` varchar(500) DEFAULT NULL COMMENT '证书本地保存地址',
+   PRIMARY KEY (`file_key`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC COMMENT='文件对应的数字证书';
+ 
+ 
+ 
+   
+  
+
+  ---###融资人信息 20141016 
+    ALTER TABLE loaner_base_info ADD  `other_loans` VARCHAR(20) DEFAULT '无' COMMENT '其他贷款';
+    ALTER TABLE loaner_base_info ADD  `salary_level` VARCHAR(20) DEFAULT NULL COMMENT '收入水平';
+    
+    ALTER TABLE loaner_base_info ADD  `info_1` VARCHAR(20) DEFAULT NULL COMMENT '扩展字段1';
+     ALTER TABLE loaner_base_info ADD  `info_2` VARCHAR(20) DEFAULT NULL COMMENT '扩展字段2';
+      ALTER TABLE loaner_base_info ADD  `info_3` VARCHAR(20) DEFAULT NULL COMMENT '扩展字段3';
+       ALTER TABLE loaner_base_info ADD  `info_4` VARCHAR(20) DEFAULT NULL COMMENT '扩展字段4';
+        ALTER TABLE loaner_base_info ADD  `info_5` VARCHAR(20) DEFAULT NULL COMMENT '扩展字段5';
+         ALTER TABLE loaner_base_info ADD  `info_6` VARCHAR(20) DEFAULT NULL COMMENT '扩展字段6'; 
+         
+         
+         
+         
+##2014-8-13  用户积分
+create table `user_points`( 
+   `user_points_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键', 
+   `user_base_id` varchar(50) COMMENT '外键', 
+   `points_total` bigint(20) DEFAULT '0' COMMENT '积分总额', 
+   `state` enum('normal','freeze','disable','inactive','locked') DEFAULT 'normal' COMMENT '积分状态', 
+   PRIMARY KEY (`user_points_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+##2014-8-13  用户积分明细
+create table `user_points_detail`( 
+   `points_detail_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键', 
+   `user_points_id` bigint(20) COMMENT '外键', 
+   `points_type` enum('invset','use') COMMENT '积分类型:投资积分,消费积分', 
+   `state` enum('points_sent','goods_sent','goods_wait') COMMENT '状态:已发放,已寄送,待寄送', 
+   `goods` varchar(128) COMMENT '商品名称', 
+   `point_value` bigint(20) COMMENT '积分值', 
+   `point_balance` bigint(20) COMMENT '积分余额', 
+   `source` varchar(128) NULL COMMENT '积分来源：trade_detail_id',
+   `add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间', 
+   PRIMARY KEY (`points_detail_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+##2014-9-11
+alter table `user_points_detail` 
+   change `points_type` `points_type` enum('invset','use','referee') character set utf8 collate utf8_general_ci NULL  comment '积分类型:投资积分,消费积分,推荐积分', 
+   change `source` `source` varchar(128) character set utf8 collate utf8_general_ci NULL  comment '积分来源：投资积分trade_detail_id,推荐积分user_id';
+   
+##2014-8-18  用户积分商品寄送信息
+create table `points_goods_detail`( 
+   `points_goods_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键', 
+   `points_detail_id` bigint(20) COMMENT '外键', 
+   `delivery_company` varchar(128) COMMENT '快递公司', 
+   `billno` varchar(128) COMMENT '快递单号', 
+   `remarks` varchar(256) COMMENT '备注',
+   `add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '创建时间', 
+   `update_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '修改时间', 
+   PRIMARY KEY (`points_goods_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+
+
+##
+alter table `loaner_base_info` 
+   change `demand_id` `demand_id` bigint(200) NOT NULL comment '贷款ID', 
+   change `loaner_user_name` `loaner_user_name` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '是否有其他贷款', 
+   change `loaner_real_name` `loaner_real_name` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '真实姓名', 
+   change `gender` `gender` varchar(200) character set utf8 collate utf8_general_ci default '男' NULL  comment '性别(（男 女）', 
+   change `education` `education` varchar(200) character set utf8 collate utf8_general_ci default '大学' NULL  comment '学历（:小学-）', 
+   change `married` `married` varchar(200) character set utf8 collate utf8_general_ci default '否' NULL  comment '是否结婚（无 有）', 
+   change `have_child` `have_child` varchar(200) character set utf8 collate utf8_general_ci default '无' NULL  comment '是否有小孩（无 有）', 
+   change `have_house` `have_house` varchar(200) character set utf8 collate utf8_general_ci default '无' NULL  comment '是否有房', 
+   change `have_car` `have_car` varchar(200) character set utf8 collate utf8_general_ci default '无' NULL  comment '是否有车', 
+   change `household_register` `household_register` varchar(200) character set utf8 collate utf8_general_ci default 'null' NULL  comment '户籍', 
+   change `other_assets` `other_assets` varchar(200) character set utf8 collate utf8_general_ci default 'null' NULL  comment '其他资产情况', 
+   change `other_loans` `other_loans` varchar(200) character set utf8 collate utf8_general_ci default '无' NULL  comment '其他贷款', 
+   change `salary_level` `salary_level` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '收入水平', 
+   change `info_1` `info_1` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '扩展字段1', 
+   change `info_2` `info_2` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '扩展字段2', 
+   change `info_3` `info_3` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '扩展字段3', 
+   change `info_4` `info_4` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '扩展字段4', 
+   change `info_5` `info_5` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '扩展字段5', 
+   change `info_6` `info_6` varchar(200) character set utf8 collate utf8_general_ci NULL  comment '扩展字段6';
+
+   
+ #新版帮助中心 
+ alter table `pop_module` 
+   add column `type` int(4) NOT NULL COMMENT '模块类型' after `status`;
+   
+   
+ #还款到期，当天是否已经通知融资人   
+    ALTER TABLE `trade` 
+  ADD COLUMN `had_intraday_notify` ENUM('NO','YES') NULL COMMENT '还款到期当天是否已通知还款人' AFTER `trade_isNotified_loaner`;   
+   
+ ##2014-12-01 合作机构建表sql
+CREATE TABLE `coops_info` (
+   `coo_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '机构ID',
+   `coo_name` varchar(60) NOT NULL COMMENT '机构名',
+   `coo_herf` varchar(256) NOT NULL COMMENT '机构链接',
+   `pic_name` varchar(100) NOT NULL COMMENT '图片名称',
+   `pic_url` varchar(256) NOT NULL COMMENT '图片路径',
+   `pic_phy_url` varchar(256) NOT NULL COMMENT '图片物理路径',
+   `add_time` datetime NOT NULL COMMENT '添加时间',
+   PRIMARY KEY (`coo_id`),
+   UNIQUE KEY `coo_id` (`coo_id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='合作机构信息';  
+ 
+ 
+ CREATE TABLE `loan_demand_extend` (
+  `loan_demand_extend_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `loan_demand_id` BIGINT(20) NOT NULL,
+  `property_key` VARCHAR(500) DEFAULT NULL,
+  `property_value` VARCHAR(2000) DEFAULT NULL,
+  PRIMARY KEY (`loan_demand_extend_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ 
+---qichunhai 20141209
+ALTER TABLE `recharge_flow`
+MODIFY COLUMN `yjf_account_id`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '资金账户Id' AFTER `user_id`,
+MODIFY COLUMN `pay_type`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '支付类型:DEDUCT代扣，EBANK网银，WITHDRAW提现' AFTER `amount`,
+ADD COLUMN `user_name`  varchar(64) NULL AFTER `yjf_account_id`,
+ADD COLUMN `user_real_name`  varchar(64) NULL AFTER `user_name`,
+ADD COLUMN `out_user_id`  bigint(20) NULL AFTER `user_real_name`,
+ADD COLUMN `out_yjf_account_id`  varchar(32) NULL AFTER `out_user_id`,
+ADD COLUMN `out_user_name`  varchar(64) NULL AFTER `out_yjf_account_id`,
+ADD COLUMN `out_user_real_name`  varchar(64) NULL AFTER `out_user_name`,
+ADD COLUMN `in_out_type`  varchar(32) NULL AFTER `pay_type`,
+ADD COLUMN `is_trade_redundancy`  varchar(32) NULL COMMENT '交易冗余数据' AFTER `rem1`,
+ADD COLUMN `raw_add_time`  timestamp NULL DEFAULT '0000-00-00 00:00:00' AFTER `is_trade_redundancy`,
+ADD COLUMN `raw_update_time`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `raw_add_time`;
+
+ALTER TABLE `recharge_flow`
+CHANGE COLUMN `out_bizNo` `out_biz_no`  varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '金融平台业务流水号' AFTER `out_user_real_name`;
+
+ALTER TABLE `user_login_log`
+MODIFY COLUMN `login_time`  timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '登录时间' AFTER `login_address`,
+ADD COLUMN `raw_add_time`  timestamp NULL DEFAULT '0000-00-00 00:00:00' AFTER `login_time`,
+ADD COLUMN `raw_update_time`  timestamp NULL ON UPDATE CURRENT_TIMESTAMP AFTER `raw_add_time`;
+
+ALTER TABLE `user_base_info`
+ADD COLUMN `enterprise_type`  varchar(32) NULL COMMENT '企业用户，类型，小微企业，票据企业' AFTER `change_lock_time`;
+
+ALTER TABLE `loaner_base_info`
+CHANGE COLUMN `demand_id` `user_id`  bigint(32) NOT NULL COMMENT '用户id' FIRST ;
+
+###红包
+
+DROP TABLE IF EXISTS `gift_money`;
+
+CREATE TABLE `gift_money` (
+  `gift_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `gift_name` varchar(100) NOT NULL COMMENT '红包名称',
+  `increase` varchar(4) DEFAULT NULL COMMENT '是否递增的红包',
+  `rate_of_year` decimal(6,4) DEFAULT NULL COMMENT '利率',
+  `gift_num` bigint(20) DEFAULT NULL COMMENT '红包数',
+  `person_num` bigint(20) DEFAULT NULL COMMENT '人数',
+  `total_amount` bigint(20) DEFAULT NULL COMMENT '红包总额',
+  `amount` bigint(20) DEFAULT NULL COMMENT '红包金额',
+  `used_amount` bigint(20) DEFAULT NULL COMMENT '已经发放金额',
+  `give_type` varchar(32) DEFAULT NULL COMMENT '发放类型',
+  `type` varchar(32) DEFAULT NULL COMMENT '类型',
+  `use_type` varchar(32) DEFAULT NULL COMMENT '使用的类型',
+  `use_amount` varchar(500) DEFAULT NULL COMMENT '使用满足的金额',
+  `end_date` datetime DEFAULT NULL COMMENT '活动结束时间',
+  `start_date` datetime DEFAULT NULL COMMENT '活动开始时间',
+  `use_start_date` datetime DEFAULT NULL COMMENT '红包开始时间',
+  `use_end_date` datetime DEFAULT NULL COMMENT '红包结束时间',
+  `status` varchar(32) DEFAULT NULL COMMENT '状态',
+  `create_userid` bigint(20) DEFAULT NULL COMMENT '创建者',
+  `create_username` varchar(32) DEFAULT NULL COMMENT '创建者姓名',
+  `raw_add_time` datetime DEFAULT NULL COMMENT '添加时间',
+  `raw_update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `description` varchar(250) DEFAULT NULL COMMENT '描述',
+  PRIMARY KEY (`gift_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1107 DEFAULT CHARSET=utf8;
+
+
+
+DROP TABLE IF EXISTS `gift_money_rule`;
+
+CREATE TABLE `gift_money_rule` (
+  `gift_rule_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `gift_id` bigint(20) DEFAULT NULL COMMENT '所属红包',
+  `gift_rule_name` varchar(100) DEFAULT NULL COMMENT '规则名称',
+  `rule_type` varchar(32) DEFAULT NULL COMMENT '规则类型',
+  `type` varchar(32) DEFAULT NULL COMMENT '类型',
+  `status` varchar(32) DEFAULT NULL COMMENT '状态',
+  `rule` varchar(500) DEFAULT NULL COMMENT '规则',
+  `rule_amount` varchar(500) DEFAULT NULL COMMENT '规则金额',
+  `amount` varchar(500) DEFAULT NULL COMMENT '送金额',
+  `create_userid` bigint(20) DEFAULT NULL COMMENT '创建者',
+  `create_username` varchar(500) DEFAULT NULL COMMENT '创建者姓名',
+  `raw_add_time` datetime DEFAULT NULL COMMENT '添加时间',
+  `raw_update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `description` varchar(250) DEFAULT NULL COMMENT '描述',
+  PRIMARY KEY (`gift_rule_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8;
+
+/*Table structure for table `gift_money_trade` */
+
+DROP TABLE IF EXISTS `gift_money_trade`;
+
+CREATE TABLE `gift_money_trade` (
+   `gift_trade_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+   `gift_name` VARCHAR(100) DEFAULT NULL COMMENT '红包名称',
+   `gift_id` BIGINT(20) DEFAULT NULL COMMENT '红包',
+   `amount` BIGINT(20) DEFAULT NULL COMMENT '金额',
+   `used_amount` BIGINT(20) DEFAULT NULL COMMENT '已经使用金额',
+   `userid` BIGINT(20) DEFAULT NULL COMMENT '用户',
+   `username` VARCHAR(32) DEFAULT NULL COMMENT '用户姓名',
+   `use_type` VARCHAR(32) DEFAULT NULL COMMENT '使用限制类型',
+   `use_amount` VARCHAR(32) DEFAULT NULL COMMENT '使用限制金额',
+   `status` VARCHAR(32) DEFAULT NULL COMMENT '状态',
+   `type` VARCHAR(32) DEFAULT NULL COMMENT '类型',
+   `startDate` DATETIME DEFAULT NULL COMMENT '开始实际',
+   `endDate` DATETIME DEFAULT NULL COMMENT '结束时间',
+   `trade_detail_id` BIGINT(20) DEFAULT NULL COMMENT '交易详情id',
+   `trade_name` VARCHAR(250) DEFAULT NULL COMMENT '交易名称',
+   `raw_add_time` DATETIME DEFAULT NULL COMMENT '添加时间',
+   `raw_update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
+   `outBizNo` VARCHAR(64) DEFAULT NULL,
+   PRIMARY KEY (`gift_trade_id`),
+   UNIQUE KEY `gift_id_outBizNo` (`gift_id`,`outBizNo`)
+ ) ENGINE=INNODB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8
+
+
+
+CREATE TABLE `project_detail` (
+  `demand_id` bigint(20) NOT NULL COMMENT '项目id',
+  `loaner_info` mediumtext COMMENT '借款人介绍',
+  `project_info` mediumtext COMMENT '项目介绍',
+  `money_use` mediumtext COMMENT '资金用途',
+  `credit_info` mediumtext COMMENT '信用情况',
+  `repay_info` mediumtext COMMENT '还款来源',
+  `measures_info` mediumtext COMMENT '保障措施',
+  `audit_data_type` varchar(2) DEFAULT NULL COMMENT '审核资料类型',
+  `audit_data1` mediumtext COMMENT '审核资料1',
+  `add_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+  `audit_data2` mediumtext COMMENT '审核资料2',
+  `audit_data3` mediumtext COMMENT '审核资料3',
+  PRIMARY KEY (`demand_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE `loan_demand_extend` (
+  `loan_demand_extend_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `loan_demand_id` bigint(20) NOT NULL,
+  `property_key` varchar(500) DEFAULT NULL,
+  `property_value` varchar(2000) DEFAULT NULL,
+  PRIMARY KEY (`loan_demand_extend_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
+
+---2014-12-12 
+ALTER TABLE  `loan_demand`
+ALTER TABLE `loan_demand` 
+   ADD COLUMN `publish_user_id` BIGINT(20) NULL COMMENT '发布人id' AFTER `insure_way`, 
+   ADD COLUMN `publish_user_name` VARCHAR(32) NULL COMMENT '发布人姓名' AFTER `publish_user_id`, 
+   ADD COLUMN `check_user_id` BIGINT(20) NULL COMMENT '审核人id' AFTER `publish_user_name`, 
+   ADD COLUMN `check_user_name` VARCHAR(32) NULL COMMENT '审核人姓名' AFTER `check_user_id`;
+
+
+ ---2014-12-12快捷投资：通知理财平台次数
+ALTER TABLE `trade`
+   ADD COLUMN `notified_channel_time` INT(11) DEFAULT '0' NULL COMMENT '通知理财平台次数' AFTER `trade_isNotified_loaner`  ;
+   
+ALTER TABLE `loan_demand` 
+   ADD COLUMN `loan_guarantee_amount` BIGINT(20) NULL COMMENT '借款担保金额' AFTER `loan_amount`, 
+   ADD COLUMN `guarantee_show` CHAR(2) DEFAULT 'on' NULL COMMENT '是否显示担保信息' AFTER `guarantee_license_url`;
+
+CREATE TABLE `loan_demand_extend` (
+	`loan_demand_extend_id` DOUBLE ,
+	`loan_demand_id` DOUBLE ,
+	`property_key` VARCHAR (1500),
+	`property_value` VARCHAR (6000)
+); 
+
+CREATE TABLE `project_detail` (
+   `demand_id` BIGINT(20) NOT NULL COMMENT '项目id',
+   `loaner_info` MEDIUMTEXT COMMENT '借款人介绍',
+   `project_info` MEDIUMTEXT COMMENT '项目介绍',
+   `money_use` MEDIUMTEXT COMMENT '资金用途',
+   `credit_info` MEDIUMTEXT COMMENT '信用情况',
+   `repay_info` MEDIUMTEXT COMMENT '还款来源',
+   `measures_info` MEDIUMTEXT COMMENT '保障措施',
+   `audit_data_type` VARCHAR(6) DEFAULT NULL COMMENT '审核资料类型',
+   `audit_data1` MEDIUMTEXT COMMENT '审核资料1',
+   `add_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '创建时间',
+   `audit_data2` MEDIUMTEXT COMMENT '审核资料2',
+   `audit_data3` MEDIUMTEXT COMMENT '审核资料3',
+   `company_info` MEDIUMTEXT COMMENT '企业说明',
+   PRIMARY KEY (`demand_id`)
+ ) ENGINE=INNODB DEFAULT CHARSET=utf8;
+ 
+  ---#20121213 pdf模板文件  
+ 
+ CREATE TABLE `pdf_template` (
+   `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '模板ID',
+   `name` varchar(3072) DEFAULT NULL COMMENT '模板名',
+   `pdf_name` varchar(3072) DEFAULT NULL COMMENT '生成PDF后的文件名',
+   `type_code` varchar(200) DEFAULT 'contract' COMMENT '模板类型(contract合同;receipt投资凭证;letter担保函)',
+   `xsl_content` text COMMENT '模板内容',
+   `raw_add_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT '添加时间',
+   `raw_update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+   PRIMARY KEY (`id`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
+   
+   
+   ---#20121213 某交易的pdf模板/文件    feihong
+ CREATE TABLE `demand_pdf_template` (
+   `id` BIGINT(20) NOT NULL COMMENT '融资需求合同模板ID',
+   `demand_id` BIGINT(20) NOT NULL COMMENT '融资需求ID',
+   `type_code` VARCHAR(200) NOT NULL COMMENT '模板类別',
+   `pdf_template_id` BIGINT(20) NOT NULL COMMENT 'pdf模板id',
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `demand_tempid_ASIGNMAPINDEX` (`demand_id`,`type_code`) USING BTREE
+ ) ENGINE=INNODB DEFAULT CHARSET=utf8;
+ 
+ ---#20121218 pdf模板文件    feihong
+ ALTER TABLE `demand_pdf_template` 
+   ADD COLUMN `pdf_file_path` VARCHAR(500) NULL COMMENT '生成的pdf后的文件地址' AFTER `pdf_template_id`, 
+   ADD COLUMN `pdf_request_path` VARCHAR(500) NULL COMMENT '生成的pdf后的访问路径' AFTER `pdf_file_path`;
+   
+ ---#20121224 pdf模板文件    feihong  
+ alter table `demand_pdf_template` 
+   change `id` `id` bigint(20) NOT NULL AUTO_INCREMENT comment '融资需求合同模板ID'  
+   
+   
+
+
+---2014-12-24 user_relation索引
+ALTER TABLE `user_relation`
+DROP INDEX `AK_Key_2` ,
+ADD UNIQUE INDEX `AK_Key_2` (`parent_id`, `child_id`) USING HASH ,
+DROP INDEX `child_id_unique_key` ,
+ADD UNIQUE INDEX `child_id_unique_key` (`child_id`) USING HASH ,
+DROP INDEX `FK_Reference_30` ,
+ADD UNIQUE INDEX `index_Reference_member_no` (`member_no`) USING HASH ,
+ADD INDEX `IND_USER_RELATION_Parent_ID` (`parent_id`) USING BTREE ;  
+
+
+
+CREATE TABLE `profit_asign_info_marketing` (
+  `tbl_base_id` bigint(18) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `receive_id` bigint(20) NOT NULL COMMENT '接收者ID',
+  `distribution_id` bigint(20) DEFAULT NULL,
+  `distribution_quota` decimal(6,4) NOT NULL COMMENT '贡献年化收益',
+  `note` varchar(128) DEFAULT NULL COMMENT '备注',
+  `raw_add_time` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+  `raw_update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `rem1` varchar(32) DEFAULT NULL COMMENT '备用字段一',
+  PRIMARY KEY (`tbl_base_id`),
+  UNIQUE KEY `marketing_ASIGNMAPINDEX` (`receive_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `profit_asign_info_broker` (
+  `tbl_base_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `receive_id` bigint(20) NOT NULL COMMENT '接收者ID',
+  `distribution_id` bigint(20) NOT NULL COMMENT '贡献者ID',
+  `distribution_quota` decimal(6,4) NOT NULL COMMENT '贡献年化收益',
+  `note` varchar(128) DEFAULT NULL COMMENT '备注',
+  `raw_add_time` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+  `raw_update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `rem1` varchar(32) DEFAULT NULL COMMENT '备用字段一',
+  PRIMARY KEY (`tbl_base_id`),
+  UNIQUE KEY `broker_ASIGNMAPINDEX` (`receive_id`,`distribution_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+##2014-12-15
+ALTER TABLE `loan_demand`
+   ADD COLUMN `loan_guarantee_amount` BIGINT(20) NULL COMMENT '融资担保金额' AFTER `insure_way`;
+ALTER TABLE `loan_demand`
+   ADD COLUMN `guarantee_show` CHAR(2) NULL COMMENT '是否显示担保函' AFTER `insure_way`;
+
+
+ALTER TABLE `project_detail`
+   ADD COLUMN `company_info` MEDIUMTEXT NULL COMMENT '企业说明';
+
+
+ ALTER TABLE `repay_plan`
+   ADD COLUMN `self_pay_actual_user_time` DATETIME DEFAULT '0000-00-00 00:00:00' NULL COMMENT '融资人补交代偿款时间' AFTER `actual_repay_date`,
+   CHANGE `status` `status` VARCHAR(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL  COMMENT '还款状态（NOTPAY 未还款;PAYID 已还款;PAYISD 已代还款）';
+   
+
+
+ 
+---#2014-12-16 融资项目信息模块  liuzuobin
+CREATE TABLE `loan_demand_info_item` (
+  `demand_info_item_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `info_name` VARCHAR(128) NOT NULL COMMENT '名称',
+  `sort_no` SMALLINT(4) NOT NULL DEFAULT '1' COMMENT '排序号',
+  `info_type` CHAR(2) NOT NULL DEFAULT '0' COMMENT '信息类型',
+  `status` CHAR(2) NOT NULL DEFAULT '0' COMMENT '状态',
+  `note` VARCHAR(256) DEFAULT NULL COMMENT '备注',
+  `raw_add_time` TIMESTAMP NULL DEFAULT NULL COMMENT '创建时间',
+  `raw_update_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`demand_info_item_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+---#2014-12-23 融资项目信息模块明细  liuzuobin
+CREATE TABLE `loan_demand_item_detail` (
+   `demand_item_detail_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+   `demand_info_item_id` BIGINT(20) NOT NULL COMMENT '融资项目ID',
+   `demand_id` BIGINT(20) NOT NULL COMMENT '借款需求ID',
+   PRIMARY KEY (`demand_item_detail_id`)
+ ) ENGINE=INNODB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+---#2014-12-23 后台新增借款人信息  liuzuobin
+alter table `loaner_base_info` 
+   add column `profession` varchar(128) NULL COMMENT '职业' after `resume`, 
+   add column `houseArea` decimal(8,2) NULL COMMENT '房屋面积' after `profession`, 
+   add column `houseValue` decimal(8,2) NULL COMMENT '房屋估值' after `houseArea`, 
+   add column `carNumber` varchar(128) NULL COMMENT '车牌号码' after `houseValue`, 
+   add column `carValue` decimal(8,2) NULL COMMENT '车辆估值' after `carNumber`, 
+   add column `houseMortgage` char(2) NULL COMMENT '房产抵押' after `carValue`, 
+   add column `carMortgage` char(2) NULL COMMENT '车产抵押' after `houseMortgage`, 
+   add column `otherInfo` mediumtext NULL COMMENT '其他信息' after `carMortgage`, 
+   add column `isAuthentication` varchar(4) NULL COMMENT '审核身份证' after `otherInfo`, 
+   add column `isAuditAccount` varchar(4) NULL COMMENT '审核户口本' after `isAuthentication`, 
+   add column `isAuditMarriage` varchar(4) NULL COMMENT '审核结婚证' after `isAuditAccount`, 
+   add column `isAuditHouseContract` varchar(4) NULL COMMENT '审核购房合同/房产证' after `isAuditMarriage`, 
+   add column `isAuditMortgage` varchar(4) NULL COMMENT '审核抵押手续' after `isAuditHouseContract`, 
+   add column `isAuditIncome` varchar(4) NULL COMMENT '审核收入证明' after `isAuditMortgage`, 
+   add column `isAuditCredit` varchar(4) NULL COMMENT '审核信用报告' after `isAuditIncome`,
+   change `other_assets` `other_assets` varchar(1000) character set utf8 collate utf8_general_ci default 'null' NULL  comment '其他资产情况';
+   
+##2014-12-18
+ALTER TABLE loaner_base_info  ADD RESUME VARCHAR (200) NULL  ;
+
+##2014-12-23 修改充值流水表的字段,可为空
+ALTER TABLE recharge_flow MODIFY bank_name VARCHAR(200) NULL,
+MODIFY bank_account_no VARCHAR(200) NULL,
+MODIFY bank_acount_name VARCHAR(200) NULL ,
+MODIFY amount DECIMAL(16,3) NULL;
+
+
+###2014-12-24 完善用户银行信息表
+ALTER TABLE user_bank_info  MODIFY COLUMN  is_del VARCHAR(20) DEFAULT 'NO';
+UPDATE user_bank_info SET is_del = IF(is_del='1','NO','YES');
+
+
+
+
+
+###2014-12-30 债权转入规则
+CREATE TABLE `debt_transfer_rule` (
+   `rule_id` bigint(20) NOT NULL AUTO_INCREMENT,
+   `holding_date` bigint(10) DEFAULT NULL COMMENT '持有期',
+   `valid_date` bigint(10) DEFAULT NULL COMMENT '有效期',
+   `price_online` decimal(6,4) DEFAULT NULL COMMENT '价格上线',
+   `price_offline` decimal(6,4) DEFAULT NULL COMMENT '价格下线',
+   `trans_charge` decimal(6,4) DEFAULT NULL COMMENT '转让手续费',
+   `hand_cancel` varchar(20) DEFAULT NULL COMMENT '是否支持手动撤销',
+   `version` varchar(20) DEFAULT NULL COMMENT '规则版本(his历史版本,now当前可能版本)',
+   `remark` varchar(250) DEFAULT NULL COMMENT '描述',
+   `raw_add_time` datetime DEFAULT NULL COMMENT '添加时间',
+   `raw_update_time` datetime DEFAULT NULL COMMENT '更新时间',
+   PRIMARY KEY (`rule_id`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+
+ 
+---###2014-12-31 债权转让发布时间
+ALTER TABLE `trade_detail_transfer`
+ADD COLUMN `release_date`  timestamp NULL DEFAULT '0000-00-00 00:00:00' COMMENT '发布时间' AFTER `recipient_real_name`;
+
+
+
+---##2014-12-29  字段sql_str长度扩展  feihong
+ALTER TABLE `report_rule` CHANGE `sql_str` `sql_str` VARCHAR(10000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '报表SQL主体';
+
+ 
+
+---##2014-12-31  报表查询条件支持下拉框  feihong
+  	  ALTER TABLE `report_rule` 
+   ADD COLUMN `filter1_options` VARCHAR(1000) NULL COMMENT '查询条件1下拉框选项值' AFTER `filter1_sql`;
+      ALTER TABLE `report_rule` 
+   ADD COLUMN `filter2_options` VARCHAR(1000) NULL COMMENT '查询条件2下拉框选项值' AFTER `filter2_sql`;
+      ALTER TABLE `report_rule` 
+   ADD COLUMN `filter3_options` VARCHAR(1000) NULL COMMENT '查询条件3下拉框选项值' AFTER `filter3_sql`;
+      ALTER TABLE `report_rule` 
+   ADD COLUMN `filter4_options` VARCHAR(1000) NULL COMMENT '查询条件4下拉框选项值' AFTER `filter4_sql`;
+      ALTER TABLE `report_rule` 
+   ADD COLUMN `filter5_options` VARCHAR(1000) NULL COMMENT '查询条件5下拉框选项值' AFTER `filter5_sql`;
+      ALTER TABLE `report_rule` 
+   ADD COLUMN `filter6_options` VARCHAR(1000) NULL COMMENT '查询条件6下拉框选项值' AFTER `filter6_sql`;
+   
+--- ##2014-12-31  合同支持逻辑删除和默认设置  feihong  
+ alter table `pdf_template` 
+   add column `is_default` varchar(10) DEFAULT 'NO' NOT NULL COMMENT '是否默认模板' after `raw_update_time`, 
+   add column `state` varchar(50) DEFAULT 'online' NOT NULL COMMENT 'online 上线; offline 下线' after `is_default` ; 
+   
+
+--- ##2015-01-06  单月还款本金  qichunhai  
+ALTER TABLE `repay_plan`
+ADD COLUMN `repay_principal_amount`  bigint(20) NOT NULL DEFAULT 0 COMMENT '还款本金' AFTER `amount` ; 
+
+
+--- ##2015-01-06  单月还款本金  qichunhai  
+ALTER TABLE `trade_detail_item`
+ADD COLUMN `repay_principal_amount`  bigint(20) NOT NULL DEFAULT 0 COMMENT '还款本金部分' AFTER `repay_date`; 
+
+
+   
+--##2015-01-06   数据查询-经营数据分析（累计值列表）  feihong   
+DELIMITER $$
+/*USE `feihong_test`$$*/
+DROP PROCEDURE IF EXISTS `p_query_latest`$$
+CREATE  PROCEDURE `p_query_latest`(dt1 DATETIME,cnt INT)
+BEGIN
+	DECLARE i INT;
+	DECLARE tatol INT;
+	DECLARE dt DATETIME;
+	SET i=0;
+	SET dt =dt1;
+	SET tatol = cnt -1;
+	
+     DROP TEMPORARY TABLE IF EXISTS `tmp_table`;
+      CREATE TEMPORARY TABLE `tmp_table` 
+      SELECT DATE_FORMAT(dt1, '%Y-%m-%d') 日期 ,A.allCount 日终累计会员数,B.dayCount 当日新增会员数,D.dayLogCount 当日访问会员数,E.dayInvesCount  
+	当日投资会员数,IFNULL(F.dayInvesAmount,0) 当日投资金额,G.vliInvesCount 在投会员总数,IFNULL(H.aliInvestAmount,0) 在投累计金额  FROM 
+	 (SELECT CURRENT_DATE timer,COUNT(u.user_id) allCount  FROM user_base_info u 
+	WHERE  DATE_FORMAT(u.row_add_time, '%Y-%m-%d')    <= dt1 ) A,
+	(SELECT CURRENT_DATE  timer, COUNT(u.user_id) dayCount  FROM user_base_info u 
+	WHERE   DATE_FORMAT(u.row_add_time, '%Y-%m-%d')    =   dt1 ) B,
+	(SELECT CURRENT_DATE   timer,COUNT(DISTINCT l.user_id) dayLogCount  FROM user_login_log l 
+	WHERE DATE_FORMAT(  l.login_time , '%Y-%m-%d') =   dt1 ) D,
+	(SELECT CURRENT_DATE  timer,COUNT(DISTINCT i.user_id) dayInvesCount FROM trade_detail_item i
+	 WHERE i.role_id = 12 AND i.transfer_phase = 'original' AND  DATE_FORMAT(  i.create_date , '%Y-%m-%d') =     dt1  ) E,
+	(SELECT CURRENT_DATE  timer,SUM(i.amount/100) dayInvesAmount FROM trade_detail_item i
+	 WHERE i.role_id = 12 AND i.transfer_phase = 'original' AND  DATE_FORMAT(  i.create_date , '%Y-%m-%d') =      dt1 ) F,
+	(SELECT CURRENT_DATE  timer,COUNT(DISTINCT i.user_id)  vliInvesCount  FROM trade  t,   trade_detail_item i 
+	WHERE t.trade_id = i.trade_id
+	 AND   DATE_FORMAT( t.trade_effective_date, '%Y-%m-%d') <=   dt1 
+	 AND   DATE_FORMAT( t.trade_expire_date, '%Y-%m-%d')  >=    dt1 
+	AND t.trade_status != -1
+	AND i.role_id = 12 AND i.transfer_phase = 'original' ) G,
+	(SELECT CURRENT_DATE  timer,SUM(i.amount/100) aliInvestAmount  FROM trade  t,   trade_detail_item i 
+	WHERE t.trade_id = i.trade_id 
+	AND   DATE_FORMAT( t.trade_effective_date, '%Y-%m-%d') <=    dt1 
+	AND   DATE_FORMAT( t.trade_expire_date, '%Y-%m-%d')  >=    dt1 
+	AND t.trade_status != -1
+	AND i.role_id = 12 AND i.transfer_phase = 'original' ) H
+	WHERE A.timer =B.timer     AND A.timer  = D.timer  AND A.timer  = E.timer  AND A.timer =F.timer
+	AND A.timer  = G.timer  AND A.timer  = H.timer;	
+	 
+	  IF  tatol<=365  THEN		
+		
+		WHILE i<tatol DO
+			SET dt=DATE_ADD(dt, INTERVAL -1 DAY) ;
+			
+			INSERT INTO  `tmp_table`
+				 SELECT DATE_FORMAT(dt, '%Y-%m-%d') 日期 ,A.allCount 日终累计会员数,B.dayCount 当日新增会员数,D.dayLogCount 当日访问会员数,E.dayInvesCount  
+			当日投资会员数,IFNULL(F.dayInvesAmount,0) 当日投资金额,G.vliInvesCount 在投会员总数,IFNULL(H.aliInvestAmount,0) 在投累计金额  FROM 
+			 (SELECT CURRENT_DATE timer,COUNT(u.user_id) allCount  FROM user_base_info u 
+			WHERE DATE_FORMAT(u.row_add_time, '%Y-%m-%d')    <= dt ) A,
+			(SELECT CURRENT_DATE  timer, COUNT(u.user_id) dayCount  FROM user_base_info u 
+			WHERE   DATE_FORMAT(u.row_add_time, '%Y-%m-%d')    =   dt ) B,
+			(SELECT CURRENT_DATE   timer,COUNT(DISTINCT l.user_id) dayLogCount  FROM user_login_log l 
+			WHERE DATE_FORMAT(  l.login_time , '%Y-%m-%d') =   dt ) D,
+			(SELECT CURRENT_DATE  timer,COUNT(DISTINCT i.user_id) dayInvesCount FROM trade_detail_item i
+			 WHERE i.role_id = 12 AND i.transfer_phase = 'original' AND  DATE_FORMAT(  i.create_date , '%Y-%m-%d') =     dt  ) E,
+			(SELECT CURRENT_DATE  timer,SUM(i.amount/100) dayInvesAmount FROM trade_detail_item i
+			 WHERE i.role_id = 12 AND i.transfer_phase = 'original' AND  DATE_FORMAT(  i.create_date , '%Y-%m-%d') =      dt ) F,
+			(SELECT CURRENT_DATE  timer,COUNT(DISTINCT i.user_id)  vliInvesCount  FROM trade  t,   trade_detail_item i 
+			WHERE t.trade_id = i.trade_id
+			 AND   DATE_FORMAT( t.trade_effective_date, '%Y-%m-%d') <=   dt
+			 AND   DATE_FORMAT( t.trade_expire_date, '%Y-%m-%d')  >=    dt
+			AND t.trade_status != -1
+			AND i.role_id = 12 AND i.transfer_phase = 'original' ) G,
+			(SELECT CURRENT_DATE  timer,SUM(i.amount/100) aliInvestAmount  FROM trade  t,   trade_detail_item i 
+			WHERE t.trade_id = i.trade_id 
+			AND   DATE_FORMAT( t.trade_effective_date, '%Y-%m-%d') <=    dt
+			AND   DATE_FORMAT( t.trade_expire_date, '%Y-%m-%d')  >=    dt
+			AND t.trade_status != -1
+			AND i.role_id = 12 AND i.transfer_phase = 'original' ) H
+			WHERE A.timer =B.timer     AND A.timer  = D.timer  AND A.timer  = E.timer  AND A.timer =F.timer
+			AND A.timer  = G.timer  AND A.timer  = H.timer;	
+		
+		SET i=i+1;
+		END WHILE;	
+	END IF;  	
+      SELECT * FROM tmp_table;
+    END$$
+DELIMITER ;
+
+
+####2015-01-01 红包交易
+ALTER TABLE `gift_money_trade`
+ADD COLUMN `trade_type`  VARCHAR(32) NOT NULL DEFAULT 'ORIGINAL' COMMENT '交易类型' AFTER `status`;
+
+---非大陆实名修改
+ALTER TABLE `user_base_info`
+MODIFY COLUMN `real_name_authentication`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '实名认证状态：IS-通过，IN-申请中,NO-未通过,N-未认证' AFTER `ex_identity_no`;
+
+
+
+####2015-01-16 纵筹模块
+ALTER TABLE `loan_demand`
+ADD COLUMN `banking_biz_type_enum`  varchar(32) NULL DEFAULT 'CLAIMS_RAISE' COMMENT '金融业务类型枚举-债权，产权纵筹。。。' AFTER `area_nb_no`;
+
+ALTER TABLE `trade`
+ADD COLUMN `banking_biz_type_enum`  varchar(32) NULL DEFAULT 'CLAIMS_RAISE' COMMENT '金融业务类型枚举-债权，产权纵筹。。。' AFTER `had_intraday_notify`;
+
+## 海外实名认证
+CREATE TABLE `guarantor_info` (
+  `id` bigint(18) NOT NULL AUTO_INCREMENT,
+  `guarantor_code` varchar(32) DEFAULT NULL COMMENT '担保人编号',
+  `guarantor_name` varchar(64) NOT NULL COMMENT '担保人姓名',
+  `guarantee_cert_type` varchar(32) NOT NULL COMMENT '担保人证件类型',
+  `guarantee_cert_no` varchar(32) NOT NULL COMMENT '担保人证件号',
+  `guarantee_cert_valid_time` varchar(20) NOT NULL COMMENT '担保人证件到期时间',
+  `guarantee_cert_front_path` varchar(256) NOT NULL COMMENT '担保人证件正面图片',
+  `guarantee_cert_back_path` varchar(256) NOT NULL COMMENT '担保人证件背面图片',
+  `guarantee_phone` varchar(20) NOT NULL COMMENT '担保人手机号',
+  `guarantee_occupation` varchar(32) DEFAULT NULL COMMENT '担保人职业',
+  `guarantee_address` varchar(128) NOT NULL COMMENT '担保人地址',
+  `raw_add_time` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+  `raw_update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+##
+ALTER TABLE `personal_info`
+MODIFY COLUMN `bank_type`  varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '证件类型' AFTER `bank_card_no`,
+MODIFY COLUMN `bank_key`  varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '担保人id' AFTER `bank_type`,
+MODIFY COLUMN `customer_source`  varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '担保涵' AFTER `referees`;
+
+####分润方式类型修改字符串
+ ALTER TABLE `division_template`
+MODIFY COLUMN `division_way`  VARCHAR(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '分润方式' ;gift
+
+## 2015-01-26按月等额本息
+alter table `division_template` 
+   change `division_way` `division_way` enum('month','sit','month_principal_interest') character set utf8 collate utf8_general_ci default 'sit' NOT NULL comment '分润方式,sit:每笔投资分润,month:每月分润,month_principal_interest:按月等额本息'
+###2015-02-09 红包限制时间
+ALTER TABLE `gift_money` ADD COLUMN `time_limit`  VARCHAR(32) NULL  COMMENT '红包限制时' AFTER `description` ;
+
+

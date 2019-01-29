@@ -1,0 +1,33 @@
+package com.yjf.esupplier.service.biz.util;
+
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.integration.openapi.CustomerService;
+import com.yjf.esupplier.integration.openapi.context.OpenApiContext;
+import com.yjf.esupplier.integration.openapi.result.CustomerResult;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+
+public class BizUtils {
+	public static String makeUserName(CustomerService customerService,
+										OpenApiContext openApiContext, String mobileNumber) {
+		String yjfUserName = null;
+		int index = 0;
+		int indexMax = 100;
+		while (index < indexMax) {
+			String seqNum = index == 0 ? "" : String.valueOf(index);
+			String userName = AppConstantsUtil.getYrdPrefixion() + seqNum + "_" + mobileNumber;
+			CustomerResult result = customerService.checkUserNameExist(userName, openApiContext);
+			if (!result.isExsit()) {
+				yjfUserName = userName;
+				break;
+			}
+			index++;
+		}
+		if (StringUtil.isEmpty(yjfUserName)) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+				"用户名重复");
+		}
+		return yjfUserName;
+	}
+}

@@ -1,0 +1,74 @@
+package com.yjf.esupplier.service.orderfood;
+
+import java.util.List;
+
+import com.yjf.esupplier.ws.orderfood.info.DiningTableSituationInfo;
+import com.yjf.esupplier.ws.orderfood.order.QureyDiningTableOrder;
+import com.yjf.esupplier.ws.orderfood.order.SelectDiningTableOrder;
+import com.yjf.esupplier.ws.orderfood.order.UseingDiningOrder;
+import com.yjf.esupplier.ws.orderfood.result.SelectDiningTableResult;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public interface OrderfoodService {
+	/**
+	 * 查询餐位
+	 * @param diningTableOrder
+	 * @return
+	 */
+	List<DiningTableSituationInfo> qureyDiningTable(QureyDiningTableOrder diningTableOrder);
+	
+	/**
+	 * 查询餐位
+	 * @param diningTableOrder
+	 * @return
+	 */
+	List<DiningTableSituationInfo> qureyDiningTableByCondition(	QureyDiningTableOrder diningTableOrder);
+
+	/**
+	 * 查询正常的餐位置
+	 * @param supplierId
+	 * @return
+	 */
+	List<DiningTableSituationInfo> qureyActiveDiningTable(long supplierId);
+	
+	/**
+	 * 选择餐位
+	 * @param selectDiningTableOrder
+	 * @return
+	 */
+	SelectDiningTableResult selectTableNumber(SelectDiningTableOrder selectDiningTableOrder);
+	
+	/**
+	 * 修改就餐人数餐位
+	 * @param selectDiningTableOrder
+	 * @return
+	 */
+	SelectDiningTableResult updateTableNumber(SelectDiningTableOrder selectDiningTableOrder);
+	
+	/**
+	 * 清除餐位
+	 * @param selectDiningTableOrder
+	 * @return
+	 */
+	EsupplierBaseResult clearTableNumber(SelectDiningTableOrder selectDiningTableOrder);
+	
+	/**
+	 * 获取已经选择中的餐位
+	 * @param diningTableOrder
+	 * @return
+	 */
+	DiningTableSituationInfo getUseingDiningTable(QureyDiningTableOrder diningTableOrder);
+	
+	/**
+	 * 点餐后，更新餐桌信息
+	 * @param diningTableOrder
+	 */
+	EsupplierBaseResult updateUseingDiningTable(UseingDiningOrder useingDiningOrder);
+	
+	/**
+	 * 加载餐桌信息
+	 * @param tableNumberSeq
+	 * @return
+	 */
+	DiningTableSituationInfo findDiningTableBySeqNo(String tableNumberSeq);
+}

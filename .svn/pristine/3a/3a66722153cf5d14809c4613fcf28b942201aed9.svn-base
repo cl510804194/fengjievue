@@ -1,0 +1,165 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import java.io.Serializable;
+
+public class CartItemDO implements Serializable {
+	private static final long serialVersionUID = 2623929870622925058L;
+	private Long productId; // 商品编号(*)
+	private Long supplierId; // 供应商编号(*)
+	private Integer quantity; // 数量(*)
+	private String name; // 商品名称
+	private String image; // 图片路径
+	private Double price; // 价格
+	private Double priceOriginal; // 原有价格
+	private String supplierName; // 供应商名称
+	private String unit; // 计价单位
+	private Integer postType; // 运费说明 cl 2010-07-20 add
+	private String htmlPath;
+	
+	private String priceType = "0"; //设置标示符，判断是活动价还是商场价
+	private Integer activityId;//活动ID  
+	
+	public CartItemDO(Long productId, Long supplierId, Integer quantity) {
+		this.productId = productId;
+		this.supplierId = supplierId;
+		this.quantity = quantity;
+	}
+	
+	public Integer getActivityId() {
+		return activityId;
+	}
+	
+	public void setActivityId(Integer activityId) {
+		this.activityId = activityId;
+	}
+	
+	public String getPriceType() {
+		return priceType;
+	}
+	
+	public void setPriceType(String priceType) {
+		this.priceType = priceType;
+	}
+	
+	public Long getProductId() {
+		return productId;
+	}
+	
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
+	
+	public Long getSupplierId() {
+		return supplierId;
+	}
+	
+	public void setSupplierId(Long supplierId) {
+		this.supplierId = supplierId;
+	}
+	
+	public Integer getQuantity() {
+		return quantity;
+	}
+	
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public Double getPrice() {
+		return price;
+	}
+	
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+	
+	public String getImage() {
+		return image;
+	}
+	
+	public void setImage(String image) {
+		this.image = image;
+	}
+	
+	public String getSupplierName() {
+		return supplierName;
+	}
+	
+	public void setSupplierName(String supplierName) {
+		this.supplierName = supplierName;
+	}
+	
+	public String getUnit() {
+		return unit;
+	}
+	
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+	
+	public Double getPriceOriginal() {
+		return priceOriginal;
+	}
+	
+	public void setPriceOriginal(Double priceOriginal) {
+		this.priceOriginal = priceOriginal;
+	}
+	
+	public Integer getPostType() {
+		return postType;
+	}
+	
+	public void setPostType(Integer postType) {
+		this.postType = postType;
+	}
+	
+	public String getHtmlPath() {
+		return htmlPath;
+	}
+	
+	public void setHtmlPath(String htmlPath) {
+		this.htmlPath = htmlPath;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CartItemDO [productId=");
+		builder.append(productId);
+		builder.append(", supplierId=");
+		builder.append(supplierId);
+		builder.append(", quantity=");
+		builder.append(quantity);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append(", image=");
+		builder.append(image);
+		builder.append(", price=");
+		builder.append(price);
+		builder.append(", priceOriginal=");
+		builder.append(priceOriginal);
+		builder.append(", supplierName=");
+		builder.append(supplierName);
+		builder.append(", unit=");
+		builder.append(unit);
+		builder.append(", postType=");
+		builder.append(postType);
+		builder.append(", htmlPath=");
+		builder.append(htmlPath);
+		builder.append(", priceType=");
+		builder.append(priceType);
+		builder.append(", activityId=");
+		builder.append(activityId);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,169 @@
+<html>
+<head>
+    <title>
+        商品分类管理
+    </title>
+    <link type="text/css" href="/resources/css/after.css" rel="stylesheet"/>
+    <link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="warp">
+    <!--头部-->
+    #parse("/backstage/layout/logo.vm")
+    <!--内容-->
+    <div class="container fn-clear">
+        #parse("/backstage/layout/left.vm")
+        <div class="main-content fn-right">
+            <div class="mc">
+                <div class="top">
+                    <p><a href="javascript:;">产品管理</a> &gt; 商品分类管理</p>
+                </div>
+                <form action="/admin/product/productType/updateProductTypeInfo.htm" method="post" name="frm"
+                      id="formType">
+                    <input type="hidden" name="ptId" value="$!{productTypeInfo.ptId}"/>
+                    <fieldset id="setContent">
+                        <legend><h3>商品分类管理</h3></legend>
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>类型编码：</label>
+                            #if($!{productTypeInfo.ptId}==0)
+                                <input type="text" class="u-input w170" name="ptCode" id="ptCode"
+                                       value="$!{productTypeInfo.ptCode}"/>(格式 :xxxx,xxxx-xxxx,xxxx-xxxx-xxxx)
+                            #else
+                                <input type="text" class="u-input w170" name="ptCodeShow" id="ptCodeShow" disabled
+                                       value="$!{productTypeInfo.ptCode}"/>(格式 :xxxx,xxxx-xxxx,xxxx-xxxx-xxxx)
+                                <input type="hidden" class="u-input w170" name="ptCode" id="ptCode"
+                                       value="$!{productTypeInfo.ptCode}"/>
+                            #end
+                        </div>
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span> 类型名称：</label>
+                            <input type="text" class="u-input w170" name="ptTypeName" id="ptTypeName"
+                                   value="$!{productTypeInfo.ptTypeName}"/>
+                        </div>
+                        <div class="item">
+                            <label for="" class="u-label">分类下商品标签：</label>
+                            <input type="text" class="u-input w170" name="ptTag" id="ptTag" style="width:500px"
+                                   value="$!{productTypeInfo.ptTag}"/>(格式（请用-分离各个标签） :xxxx-xxxx-xxxx)
+                        </div>
+                        <div class="item">
+                            <label for="" class="u-label">分类下商品关键词：</label>
+                            <input type="text" class="u-input w170" name="ptKeyWords" id="ptKeyWords" style="width:500px"
+                                   value="$!{productTypeInfo.ptKeyWords}"/>(格式（请用-分离各个关键词） :xxxx-xxxx-xxxx)
+                        </div>
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>支持发布类型：</label>
+                            #foreach($saleTypeEnum in $saleTypeEnumList)
+                                <input type="checkbox" name="ptNote" id="ptNote_${velocityCount}" #if($stringUtil.contains($!{productTypeInfo.ptNote},$saleTypeEnum.code)) checked #end value="$saleTypeEnum.code"/>
+                                <label for="ptNote_${velocityCount}">$saleTypeEnum.message</label>
+                            #end
+                        </div>
+                        <div class="item">
+                            <label for="" class="u-label"> 优先级：</label>
+                            <input type="text" class="u-input w170" name="priority" id="priority"
+                                   value="$!{productTypeInfo.priority}"/>
+                        </div>
+                        <div class="item" id="divAdd" style="height: 20px">
+                            <label for="" class="u-label"><span
+                                    style="font-weight:bold;">-----关联商品信息自定义-----</span></label>
+                            #if( $!{isEnable}!="disabled")
+                                <a class="u-btn u-btn-blue submit_form" href="javascript:addName();">新增名称</a>
+                            #end
+                        </div>
+                        #foreach($!item in $!columnList)
+                            <div class="item" id="div_addColumn$velocityCount">
+                                <label for="" class="u-label"><span class="required">*</span>自定义名称$velocityCount
+                                    ：</label>
+                                <input type="text" class="u-input w170" name="addColumn$velocityCount"
+                                       id="addColumn$velocityCount"
+                                       value="$!item"/>
+                                #if( $!{isEnable}!="disabled")
+                                    <a class="u-btn u-btn-blue" href="javascript:delName($velocityCount);">删除</a>
+                                #end
+                            </div>
+                        #end
+                        <input type="hidden" name="redirect" value="$!{request.getParameter('redirect')}"/>
+                        <input type="hidden" name="operate" id="operate" value="addNew"/>
+                        <input type="hidden" name="maxCnt" id="maxCnt" value="$!{listLen}"/>
+                    </fieldset>
+                    <div class="item">
+                        <a class="u-btn u-btn-blue submit_form" href="javascript:addRole('addNew');">保存并新增</a>&nbsp;&nbsp;&nbsp;&nbsp;<a
+                            class="u-btn u-btn-blue submit_form" href="javascript:addRole('list');">提交</a>
+                    </div>
+                    <div class="item" style="color: red">
+                        $!{message}
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+    function addRole(operate) {
+        var code = $('input[name=ptCode]').val();
+        if (code == null || code.length < 1) {
+            alert("产品类型编码不能为空");
+            return;
+        }
+
+		var index =0;
+		var checkIndex = 0;
+		$('input[name=ptNote]').each(function(){
+			if(!$(this).attr('checked')){
+				checkIndex ++;
+			}
+			index++;
+		});
+		if(index == checkIndex){
+			alert("请选择发布类型");
+			return;
+		}
+        var pttypeName = $('input[name=ptTypeName]').val();
+        if (pttypeName == null || pttypeName.length < 1) {
+            alert("产品类型名称不能为空");
+            return;
+        }
+        var isRight = 0;
+        $("input[name^='addColumn']").each(function (i) {
+            var addValue = $(this).val();
+            var name = $(this).attr("name");
+            if (addValue == null || addValue.length < 1) {
+                alert("自定义名称" + name.substr(9, 10) + "不能为空");
+                isRight++;
+                return false;
+            }
+        })
+        if (isRight > 0) return;
+        $('input[name=operate]').val(operate);
+        $.post("/admin/product/productType/existProductTypeCode.htm", {
+            "code": code,
+            "ptid":$!{productTypeInfo.ptId}}, function (data) {
+            if (data.code == 0) {
+                alert("产品类型编码已存在");
+            } else {
+                document.frm.submit();
+            }
+        });
+    }
+    function delName(i) {
+        $("#div_addColumn" + i).remove();
+    }
+    function addName() {
+        var cnt = $("input[name^='addColumn']").length;
+        var maxCnt = $("#maxCnt").val();
+        if (cnt >= 5) {
+            alert("超过最大自定义信息数！");
+            return;
+        }
+        var nextCnt = parseFloat(maxCnt) + 1;
+        $("#setContent").append('<div class="item" id="div_addColumn' + nextCnt + '">' +
+        '<label for="" class="u-label"><span class="required">*</span><span id="selfName+' + nextCnt + '">自定义名称' + nextCnt + '</span>：</label>' +
+        '<input type="text" class="u-input w170" name="addColumn' + nextCnt + '" id="addColumn' + nextCnt + '" value=""/>' +
+        '<a class="u-btn u-btn-blue" href="javascript:delName(' + nextCnt + ');">删除</a>' +
+        '</div>')
+        $("#maxCnt").val(nextCnt);
+    }
+</script>
+</body>
+</html>

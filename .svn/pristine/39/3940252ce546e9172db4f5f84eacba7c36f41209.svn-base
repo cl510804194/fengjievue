@@ -1,0 +1,44 @@
+/*background:#A5D2A7;*/
+body{
+	font-size:12px; 
+	font-family:"ÐÂËÎÌå"; 
+	
+	 PADDING-BOTTOM: 0px; MARGIN: 0px;
+}
+TABLE {FONT-SIZE: 12px}
+P{margin:0;padding:0;}
+A {COLOR: #000000; TEXT-DECORATION: none}
+A:hover {COLOR: #000000; TEXT-DECORATION: underline}
+.white A {color:#FFFFFF; TEXT-DECORATION: none;}
+.white A:hover {color:#000000; TEXT-DECORATION: none;}
+.gray A {color:#0045df; TEXT-DECORATION: none;}
+.gray A:hover {COLOR:#0045df; TEXT-DECORATION: none;}
+.fb {FONT-WEIGHT: bold}
+.f12 {FONT-SIZE: 12px}
+.f14{FONT-SIZE: 14px}
+.f16{FONT-SIZE: 16px}
+.f18{FONT-SIZE: 18px}
+.left {FLOAT: left}
+.right {FLOAT: right}
+.clear {CLEAR: both; FONT-SIZE: 1px; VISIBILITY: hidden; WIDTH: 1px}
+.hidden {dispaly: none}
+.unline {TEXT-DECORATION: none}
+.unline A {TEXT-DECORATION: none}
+.clear {CLEAR: both; MARGIN: 0px}
+
+.f12b {FONT-SIZE: 12px; font-weight:bold;}
+.huise{ color:#444444; text-align:left;}
+.point_y{ background:url(../images/point_y.gif) no-repeat 50% left; text-align:left; color:#ff6000; padding-left:5px;}
+.point_h{ background:url(../images/point_h.gif) no-repeat 50% left;text-align:left;padding-left:5px; line-height:20px;}
+.spfb{ background:url(../images/spfl_title01.gif) no-repeat; width:750px; height:30px; text-align:right; line-height:30px; vertical-align:middle; padding-right:5px;}
+.table_line{ border:1px solid #d3d2d2; border-top:none;}
+
+.category-item h4{float:left;width:20px;padding-left:4px;padding-right:4px;background:#f1e7c7;border-right:1px solid #f4f8fb;color:#1a397c;font-size:14px;text-align:center;line-height:20px;}
+
+
+.gys_title{color:#7f7f7f; padding-left:25px; font-weight:700; font-size:13px;}
+.hot_title{border-left:1px solid #E0E0E0;border-right:1px solid #E0E0E0; color:#666; background:url(../../images/left_foot2.gif) bottom no-repeat; }
+.hot_line{border-bottom:1px #e6e6e6 solid;}
+	.hot_line span{font-weight:700; color:#EC6001; margin-right:10px;}
+	.style_s{font-weight:700; color:#EC6001; margin-right:10px;}
+

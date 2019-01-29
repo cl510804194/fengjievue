@@ -1,0 +1,68 @@
+#parse("/front/index/common/header-title.vm")
+
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+<!--content begin-->	
+	
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="container">
+        <div class="bd-box">
+            <div class="m-box-hd">
+                <h3 class="box-title">找回2密码</h3>
+            </div>
+            <div class="m-box">
+                <ul class="m-step fn-clear">
+                    <li class="first z-visited">1、查收邮件</li>
+                    <li class="mid mid-cur">2、设置新密码</li>
+                    <li class="last">3、设置成功</li>
+                </ul>
+                <div class="blank5"></div>
+                <div class="log-form mt20">
+                    <form action="/PasswordManage/NewLogPassword" method="post" class="mt20" id="password_form">
+                        <div class="fn-item">
+                            <label class="fn-label"><span class="required">*</span>$!appConstantsUtil.getProductName()账号：</label>
+                            <input type="fn-text" class="fn-text w245"  disabled="disabled" value="$!{userName}">
+                        </div>
+                        <div class="fn-item fn-clear">
+                            <label class="fn-label"><span class="required">*</span>输入新的登录密码：</label>
+                            <input type="password" class="fn-text w245 mr5" name="logPassword" id="logPassword">
+                            <p class="fn-tip">由6—20英文字母、数字或符号组成，建议使用大小写字母与<br />数字混合设置密码，不可输入空格。</p>
+                        </div>
+                        <div class="fn-item fn-clear">
+                            <label class="fn-label"><span class="required">*</span>确认新登录密码：</label>
+                            <input type="password" class="fn-text w245 t-error mr5"   name="newLogPassword">
+                            <b class=""></b>
+                        </div>
+                        <div class="fn-item">
+                           
+                            <input type="hidden"  name="md5UserBaseId" value="$!{md5UserBaseId}"/>
+					        <input type="hidden"  name="token" value="$!{token}"/>
+                         
+                            <a class="fn-g-btn mr5" href="#"><button type="submit" name="next">立即校验</button></a>
+                            
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="blank50"></div>
+</div>
+
+
+
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'newLogPassword');
+    </script>
+
+
+<!--content end-->	
+	#parse("/front/index/common/footer-yrd.vm")
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+	#parse("/website/header-title.vm")
+<body>		
+	#parse("/website/header.vm")
+	<div class="banner" id="b04" style="width: 100%; height: 520px;">
+        <ul >
+            
+            #if($listUtil.isNotEmpty($scienceBannerList))
+                #foreach($banner in $scienceBannerList)
+              
+                    <li>
+                    #if($stringUtil.isNotBlank(${banner.remark}))
+                        <a href="${banner.remark}" target="_blank">
+                            <img src="$!{banner.rem1}" alt="" width="100%" height="520" >
+                        </a> 
+                    #else
+                        <img src="$!{banner.rem1}" alt="" width="100%" height="520" >
+                    #end
+                    </li>
+           
+                #end
+             #else
+                <li><img src="/styles/images/common/banner01.jpg" alt="" width="100%" height="520" ></li>    
+                <li><img src="/styles/images/common/banner01.jpg" alt="" width="100%" height="520"></li>
+            #end
+        </ul>
+        <a href="javascript:void(0);" class="unslider-arrow04 prev"><img class="arrow" id="al" src="/styles/images/common/arrowl.png" alt="prev" width="20" height="35"></a>
+        <a href="javascript:void(0);" class="unslider-arrow04 next"><img class="arrow" id="ar" src="/styles/images/common/arrowr.png" alt="next" width="20" height="37"></a>
+    </div>
+
+    <div class="content1">
+        <div class="welcome wrapper">
+            <img src="/styles/images/webIndex/welcome.png">
+        </div>
+        <div class="scenic wrapper clearfix">
+            <div class="scenic-left fn-left">
+                <img src="/styles/images/webIndex/scenicIndex.png">
+            </div>
+            <div class="scenic-right fn-left">
+                <div class="scenicCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="375px" height="270px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                    <div class="scenic-detail">
+                        <p class="fn-tac fn-fs18 title">雄伟霸气夔门</p>
+                        <div class="fn-fs14 pl30 pr30 content">夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。</div>
+                        <div class="scenic-divide"></div>
+                        <div class="scenic-star pl30 pr30">必玩指数：<img src="/styles/images/webIndex/star-icon.png" alt=""></div>
+                    </div>
+                </div>
+                <div class="scenicCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="375px" height="270px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                    <div class="scenic-detail">
+                        <p class="fn-tac fn-fs18 title">雄伟霸气夔门</p>
+                        <div class="fn-fs14 pl30 pr30 content">夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。</div>
+                        <div class="scenic-divide"></div>
+                        <div class="scenic-star pl30 pr30">必玩指数：<img src="/styles/images/webIndex/star-icon.png" alt=""></div>
+                    </div>
+                </div>
+                <div class="scenicCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="375px" height="270px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                    <div class="scenic-detail">
+                        <p class="fn-tac fn-fs18 title">雄伟霸气夔门</p>
+                        <div class="fn-fs14 pl30 pr30 content">夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。</div>
+                        <div class="scenic-divide"></div>
+                        <div class="scenic-star pl30 pr30">必玩指数：<img src="/styles/images/webIndex/star-icon.png" alt=""></div>
+                    </div>
+                </div>
+                <div class="scenicCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="375px" height="270px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                    <div class="scenic-detail">
+                        <p class="fn-tac fn-fs18 title">雄伟霸气夔门</p>
+                        <div class="fn-fs14 pl30 pr30 content">夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。</div>
+                        <div class="scenic-divide"></div>
+                        <div class="scenic-star pl30 pr30">必玩指数：<img src="/styles/images/webIndex/star-icon.png" alt=""></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content2">
+        <div class="foods">
+            <ul>
+				<li>
+                    <img id="pic-sd" src="/styles/images/webIndex/hotpot.png">
+					<p>传统正宗老火锅</p>
+					<div class="shadow-circle">
+                        <img id="pic-sd" src="/styles/images/webIndex/shadow.png">
+					</div>
+				</li>
+                <li>
+                    <img id="pic-sd" src="/styles/images/webIndex/chicken.png">
+                    <p>铁板烧</p>
+                    <div class="shadow-circle">
+                        <img id="pic-sd"  src="/styles/images/webIndex/shadow.png">
+                    </div>
+				</li>
+                <li>
+                    <img id="pic-sd" src="/styles/images/webIndex/tieban-icon.png">
+                    <p>紫阳鸡</p>
+                    <div class="shadow-circle">
+                        <img id="pic-sd" src="/styles/images/webIndex/shadow.png">
+                    </div>
+				</li>
+                <li>
+                    <img id="pic-sd" src="/styles/images/webIndex/tujia-icon_01.png">
+                    <p>土家酸菜鸡</p>
+                    <div class="shadow-circle">
+                        <img id="pic-sd" src="/styles/images/webIndex/shadow.png">
+                    </div>
+				</li>
+                <li>
+                    <img id="pic-sd"  src="/styles/images/webIndex/dove.png">
+                    <p>鸽子鸡</p>
+                    <div class="shadow-circle">
+                        <img id="pic-sd" src="/styles/images/webIndex/shadow.png">
+                    </div>
+				</li>
+			</ul>
+        </div>
+    </div>
+    <div class="content3">
+        <div class="playIndex-pic"><img src="/styles/images/webIndex/playIndex.png"></div>
+        <div class="play wrapper clearfix">
+            <div class="clearfix ml_15">
+                <div class="playCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="345px" height="260px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                    <div class="scenic-detail">
+                        <p class="fn-tac fn-fs18 title">雄伟霸气夔门</p>
+                        <div class="fn-fs14 pl30 pr30 content">夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。</div>
+                        <div class="scenic-divide"></div>
+                        <div class="scenic-star pl30 pr30">必玩指数：<img src="/styles/images/webIndex/star-icon.png" alt=""></div>
+                    </div>
+                </div>
+                <div class="playCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="345px" height="260px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                    <div class="scenic-detail">
+                        <p class="fn-tac fn-fs18 title">雄伟霸气夔门</p>
+                        <div class="fn-fs14 pl30 pr30 content">夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。夔门，又名瞿塘关。两岸高山凌江夹峙，是长江从四川盆地进入三峡的大门。西起重庆奉节县的白帝城，东至巫山县的大溪镇，全长8公里。</div>
+                        <div class="scenic-divide"></div>
+                        <div class="scenic-star pl30 pr30">必玩指数：<img src="/styles/images/webIndex/star-icon.png" alt=""></div>
+                    </div>
+                </div>
+                <div class="playCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="345px" height="260px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                </div>
+                <div class="playCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="345px" height="260px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                </div>
+                <div class="playCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="345px" height="260px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                </div>
+                <div class="playCont fn-left">
+                    <img src="/styles/images/webIndex/index-pic.jpg" width="345px" height="260px">
+                    <div class="scenic-title">李白眼中的白帝城</div>
+                </div>
+            </div>
+        </div>
+    </div>
+	#parse("/website/footer.vm")
+<script type="text/javascript" src="/resources/js/lib/jquery.unslider.js"></script>
+<script>
+	seajs.use($_GLOBAL.mode +'webIndex');
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+#parse("/front/platform/layout/header-title.vm")
+
+
+<body style="background: #fdfaf1;">
+	    #parse("/front/platform/layout/header_member2.vm")
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="queryBuyOrder">
+    <div class="w1200">
+        #parse("/front/platform/member/layout/person_member_left2.vm")
+        <div class="member-right DIB user_index">
+        	
+        	<div class="index_top">
+        		#if($stringUtil.isEmpty($!{member.userCustomType2}) || !$!{member.userCustomType2})
+	            <img class="fn-left"  alt="头像" src="/styles/images/common/logo1.png" width="80px" height="80px" />
+	            #else
+	            <img class="fn-left"  src="$!{member.userCustomType2}" width="80px" height="80px" />	
+	            #end
+				<span class="top_left fn-ml20">HI，<label class="time">$!{titleAsk}</label>好，<label class="user_name">#if($!{sessionScope.nickname})$!{sessionScope.nickname} #else $!{sessionScope.realName} #end</label>
+				<p class="fn-lh25">一卡通余额：<span class="fn-blue">$!amount</span>元</p>
+				<p class="fn-lh25">积分：<a class="DIB" href="/do/userPoints/pageQueryUserPoints.htm"><span class="fn-blue">$!{userIntegral}</span></a></p>
+				<p class="fn-lh25">优惠券：<a class="DIB" href="/do/userGiftMoney/pageQueryGainMoney.htm?type=GAIN_AMOUNT"><span class="fn-blue">$!{gainCount}</span></a></p>  
+				</span>
+				
+				<span class="top_right">上次登陆时间：<label class="time">$!dateUtil.simpleFormat($!loginTime)</label></span>
+        	</div>
+        
+    
+			<div class="left_content index_content" >
+	        	
+	            
+	           <!-- <div  class="fn-right fn-mt45">
+	             <p>
+	                <a href="/front/platform/mall/toConfirmInfoPage.htm" class=" fn-mr40" ><img src="/styles/images/home/gw.png" class="fn-vam fn-mr5 fn-pb5">购物车<span class="fn-dc0">($!{webSessionUtil.getCurrentCart().count})</span></a>
+	             </p>
+	           </div> -->
+	           <div class="my_link">
+				<span>我的订单：</span>
+				<a href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=O2O&itemType=bulk">团购订单</a>
+				<a href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=B2C&itemType=mail">邮购订单</a>
+				</div>
+   			</div>
+    	
+    	</div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer-lg.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'userIndex');
+
+	$('.u-logPhone,.head-ewm').mouseover(function(){
+        $('.head-ewm').show();
+    }).mouseout(function(){
+        $('.head-ewm').hide();
+    })
+</script>
+</html>

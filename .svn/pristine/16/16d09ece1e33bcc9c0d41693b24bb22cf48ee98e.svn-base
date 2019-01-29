@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--行情产品类型列表</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<table align="center" width="792" cellpadding="0" cellspacing="0">
+        <tr>
+        	<td height="39" class="title">行情统计产品列表</td>
+        </tr>
+        <tr>
+        	<td height="51" class="boder_y">
+        	<form action="$!{rc.contextPath}$!formAction2" name="findForm">
+        	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+        		<tr>
+        			<td>产品编号：</td><td><input type="text" name="qp.quotationPCode" class="input120" /></td>
+        			<td>产品名称：</td><td><input type="text" name="qp.quotationPName" class="input120"/></td>
+        			<td>产品别名：</td><td><input type="text" name="qp.quotationPNameAlias" class="input120"/></td>
+        			<td>产品类型：</td>
+					<td>
+						<select list="quoPTList" name="qpt.quotationPTypeCode" listKey="quotationPTypeCode" listValue="quotationPTName" headerKey="" headerValue="全部">
+						</select> 
+					</td>
+        			<td><input type="button" name="action:findPdt" value="查询" class="button"></td>
+        		</tr>
+        	</table>
+        	</form>
+        	</td>
+        </tr>
+        <tr>
+        	<td>
+        	<form action="$!{rc.contextPath}$!formAction" method="post" name="delQuoPdtForm">
+    		<input type="hidden" name="mode" value="$!mode" />
+        	<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;" class="table_border">
+        		<tr>
+        			<td align="right"><input type="button" value="删除" class="button-2 button" name="action:delPdt" /></td>
+        		</tr>
+        	</table>
+        	<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;" class="table_border">
+        		<tr>
+        			<td width="5%" height="28" align="center" bgcolor="#e8f5fb"><input type="checkbox" id="selectAll" /></td>
+        			<td width="50%" align="center" bgcolor="#e8f5fb"><strong>产品名称</strong></td>
+        			<td width="20%" align="center" bgcolor="#e8f5fb"><strong>产品别名</strong></td>
+        			<td width="10%" align="center" bgcolor="#e8f5fb"><strong>产品类别</strong></td>
+        		</tr>
+				#foreach($info in $quoPList)
+        			<tr>
+        				<td align="center" height="30">
+							<input type="checkbox" name="codes" value="$info.quotationPCode" />
+						</td>
+        				<td>&nbsp;
+							<a href="$!{rc.contextPath}$!authorAction?qp.quotationPCode=$info.quotationPCode">
+								$info.quotationPName
+							</a>
+						</td>
+        				<td align="center">$info.quotationPNameAlias</td>
+        				<td align="center">$info.quotationPT.quotationPTName</td>
+        			</tr>
+        		#end
+        	</table>
+        	</form>
+        	</td>
+        </tr>
+        </table>
+        <table align="center" width="792" cellpadding="0" cellspacing="0">
+        <tr>
+        	<td align="right">
+        	<form action="$!{rc.contextPath}$!formAction2" method="post">
+        		<input type="hidden" name="qp.quotationPCode" value="$!qp.quotationPName"/>
+        		<input type="hidden" name="qp.quotationPName" value="$!qp.quotationPName"/>
+        		<input type="hidden" name="qp.quotationPNameAlias" value="$!qp.quotationPNameAlias"/>
+        		<input type="hidden" name="qpt.quotationPTypeCode" value="$!qpt.quotationPTypeCode"/>
+        		$!pageBar
+        	</form>
+        		
+        	</td>
+        </tr>
+        </table>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+</script>
+</body>
+</html>

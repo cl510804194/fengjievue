@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<meta charset="UTF-8"/>
+	<title>demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link type="text/css" rel="stylesheet" href="../Y-source/css/Y-combo.css"></link>
+</head>
+<style>
+#selectDiv div{
+	display:inline;
+}
+</style>
+<body>
+<div style="width:100%; height:100px; background:#999"></div>
+<input id="selectBank" value="ABC" />
+<div id="selectDiv" style="display:inline">
+</div>	
+</body>
+<script type="text/javascript" src="../jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="../../lib/sea.js"></script>
+<script type="text/javascript">
+	 seajs.use("./demo-selectbranch.js");
+</script>
+</html>

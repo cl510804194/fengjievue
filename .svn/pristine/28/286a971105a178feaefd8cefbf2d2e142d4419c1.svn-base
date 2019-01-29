@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>开户与认证</title>
+	<link type="text/css" href="/resources/css/loan.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+</head>
+<body>
+	<!--头部-->
+	#parse("/front/index/common/header.vm")
+	<!--内容-->
+	<div class="container fn-clear">
+		<!--左侧导航-->
+		#parse("/front/user/common/left.vm")
+		<!--右侧内容-->
+		<div class="main-content fn-right">
+			<ul class="fn-steps mt10 fn-clear">
+					<li class="current">1.填写开户信息</li>
+					<li>2.开户成功</li>
+			</ul>
+			<div class="mc-border">
+				<div class="con-title mb30 fn-clear">
+    				<h2 class="tt fn-left">注册账户</h2>
+    			</div>
+				<form action="/investorManager/investorOpenAccountSubmit" method="post" id="investorOpenAccount_form">
+					<div class="fn-item">
+							<label class="fn-label"><span class="required">*</span>账户类型：</label>
+							<input type="radio" checked=checked class="checked"  name="type" value="GR"/>个人账户
+							<input type="radio" class="checked"  name="type" value="JG"/>企业账户
+						</div>
+					<fieldset class="border-b fn-mb20">
+						<div class="fn-item">
+							<label class="fn-label"><span class="required">*</span>用户名：</label>
+							<input type="text" class="fn-text w235" maxlength="30" name="userName" />
+						</div>
+						<div class="fn-item">
+							<label class="fn-label"><span class="required">*</span><span id="realNameText">真实姓名：</span></label>
+							<input type="text" class="fn-text w235" maxlength="30" name="realName" />
+							<b class="fn-tip">若名称里有生僻字，请<a href="javascript:;">点此打开生僻字库</a>进行选择。</b>
+						</div>
+						#**<div class="fn-item">
+							<label class="fn-label"><span class="required">*</span>身份证号码：</label>
+							<input type="text" class="fn-text w235"  maxlength="30" name="certNo" onChange="javascript:this.value=this.value.toUpperCase();"/>
+							<b class="fn-tip">请填写真实的身份证号码，身份证号码是18个字组成。身份证号末位为字母"X",只能为大写</b>
+						</div>
+						
+						<div class="fn-item fn-clear">
+							<label class="fn-label"><span class="required">*</span>身份证到期时间：</label>
+							<div class="fn-time fn-left">
+								<input type="date" yearRange='[-10,40]' class="fn-text w90 fn-isdate" name="businessPeriod" />
+								<img src="$!{rc.contextPath}/resources/images/common/time-ico.gif" alt="时间" class="time-img" />
+							</div>
+							<p class="fn-left mt5 ml10"><input id="isForever" type="checkbox" class="checkbox" name="businessPeriod" value="longTime"/><label for="">长期</label></p>
+							<b class="fn-tip">若证件有效期为长期，请勾选长期。</b>
+						</div>*#
+						
+						<div class="fn-item">
+							<label class="fn-label"><span class="required">*</span>常用电子邮箱：</label>
+							<input type="text" class="fn-text w235" maxlength="30" name="mail" />
+							<b class="fn-tip">注册完成后需要通过邮箱激活用户<br />由6—20英文字母、数字或符号组成，建议使用大小写字母与数字混合设置密码。<br />支付密码会在付款、退款、修改账户信息等多处使用，不能与登录密码相同。</b>
+						</div>
+						
+					</fieldset>
+					<div class="fn-item">
+						<input type="hidden" id="availabelBroker" name="availabelBroker" value="$!{availabelBroker}"/>
+						<input type='hidden' id="uploadHost" value="$!{uploadHost}"/>
+						<input type="hidden" name="enterpriseName" value="" />
+						<input type='hidden' id="token" name="token" value="$!{token}"/>
+						<a href="javascript:;" id="operateButton" class="fn-g-btn"><button id="nextBtn" type="submit">下一步</button></a>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	#parse("/front/index/common/footer.vm")
+	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'investorOpenAccount');
+    </script>
+</body>
+</html>

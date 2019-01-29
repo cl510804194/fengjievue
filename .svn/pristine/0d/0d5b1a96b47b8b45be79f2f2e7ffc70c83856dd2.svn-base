@@ -1,0 +1,22 @@
+package com.yjf.esupplier.service.supplier;
+
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.supplier.order.SupplierDataOrder;
+import com.yjf.esupplier.ws.supplier.order.TableNumberSettingOrder;
+
+public interface SupplierSettingService {
+	/**
+	 * 设置桌数
+	 * @param numberSettingOrder
+	 * @return
+	 */
+	EsupplierBaseResult setTableNumber(TableNumberSettingOrder numberSettingOrder);
+	
+	/**
+	 * 设置商户特殊数据，方便查询
+	 * @param supplierDataOrder
+	 * @return
+	 */
+	EsupplierBaseResult setSupplierData(SupplierDataOrder supplierDataOrder);
+	
+}

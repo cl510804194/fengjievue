@@ -1,0 +1,103 @@
+package com.yjf.esupplier.service.region.info;
+
+/**
+ * Created by min on 2015/3/30.
+ */
+public class RegionInfo {
+
+    /**
+     * 地区逐渐id
+     */
+    private int regionId;
+
+    /**
+     * 父类id
+     */
+    private int parentId;
+
+    /**
+     * 地区名称
+     */
+    private String regionName;
+
+    /**
+     * 地区英文名
+     */
+    private String regionEname;
+
+    private int sort;
+
+    private String currency;
+
+    private int timediff;
+
+    public int getRegionId() {
+        return regionId;
+    }
+
+    public void setRegionId(int regionId) {
+        this.regionId = regionId;
+    }
+
+    public int getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getRegionName() {
+        return regionName;
+    }
+
+    public void setRegionName(String regionName) {
+        this.regionName = regionName;
+    }
+
+    public String getRegionEname() {
+        return regionEname;
+    }
+
+    public void setRegionEname(String regionEname) {
+        this.regionEname = regionEname;
+    }
+
+    public int getSort() {
+        return sort;
+    }
+
+    public void setSort(int sort) {
+        this.sort = sort;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public int getTimediff() {
+        return timediff;
+    }
+
+    public void setTimediff(int timediff) {
+        this.timediff = timediff;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("RegionInfo{");
+        sb.append("regionId=").append(regionId);
+        sb.append(", parentId=").append(parentId);
+        sb.append(", regionName='").append(regionName).append('\'');
+        sb.append(", regionEname='").append(regionEname).append('\'');
+        sb.append(", sort=").append(sort);
+        sb.append(", currency='").append(currency).append('\'');
+        sb.append(", timediff=").append(timediff);
+        sb.append('}');
+        return sb.toString();
+    }
+}

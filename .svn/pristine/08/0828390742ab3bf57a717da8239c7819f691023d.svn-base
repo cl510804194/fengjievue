@@ -1,0 +1,774 @@
+package com.yjf.esupplier.service.user.info;
+
+import java.io.Serializable;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+
+public class InstitutionsInfo extends UserInfo implements Serializable {
+	
+	private static final long serialVersionUID = 4279700524467612036L;
+	
+	private long id;
+	
+	private String userBaseId;
+	
+	private String enterpriseName;
+	
+	private String organizationCode;
+	
+	private String taxRegistrationNo;
+	
+	private String businessLicenseNo;
+	
+	private String businessLicenseProvince;
+	
+	private String businessLicenseCity;
+	
+	private String commonlyUsedAddress;
+	
+	private String businessPeriod;
+	
+	private String legalRepresentativeName;
+	
+	private String legalRepresentativeCardNo;
+	
+	private String businessLicensePath;
+	
+	private String businessLicenseCachetPath;
+	
+	private String certFrontPath;
+	
+	private String certBackPath;
+	
+	private String openingLicensePath;
+	
+	private String bankOpenName;
+	
+	private String bankCardNo;
+	
+	private String bankType;
+	
+	private String bankKey;
+	
+	private String bankProvince;
+	
+	private String bankCity;
+	
+	private String bankAddress;
+	
+	private String institutionsInCode;
+	
+	private String institutionsThemRoughly;
+	
+	private String referees;
+	
+	private String contactName;
+	
+	private String companyPhone;
+	
+	private String legalRepresentativeCardPeriod;
+	
+	private String contactCertNo;
+	
+	private String zipCode;
+
+	/*商户到店付折扣*/
+	private  Double productDiscount;
+	/**
+	 * 开门时间
+	 */
+	private String openTime;
+	/**
+	 * 关门时间
+	 */
+	private String closeTime;
+	/**
+	 * 人均消费
+	 */
+	private Money spendPer = new Money(0, 0);
+	/**
+	 * 商户类别
+	 */
+	private String merchantType;
+	/**
+	 * 商户图片1
+	 */
+	private String merchantPicPath1;
+	/**
+	 * 商户图片2
+	 */
+	private String merchantPicPath2;
+	/**
+	 * 商户图片3
+	 */
+	private String merchantPicPath3;
+	/**
+	 * 商户图片4
+	 */
+	private String merchantPicPath4;
+	/**
+	 * 经度
+	 */
+	private String longitude;
+	/**
+	 * 纬度
+	 */
+	private String latitude;
+	/**
+	 * 景区ID
+	 * 
+	 */
+	private String scenicId;
+	/**
+	 * 
+	 * 景区名称
+	 */
+	private String scenicName;
+
+	/**
+	 *
+	 * 是否支持到店付
+	 */
+	private BooleanEnum toShop;
+	
+	/** 是否支持团购 */
+	private BooleanEnum o2o;
+
+	/** 是否支持点餐 */
+	private BooleanEnum orderMeal;
+	/** 是否支持酒店预订 */
+	private BooleanEnum hotels;
+	/** 叫餐最低配送金额 */
+	private Money lowestHandselAmount = new Money(0, 0);
+
+	/*商户等级(一级 二级。。)*/
+	private String shopGrade;
+
+	private double reviewAverage; //供应商综合评价
+	
+	private String runState;
+
+	/** 房间最低价格 */
+	private Money roomLowestPrice = new Money(0, 0);
+	
+	/** 正常价格 */
+	private Money roomNormalPrice = new Money(0, 0);
+	
+	/** 是否有特价房 */
+	private String specialRoom;
+	
+	/** 是否有长租房 */
+	private String longRentRoom;
+	
+	/** 凌晨房 */
+	private String morningRoom;
+	
+	/** 是否收餐 */
+	private BooleanEnum dining;
+
+	private String diningSupplierType;
+	
+	private double serviceChargeRate;
+
+	/*销售总数*/
+	private long productSum;
+
+	private String introduction;
+	
+	private String aroundLine;
+	
+	private Money totalSale = new Money(0,0);
+
+	public long getProductSum() {
+		return productSum;
+	}
+
+	public void setProductSum(long productSum) {
+		this.productSum = productSum;
+	}
+
+	public long getId() {
+		return this.id;
+	}
+	
+	public void setId(long id) {
+		this.id = id;
+	}
+	
+	@Override
+	public String getUserBaseId() {
+		return this.userBaseId;
+	}
+	
+	@Override
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	public String getEnterpriseName() {
+		return this.enterpriseName;
+	}
+	
+	public void setEnterpriseName(String enterpriseName) {
+		this.enterpriseName = enterpriseName;
+	}
+	
+	public String getOrganizationCode() {
+		return this.organizationCode;
+	}
+	
+	public void setOrganizationCode(String organizationCode) {
+		this.organizationCode = organizationCode;
+	}
+	
+	public String getTaxRegistrationNo() {
+		return this.taxRegistrationNo;
+	}
+	
+	public void setTaxRegistrationNo(String taxRegistrationNo) {
+		this.taxRegistrationNo = taxRegistrationNo;
+	}
+	
+	public String getBusinessLicenseNo() {
+		return this.businessLicenseNo;
+	}
+	
+	public void setBusinessLicenseNo(String businessLicenseNo) {
+		this.businessLicenseNo = businessLicenseNo;
+	}
+	
+	public String getBusinessLicenseProvince() {
+		return this.businessLicenseProvince;
+	}
+	
+	public void setBusinessLicenseProvince(String businessLicenseProvince) {
+		this.businessLicenseProvince = businessLicenseProvince;
+	}
+	
+	public String getBusinessLicenseCity() {
+		return this.businessLicenseCity;
+	}
+	
+	public void setBusinessLicenseCity(String businessLicenseCity) {
+		this.businessLicenseCity = businessLicenseCity;
+	}
+	
+	public String getCommonlyUsedAddress() {
+		return this.commonlyUsedAddress;
+	}
+	
+	public void setCommonlyUsedAddress(String commonlyUsedAddress) {
+		this.commonlyUsedAddress = commonlyUsedAddress;
+	}
+	
+	public String getBusinessPeriod() {
+		return this.businessPeriod;
+	}
+	
+	public void setBusinessPeriod(String businessPeriod) {
+		this.businessPeriod = businessPeriod;
+	}
+	
+	public String getLegalRepresentativeName() {
+		return this.legalRepresentativeName;
+	}
+	
+	public void setLegalRepresentativeName(String legalRepresentativeName) {
+		this.legalRepresentativeName = legalRepresentativeName;
+	}
+	
+	public String getLegalRepresentativeCardNo() {
+		return this.legalRepresentativeCardNo;
+	}
+	
+	public void setLegalRepresentativeCardNo(String legalRepresentativeCardNo) {
+		this.legalRepresentativeCardNo = legalRepresentativeCardNo;
+	}
+	
+	public String getBusinessLicensePath() {
+		return this.businessLicensePath;
+	}
+	
+	public void setBusinessLicensePath(String businessLicensePath) {
+		this.businessLicensePath = businessLicensePath;
+	}
+	
+	public String getBusinessLicenseCachetPath() {
+		return this.businessLicenseCachetPath;
+	}
+	
+	public void setBusinessLicenseCachetPath(String businessLicenseCachetPath) {
+		this.businessLicenseCachetPath = businessLicenseCachetPath;
+	}
+	
+	public String getCertFrontPath() {
+		return this.certFrontPath;
+	}
+	
+	public void setCertFrontPath(String certFrontPath) {
+		this.certFrontPath = certFrontPath;
+	}
+	
+	public String getCertBackPath() {
+		return this.certBackPath;
+	}
+	
+	public void setCertBackPath(String certBackPath) {
+		this.certBackPath = certBackPath;
+	}
+	
+	public String getOpeningLicensePath() {
+		return this.openingLicensePath;
+	}
+	
+	public void setOpeningLicensePath(String openingLicensePath) {
+		this.openingLicensePath = openingLicensePath;
+	}
+	
+	public String getBankOpenName() {
+		return this.bankOpenName;
+	}
+	
+	public void setBankOpenName(String bankOpenName) {
+		this.bankOpenName = bankOpenName;
+	}
+	
+	public String getBankCardNo() {
+		return this.bankCardNo;
+	}
+	
+	public void setBankCardNo(String bankCardNo) {
+		this.bankCardNo = bankCardNo;
+	}
+	
+	public String getBankType() {
+		return this.bankType;
+	}
+	
+	public void setBankType(String bankType) {
+		this.bankType = bankType;
+	}
+	
+	public String getBankKey() {
+		return this.bankKey;
+	}
+	
+	public void setBankKey(String bankKey) {
+		this.bankKey = bankKey;
+	}
+	
+	public String getBankProvince() {
+		return this.bankProvince;
+	}
+	
+	public void setBankProvince(String bankProvince) {
+		this.bankProvince = bankProvince;
+	}
+	
+	public String getBankCity() {
+		return this.bankCity;
+	}
+	
+	public void setBankCity(String bankCity) {
+		this.bankCity = bankCity;
+	}
+	
+	public String getBankAddress() {
+		return this.bankAddress;
+	}
+	
+	public void setBankAddress(String bankAddress) {
+		this.bankAddress = bankAddress;
+	}
+	
+	public String getInstitutionsInCode() {
+		return this.institutionsInCode;
+	}
+	
+	public void setInstitutionsInCode(String institutionsInCode) {
+		this.institutionsInCode = institutionsInCode;
+	}
+	
+	public String getInstitutionsThemRoughly() {
+		return this.institutionsThemRoughly;
+	}
+	
+	public void setInstitutionsThemRoughly(String institutionsThemRoughly) {
+		this.institutionsThemRoughly = institutionsThemRoughly;
+	}
+	
+	public String getReferees() {
+		return this.referees;
+	}
+	
+	public void setReferees(String referees) {
+		this.referees = referees;
+	}
+	
+	public String getContactName() {
+		return this.contactName;
+	}
+	
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+	
+	public String getCompanyPhone() {
+		return this.companyPhone;
+	}
+	
+	public void setCompanyPhone(String companyPhone) {
+		this.companyPhone = companyPhone;
+	}
+	
+	public String getLegalRepresentativeCardPeriod() {
+		return this.legalRepresentativeCardPeriod;
+	}
+	
+	public void setLegalRepresentativeCardPeriod(String legalRepresentativeCardPeriod) {
+		this.legalRepresentativeCardPeriod = legalRepresentativeCardPeriod;
+	}
+	
+	public String getContactCertNo() {
+		return this.contactCertNo;
+	}
+	
+	public void setContactCertNo(String contactCertNo) {
+		this.contactCertNo = contactCertNo;
+	}
+	
+	public String getZipCode() {
+		return this.zipCode;
+	}
+	
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+	
+	public Money getSpendPer() {
+		return spendPer;
+	}
+
+	public void setSpendPer(Money spendPer) {
+		this.spendPer = spendPer;
+	}
+
+	public String getMerchantType() {
+		return merchantType;
+	}
+
+	public void setMerchantType(String merchantType) {
+		this.merchantType = merchantType;
+	}
+
+	public String getMerchantPicPath1() {
+		return merchantPicPath1;
+	}
+
+	public void setMerchantPicPath1(String merchantPicPath1) {
+		this.merchantPicPath1 = merchantPicPath1;
+	}
+
+	public String getMerchantPicPath2() {
+		return merchantPicPath2;
+	}
+
+	public void setMerchantPicPath2(String merchantPicPath2) {
+		this.merchantPicPath2 = merchantPicPath2;
+	}
+
+	public String getMerchantPicPath3() {
+		return merchantPicPath3;
+	}
+
+	public void setMerchantPicPath3(String merchantPicPath3) {
+		this.merchantPicPath3 = merchantPicPath3;
+	}
+
+	public String getMerchantPicPath4() {
+		return merchantPicPath4;
+	}
+
+	public void setMerchantPicPath4(String merchantPicPath4) {
+		this.merchantPicPath4 = merchantPicPath4;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+	public String getOpenTime() {
+		return openTime;
+	}
+
+	public void setOpenTime(String openTime) {
+		this.openTime = openTime;
+	}
+
+	public String getCloseTime() {
+		return closeTime;
+	}
+
+	public void setCloseTime(String closeTime) {
+		this.closeTime = closeTime;
+	}
+	public String getScenicId() {
+		return scenicId;
+	}
+
+	public void setScenicId(String scenicId) {
+		this.scenicId = scenicId;
+	}
+
+	public String getScenicName() {
+		return scenicName;
+	}
+
+	public BooleanEnum getToShop() {
+		return toShop;
+	}
+
+	public void setToShop(BooleanEnum toShop) {
+		this.toShop = toShop;
+	}
+
+	public String getShopGrade() {
+		return shopGrade;
+	}
+
+	public void setShopGrade(String shopGrade) {
+		this.shopGrade = shopGrade;
+	}
+
+	public double getReviewAverage() {
+		return reviewAverage;
+	}
+
+	public void setReviewAverage(double reviewAverage) {
+		this.reviewAverage = reviewAverage;
+	}
+
+	public void setScenicName(String scenicName) {
+		this.scenicName = scenicName;
+	}
+	public String getRunState() {
+		return runState;
+	}
+
+	public void setRunState(String runState) {
+		this.runState = runState;
+	}
+	
+	public BooleanEnum getOrderMeal() {
+		return orderMeal;
+	}
+	
+	public void setOrderMeal(BooleanEnum orderMeal) {
+		this.orderMeal = orderMeal;
+	}
+	
+	public BooleanEnum getHotels() {
+		return hotels;
+	}
+	
+	public void setHotels(BooleanEnum hotels) {
+		this.hotels = hotels;
+	}
+	
+	public Money getLowestHandselAmount() {
+		return lowestHandselAmount;
+	}
+	
+	public void setLowestHandselAmount(Money lowestHandselAmount) {
+		this.lowestHandselAmount = lowestHandselAmount;
+	}
+
+	public BooleanEnum getO2o() {
+		return o2o;
+	}
+	
+	public void setO2o(BooleanEnum o2o) {
+		this.o2o = o2o;
+	}
+	
+	public Money getRoomLowestPrice() {
+		return roomLowestPrice;
+	}
+	
+	public void setRoomLowestPrice(Money roomLowestPrice) {
+		this.roomLowestPrice = roomLowestPrice;
+	}
+	
+	public Money getRoomNormalPrice() {
+		return roomNormalPrice;
+	}
+	
+	public void setRoomNormalPrice(Money roomNormalPrice) {
+		this.roomNormalPrice = roomNormalPrice;
+	}
+	
+	public String getSpecialRoom() {
+		return specialRoom;
+	}
+	
+	public void setSpecialRoom(String specialRoom) {
+		this.specialRoom = specialRoom;
+	}
+	
+	public String getLongRentRoom() {
+		return longRentRoom;
+	}
+	
+	public void setLongRentRoom(String longRentRoom) {
+		this.longRentRoom = longRentRoom;
+	}
+	
+	public String getMorningRoom() {
+		return morningRoom;
+	}
+	
+	public void setMorningRoom(String morningRoom) {
+		this.morningRoom = morningRoom;
+	}
+	
+	public BooleanEnum getDining() {
+		return dining;
+	}
+	
+	public void setDining(BooleanEnum dining) {
+		this.dining = dining;
+	}
+
+	public String getDiningSupplierType() {
+		return diningSupplierType;
+	}
+	
+	public void setDiningSupplierType(String diningSupplierType) {
+		this.diningSupplierType = diningSupplierType;
+	}
+
+	public double getServiceChargeRate() {
+		return serviceChargeRate;
+	}
+	
+	public void setServiceChargeRate(double serviceChargeRate) {
+		this.serviceChargeRate = serviceChargeRate;
+	}
+
+	public Money getTotalSale() {
+		return totalSale;
+	}
+
+	public void setTotalSale(Money totalSale) {
+		this.totalSale = totalSale;
+	}
+
+
+	public Double getProductDiscount() {
+		return productDiscount;
+	}
+
+	public void setProductDiscount(Double productDiscount) {
+		this.productDiscount = productDiscount;
+	}
+	
+	public String getIntroduction() {
+		return introduction;
+	}
+
+	public void setIntroduction(String introduction) {
+		this.introduction = introduction;
+	}
+
+	public String getAroundLine() {
+		return aroundLine;
+	}
+
+	public void setAroundLine(String aroundLine) {
+		this.aroundLine = aroundLine;
+	}
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("InstitutionsInfo{");
+		sb.append("id=").append(id);
+		sb.append(", userBaseId='").append(userBaseId).append('\'');
+		sb.append(", enterpriseName='").append(enterpriseName).append('\'');
+		sb.append(", organizationCode='").append(organizationCode).append('\'');
+		sb.append(", taxRegistrationNo='").append(taxRegistrationNo).append('\'');
+		sb.append(", businessLicenseNo='").append(businessLicenseNo).append('\'');
+		sb.append(", businessLicenseProvince='").append(businessLicenseProvince).append('\'');
+		sb.append(", businessLicenseCity='").append(businessLicenseCity).append('\'');
+		sb.append(", commonlyUsedAddress='").append(commonlyUsedAddress).append('\'');
+		sb.append(", businessPeriod='").append(businessPeriod).append('\'');
+		sb.append(", legalRepresentativeName='").append(legalRepresentativeName).append('\'');
+		sb.append(", legalRepresentativeCardNo='").append(legalRepresentativeCardNo).append('\'');
+		sb.append(", businessLicensePath='").append(businessLicensePath).append('\'');
+		sb.append(", businessLicenseCachetPath='").append(businessLicenseCachetPath).append('\'');
+		sb.append(", certFrontPath='").append(certFrontPath).append('\'');
+		sb.append(", certBackPath='").append(certBackPath).append('\'');
+		sb.append(", openingLicensePath='").append(openingLicensePath).append('\'');
+		sb.append(", bankOpenName='").append(bankOpenName).append('\'');
+		sb.append(", bankCardNo='").append(bankCardNo).append('\'');
+		sb.append(", bankType='").append(bankType).append('\'');
+		sb.append(", bankKey='").append(bankKey).append('\'');
+		sb.append(", bankProvince='").append(bankProvince).append('\'');
+		sb.append(", bankCity='").append(bankCity).append('\'');
+		sb.append(", bankAddress='").append(bankAddress).append('\'');
+		sb.append(", institutionsInCode='").append(institutionsInCode).append('\'');
+		sb.append(", institutionsThemRoughly='").append(institutionsThemRoughly).append('\'');
+		sb.append(", referees='").append(referees).append('\'');
+		sb.append(", contactName='").append(contactName).append('\'');
+		sb.append(", companyPhone='").append(companyPhone).append('\'');
+		sb.append(", legalRepresentativeCardPeriod='").append(legalRepresentativeCardPeriod).append('\'');
+		sb.append(", contactCertNo='").append(contactCertNo).append('\'');
+		sb.append(", zipCode='").append(zipCode).append('\'');
+		sb.append(", productDiscount=").append(productDiscount);
+		sb.append(", openTime='").append(openTime).append('\'');
+		sb.append(", closeTime='").append(closeTime).append('\'');
+		sb.append(", spendPer=").append(spendPer);
+		sb.append(", merchantType='").append(merchantType).append('\'');
+		sb.append(", merchantPicPath1='").append(merchantPicPath1).append('\'');
+		sb.append(", merchantPicPath2='").append(merchantPicPath2).append('\'');
+		sb.append(", merchantPicPath3='").append(merchantPicPath3).append('\'');
+		sb.append(", merchantPicPath4='").append(merchantPicPath4).append('\'');
+		sb.append(", longitude='").append(longitude).append('\'');
+		sb.append(", latitude='").append(latitude).append('\'');
+		sb.append(", scenicId='").append(scenicId).append('\'');
+		sb.append(", scenicName='").append(scenicName).append('\'');
+		sb.append(", toShop=").append(toShop);
+		sb.append(", o2o=").append(o2o);
+		sb.append(", orderMeal=").append(orderMeal);
+		sb.append(", hotels=").append(hotels);
+		sb.append(", lowestHandselAmount=").append(lowestHandselAmount);
+		sb.append(", shopGrade='").append(shopGrade).append('\'');
+		sb.append(", reviewAverage=").append(reviewAverage);
+		sb.append(", runState='").append(runState).append('\'');
+		sb.append(", roomLowestPrice=").append(roomLowestPrice);
+		sb.append(", roomNormalPrice=").append(roomNormalPrice);
+		sb.append(", specialRoom='").append(specialRoom).append('\'');
+		sb.append(", longRentRoom='").append(longRentRoom).append('\'');
+		sb.append(", morningRoom='").append(morningRoom).append('\'');
+		sb.append(", dining=").append(dining);
+		sb.append(", diningSupplierType='").append(diningSupplierType).append('\'');
+		sb.append(", serviceChargeRate=").append(serviceChargeRate);
+		sb.append(", productSum=").append(productSum);
+		sb.append(", totalSale=").append(totalSale);
+		sb.append(", introduction=").append(introduction);
+		sb.append(", aroundLine=").append(aroundLine);
+		sb.append('}');
+		return sb.toString();
+	}
+
+}

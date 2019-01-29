@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Y.ToolTip</title>
+</head>
+<style>
+    table{
+		border: 1px solid #C8CCD1;
+		border-width: 1px 0 0 1px;
+		border-spacing: 0px;
+		line-height: 1.5em;
+		font-family: Arial, Helvetica, sans-serif,"宋体";
+		vertical-align: middle;
+		border-collapse: separate;
+	}
+	.table_1{
+	}
+	.table_1 td{
+		border: 1px solid #C8CCD1;
+		border-width: 0 1px 1px 0;
+	}
+	table td{
+		padding: 5px 10px;
+		line-height: 18px;
+		text-align: left;
+		vertical-align: top;
+	}
+	.head_tr{background: #E5EFFB;color:#555;}
+	.table_0{color:#2679ba;}
+	.table_0 a{
+		font-size: 12px;
+		line-height: 20px;
+		text-decoration: underline;
+		text-align: -webkit-match-parent;
+		border-collapse: separate;
+		border-spacing: 2px;
+		border-color: gray;
+	}
+	h2{color:#1366b9;}
+	.block{color:block;}
+	.color_0{color:#555;}
+	.color_1{color:#0A8021;}
+</style>
+<body>
+<h2>目录</h2>
+<table class="table_0">
+	<tr>
+		<td><a href="#constructor">1 构造函数</a></td>
+	</tr>
+	<tr>
+		<td><a href="#config_args">2 配置参数</a></td>
+	</tr>
+	<tr>
+		<td><a href="#object_function">3 对象方法</a></td>
+	</tr>
+</table>
+<h2 id="constructor">构造函数</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>构造函数</td>
+		<td>描述</td>
+	</tr>
+	<tr>
+		<td class="color_1">ToolTip</td>
+		<td class="color_0">在目标对象附近生成一个提示</td>
+	</tr>
+</table>
+<h2 id="config_args">配置参数</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>配置参数</td>
+		<td>参数说明</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td>target</td>
+		<td>jquery选择器或对象,必须。tip相关对象 </td>
+		<td class="color_0">无</td>
+	</tr>
+	<tr class="color_1">
+		<td>align</td>
+		<td>'top'/'bottom'/'left'/'top' 或其组合如 'left top',默认'right bottom'。</td>
+		<td class="color_0">相对target的位置</td>
+	</tr>
+	<tr class="color_1">
+		<td>spacing</td>
+		<td>数值，默认0。 </td>
+		<td class="color_0">在相对位置基础上的偏移</td>
+	</tr>
+	<tr class="color_1">
+		<td>delay</td>
+		<td>数值，默认300。 </td>
+		<td class="color_0">鼠标离开后delay毫秒提示消失</td>
+	</tr>
+	<tr class="color_1">
+		<td>其他</td>
+		<td>无</td>
+		<td class="color_0">参见Y.Tip配置</td>
+	</tr>
+</table>
+<h2 id="object_function">对象方法</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>方法</td>
+		<td>参数说明</td>
+		<td>返回值</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td>其他</td>
+		<td></td><td></td>
+		<td class="color_0">参见Y.Tip</td>
+	</tr>
+</table>
+</body>
+</html>

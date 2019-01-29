@@ -1,0 +1,39 @@
+#parse("/front/index/common/header-title.vm")
+<body class="warp">
+	<!--头部-->
+	#parse("/front/index/common/header-yrd.vm")
+	
+	<!--内容-->
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="bd-box db-p14 container">
+    	<h2 class="title1 mt10"></h2>
+        <div class="about-us mt20">
+        	<div class="about-txt">
+
+			<h3 >什么是易极付网络借贷系统V1.0网贷平台？</h3>
+			<div class="brief-con" style="line-height:30px;">
+				</br>
+				<h4 style="font-weight:bold;"></h4>
+				<p  style="text-indent:2em">易极付网络借贷系统V1.0——安全的互联网理财平台，致力于为投资人提供安全、有保障、高收益互联网理财服务。投资人通过易极付网络借贷系统V1.0平台，可将手中富余资金出借给由全国100强小额贷款公司推荐的优质中小微企业、个体工商户等借款人，在帮助其成长发展的同时获得可观利息回报。</p>
+				<p  style="text-indent:2em">易极付网络借贷系统V1.0平台对全国100强小额贷款公司推荐客户进行二级评审，确保推荐客户的信贷质量；全国100强小额贷款公司对推荐到平台优质借款人提供后备贷款服务，确保借款人按时归还投资人的投资本息；平台联手第三方支付“易极付”，实行第三方资金托管机制，真正保障投资人、借款人资金通道及用途安全、真实。真正实现“快乐投资、无忧赚钱”。</p>
+				
+				</br>
+				
+		     </div>
+        </div>
+    </div>
+    <div class="blank50"></div>
+	</div>
+</div>
+	#parse("/front/index/common/footer-yrd.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+    </script>
+</body>
+</html>

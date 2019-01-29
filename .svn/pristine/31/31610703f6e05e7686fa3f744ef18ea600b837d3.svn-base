@@ -1,0 +1,326 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.common.services.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.env.Env;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.ValidateCode;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.service.base.OpenApiBaseService;
+import com.yjf.esupplier.service.biz.util.Constraints;
+import com.yjf.esupplier.service.biz.util.Constraints.IPMessageInfo;
+import com.yjf.esupplier.service.common.enums.SmsCodeEnum;
+import com.yjf.esupplier.service.common.info.SessionMobileSend;
+import com.yjf.esupplier.service.common.result.SmsCodeResult;
+import com.yjf.esupplier.service.common.services.SmsManagerService;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.service.session.SessionLocal;
+import com.yjf.esupplier.ws.bill.enums.QrValidationStatusEnum;
+import com.yjf.esupplier.ws.enums.QrStatusEnum;
+import com.yjf.esupplier.ws.enums.SmsBizType;
+import com.yjf.esupplier.ws.order.OperationJournalAddOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.OperationJournalService;
+
+/**
+ * 
+ * @Filename SmsManagerServicesImpl.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2014-4-9</li> <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ * 
+ */
+@Service("smsManagerService")
+public class SmsManagerServicesImpl extends OpenApiBaseService implements SmsManagerService {
+	@Autowired
+	OperationJournalService operationJournalService;
+	
+	static final int VALIDATE_CODE_FAIL_MAX_TIMES = 5;
+	static Map<String, IPMessageInfo> IPMessageInfoMap = new HashMap<String, IPMessageInfo>();
+	
+	static Map<String, Boolean> sendWihteMobileMap = new HashMap<String, Boolean>();
+	
+	/**
+	 * @param account
+	 * @param bizCode
+	 * @param capNumber
+	 * @param del
+	 * @return
+	 * @see com.yjf.esupplier.service.common.services.SmsManagerService#verifySmsCode(java.lang.String,
+	 * com.yjf.esupplier.service.ws.enums.SmsBizType, java.lang.String, boolean)
+	 */
+	@Override
+	public SmsCodeResult verifySmsCode(String mobileNumber, SmsBizType bizCode,
+										String validateCode, boolean del) {
+		SmsCodeResult smsCodeResult = new SmsCodeResult();
+		SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+		SessionMobileSend sessionMobileSend = sessionLocal.getSessionMobileSend();
+		
+		logger.info("validateCode=={}",
+			mobileNumber + "_" + bizCode + "_" + StringUtil.isNotEmpty(validateCode));
+		boolean result = false;
+		
+		if (StringUtil.isNotEmpty(validateCode)) {
+			
+			if (sessionMobileSend == null || StringUtil.isBlank(sessionMobileSend.getCode())) {
+				smsCodeResult.setSmsCodeEnum(SmsCodeEnum.ExpectSms);
+				smsCodeResult.setSuccess(false);
+				smsCodeResult.setMessage("请先获取校验码");
+			} else {
+				if (sessionMobileSend.getEqualCount() < VALIDATE_CODE_FAIL_MAX_TIMES) {
+					result = StringUtil.equalsIgnoreCase(validateCode, sessionMobileSend.getCode())
+								&& StringUtil.equalsIgnoreCase(mobileNumber,
+									sessionMobileSend.getMoblie())
+								&& bizCode == sessionMobileSend.getSmsBizType();
+					if (result) {
+						
+						smsCodeResult.setSuccess(true);
+						smsCodeResult.setSmsCodeEnum(SmsCodeEnum.Success);
+						validateSmsCodeSuccess(sessionMobileSend.getMoblie(),
+							sessionLocal.getUserId(), bizCode, sessionLocal.getRemoteAddr());
+						IPMessageInfoMap.remove(sessionLocal.getRemoteAddr());
+						sendWihteMobileMap.put(mobileNumber, true);
+						if (del) {
+							sessionLocal.setSessionMobileSend(null);
+							ShiroSessionUtils.setSessionLocal(sessionLocal);
+							logger.info("删除验证码validateCode={}", validateCode);
+						}
+						
+					} else {
+						smsCodeResult.setCreditsysResultEnum(EsupplierResultEnum.EXECUTE_FAILURE);
+						smsCodeResult.setSuccess(false);
+						smsCodeResult.setMessage("校验码错误");
+					}
+					
+					if (!result) {
+						sessionMobileSend.setEqualCount(sessionMobileSend.getEqualCount() + 1);
+						ShiroSessionUtils.setSessionLocal(sessionLocal);
+						
+					}
+				} else {
+					smsCodeResult.setCreditsysResultEnum(EsupplierResultEnum.EXECUTE_FAILURE);
+					smsCodeResult.setSuccess(false);
+					smsCodeResult.setMessage("连续错误" + VALIDATE_CODE_FAIL_MAX_TIMES + "次，请重新获取验证码");
+				}
+			}
+			
+		} else {
+			smsCodeResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			smsCodeResult.setSuccess(false);
+			smsCodeResult.setMessage("校验码不能为空");
+		}
+		return smsCodeResult;
+		
+	}
+	
+	/**
+	 * @param account
+	 * @param bizType
+	 * @return
+	 * @see com.yjf.esupplier.service.common.services.SmsManagerService#sendSmsCode(java.lang.String,
+	 * com.yjf.esupplier.service.ws.enums.SmsBizType)
+	 */
+	@Override
+	public EsupplierBaseResult sendSmsCode(String mobileNumber, SmsBizType bizType,
+											String extendMessage) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		
+		String code = ValidateCode.getCode(6, 0);
+		SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+		boolean appRegist = false;
+		try {
+			if (sessionLocal != null) {
+				appRegist = (boolean) sessionLocal.getAttibute("appRegist");
+			}
+		} catch (NullPointerException e) {
+			logger.error("sessionLocal中不存在：appRegist");
+		}
+		if (sessionLocal == null && !appRegist) {
+			baseResult.setMessage("用户登录状态失效,请重新登录!");
+			baseResult.setSuccess(false);
+			return baseResult;
+		}
+		SessionMobileSend preSessionMobileSend = sessionLocal.getSessionMobileSend();
+		
+		if (preSessionMobileSend != null) {
+			if (StringUtil.isNotEmpty(preSessionMobileSend.getCode())
+				&& StringUtil.equals(mobileNumber, preSessionMobileSend.getMoblie())
+				&& bizType == preSessionMobileSend.getSmsBizType()) {
+				code = preSessionMobileSend.getCode();
+			}
+		}
+		baseResult = validateSmsCode(baseResult, sessionLocal.getRemoteAddr(), mobileNumber,
+			sessionLocal.getUserId(), bizType);
+		if (!baseResult.isSuccess()) {
+			baseResult.setMessage("获取手机验证码次数过多!");
+			baseResult.setSuccess(false);
+			return baseResult;
+		}
+		String userName = sessionLocal.getUserName();
+		String testAccount = AppConstantsUtil.getTestAccount();
+		if (!Env.isOnline()) {
+			code = "888888";
+		}
+		if (StringUtil.isNotEmpty(testAccount) && testAccount.equals(userName)) {
+			code = "111111";
+		}
+		logger.info("sendCode=={}", code);
+		SessionMobileSend sessionMobileSend = new SessionMobileSend();
+		sessionMobileSend.setCode(code);
+		sessionMobileSend.setLastSendDate(new Date());
+		sessionMobileSend.setMoblie(mobileNumber);
+		sessionMobileSend.setSmsBizType(bizType);
+		sessionLocal.setSessionMobileSend(sessionMobileSend);
+		ShiroSessionUtils.setSessionLocal(sessionLocal);
+		StringBuffer strB = new StringBuffer();		
+	//	strB.append("【中工惠康医疗产品】验证码为：").append(code).append("(中工汇康客服绝不会索取此验证码,切勿告知他人),请输入以完成验证。详情致电：").append(AppConstantsUtil.getCustomerServicePhone());
+		strB.append(bizType.getMessage()+"验证码为：").append(code).append("("+AppConstantsUtil.getProductName()+"客服绝不会索取此验证码,切勿告知他人),请输入以完成验证。详情致电：").append(AppConstantsUtil.getCustomerServicePhone());
+		//自动发送				
+		baseResult = smsService.sendValidateCode(bizType, code, mobileNumber, strB.toString(), getOpenApiContext());
+		//添加日志
+		OperationJournalAddOrder operationJournalAddOrder = new OperationJournalAddOrder();
+		if (sessionLocal == null || appRegist || sessionLocal.getUserId() == null) {
+			operationJournalAddOrder.setOperatorId(-1);
+			operationJournalAddOrder.setOperatorName("系统自动");
+			operationJournalAddOrder.setOperatorIp("127.0.0.1");
+		} else {
+			operationJournalAddOrder.setOperatorId(sessionLocal.getUserId());
+			operationJournalAddOrder.setOperatorName(sessionLocal.getRealName());
+			operationJournalAddOrder.setOperatorIp(sessionLocal.getRemoteAddr());
+		}
+		operationJournalAddOrder.setBaseModuleName(bizType.getMessage());
+		operationJournalAddOrder.setPermissionName(bizType.getMessage());
+		operationJournalAddOrder.setOperationContent("发送短信");
+		operationJournalAddOrder.setMemo("手机号码：" + mobileNumber + " 验证码：" + code);
+		operationJournalService.addOperationJournalInfo(operationJournalAddOrder);
+		return baseResult;
+		
+	}
+	
+	public EsupplierBaseResult validateSmsCode(EsupplierBaseResult baseResult, String ipAddess,
+												String mobileNumber, Long userId, SmsBizType bizType) {
+		if (Env.isOnline()) {
+			try {
+				if (bizType.getDaySendCount() > 10) {
+					Constraints.DATA_CON.check(mobileNumber + bizType.code());
+					
+				} else {
+					Constraints.SMS_OR_MAIL_CON.check(mobileNumber + bizType.code());
+					
+				}
+				Constraints.DATA_CON_MAX.check(mobileNumber);
+				if (StringUtil.isNotBlank(ipAddess)) {
+					Constraints.DATA_CON_IPADDRESS_MAX.check(ipAddess + bizType.code());
+				}
+				if (userId != null && userId > 0) {
+					Constraints.DATA_CON_USERID_BIZ_MAX.check(userId + "_" + bizType.code());
+				}
+				if (bizType.getErrorCount() == 3) {
+					Constraints.DATA_CON_ERROR_3_TIMES.check(mobileNumber + bizType.code());
+					if (userId != null && userId > 0) {
+						Constraints.DATA_CON_ERROR_3_TIMES.check(userId + "U_" + bizType.code());
+					}
+				}
+				if (bizType.getErrorCount() == 5) {
+					Constraints.DATA_CON_ERROR_5_TIMES.check(mobileNumber + bizType.code());
+					if (userId != null && userId > 0) {
+						Constraints.DATA_CON_ERROR_5_TIMES.check(userId + "U_" + bizType.code());
+					}
+				}
+				if (bizType.getErrorCount() == 10) {
+					Constraints.DATA_CON_ERROR_10_TIMES.check(mobileNumber + bizType.code());
+					if (userId != null && userId > 0) {
+						Constraints.DATA_CON_ERROR_10_TIMES.check(userId + "U_" + bizType.code());
+					}
+				}
+				baseResult.setSuccess(true);
+			} catch (RuntimeException e) {
+				logger.error("Constraints check", e);
+				if ("超过间隔限制".equals(e.getMessage())) {
+					baseResult.setMessage("不能频繁发送，请30秒后再试");
+				} else {
+					baseResult.setMessage(e.getMessage());
+				}
+				return baseResult;
+			}
+		} else if (Env.isTest() || Env.isDev()) {
+			baseResult.setSuccess(true);
+		} else {
+			baseResult.setSuccess(false);
+		}
+		return baseResult;
+	}
+	
+	public EsupplierBaseResult validateSmsCodeSuccess(String mobileNumber, Long userId,
+														SmsBizType bizType, String ipAddess) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		try {
+			
+			if (bizType.getErrorCount() == 3) {
+				Constraints.DATA_CON_ERROR_3_TIMES.clearKey(mobileNumber + bizType.code());
+				if (userId != null && userId > 0) {
+					Constraints.DATA_CON_ERROR_3_TIMES.clearKey(userId + "U_" + bizType.code());
+				}
+			}
+			if (bizType.getErrorCount() == 5) {
+				Constraints.DATA_CON_ERROR_5_TIMES.clearKey(mobileNumber + bizType.code());
+				if (userId != null && userId > 0) {
+					Constraints.DATA_CON_ERROR_5_TIMES.clearKey(userId + "U_" + bizType.code());
+				}
+			}
+			if (bizType.getErrorCount() == 10) {
+				Constraints.DATA_CON_ERROR_10_TIMES.clearKey(mobileNumber + bizType.code());
+				if (userId != null && userId > 0) {
+					Constraints.DATA_CON_ERROR_10_TIMES.clearKey(userId + "U_" + bizType.code());
+				}
+			}
+			Constraints.DATA_CON.clearKey(mobileNumber + bizType.code());
+			Constraints.SMS_OR_MAIL_CON.clearKey(mobileNumber + bizType.code());
+			Constraints.DATA_CON_MAX.clearKey(mobileNumber);
+			Constraints.DATA_CON_IPADDRESS_MAX.removeCount(ipAddess + bizType.code());
+			if (bizType.getMaxErrorCount() == 50) {
+				Constraints.DATA_CON_BUSSINESS_50MAX.removeCount(bizType.code());
+			} else {
+				Constraints.DATA_CON_BUSSINESS_200MAX.removeCount(bizType.code());
+			}
+			baseResult.setSuccess(true);
+		} catch (RuntimeException e) {
+			logger.error("Constraints clearKey", e);
+			return baseResult;
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult sendSms(String perentPhone, String smsContent) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		if (StringUtil.isNotEmpty(smsContent)) {
+			baseResult = smsService.sendSMS(perentPhone, smsContent, this.getOpenApiContext());
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult sendSmsCode(String mobileNumber, SmsBizType bizType) {
+		return sendSmsCode(mobileNumber, bizType, null);
+	}
+}

@@ -1,0 +1,84 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	require('../plugins/jquery.uploadify.js');
+	require('../Y-all/Y-script/Y-htmluploadify.js');
+	require('../My97DatePicker/WdatePicker.js');
+	
+	var frm = $('#form1');
+	$('.submit').click(function() {
+		var index = 0;
+		$("[id=serviceType]:checkbox").each(function(i) {
+	   		 if($(this).attr("checked")){
+	   			 	index ++;
+	   		 }
+		});
+		if(index >0){
+			frm.submit();
+		}else{
+			 $(".serviceTypes_error").show();
+		}
+	})
+	/** 验证FORM表单 */
+	if (frm.length) {
+		frm.validate({
+			errorClass: 'error-tip',
+			errorElement: 'b',
+			ignore: '.ignore',
+			errorPlacement: function(error, element) {
+				if (element.is('.suffixInput')) {
+					element.next().after(error);
+				} else {
+					element.after(error);
+				}
+			},
+			submitHandler: function () {
+				frm.ajaxSubmit({
+                    success: function (res) {
+                    	alert(res.message);
+                        if (res.code == 1) {
+                        	window.location.href = "/do/scenic/doCenter/toDeliveryPersonList.htm?itemType=deliveryPersonList";
+                        }
+                    }
+                });
+            },         
+			rules: {
+				"personInfo.nickName": {
+					required: true
+
+				},
+				"personInfo.userName": {
+					required: true
+
+				},
+				"mobile": {
+					required: true
+				},
+				"personInfo.realName": {
+					required: true
+				},
+				"personInfo.level": {
+					required: true
+				}
+			},
+			messages: {
+				"personInfo.nickName": {
+					required: '请输入技师编号'
+				},
+				"personInfo.userName": {
+					required: '请输入技师账号'
+				},
+				"mobile": {
+					required: '请输入技师手机号码'
+				},
+				"personInfo.realName": {
+					required: '请输入技师姓名'
+				},
+				"personInfo.level": {
+					required: '请输入级别'
+				}
+			},
+			onkeyup: false
+		});
+	}
+	
+});

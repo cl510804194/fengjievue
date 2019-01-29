@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>违约金规则管理</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <link href="/resources/style/global.css" rel="stylesheet">
+  <link href="/resources/style/module.css" rel="stylesheet">
+</head>
+<body class="m-content">
+
+  <!--toolbar-->
+  <div class="m-toolbar">
+    <!--form-->
+    <form class="m-form horizontal" action="/admin/penaltyRuleManage/penaltyRuleManage.htm" method="post">
+      <div class="row">
+
+        <!--group-->
+        <div class="group">
+          <label class="label">逾期天数：</label>
+          <input class="input2" type="text" name="midDay" id="midDay" #if($!{queryConditions.midDay} == 0) value="" #else value="$!{queryConditions.midDay}" #end/>天
+         </div>
+		<!--group End-->
+		
+        <!--group-->
+        <div class="group">
+          <input type="submit" class="u-btn white search" value="查询">
+          <a class="u-btn white" href="/admin/penaltyRuleManage/addPenaltyRule.htm">添加</a>
+        </div>
+        <!--group End-->
+      
+      </div>
+
+    </form>
+    <!--form End-->
+  </div>
+  <!--toolbar End-->
+
+  <!--grid-->
+  <div class="m-grid f-mt20">
+    <table class="table">
+      <tbody>
+        <!--head-->
+        <tr class="hd">
+          <th><div>序号</div></th>
+          <th><div>逾期天数（天）</div></th>
+          <th><div>违约金数额</div></th>
+          <th><div>操作</div></th>
+        </tr>
+        <!--head End-->
+		#if($page.result.size()==0)
+            <tr class="even">
+                <td colspan=4 align=center>暂时没有个人用户记录</td>
+            </tr>
+		#end
+		
+		#set($count=1)
+		#foreach($info in $page.result)
+    		<!--row-->
+            <tr #if($count%2==0) #else class="odd" #end>
+              <td>$count</td>
+              <td>$!{info.startDay}-$!{info.endDay}</td>
+              <td>$!{info.penalty}</td>
+              <td>
+                <a class="u-link blue" href="/admin/penaltyRuleManage/editPenaltyRule.htm?id=$!{info.id}">编辑</a>
+                <a class="u-link blue delete_submit" name="delete_submit" id="delete_submit" ruleId="$!{info.id}" href="#">删除</a>
+				<!-- /admin/penaltyRuleManage/deletePenaltyRule.json?id=$!{info.id} -->
+              </td>
+            </tr>
+			#set($count = $count + 1)
+            <!--row End-->
+		#end
+      </tbody>
+    </table>
+  </div>
+  <!--grid End-->
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+	<script type="text/javascript">
+    	seajs.use('/resources/js/content/penaltyRule');
+    </script>
+	<script type="text/javascript">
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/penaltyRuleManage/penaltyRuleManage.htm"
+			+"?midDay=$!{queryConditions.midDay}"
+			+"&payeNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

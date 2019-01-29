@@ -1,0 +1,2 @@
+testId,resultCode,bizNo,processorId,belongTo,processName,processAdvice,remark,passFlag,orderType,supplierId,orderStatus,totalAmount
+1001,EXECUTE_SUCCESS,201610171137,3740,473,收货,可以收,备注,YES,TGDD,7824,YFH,12000

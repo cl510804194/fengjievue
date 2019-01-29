@@ -1,0 +1,32 @@
+<div class="perct_nav DIB">
+    <p class="center_ttl">个人中心</p>
+
+    <div class="proManage leftNav">
+        <span class="DIB">我的订单</span>
+        <a class="DIB" href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=O2O&itemType=bulk">团购订单</a>
+        <a class="DIB" href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=B2C&itemType=mail">邮购订单</a>
+    </div>
+    <div class="proManage leftNav">   
+    	 <span class="DIB"><a class="DIB" href="/front/platform/mall/toConfirmInfoPage.htm">我的购物车</a></span>           
+    </div>
+    <div class="proManage leftNav">      
+        <span class="DIB"><a class="DIB" href="/do/userGiftMoney/pageQueryGainMoney.htm?type=GAIN_AMOUNT">我的优惠卷</a></span>
+    </div>
+#*    <div class="proManage leftNav">      
+        <span class="DIB"><a class="DIB" href="/do/userGiftMoney/pageQueryGainMoney.htm?type=GIFT_MONEY">我的红包</a></span>
+    </div>
+*#
+    <div class="proManage leftNav">      
+        <span class="DIB"><a class="DIB" href="/do/userPoints/pageQueryUserPoints.htm">我的积分</a></span>
+    </div>
+    <div class="proManage leftNav">      
+        <span class="DIB"><a class="DIB" href="/do/productCollect/myCollectProductList.htm">我的收藏</a></span>
+    </div>
+     <div class="proManage leftNav">
+        <span class="DIB">会员信息</span>
+        <a class="DIB" href="/do/member/updateMember.htm">会员资料</a>
+        <a class="DIB" href="/do/addressManager/buyer/myAddressList.htm">收货地址</a>
+    </div>
+    <div class="proManage leftNav"><a href="/do/message/messageInfoList.htm">消息中心</a>
+    </div>
+</div>

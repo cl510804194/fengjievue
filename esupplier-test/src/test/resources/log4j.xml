@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "D:\home\desktop\log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!-- ===================================================================== -->
+	<!-- 以下是appender的定义 -->
+	<!-- ===================================================================== -->
+
+	<appender name="INFO-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/tmp/logs/yrd/yrd-info.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<param name="threshold" value="INFO" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %c{2\}: %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="INFO-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/tmp/logs/yrd/yrd-info-12DM.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<param name="threshold" value="INFO" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %c{2\}: %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="WARN-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/tmp/logs/yrd/yrd-warn-12DM.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<param name="threshold" value="WARN" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %c{2\}: %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="ERROR-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/tmp/logs/yrd/yrd-error-12DM.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<param name="threshold" value="ERROR" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %c{2\}: %m%n" />
+		</layout>
+	</appender>
+
+	<!-- 性能日志 -->
+	<appender name="MONITOR-APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/tmp/logs/yrd/yrd-monitor.log" />
+		<param name="append" value="true" />
+		<param name="encoding" value="UTF-8" />
+		<param name="threshold" value="INFO" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %c{2\}: %m%n" />
+		</layout>
+	</appender>
+
+
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+		<param name="encoding" value="UTF-8" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %c{2\}: %m%n" />
+		</layout>
+	</appender>
+
+	<!-- ===================================================================== -->
+	<!-- 以下是logger的定义 -->
+	<!-- ===================================================================== -->
+
+	<logger name="log4j.logger.com.ibatis" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="log4j.logger.com.ibatis.common.jdbc.SimpleDataSource"
+		additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="log4j.logger.com.ibatis.common.jdbc.ScriptRunner"
+		additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger
+		name="log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate"
+		additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="log4j.logger.java.sql.Connection" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="log4j.logger.java.sql.Statement" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="log4j.logger.java.sql.PreparedStatement"
+		additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="log4j.logger.java.sql.ResultSet" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="org.apache.commons.beanutils" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="org.springframework" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="org.mortbay.log" additivity="true">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="MONITOR" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="MONITOR-APPENDER" />
+	</logger>
+
+	<!-- ===================================================================== -->
+	<!-- Root logger的定义 -->
+	<!-- ===================================================================== -->
+	<root>
+		<level value="DEBUG" />
+		<appender-ref ref="INFO-APPENDER" />
+		<appender-ref ref="WARN-APPENDER" />
+		<appender-ref ref="ERROR-APPENDER" />
+		<appender-ref ref="STDOUT" />
+	</root>
+</log4j:configuration>

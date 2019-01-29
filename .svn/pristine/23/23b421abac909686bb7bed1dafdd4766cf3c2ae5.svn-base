@@ -1,0 +1,203 @@
+package com.yjf.esupplier.service.common.services.impl;
+
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.dal.daointerface.BankBaseInfoDAO;
+import com.yjf.esupplier.dal.daointerface.RechargeFlowDAO;
+import com.yjf.esupplier.dal.dataobject.BankBaseInfoDO;
+import com.yjf.esupplier.integration.localService.SysClearCacheServiceClient;
+import com.yjf.esupplier.service.common.order.BankQueryOrder;
+import com.yjf.esupplier.service.common.services.BankBaseInfoService;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.base.info.BankConfigInfo;
+import com.yjf.esupplier.ws.enums.IsStopEnum;
+import com.yjf.esupplier.ws.enums.PayTypeEnum;
+import com.yjf.esupplier.ws.enums.SignedWay;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service("BankBaseInfoService")
+public class BankBaseInfoServiceImpl implements BankBaseInfoService {
+	
+	@Autowired
+	private BankBaseInfoDAO bankBaseInfoDAO;
+	
+	@Autowired
+	SysClearCacheServiceClient sysClearCacheServiceClient;
+	
+	@Autowired
+	RechargeFlowDAO rechargeFlowDAO;
+	
+	@Override
+	public List<BankBaseInfoDO> findAllBankConfigIgnoredStatus() {
+		
+		return bankBaseInfoDAO.findAllBankConfigIgnoredStatus();
+	}
+	
+	@Override
+	public BankBaseInfoDO findById(String bankCode) {
+		
+		return bankBaseInfoDAO.findById(bankCode);
+	}
+	
+	@Override
+	public int update(BankBaseInfoDO bankBaseInfoDO) {
+		
+		int i = bankBaseInfoDAO.update(bankBaseInfoDO);
+		sysClearCacheServiceClient.clearCache();
+		return i;
+		
+	}
+	
+	@Override
+	public List<BankBaseInfoDO> findBankWithCondition(BankBaseInfoDO bankBaseInfo, long limitStart,
+														long pageSize) {
+		
+		List<BankBaseInfoDO> list = bankBaseInfoDAO.findBankWithCondition(bankBaseInfo, limitStart,
+			pageSize);
+		return this.converterEnum(list);
+	}
+	
+	@Override
+	public long searchDataCountWithCondition(BankBaseInfoDO bankBaseInfo) {
+		
+		return bankBaseInfoDAO.searchDataCountWithCondition(bankBaseInfo);
+	}
+	
+	@Override
+	public int deleteById(String bankCode) throws SQLException {
+		
+		if (bankCode == null || ("").equals(bankCode)) {
+			throw new SQLException("bankCode is null!");
+		}
+		int i = bankBaseInfoDAO.deleteById(bankCode);
+		sysClearCacheServiceClient.clearCache();
+		return i;
+	}
+	
+	@Override
+	public String insert(BankBaseInfoDO bankBaseInfoDO) {
+		
+		String s = bankBaseInfoDAO.insert(bankBaseInfoDO);
+		sysClearCacheServiceClient.clearCache();
+		return s;
+	}
+	
+	// @Override
+	// public List<BankBaseInfoDO> checkNotExistBankInfo(
+	// List<BankBaseInfoDO> bankList) {
+	// List<BankBaseInfoDO> bankList2 = null;
+	// bankList2 = bankBaseInfoDAO.findAllBankFromCommonBankInfo();
+	// for (int i = 0;i < bankList.size(); i ++) {
+	// String bankCode = bankList.get(i).getBankCode();
+	// for (int j = 0;j < bankList2.size(); j++) {
+	// if (bankCode.equals(bankList2.get(j).getBankCode())) {
+	// bankList2.remove(j);
+	// }
+	// }
+	// }
+	// return bankList2;
+	// }
+	
+	public List<BankBaseInfoDO> converterEnum(List<BankBaseInfoDO> list) {
+		
+		for (int i = 0; i < list.size(); i++) {
+			
+			for (String s : SignedWay.getAllEnumCode()) {
+				if (list.get(i).getSignedWay() != null) {
+					if (list.get(i).getSignedWay().equals(s)) {
+						list.get(i).setSignedWay(SignedWay.getByCode(s).getMessage());
+						break;
+					}
+				}
+			}
+			
+			for (String s2 : IsStopEnum.getAllEnumCode()) {
+				if (list.get(i).getIsStop() != null) {
+					if (list.get(i).getIsStop().equals(s2)) {
+						list.get(i).setIsStop(IsStopEnum.getByCode(s2).getMessage());
+						break;
+					}
+				}
+			}
+		}
+		
+		return list;
+		
+	}
+	
+	@Override
+	public QueryBaseBatchResult<BankBaseInfoDO> getBanckInfosByCondition(	BankQueryOrder bankQueryOrder) {
+		QueryBaseBatchResult<BankBaseInfoDO> batchResult = new QueryBaseBatchResult<BankBaseInfoDO>();
+		try {
+			BankBaseInfoDO bankBaseInfo = new BankBaseInfoDO();
+			BeanCopier.staticCopy(bankQueryOrder, bankBaseInfo);
+			long totalCount = searchDataCountWithCondition(bankBaseInfo);
+			PageComponent component = new PageComponent(bankQueryOrder, totalCount);
+			List<BankBaseInfoDO> list = bankBaseInfoDAO.findBankWithCondition(bankBaseInfo,
+				component.getFirstRecord(), component.getPageSize());
+			batchResult.setSuccess(true);
+			batchResult.setPageList(list);
+			batchResult.initPageParam(component);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+		}
+		
+		return batchResult;
+	}
+	
+	@Override
+	public Money getDifference(BankConfigInfo bankInfo, String bankCardNo, String payType) {
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();
+		
+		String strDate = format.format(date);
+		long userId = ShiroSessionUtils.getSessionLocal().getUserId();
+		List<Integer> status = new ArrayList<Integer>();
+		status.add(1);//成功
+		status.add(2);//处理中
+		Money limit = new Money();
+		if (PayTypeEnum.DEDUCT.code().equals(payType)) {
+			limit = bankInfo.getDayWithholdingAmount();
+			if (limit.equals(Money.zero())) {
+				limit = new Money(999999999999999l);
+			}
+		} else if (PayTypeEnum.WITHDRAW.code().equals(payType)) {
+			limit = bankInfo.getWithdrawAmount();
+		}
+		
+		Map<String, Object> condition = new HashMap<String, Object>();
+		condition.put("bankAccountNo", bankCardNo);
+		condition.put("payType", payType);
+		condition.put("endTime", strDate + " 23:59:59");
+		condition.put("startTime", strDate + " 00:00:00");
+		condition.put("status", status);
+		condition.put("userId", userId);
+		
+		//TODO 银行额度
+		Money lastAmount = rechargeFlowDAO.selectSumAmount(payType,
+			DateUtil.getStartTimeOfTheDate(date), DateUtil.getEndTimeOfTheDate(date), status,
+			userId, bankCardNo); //		.getUserAmount(condition);
+		
+		Money difference = limit.subtract(lastAmount);
+		return difference;
+	}
+}

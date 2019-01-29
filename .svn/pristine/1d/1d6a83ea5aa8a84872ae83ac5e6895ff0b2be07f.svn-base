@@ -1,0 +1,15 @@
+package com.yjf.esupplier.dal.custom.daointerface;
+
+import java.util.List;
+
+import com.yjf.esupplier.dal.custom.dataobject.Pt2dyDO;
+
+public interface Pt2dyDAO {
+	
+	void insertPT2DY(Pt2dyDO p);
+	
+	List<Pt2dyDO> getPT2DY(String productId);
+	
+	void deleteList(long productId);
+	
+}

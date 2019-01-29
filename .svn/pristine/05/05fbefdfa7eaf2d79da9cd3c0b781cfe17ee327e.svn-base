@@ -1,0 +1,159 @@
+package com.yjf.esupplier.service.supplier;
+
+import java.util.List;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.service.supplier.bean.LicenseBean;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.supplier.enums.SupplierRunStateEnum;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+import com.yjf.esupplier.ws.supplier.order.*;
+
+public interface SupplierService {
+	
+	SupplierInfo getSupplier(long supplierId);
+	
+	SupplierInfo getCurrentSupplier();
+	
+	Long getSupplierId();
+	
+	boolean isSupplier();
+	
+	void insertSupplierInfo(SupplierInfo supplier);
+	
+	EsupplierBaseResult insertSupplierInfo(SupplierInfo supplier, List<LicenseBean> lbList,
+											String serverPath);
+	
+	EsupplierBaseResult updateSupplier(SupplierInfo supplier, List<LicenseBean> lblist,
+										String serverPath);
+    /*
+    * 设置商户等级
+    * */
+	EsupplierBaseResult updateSupplierGrade(long supplierId, String shopGrade);
+	/*
+    * 设置商户-是否推荐
+    * */
+	EsupplierBaseResult updateRecommend(long supplierId, String recommend);
+	/*
+    * 设置商户商品是否推荐
+    * */
+	EsupplierBaseResult updateSupplierRecommend(long supplierId, String recommend);
+	/*
+    * 设置商户商品是否有特价房
+    * */
+	EsupplierBaseResult updateSupplierSpecial(long supplierId, String special);
+	/*
+    * 设置商户商品是否有长租房
+    * */
+	EsupplierBaseResult updateSupplierLong(long supplierId, String longRent);
+	/*
+    * 设置商户商品是否有凌晨房
+    * */
+	EsupplierBaseResult updateSupplierMorning(long supplierId, String morning);
+	/**
+	 * 设置商户营业状态
+	 * @param supplierId
+	 * @return
+	 */
+	EsupplierBaseResult updateSupplierDiningRunState(long supplierId, SupplierRunStateEnum runState);
+
+	EsupplierBaseResult updateSupplier(SupplierInfo supplier);
+	
+	List<SupplierInfo> searchSupplier(SearchSupplierQueryOrder queryOrder);
+
+	List<SupplierInfo> findSupplierByIds(List idList);
+
+	QueryBaseBatchResult<SupplierInfo> listSupplier(SearchSupplierQueryOrder queryOrder);
+	
+	EsupplierBaseResult checkSupplier(long supplierId, String checktype);
+	
+	EsupplierBaseResult deleteSupplierAllinfo(long supplierid);
+	
+	String checkState();
+	
+	void updPromiseState(long supplierId, String promisetype);
+	
+	void quickRegister(UserInfo m, String certNo, LicenseBean licenseBean) throws Exception;
+	
+	EsupplierBaseResult checkSupplierByUserName(String userName);
+	
+	EsupplierBaseResult lockSupplier(long supplierId, String lockType);
+	
+	EsupplierBaseResult updateSupplier(SupplierInfo supplier,String state);
+
+	/**
+	 * 酒店列表查询
+	 * @param queryOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<SupplierInfo> searchHotelSupplier(SupplierHotelQueryOrder queryOrder);
+
+	/**
+	 * 酒店收藏列表查询
+	 * @param queryOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<SupplierInfo> searchCollectHotelSupplier(SupplierHotelQueryOrder queryOrder);
+	/**
+	 * 酒店历史入住列表查询
+	 * @param queryOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<SupplierInfo> searchBuyHotelSupplier(SupplierHotelQueryOrder queryOrder);
+	/**
+	 * 查询送餐地址
+	 * @param queryOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<SupplierInfo> searchOrderMealAddress(SearchOrderMealAddressOrder queryOrder);
+	
+	/**
+	 * 商户调餐商户设置
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult updateSupplierDiningConfig(SupplierDiningConfigOrder order);
+	
+	/**
+	 * 查询商户配置的调餐商户ID
+	 * @param supplierId
+	 * @return
+	 */
+	List<Long> findAvailableSupplierIds(long supplierId);
+
+	/**
+	 * 刷新商户是否存在特价房和凌晨房
+	 * @param supplierId
+	 * @return
+	 */
+	EsupplierBaseResult refreshSupplierSpeMor(long supplierId);
+
+
+	/**
+	 * 刷新商户当天信息
+	 * @return
+	 */
+	EsupplierBaseResult refreshTodaySupplierInfo();
+	/**
+	 * 刷新酒店最低价
+	 * @param supplierId
+	 * @return
+	 */
+	EsupplierBaseResult updateLowestPrice(long supplierId);
+
+	/**
+	 * 查询点餐商户信息
+	 * @param order
+	 * @return
+	 */
+	QueryBaseBatchResult<SupplierInfo> searchDiningSupplierList(SearchDiningSupplierOrder order);
+	
+	/**
+	 * 重置商家密码
+	 * @param supplierId
+	 * @return
+	 */
+	EsupplierBaseResult resetPassword(SupplierSettingOrder supplierSettingOrder);
+}

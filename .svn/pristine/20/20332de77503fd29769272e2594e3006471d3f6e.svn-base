@@ -1,0 +1,16 @@
+package com.yjf.esupplier.service.recharge;
+
+import com.yjf.esupplier.service.recharge.order.DepositFlowOrder;
+import com.yjf.esupplier.ws.info.RechargeFlowInfo;
+
+public interface DepositFlowService {
+	
+	long save(DepositFlowOrder order) throws Exception;
+	
+	int update(DepositFlowOrder order);
+	
+	RechargeFlowInfo queryByOutBizNo(String outBizNo);
+	
+	RechargeFlowInfo queryById(long id);
+	
+}

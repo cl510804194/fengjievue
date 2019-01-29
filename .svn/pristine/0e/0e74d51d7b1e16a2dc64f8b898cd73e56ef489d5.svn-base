@@ -1,0 +1,40 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	text-align:center;	
+	background-color:#FFF;
+	color:#555555;
+	line-height:24px;
+}
+a:link {
+	color: #555555;
+	text-decoration: none;
+}
+a:visited {
+	color: #555555;
+	text-decoration: none;
+}
+a:hover {
+	color: #ff0000;
+	text-decoration: none;
+}
+a:active {
+	color: #555555;
+	text-decoration: none;
+}
+.left{ background:url(../images/left_title.gif) no-repeat; font-weight:bold; padding-left:25px; text-align:left;}
+.line{ border:1px solid #e0e0e0; border-top:none;}
+.line2{ border:1px solid #e0e0e0;}
+.wz{font-weight:bold; text-align:left; border-bottom:1px dotted #e0e0e0;}
+.point{ background:url(../images/xbd3.jpg) no-repeat; background-position:left 50%;text-align:left; padding-left:12px; line-height:20px; height:20px;}
+/*footÑùÊ½*/
+.huib{ color:#595959; font-weight:bold;}
+.wzph{ color:#ff6308; font-weight:bold; padding-right:4px;}
+.scj{text-decoration:line-through;}
+.foot{ background:url(../images/footmid.jpg) repeat-x;}
+.gwzn{ background:url(../images/gwzn.jpg) no-repeat; background-position:left 50%;}
+.fkfs{ background:url(../images/fkfs.jpg) no-repeat; background-position:left 50%;}
+.psfs{ background:url(../images/psfs.jpg) no-repeat; background-position:left 50%;}
+.shfw{ background:url(../images/shfw.jpg) no-repeat; background-position:left 50%;}
+.wz_foot{ line-height:24px;}
+.phone_foot{ color:#0e569e; font-weight:bold;}

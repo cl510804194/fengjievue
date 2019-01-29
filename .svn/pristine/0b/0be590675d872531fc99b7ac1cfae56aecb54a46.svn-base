@@ -1,0 +1,235 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="querySoldOrderList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+
+        <div class="left_cnt DIB pro_list">
+            <p class="nav_title"><span class="DIB">点餐订单</span><a onclick="javascript:window.history.back();"
+                                                                            class="fn-right">返回</a></p>
+
+            <div class="left_content ">
+                <form theme="simple" name="frm_search" method="post"
+                      action="queryDiningOrderList.htm?orderType=$!{orderType}&itemType=$!{itemType}">
+                    <div class="search_list">
+					<span class="inpt">
+						<label class="inpt_txt DIB">订单号：</label>
+						<input class="pub-input" type="text" name="orderId" id="orderId" value="$!orderId" size="20">
+					</span>
+					<span class="inpt">
+						<label class="inpt_txt DIB">商户名称：</label>
+						<input type="text" name="supplierName" id="supplierName" class="pub-input"
+                               value="$!supplierName" size="20">
+					</span>
+
+                        <div>
+						
+						<span class="inpt">
+							<label class="inpt_txt DIB">订单状态：</label>
+							<select id="orderStatus" class="pub-input" style="WIDTH: 132px" name="orderStatus">
+                                <option value="">所有</option>
+                                #foreach($orderStatusItem in $orderStatusEnumList)
+                                        <option value="$!orderStatusItem.code" #if($orderStatusItem.code==$!orderStatus)
+                                                selected #end>$!orderStatusItem.orderMealMessage</option>
+                                
+                                #end
+                            </select>
+						</span>
+						<span class="inpt">
+							<label class="inpt_txt DIB">时间：</label>
+							 <input class="pub-input" type="text" name="beginDate" id="beginDate" value="$!beginDate"
+                                    onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')||\'2020-10-01\'}'})"/>&nbsp;-&nbsp;
+                             <input class="pub-input" type="text" name="endDate" id="endDate" value="$!endDate"
+                                    onFocus="WdatePicker({minDate:'#F{$dp.$D(\'beginDate\')}',maxDate:'2020-10-01'})">
+						</span>
+						<span class="inpt">
+							<input class="sc green-btn fn-ml5" type="submit" value="搜 索"/>
+						</span>
+
+                        </div>
+                    </div>
+
+                    <div class="com_list push_pro">
+                        <p class="order_tl">
+                            <span class="DIB pp_img">商品图片</span>
+                            <span class="DIB pp_name">商品名称</span>
+                            <span class="DIB pp_stt">商品数量</span>
+                            <span class="DIB pp_prc1">总价</span>
+                            <span class="DIB pp_prc1">订单状态</span>
+                            <span class="DIB pp_opt">操作</span>
+                        </p>
+
+
+                        <div class="order_list">
+                            #set($!jIndex=0)
+                          #foreach($param in ${orderInfoMap.keySet()})  
+						    <div id="yui_3_16_0_1_1453776538600_915" class="J-order-w">
+							   ##  <div class="order-title fn-clear">
+						           <p class="list_hd" >订单批次号：$param
+					     		   	</p>
+					     		   <p class="list_hd" > 下单时间：$!dateUtil.simpleFormat($!orderInfoMap.get($param).get(0).rawAddTime)
+									</p>
+							    ##  </div>
+                            #foreach($orderInfo in ${orderInfoMap.get($param)})
+                                <div class="list_i">
+                                    <p class="list_hd">
+	    						<span>订单号：
+	    						<label>
+                                    $!orderInfo.id
+                                </label>
+								</span>
+	    						<span>下单时间：
+	    						<label>
+                                    $dateUtil.simpleFormat($!orderInfo.createTime)
+                                </label>
+                                    #if($!{orderType}=="B2C"||$!{orderType}=="O2O")
+                                    <span> 商户名称：
+	    						<label>
+                                    $!{orderInfo.supplierName}
+                                </label>
+                                    #end
+                                </span>
+                                    </p>
+                                    #set($orderItemInfo=$orderInfo.orderItemInfo)
+                                    <div class="list_cnt">
+                                        #if($!{orderType}=="B2C"||$!{orderType}=="O2O")
+                                            <span class="DIB pp_img">
+    									<img src="$!orderItemInfo.picPath">
+	    						       </span>
+                                        #else
+                                            <span class="DIB pp_img">
+                                                $!{orderInfo.supplierName}
+                                            </span>
+                                        #end
+                                        <span class="DIB pp_name">$!orderItemInfo.itemProductName</span>
+                                        <span class="DIB pp_stt">$!orderItemInfo.quantity</span>
+                                        <span class="DIB pp_prc1">$!calculator.keepTwoDecimal($!{orderItemInfo.totalAmount})</span>
+	    						<span class="DIB pp_prc1">
+									<label id="orderStatus$!{orderInfo.id}">#if($!{orderType}=="ORDER_MEAL")$!orderInfo.orderStatus.orderMealMessage #else$!orderInfo.orderStatus.message#end</label>
+	    						</span>
+	    						<span class="DIB pp_opt">
+		    						<label>
+                                        <a target="_self" gaevent="/orders/content/orderdetail"
+                                           href="/front/findOrderById.htm?editStatus=N&orderId=$!{orderInfo.id}&itemType=$!{itemType}">订单详情</a>
+                                    </label>
+                                    #if($!orderInfo.orderStatus.code=="WFK"&&$!orderType=="B2C")
+                                        <label>
+                                            <a target="_self" gaevent="/orders/content/orderdetail"
+                                               href="/front/findOrderById.htm?editStatus=Y&orderId=$!{orderInfo.id}&itemType=$!{itemType}">修改订单</a>
+                                        </label>
+                                    #end
+                                    #if($!orderInfo.orderStatus.code=="YFK"&&$!orderInfo.workflowStatus.code==
+                                        "WAIT_SELLER_SHIP"&&$!orderType==
+                                        "B2C"&&($stringUtil.isEmpty($!orderInfo.refundStatus.code)||$!orderInfo.refundStatus.code==
+                                        "EMPTY"))
+                                        <label class="fn-left">
+                                            <a href="javascript:" class="sm-btnOrder2" orderId="$!orderInfo.id"
+                                               onclick="shipConfim('$!orderInfo.id');">发货</a>
+                                        </label>
+                                    #end
+	    						</span>
+                                    </div>
+                                </div>
+                                #set($!jIndex=$!jIndex+1)
+                            #end
+                            </div>
+                         
+                            #end
+                            <div class="center_page">
+                                <table width="100%" height="40" cellpadding="0" cellspacing="0"
+                                       style="text-align: right;">
+                                    <tr>
+                                        <td style="vertical-align: middle;">
+                                            <input type="hidden" name="pages" id=""/>
+                                            $!{pageBar}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <input type="hidden" name="saleTypeB2c" value="$!{saleTypeB2c}"/>
+                            <input type="hidden" name="saleTypeO2o" value="$!{saleTypeO2o}"/>
+                        </div>
+                    </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">seajs.use($_GLOBAL.mode +'productApply');</script>
+<script type="text/javascript">
+    //clickShow (1,1);
+    function shipConfim(id) {
+        window.open("/do/scenic/doCenter/shipConfim.htm?orderId=" + id, "_blank");
+    }
+    function selectAll(obj) {
+        var checkbox = document.getElementsByName("tblistbox");
+        var value = "";
+        var val = 0.0;
+        for (var i = 0; i < checkbox.length; i++) {
+            if (checkbox[i].type == "checkbox") {
+                checkbox[i].checked = obj.checked;
+            }
+        }
+    }
+
+    $("#validation_submit").click(function () {
+        var orderId = $("#validation_orderId_txt").val();
+        var qrCode = $("#validation_qrCode_txt").val();
+        jQuery.ajax({
+            url: "/do/infoOrder/seller/validationQrCode.htm?qrCode=" + qrCode + "&orderId=" + orderId,
+            type: 'post',
+            dataType: 'json',
+            success: function (res) {
+                if (res.code == "1") {
+                    alert("验证成功");
+                }
+                else {
+                    alert(res.message);
+                }
+            }
+        });
+
+    })
+
+    $(document).ready(function () {
+        $(".canelButton").click(function () {
+
+            var id = $(this).attr("orderId");
+            var parentDiv = $(this).parent();
+            jQuery.ajax({
+                url: "/do/scenic/doCenter/cancelOrderBySeller.htm?orderId=" + id + "&date=" + new Date(),
+                type: 'post',
+                dataType: 'json',
+                success: function (res) {
+                    if (res.code == "1") {
+                        alert("取消成功");
+                        parentDiv.hide();
+                        var textId = "#orderStatus" + id;
+                        $(textId).text("该订单已经被关闭");
+                    }
+                    else {
+                        alert(res.message);
+                    }
+                }
+            });
+
+        });
+    });
+
+</script>
+</html>

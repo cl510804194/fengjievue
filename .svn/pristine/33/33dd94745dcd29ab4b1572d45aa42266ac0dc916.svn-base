@@ -1,0 +1,50 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/headLog.vm")
+<!--centerContent start-->
+<div class="content person_cntr MO footer_link">
+    <div class="MI">
+        <div class="perct_nav DIB">
+            <!--<p>个人中心</p>-->
+            <!--<p>个人中心</p>-->
+            #foreach($moduleSub in $moduleList)
+                #if($moduleSub.level==1)
+                    #if($!velocityCount==1)
+                    <div class="proManage leftNav">
+                        <span class="DIB">$!moduleSub.moduleName</span>
+                    #else
+                    </div>
+                    <div class="leftNav up">
+                        <span class="DIB">$!moduleSub.moduleName</span>
+                    #end
+                #else
+                    <a href="/front/platform/help/infoCenter.htm?defaultMCode=$!moduleSub.moduleCode"
+                       class="DIB $!moduleSub.moduleCode">$!moduleSub.moduleName</a>
+                #end
+                #if($!velocityCount==$!moduleListSize)
+                </div>
+                #end
+            #end
+        </div>
+        <div class="left_cnt DIB footer_link_lc">
+            <p class="link_nav">
+                <a class="DIB">$!parentModule.moduleName</a>>
+                <span class="DIB">$!module.moduleName</span>
+            </p>
+
+            <div class="content_info">$!popInfo.content</div>
+        </div>
+
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+     #parse("/front/platform/layout/footer-lg.vm")
+<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'popInfoCenter.js');
+</script>
+</html>

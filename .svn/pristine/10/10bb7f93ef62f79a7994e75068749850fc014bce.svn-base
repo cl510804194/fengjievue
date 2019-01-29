@@ -1,0 +1,223 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>统计管理-Excel报表</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="/admin/report/list.htm">报表定制</a> > 数据下载- $!{queryRule.reportName}</p>
+					</div>
+					 
+					<div class="search fn-clear">
+							<dl>
+								<dd>$!{queryRule.reportName}</dd>
+							</dl>
+					</div>
+					<form action="/admin/report/downloadResult.json"  method="post" target="_blank" id="queryform">
+					<div class="search fn-clear">
+
+                            <input type="hidden" name="returnUrl" value="$!{returnUrl}"/>
+							<input type="hidden" name="reportId" value="$!{queryRule.reportId}"/>
+							<input type="hidden" name="reportName" value="$!{queryRule.reportName}"/>
+							
+							
+							#if($stringUtil.isNotEmpty($!{queryRule.filter1Name}) )
+            					<dl>
+    								<dt>$!{queryRule.filter1Name}</dt>
+    								<dd>
+										#if($!{queryRule.filter1Type}!='OPTION')
+											#if($!{queryRule.filter1Type}=='DATE') <input type="date" class="u-input w90" #else <input type="text" class="u-input" #end name="filter1Value" value="$!{queryParam.filter1Value}"/>
+									    #else
+										<div class="jqtransform jqtransform-select3">	
+											<select name="filter1Value" id="filter1Value">
+											#foreach($key in $filter1Options.keySet())
+											<option value="$!{key}"  #if($!{key}==$!{queryParam.filter1Value}) selected="selected" #end  >$!{filter1Options.get($key)}</option>
+											#end
+											</select>
+										</div>	
+									   #end 
+									 </dd> 
+								</dl>
+							#end
+							
+							#if($stringUtil.isNotEmpty($!{queryRule.filter2Name}) )
+            					<dl>
+    								<dt>$!{queryRule.filter2Name}</dt>
+    								<dd>
+										#if($!{queryRule.filter2Type}!='OPTION')
+											#if($!{queryRule.filter2Type}=='DATE') <input type="date" class="u-input w90" #else <input type="text" class="u-input" #end name="filter2Value" value="$!{queryParam.filter2Value}"/>
+									    #else
+										<div class="jqtransform jqtransform-select3">	
+											<select name="filter2Value" id="filter2Value">
+											#foreach($key in $filter2Options.keySet())
+											<option value="$!{key}"  #if($!{key}==$!{queryParam.filter2Value}) selected="selected" #end  >$!{filter2Options.get($key)}</option>
+											#end
+											</select>
+										</div>	
+									   #end 
+									 </dd> 
+								</dl>
+							#end
+							
+							#if($stringUtil.isNotEmpty($!{queryRule.filter3Name}) )
+            					<dl>
+    								<dt>$!{queryRule.filter3Name}</dt>
+    								<dd>
+										#if($!{queryRule.filter3Type}!='OPTION')
+											#if($!{queryRule.filter3Type}=='DATE')	<input type="date" class="u-input w90" #else <input type="text" class="u-input" #end name="filter3Value" value="$!{queryParam.filter3Value}"/>
+									    #else
+										<div class="jqtransform jqtransform-select3">	
+											<select name="filter3Value" id="filter3Value">
+											#foreach($key in $filter3Options.keySet())
+											<option value="$!{key}"  #if($!{key}==$!{queryParam.filter3Value}) selected="selected" #end  >$!{filter3Options.get($key)}</option>
+											#end
+											</select>
+										</div>	
+									   #end 
+									 </dd> 
+								</dl>
+							#end
+							
+							#if($stringUtil.isNotEmpty($!{queryRule.filter4Name}) )
+            					<dl>
+    								<dt>$!{queryRule.filter4Name}</dt>
+    								<dd>
+										#if($!{queryRule.filter4Type}!='OPTION')
+											#if($!{queryRule.filter4Type}=='DATE')	<input type="date" class="u-input w90" #else <input type="text" class="u-input" #end name="filter4Value" value="$!{queryParam.filter4Value}"/>
+									    #else
+										<div class="jqtransform jqtransform-select3">	
+											<select name="filter4Value" id="filter4Value">
+											#foreach($key in $filter4Options.keySet())
+											<option value="$!{key}"  #if($!{key}==$!{queryParam.filter4Value}) selected="selected" #end  >$!{filter4Options.get($key)}</option>
+											#end
+											</select>
+										</div>	
+									   #end 
+									 </dd> 
+								</dl>
+							#end
+							
+							#if($stringUtil.isNotEmpty($!{queryRule.filter5Name})  )
+            					<dl>
+    								<dt>$!{queryRule.filter5Name}</dt>
+    								<dd>
+										#if($!{queryRule.filter5Type}!='OPTION')
+											#if($!{queryRule.filter5Type}=='DATE')	<input type="date" class="u-input w90" #else <input type="text" class="u-input" #end name="filter5Value" value="$!{queryParam.filter5Value}"/>
+									    #else
+										<div class="jqtransform jqtransform-select3">	
+											<select name="filter5Value" id="filter5Value">
+											#foreach($key in $filter5Options.keySet())
+											<option value="$!{key}"  #if($!{key}==$!{queryParam.filter5Value}) selected="selected" #end  >$!{filter5Options.get($key)}</option>
+											#end
+											</select>
+										</div>	
+									   #end 
+									 </dd> 
+								</dl>
+							#end
+							
+							#if($stringUtil.isNotEmpty($!{queryRule.filter6Name}) )
+            					<dl>
+    								<dt>$!{queryRule.filter6Name}</dt>
+    								<dd>
+										#if($!{queryRule.filter6Type}!='OPTION')
+											#if($!{queryRule.filter6Type}=='DATE')	<input type="date" class="u-input w90" #else <input type="text" class="u-input" #end name="filter6Value" value="$!{queryParam.filter6Value}"/>
+									    #else
+										<div class="jqtransform jqtransform-select3">	
+											<select name="filter6Value" id="filter6Value">
+											#foreach($key in $filter6Options.keySet())
+											<option value="$!{key}"  #if($!{key}==$!{queryParam.filter6Value}) selected="selected" #end  >$!{filter6Options.get($key)}</option>
+											#end
+											</select>
+										</div>	
+									   #end 
+									 </dd> 
+								</dl>
+							#end
+							
+							<input type="hidden" value="JG" data="userType"/>
+							
+							<button type="button" class="u-btn u-btn-blue fn-submit1" id="queryButton" >查询</button>
+							
+							<button type="submit" class="u-btn u-btn-blue fn-submit1" id="downLoand" >下载数据</button>
+							
+						
+					</div>
+					
+				#if($page.result.size()>0)
+					
+					<div class="p-box pages-b fn-clear"  style="width:1100px;">
+    					<a href="$!returnUrl" class="p-btn" >返回</a>
+    							#parse("/backstage/page/page.vm")
+    				</div>
+					
+					<div class="search fn-clear"   style="width:90%; height:350px; overflow:auto; border:0px solid #000000;">	
+						<table class="m-table">
+							
+						#foreach($map in $page.result)
+							#if($!{velocityCount}==1)
+							<tr>
+								#foreach($key in $map.keySet())
+								<th style="word-break: keep-all">$!{key}</th>
+								#end
+							</tr>
+							#end
+							<tr>
+								#foreach($key in $map.keySet())
+								<td style="word-break: keep-all" >$!{map.get($key)}</td>
+								#end
+							</tr>	
+						#end
+						</table>
+				  </div>
+				  
+				  <div class="p-box pages-b fn-clear"  style="width:1100px;">
+					<a href="$!returnUrl" class="p-btn" >返回</a>
+							#parse("/backstage/page/page.vm")
+				  </div>
+				  
+				#end
+				
+				</form>
+				
+					
+				</div>	
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'reportQuery');
+		
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var queryform = $('#queryform');
+			queryform.attr('action', '/admin/report/queryResult.htm?pageNo='+pageNo); 
+			queryform.attr('target', '_self'); 
+			queryform.submit();
+		}
+		
+		
+		 
+		
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,282 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body style="background: #fdfaf1;">
+    #parse("/front/platform/layout/header-pay.vm")
+<!--centerContent start-->
+<div class="warp" style="min-height: 550px;">
+
+	<div class="fn-container">
+	<div id="doc">        
+		 
+		
+	   <div style="width:100%;padding-top:15px;">  
+	      <table width="100%" height="auto" border="0" align="center" cellpadding="0" cellspacing="0">
+             <tr>
+               <td valign="top">
+			   
+			   
+			   <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+				
+				  <tr>
+				    
+				    <td width="70" style="color:#dc0000; font-weight:bold; font-size:16px; padding:5px;">我的账单</td>
+				    <td width="900">&nbsp;</td>
+				    <td width="109" align="center" style="font-size:12px; color:#000000;">货币单位：元</td>
+				  </tr>
+				</table>							
+               <table width="100%" height="107" border="0" align="center" cellpadding="0" cellspacing="0" style="border-top:2px solid #e60012;">
+				  <tr>
+				    <td height="30" colspan="3" bgcolor="#d9d9d9">&nbsp;&nbsp;请确认你的订单信息，一旦付款，保证你的交易安全</td>
+				    <td colspan="3" bgcolor="#d9d9d9" align="right" class="padding_right"><nobr>总金额：<span class="bold_red">$!totalAmount.toStandardString()</span>元，优惠金额：<span class="bold_red">$!preferentialAmount.toStandardString()</span>元 ,   应付金额：<span class="bold_red">$!payAmount.toStandardString()</span>元</nobr></td>
+				  </tr>
+				  
+				  <tr>
+				  	<td width="200" height="29"  class="line_hui"  align="center">订单号</td>				    
+				    <td class="line_hui" align="center">商品名称</td>
+				    <td width="200" class="line_hui" align="center">商品价格（元）</td>				    
+				    <td width="200" class="line_hui" align="center">商品数量</td>				    
+				    <td width="92" class="line_hui" align="center">邮费（元）</td>
+##    				<td width="92" class="line_hui" align="center">总价</td>
+				    <td width="200" class="line_hui" align="center">总金额（元）</td>
+				  </tr>
+				  
+				
+				  #foreach($order in $listOrder)
+					  <tr>
+					    <td height="43" class="line_hui" align="center">$!order.id </td>
+					    <td class="line_hui" align="center"><a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!order.orderItemInfo.itemProductId">$!order.productName</a></td>
+					    <td class="line_hui" align="center">$!{order.orderItemInfo.proPrice.toStandardString()}</td>
+					    <td class="line_hui" align="center">$!{order.orderItemInfo.quantity}</td>
+					    <td class="line_hui" align="center">$!{order.postFee.toStandardString()}</td>
+##					    <td class="line_hui" align="center">$!{order.totalAmountNoShipment.toStandardString()}</td>
+					    <td class="line_hui wz_red" align="center">$!{order.totalAmount.toStandardString()}</td>
+					  </tr>	
+				#end
+				</table>
+			<div class="money-pay fn-mt10">
+				<p>				
+				    <label class="wz_ye">应付总额：</label>
+				    <span class="wz_red16">$!payAmount.toStandardString()</span>元
+				    <input type="hidden" class="fk_money" value="$!{moneyUtil.money2Double($!payAmount.toStandardString())}"/>
+                 </p>
+            </div>
+			#if($!cardUseState == "1")
+			<div class="balance-pay fn-mt10">
+				<p>
+				    <label><input type="radio" name="radiobutton" value="BALANCE_PAYMENT" payType="BALANCE_PAYMENT" id="moneyfast" /></label>
+				    <label class="wz_ye" for="moneyfast">一卡通余额：</label>
+
+				    <span class="wz_red16">$!{amount}</span>元
+				    <input type="hidden" class="ykt_money" value="$!{moneyUtil.money2Double($!{amount})}"/>
+                 </p>
+            </div>
+			<div class="fast-pay fn-mt10">
+				<p>
+					<label><input type="radio" name="radiobutton" value="YIJI_CASHIER_PC" payType="YIJI_CASHIER_PC" id="moneyfast2" /></label>
+                    <label for="moneyfast2"><span class="fast">快捷支付</span></label>
+				    <span class="tips">选择快捷支付更方便更简单.</span>	
+                 </p>
+            </div>
+			#else
+			<div class="fast-pay fn-mt10">
+				 <p>
+					<label><input type="radio" name="radiobutton" value="YIJI_CASHIER_PC" payType="YIJI_CASHIER_PC" id="moneyfast3" /></label>
+                    <label for="moneyfast3"><span class="fast">快捷支付</span></label>
+				    <span class="tips">选择快捷支付更方便更简单.</span>	
+                 </p>
+            </div>
+			#end
+     
+			</td>
+		    </tr>
+		</table>
+			
+	        <div class="fast-pay" style="border-top:0px;margin-top: 10px;">
+	       		<p class="fn-left">                 
+	                <label class="fn-left fn-csp middle"><input type="radio" name="radiobutton" value="ALIPAY" payType="YIJI_GATEWAY" id="moneyWYZF" /></label>
+	                <label class="fn-left fn-csp" for="moneyWYZF"><img disabled="disabled" src="/styles/images/common/wypay.jpg" width="208" height="50"></label>
+                </p>
+			#*	<p class="fn-left">                 
+	                <label class="fn-left fn-csp middle"><input type="radio" name="radiobutton" value="ALIPAY" payType="ALIPAY" id="moneyfastZFB" /></label>
+	                <label class="fn-left fn-csp" for="moneyfastZFB"><img disabled="disabled" src="/styles/images/common/alipay.jpg" width="208" height="50"></label>
+                </p>
+                *#
+				<p class="fn-left">
+                    <label class="fn-left fn-csp middle"><input type="radio" name="radiobutton" value="WECHATS_SANCODE" payType="WECHATS_SANCODE" id="moneyfastWX" /></label>
+                    <label class="fn-left fn-csp" for="moneyfastWX"><img disabled="disabled" src="/styles/images/common/weixinpay.jpg" width="208" height="50"></label>
+                </p>
+            </div>
+			
+			<form action="/openApi/yjfOnlineBankingPay.htm" name="myform"  method="post" onsubmit="return paymentConfirm()">
+			<table width="92%" border="0" align="center" cellpadding="0" cellspacing="0">
+			  <tr><td height="20" colspan="2"></td></tr>
+		       <tr>	    
+		        <td width="83%" align="left">
+					#foreach($orderIdItem in $!orderArray)
+						<input type="hidden" name="orderIds" id="orderIds" value="$!orderIdItem" />
+					#end
+					<input type="hidden" name="bankCode" id="bankCode" value="" />
+					<input type="hidden" name="payType" id="payType" value="" />
+		        </td>
+		      </tr>
+		      <tr>
+		        <td height="120" colspan="2" align="center" class="wz_ye">
+		        	<input type="submit" value="提交" class="paymentBtn sm-submit8" />
+		        </td>
+		        </tr>
+            </table>
+            </form>		
+     </div>
+</div>
+</div>
+</div>
+
+<div class="adr-bg fn-hide" id="addressInfo">
+    <div class="adr-dialog">
+        <form id="form1" name="form1" method="post" action="/openApi/yjfOnlineBankingPay.htm">
+
+            <table align="center" width="100%" height="40" cellpadding="0" cellspacing="0"
+                   style="padding: 15px 0; border-bottom: 1px solid #ccc;">
+                <tr>	    
+		        <td width="83%" align="left">
+					#foreach($orderIdItem in $!orderArray)
+						<input type="hidden" name="orderIds" id="orderIds" value="$!orderIdItem" />
+					#end
+					<input type="hidden" name="bankCode" id="bankCode" value="" />
+					<input type="hidden" name="payType" id="payType" value="BALANCE_PAYMENT" />
+		        </td>
+		      </tr>
+                <tr>
+                	
+                    <td width="5">&nbsp;</td>
+                    <td width="785" class="sm-title fn-fs16 fn-tac">
+                    	  请输入密码
+                        <a href="javascript:void(0)" class="close fn-right fn-fs20 fn-mr10">x</a>
+                    </td>
+                </tr>
+            </table>
+			<table  width="100%" class="fn-mt20">
+				<tr>
+					<td width="100%" class="fn-tac">
+						<input type="password" id="pay_pwd" name="payPwd" style="width: 290px; height: 30px;">
+					</td>
+				</tr>
+			</table>
+            
+
+            <table align="center" width="98%" cellpadding="0" class="fn-mt20 fn-mb20" cellspacing="0">
+                <tr>
+                    <td height="50" align="center">
+                        <a href="javascript:;" class="sm-submit8 quxiao"
+                               style="background: #f3f3f3;color:#333; text-align: center;display:inline-block;">取消</a>
+                        <a  href="javascript:;" style="display:inline-block;" class="sm-submit8 baocun">确认</a>
+                        <input type="hidden" name="addId" size="20" value="$!addId"/>
+                    </td>
+                </tr>
+            </table>
+
+        </form>
+    </div>
+</div>
+#parse("/front/platform/layout/footer-lg.vm")
+	<script type="text/javascript">
+        function show(id){  
+            var arrA = new Array("index","male","hot","ncp","bjp","syfw","wmcp");
+            for(var i=0; i<arrA.length; i++){
+                if(id == arrA[i]){
+                    document.getElementById("ncp_"+arrA[i]).className='t02';
+                }else{
+                    document.getElementById("ncp_"+arrA[i]).className='t01';
+                }
+            }
+                        
+        }
+
+        $(document).ready(function() {
+
+            $("input[name=radiobutton]").click(function() {
+                if ($(this).attr("checked") == "checked") {
+                    var payType = $(this).attr("payType");
+                    if (payType == "ONLINE_BANKING") {
+                        $("#bankCode").val($(this).val());
+                    } else {
+                        $("#bankCode").val("");
+                    }
+                    $("#payType").val(payType);
+                }
+            });
+
+        });
+    </script>
+    <script type="text/javascript">
+        function orderDetailInfo(orderID){
+            var displayState = document.getElementById("order"+orderID).style.display;
+            if(displayState == "none"){
+                document.getElementById("order"+orderID).style.display = "block";
+            }else if(displayState == "block"){
+                document.getElementById("order"+orderID).style.display = "none";
+            }
+        }
+        var isSubmit=false;
+        function paymentConfirm() {
+            if ($("#payType").val() == "") {
+                alert("请选择支付方式")
+                return false;
+            }
+            if ($("#payType").val() == "ONLINE_BANKING") {
+                if ($("#bankCode").val() == "") {
+                    alert("请选择银行")
+                    return false;
+                } else {
+                    if (isSubmit == false) {
+                        isSubmit = true;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            if ($('#moneyfast').attr('checked') == 'checked') {   
+            //	alert($('.ykt_money').val() + "  "+$('.fk_money').val());   
+            //	if($('.ykt_money').val() < $('.fk_money').val()){
+	            var fkMoney = $('.fk_money').val();
+	            var yktMoney = $('.ykt_money').val();
+            	if(parseFloat(yktMoney) < parseFloat(fkMoney)){
+            		alert("一卡通余额不足！请选择其他支付方式！");
+            		return false;
+            	}else{
+	            	$('#addressInfo').removeClass('fn-hide');
+	            	return false;
+            	}
+            }
+            if (isSubmit == false) {
+                isSubmit = true;
+            }
+            //return true;
+        }
+
+        $('.quxiao,.close').click(function(){
+        	$('#addressInfo').addClass('fn-hide');
+        })
+
+        $('.baocun').click(function(){
+        	/*验证密码*/        	
+        	$.ajax({
+		    		url : "/PasswordManage/checkPayPasswordSubmit.json?payPwd="+$('#pay_pwd').val()+"&ykt_money="+$('.ykt_money').val()+"&fk_money="+$('.fk_money').val(),
+		    		type : 'post',
+		    		dataType : 'json',
+		    		success : function(res){
+		    			 if(res.code=="1") {						 
+							document.getElementById("form1").submit();
+						 }
+						 else
+						 {
+						 	alert(res.message);
+						 	$('#pay_pwd').val('')
+						 }
+		    		}
+		    	});	
+        })
+    </script>
+</body>
+</html>

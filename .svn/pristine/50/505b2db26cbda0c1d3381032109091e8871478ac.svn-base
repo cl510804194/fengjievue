@@ -1,0 +1,32 @@
+package com.yjf.esupplier.dal.custom.ibatis;
+
+import java.util.List;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.yjf.esupplier.dal.custom.daointerface.OrderOperateLogDAO;
+import com.yjf.esupplier.dal.custom.dataobject.OrderOperateLogDO;
+
+@SuppressWarnings("deprecation")
+public class IbatisOrderOperateLogDAO extends SqlMapClientDaoSupport implements OrderOperateLogDAO {
+	/**
+	 * 保存订单操作记录
+	 * 
+	 * @return
+	 */
+	@Override
+	public OrderOperateLogDO saveLog(OrderOperateLogDO log) {
+		
+		return (OrderOperateLogDO) getSqlMapClientTemplate().insert("saveOrderOperateLog", log);
+		
+	}
+	
+	/**
+	 * 查询信息
+	 * 
+	 * @return
+	 */
+	public List<OrderOperateLogDO> findInfos() {
+		return null;
+	}
+}

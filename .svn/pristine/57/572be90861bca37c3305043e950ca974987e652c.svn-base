@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--关键词维护表</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<table align="center" width="790" height="45" bgcolor="#fffced" cellpadding="0" cellspacing="0"  class="sm-ts">
+		<tr>
+			<td width="55" align="center"><img src="../../image/comdo/pen.png"></td>
+			<td width="737">关键词维护表</td>
+		</tr>
+	</table>
+	<div style="color: red;font-size: 16px; text-align: center;">$!tip</div>
+	<div style="width: 790px;">
+		<form action="/admin/ck/updateKeyword.htm" method="post" theme="simple">
+			<div>
+			<textarea rows="20" cols="96" name="keyword">$!keyword</textarea>
+			</div>
+			<div style="text-align: center;">
+			<input type="submit" value="确定"/>
+			<input type="button" onclick="reset();"  value="重置"/>
+			</div>
+		</form>
+	</div>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+	function reset(){
+		document.location="/admin/ck/toKeywordTable.htm";
+	}
+</script>
+</body>
+</html>

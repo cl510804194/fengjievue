@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="eloan">
+	<!-- ============================================= -->
+	<!-- RESULT MAPS                                   -->
+	<!-- ============================================= -->
+
+	<!-- result maps for database table personal_info -->
+	<resultMap id="RM-OPERATOR-INFO" class="com.yjf.esupplier.dal.dataobject.OperatorInfoDO">
+		<result property="operatorId" column="base_id" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+		<result property="userBaseId" column="user_base_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="parentId" column="parent_id" javaType="long" jdbcType="BIGINT"/>
+		<result property="operatorType" column="operator_type" javaType="short" jdbcType="TINYINT"/>
+		<result property="addTime" column="add_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result property="remark" column="remark" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="rem1" column="rem1" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="userId" column="user_id" javaType="long" jdbcType="BIGINT" nullValue="0"/>
+		<result property="userName" column="user_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="realName" column="real_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="logPassword" column="log_password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="payPassword" column="pay_password" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="accountId" column="account_id" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="accountName" column="account_name" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="mobile" column="mobile" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="mobileBinding" column="mobile_binding" javaType="java.lang.String" jdbcType="ENUM"/>
+		<result property="mail" column="mail" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result property="mailBinding" column="mail_binding" javaType="java.lang.String" jdbcType="ENUM"/>
+		<result property="type" column="type" javaType="java.lang.String" jdbcType="ENUM"/>
+		<result property="state" column="state" javaType="java.lang.String" jdbcType="ENUM"/>
+		<result property="rowAddTime" column="row_add_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result property="rowUpdateTime" column="row_update_time" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result property="realNameAuthentication" column="real_name_authentication" javaType="java.lang.String" jdbcType="ENUM"/>
+	</resultMap>
+
+	<!-- ============================================= -->
+	<!-- mapped statements for IOperatorInfoDAO -->
+	<!-- ============================================= -->
+	<!-- mapped statement for IOperatorInfoDAO.insert -->
+	<insert id="MS-OPERATOR-INFO-INSERT">
+		<![CDATA[
+		insert /*MS-OPERATOR-INFO-INSERT*/ into operator_info(user_base_id,parent_id,operator_type,add_time,remark,rem1) values (#userBaseId#, #parentId#, #operatorType#, #addTime#, #remark#, #rem1#)
+		]]>
+		<selectKey resultClass="long" keyProperty="operatorId">
+			<![CDATA[SELECT LAST_INSERT_ID() AS operatorId ]]>
+		</selectKey>
+	</insert>
+		
+	<select id="MS-OPERATOR-INFO-QUERYLISTBYCONDITIONS" resultMap="RM-OPERATOR-INFO">
+		<![CDATA[
+		SELECT /*MS-OPERATOR-INFO-QUERYLISTBYCONDITIONS*/ *
+		FROM operator_info p INNER JOIN  user_base_info u ON p.user_base_id=u.user_base_id  WHERE u.type='JG']]>
+		<dynamic>
+			<isNotEmpty property="userBaseId" prepend=" and ">
+				<![CDATA[p.user_base_id = #userBaseId#]]>
+			</isNotEmpty>
+			<isNotEmpty property="parentId" prepend=" and ">
+				<![CDATA[p.parent_id = #parentId#]]>
+			</isNotEmpty>
+			<isNotEmpty property="operatorType" prepend=" and ">
+				<![CDATA[p.operator_type = #operatorType#]]>
+			</isNotEmpty>
+			<isNotEmpty property="accountName" prepend=" and ">
+				<![CDATA[u.account_name = #accountName#]]>
+			</isNotEmpty>
+			<isNotEmpty property="userName" prepend=" and ">
+				<![CDATA[u.user_name = #userName#]]>
+			</isNotEmpty>
+			<isNotEmpty property="remark" prepend=" and ">
+				<![CDATA[p.remark = #remark#]]>
+			</isNotEmpty>
+			<isNotEmpty property="state" prepend=" and ">
+				<![CDATA[u.state = #state#]]>
+			</isNotEmpty>
+		</dynamic>
+		<![CDATA[ORDER BY add_time DESC LIMIT #limitStart#,#pageSize#;]]>
+	</select>
+	<select id="MS-OPERATOR-INFO-QUERYLISTBYCONDITIONSCOUNT" resultClass="long">
+		<![CDATA[
+		SELECT /*MS-OPERATOR-INFO-QUERYLISTBYCONDITIONSCOUNT*/ count(*)
+		FROM operator_info p INNER JOIN  user_base_info u ON p.user_base_id=u.user_base_id  WHERE u.type='JG']]>
+		<dynamic>
+			<isNotEmpty property="userBaseId" prepend=" and ">
+				<![CDATA[p.user_base_id = #userBaseId#]]>
+			</isNotEmpty>
+			<isNotEmpty property="parentId" prepend=" and ">
+				<![CDATA[p.parent_id = #parentId#]]>
+			</isNotEmpty>
+			<isNotEmpty property="operatorType" prepend=" and ">
+				<![CDATA[p.operator_type = #operatorType#]]>
+			</isNotEmpty>
+			<isNotEmpty property="accountName" prepend=" and ">
+				<![CDATA[u.account_name = #accountName#]]>
+			</isNotEmpty>
+			<isNotEmpty property="userName" prepend=" and ">
+				<![CDATA[u.user_name = #userName#]]>
+			</isNotEmpty>
+			<isNotEmpty property="remark" prepend=" and ">
+				<![CDATA[p.remark = #remark#]]>
+			</isNotEmpty>
+			<isNotEmpty property="state" prepend=" and ">
+				<![CDATA[u.state = #state#]]>
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<select id="MS-OPERATOR-INFO-FROM-SAME-ORGAN" resultClass="long">
+		<![CDATA[
+		 
+		   SELECT COUNT(0)  FROM operator_info a ,operator_info b ,user_base_info a1,user_base_info a2 
+		  WHERE a.parent_id =b.parent_id   
+		   AND a.parent_id =a1.user_id
+		   AND b.parent_id =a2.user_id
+		   AND (
+		       (a.user_base_id  = #userBaseId1# AND  b.user_base_id = #userBaseId2#)  
+		    OR (a.user_base_id  = #userBaseId1# AND a1.user_base_id = #userBaseId2#) 
+		    OR (a2.user_base_id = #userBaseId1# AND  b.user_base_id = #userBaseId2#)
+		   )
+
+        ]]>
+	</select>
+	
+	
+	<select id="MS-OPERATOR-INFO-FROM-SAME-ORGAN-ID" resultClass="long">
+		<![CDATA[
+		 
+		    SELECT COUNT(0)  FROM operator_info a ,operator_info b ,user_base_info a0,user_base_info b0    
+		  WHERE a.parent_id =b.parent_id   
+                   AND a.user_base_id = a0.user_base_id
+                   AND b.user_base_id = b0.user_base_id
+		   AND (
+		       (a0.user_id  =  #userId1# AND  b0.user_id = #userId2# )  
+		    OR (a0.user_id  =  #userId1# AND  a.parent_id = #userId2#) 
+		    OR (b.parent_id =  #userId1# AND  b0.user_id = #userId2#)
+		   )         
+
+        ]]>
+	</select>
+	
+	<delete id="MS-OPERATOR-INFO-DELETE">
+		<![CDATA[
+		delete /*MS-OPERATOR-INFO-DELETE*/ from operator_info where (base_id = #operatorId#)
+		]]>
+	</delete>
+	
+    <update id="MS-OPERATOR-INFO-UPDATE">
+		<![CDATA[
+		UPDATE /*MS-OPERATOR-INFO-UPDATE*/ operator_info i SET i.remark=#remark#,i.operator_type=#operatorType# WHERE (i.user_base_id = #userBaseId#)
+		]]>
+	</update>
+	
+	
+	
+</sqlMap>

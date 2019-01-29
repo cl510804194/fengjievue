@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>用户管理-实名认证查询</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="javascript:;">用户管理</a> > 实名认证查询</p>
+					</div>
+					<div class="search fn-clear">
+						<form action="/admin/userManage/unRealNamePass.htm"  method="post">
+							<dl>
+								<dt>用户名：</dt>
+								<dd><input type="text" class="u-input" name="userName" value="$!{queryConditions.userName}"/></dd>
+							</dl>
+							<dl>
+								<dt>真实姓名：</dt>
+								<dd><input type="text" class="u-input" name="realName" value="$!{queryConditions.realName}"/></dd>
+							</dl>
+							<dl>
+								<dt>创建时间：</dt>
+								<dd><input type="text" class="u-input fn-time" name="startCreateTime"  value="$!{queryConditions.startCreateTime}"/> - <input type="text" class="u-input fn-time" name="endCreateTime"  value="$!{queryConditions.endCreateTime}"/></dd>
+							</dl>
+							<dl style="width: 430px;">
+								<dt>(申请)更新实名时间：</dt>
+								<dd><input type="text" class="u-input fn-time" name="startUpdateTime"  value="$!{queryConditions.startUpdateTime}"/> - <input type="text" class="u-input fn-time" name="endUpdateTime"  value="$!{queryConditions.endUpdateTime}"/></dd>
+							</dl>
+							<dl>
+								<dt>认证状态：</dt>
+								<dd>
+									<div class="jqtransform jqtransform-select3">
+										<select name="realNameAuthentication" id="">
+											<option value="">全部</option>
+											<option value="IS"   #if($!{queryConditions.realNameAuthentication}=="IS")   selected="selected"  #end >已认证</option>
+											<option value="N"  #if($!{queryConditions.realNameAuthentication}=="N")   selected="selected"  #end >未认证</option>
+											<option value="NO" #if($!{queryConditions.realNameAuthentication}=="NO") selected="selected"  #end >未通过</option>
+											<option value="IN"   #if($!{queryConditions.realNameAuthentication}=="IN")   selected="selected"  #end >认证中</option>
+										</select>
+									</div>
+								</dd>
+							</dl>
+							<button type="submit" class="s-btn" style="cursor:pointer;">搜索</button>
+						</form>
+					</div>
+					<div class="t-box">
+						<div class="p-box pages-t fn-clear">
+							#parse("/backstage/page/page.vm")
+						</div>
+						
+						<table class="m-table">
+							<tr>
+								<th width="130">用户ID</th>
+								<th width="90">用户名</th>
+								<th width="90">真实姓名</th>
+								<th width="120">身份证号码</th>
+								<th width="120">创建时间</th>
+								<th width="120">(申请)更新实名时间</th>
+								<th width="60">用户类型</th>
+								<th width="120">实名状态</th>
+                                <th width="200">实名失败原因</th>
+								<th width="150">操作</th>
+							</tr>
+						#if($page.result.size()==0)
+            				<tr class="even">
+                				<td colspan=8 align=center>暂时没有个人用户记录</td>
+                			</tr>
+						#end
+						#set($t = $permission.check('/admin/userManage/personalManage/updatePersonalUser/1/1.htm'))
+						#foreach($info in $page.result)
+							<tr>
+								<td>$!{info.userBaseId}</td>
+								<td>$!{info.userName}</td>
+								<td>$!{info.realName}</td>
+								<td>$!{info.certNo}</td>
+								<td>$!dateUtil.simpleFormat($!{info.rowAddTime})</td>
+								<td>$!dateUtil.simpleFormat($!{info.rowUpdateTime})</td>
+								#if($!{info.type}=="JG")
+									<td >机构</td>
+								#elseif($!{info.type}=="GR")
+									<td >个人</td>
+								#else
+									<td >暂无</td>
+								#end
+								<td >$!{info.realNameAuthentication.message}</td>
+                                <td >#if($!{info.realNameAuthentication.code} =="NO")   $!{info.realNameFailReason}        #end</td>
+								<td>
+									#if($t>0)
+									<a href="/admin/userManage/personalManage/updatePersonalUser.htm?userBaseId=$!{info.userBaseId}&userId=$!{info.userId}" class="updateUser">修改</a>
+									#end
+								</td>
+							</tr>
+						#end
+						</table>
+						<input type="hidden" value="GR" data="userType"/>
+						<div class="p-box pages-b fn-clear">
+							#parse("/backstage/page/page.vm")
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'personalManage');
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/userManage/unRealNamePass.htm"
+			+"?userName=$!{queryConditions.userName}"
+			+"&realNameAuthentication=$!{queryConditions.realNameAuthentication}"
+			+"&accountName=$!{queryConditions.accountName}"
+			+"&startCreateTime=$!{queryConditions.startCreateTime}"
+			+"&endCreateTime=$!{queryConditions.endCreateTime}"
+			+"&startUpdateTime=$!{queryConditions.startUpdateTime}"
+			+"&endUpdateTime=$!{queryConditions.endUpdateTime}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

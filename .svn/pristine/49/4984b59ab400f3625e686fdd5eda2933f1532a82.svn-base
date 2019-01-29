@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--新建商品分组</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<table align="center" width="790" height="45" bgcolor="#fffced" cellpadding="0" cellspacing="0"  class="sm-ts">
+		<tr>
+			<td width="55" align="center"><img src="../../image/comdo/pen.png"></td>
+			<td width="737">新建商品分组</td>
+		</tr>
+	</table>
+	<br>
+	<form action="/admin/specreateProductGroup.htm" method="post" id="form1" theme="simple">
+		<table width="90%" align="center" cellpadding="0" cellspacing="0">
+				<tr>
+            		<td height="30" class="wz_left" ><span style="color:red;">*</span>分组名称：</td>
+                	<td><input type="text" name="pg.groupName" size="38"></input><span id="errorsDiv_pg.groupName"></span></td>
+            	</tr>	
+            	<tr>
+            		<td height="30" class="wz_left" >分组描述：</td>
+                	<td>
+                	<textarea name="pg.groupDesc" rows="15" cols="60"></textarea>
+                	</td>
+            	</tr>
+            	<tr>
+                 	<td height="40">&nbsp;</td>
+	              	<td>
+	              	<input type="submit" value="提交" class="button5" id="fb" />&nbsp; 
+	              	</td>
+	        	</tr>  
+		</table>	
+	</form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+//设置表单验证
+$(document).ready(function(){
+	// 定义规则，规则表参见 http://yav.sourceforge.net/en/validationrules.html
+	var rules=new Array(
+		"pg.groupName:分组名称|required",
+		"pg.groupName:分组名称|maxlength|30"  
+	);
+	yav.init('form1', rules);
+	// 提交前验证
+	$("#form1").submit(function () {
+		  return yav.performCheck("form1", rules, "inline");  // classic 或者 inline
+	});
+});	
+</script>
+</body>
+</html>

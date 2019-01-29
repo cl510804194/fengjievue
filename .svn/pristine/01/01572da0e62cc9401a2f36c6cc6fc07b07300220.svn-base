@@ -1,0 +1,30 @@
+package com.yjf.esupplier.service.job;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import com.yjf.esupplier.service.job.inter.EsupplierProcessJobService;
+import com.yjf.esupplier.service.user.UserBaseInfoManager;
+
+@Service("unlockUserJob")
+public class UnlockUserJob extends YrdJobBase implements EsupplierProcessJobService {
+	@Autowired
+	private UserBaseInfoManager userBaseInfoManager;
+	
+	@Scheduled(cron = "0/58 * * * * ? ")
+	@Override
+	public synchronized void doJob() throws Exception {
+		if (!isRun)
+			return;
+		logger.info("锁定到期解锁用户任务开始在 " + new Date().toString());
+		try {
+			userBaseInfoManager.executeUnlockUserJob();
+		} catch (Exception e) {
+			logger.error("查锁定到期解锁用户任务异常---异常原因：" + e.getMessage(), e);
+		}
+		logger.info("锁定到期解锁用户任务结束在 " + new Date().toString());
+	}
+}

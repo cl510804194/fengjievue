@@ -1,0 +1,4 @@
+ALTER TABLE tbl_product_recommend ADD COLUMN TYPE VARCHAR(32) DEFAULT 'PRODUCT_TOP' COMMENT '推荐类型（商品首页，个人首页)';
+UPDATE tbl_supplier SET merchant_state='IN',run_state='Opening';
+ALTER TABLE tbl_product_recommend DROP INDEX `AK_Key_2`; 
+ALTER TABLE tbl_product_recommend ADD UNIQUE KEY `AK_Key_2` (`product_id`,`type`) USING BTREE;

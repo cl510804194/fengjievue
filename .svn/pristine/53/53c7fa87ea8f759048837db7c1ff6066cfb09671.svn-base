@@ -1,0 +1,67 @@
+#parse("/front/index/common/header-title.vm")
+<style type="text/css">
+
+.pages a{
+	color:#b74f03;
+}
+</style>
+<body class="warp">
+	<!--头部-->
+	#parse("/front/index/common/header-yrd.vm")
+	
+	<!--内容-->
+	<div class="helpcenter">
+    <div class="address"><a href="/">易极付网络借贷系统V1.0首页</a>&gt;<a href="">帮助中心</a>&gt;<span>常见问题</span></div>
+    <div class="questions mb30">
+        <h3 class="helptitle"><span>常见问题</span></h3>
+        <ul class="questlist mt15">
+			#foreach($info in $page.result)
+			<li data-id="$!{info.popId}">
+				 <p class="quest"><a href="javascript:;" >$velocityCount.$!{info.title}</a></p>
+				 <div class="answer" style="margin-left: 48px;">$!{info.content}</div>
+			</li>
+			#end	
+		#parse("/backstage/page/page.vm")
+        </ul>
+        <!--分页-->
+        <!--分页 end-->
+    </div>
+	</div>
+
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	#parse("/front/index/common/footer-yrd.vm")
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'helpInfo');
+		
+	
+	
+	   $('.quest a[popid]').click(function (){
+    	   var url = '$!{rc.contextPath}/help/increaseHit?popId=' + $(this).attr('popid');
+    	   var json = $_GLOBAL.ajax(url);
+    	});
+		
+		
+		
+    </script>
+	<script type="text/javascript">
+		$('.hl-menu a[href^="/help/toModule?moduleCode=HELP"]').addClass('on');
+	
+       
+		
+		
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "$!{rc.contextPath}/help/toModule?moduleCode=$!{moduleInfo.moduleCode}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+		
+    </script>
+</body>
+</html>

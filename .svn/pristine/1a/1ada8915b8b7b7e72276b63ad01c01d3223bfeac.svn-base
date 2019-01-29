@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册--$!appConstantsUtil.getPlatformName()</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta name="viewport" content="width=device-width,user-scalable=yes">
+    <link rel="shortcut icon" href="/styles/images/logo.ico" /> 
+    <link rel="stylesheet" href="/styles/webapp.css">
+    <link rel="stylesheet" href="/styles/theme.css">
+</head>
+<body>
+    <div class="warp">
+        <!-- header begin -->
+        #parse("/front/platform/layout/user_header.vm")
+        <!-- header end -->
+		
+    	<!--内容-->
+        <div class="fn-container">
+            <div class="bd-box">
+                <div class="m-box-hd">
+                    <h3 class="box-title">会员注册</h3>
+                </div>
+                <div class="log-form">
+    				<div class="log-success fn-tac">
+            			<h1>
+                            <em class="icon"></em>
+                            <span>您的$!appConstantsUtil.getProductName()账户创建失败。</span>
+                        </h1>
+            			<p class="mt5">账户名：$!{userName}</p>
+            			<p>您可能需要：<a href="/anon/newInvestorsOpen.htm" class="fn-o-btn ml5">重新注册</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>    
+    	<!-- footer begin -->
+        <div class="footer-bot fn-tac fn-fs14 lh30" style="color: #c3b772;padding: 40px 0">
+            <p class="regist-a">
+                <a href="">关于$!appConstantsUtil.getProductName()</a>|
+                <a href="">媒体报道</a>|
+                <a href="">招商合作</a>|
+                <a href="">人才招聘</a>|
+                <a href="">联系方式</a>|
+                <a href="">隐私声明</a>
+            </p>
+            <p>$!appConstantsUtil.getProductName() www.pthui.com 版权所有 Copyright Reserved 2016 闽ICP备16002523号</p>
+        </div>
+        <!-- footer end -->
+	</div>
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+    </script>
+</body>
+</html>

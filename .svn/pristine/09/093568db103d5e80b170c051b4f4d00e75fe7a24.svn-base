@@ -1,0 +1,72 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+
+    var newImgCod = $('.newImgCod');
+    newImgCod.click(function () {
+        $('#newImgCod').attr('src', '/anon/getImgCode?dateTag=' + new Date().getTime());
+    });
+
+    var openOperator_form = $('#addMessage_form');
+
+    $('#formSubmit').click(function () {
+        openOperator_form.submit();
+    })
+
+    if (openOperator_form.length) {
+        openOperator_form.validate({
+
+            errorClass: 'error-tip',
+            errorElement: 'b',
+            errorPlacement: function (error, element) {
+                if (element.attr('name') == 'imgCode') {
+                    element.next().next().after(error);
+                } else {
+                    element.after(error);
+                }
+            },
+            rules: {
+                sendUserId: {
+                    required: true
+                },
+                messageTitle: {
+                    required: true
+                },
+                messageContent: {
+                    required: true
+                }
+
+            },
+            messages: {
+                sendUserId: {
+                    required: '请输入用户ID'
+                },
+                messageTitle: {
+                    required: '请输入标题'
+                },
+                messageContent: {
+                    required: '请输入信息内容'
+                }
+
+            },
+            submitHandler: function () {
+                openOperator_form.ajaxSubmit({
+                    success: function (res) {
+                        alert(res.message);
+                        window.location.href = window.location.href;
+                    }
+                });
+            },
+            onkeyup: false
+
+        });
+    }
+
+
+    $('[name=operatorType]').click(function () {
+        if (1 == $(this).val()) {
+            $('#payPasswordDIV').hide();
+        } else {
+            $('#payPasswordDIV').show();
+        }
+    })
+});

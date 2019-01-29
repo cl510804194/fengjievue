@@ -1,0 +1,63 @@
+package com.yjf.esupplier.service.user.result;
+
+import java.util.List;
+
+import com.yjf.esupplier.service.user.info.PersonalInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class PersonalQueryResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = -4138689559992103929L;
+	/**
+	 * 查询个数
+	 */
+	long queryCount = 0;
+	/**
+	 * 批量查询
+	 */
+	List<PersonalInfo> queryPersonalInfoList;
+	/**
+	 * 单个用户查询结果
+	 */
+	PersonalInfo queryPersonalInfo;
+	
+	public long getQueryCount() {
+		return this.queryCount;
+	}
+	
+	public void setQueryCount(long queryCount) {
+		this.queryCount = queryCount;
+	}
+	
+	public List<PersonalInfo> getQueryPersonalInfoList() {
+		return this.queryPersonalInfoList;
+	}
+	
+	public void setQueryPersonalInfoList(List<PersonalInfo> queryPersonalInfoList) {
+		this.queryPersonalInfoList = queryPersonalInfoList;
+	}
+	
+	public PersonalInfo getQueryPersonalInfo() {
+		return this.queryPersonalInfo;
+	}
+	
+	public void setQueryPersonalInfo(PersonalInfo queryPersonalInfo) {
+		this.queryPersonalInfo = queryPersonalInfo;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PersonalQueryResult [queryCount=");
+		builder.append(queryCount);
+		builder.append(", queryPersonalInfoList=");
+		builder.append(queryPersonalInfoList);
+		builder.append(", queryPersonalInfo=");
+		builder.append(queryPersonalInfo);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

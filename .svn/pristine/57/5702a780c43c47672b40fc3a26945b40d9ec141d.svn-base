@@ -1,0 +1,179 @@
+package com.yjf.esupplier.dal.custom.ibatis;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.esupplier.common.util.MiscUtil;
+import com.yjf.esupplier.dal.custom.daointerface.TblOrderInfoSearchDAO;
+import com.yjf.esupplier.dal.custom.dataobject.vo.OrderDetailVO;
+import com.yjf.esupplier.dal.custom.dataobject.vo.OrderFlowStatusCountVO;
+import com.yjf.esupplier.dal.dataobject.TblOrderInfoDO;
+
+public class IbatisTblOrderInfoSearchDAO extends SqlMapClientDaoSupport implements
+																		TblOrderInfoSearchDAO {
+	@Override
+	public List<OrderDetailVO> findByCondition(TblOrderInfoDO tblOrderInfoDO,
+												String itemProductName, List<String> statusList,
+												String orderId, long itemProductId, Date beginDate,
+												Date endDate, long limitStart, long pageSize,
+												String orderBy) {
+		if (tblOrderInfoDO == null) {
+			throw new IllegalArgumentException("Can't select by a null data object.");
+		}
+		
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("tblOrderInfo", tblOrderInfoDO);
+		param.put("itemProductName", itemProductName);
+		param.put("orderId", orderId);
+		param.put("itemProductId", new Long(itemProductId));
+		
+		param.put("limitStart", new Long(limitStart));
+		param.put("pageSize", new Long(pageSize));
+		param.put("beginDate", beginDate);
+		param.put("endDate", endDate);
+		param.put("statusList", statusList);
+		param.put("orderBy", orderBy);
+		return getSqlMapClientTemplate().queryForList("MS-TBL-ORDER-INFO-SEARCH-FIND-BY-CONDITION",
+			param);
+	}
+	
+	@Override
+	public Map<String, Object> findByConditionCount(TblOrderInfoDO tblOrderInfoDO,
+													String itemProductName,
+													List<String> statusList, String orderId,
+													long itemProductId, Date beginDate, Date endDate) {
+		if (tblOrderInfoDO == null) {
+			throw new IllegalArgumentException("Can't select by a null data object.");
+		}
+		
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("tblOrderInfo", tblOrderInfoDO);
+		param.put("itemProductName", itemProductName);
+		param.put("orderId", orderId);
+		param.put("itemProductId", new Long(itemProductId));
+		param.put("beginDate", beginDate);
+		param.put("endDate", endDate);
+		param.put("statusList", statusList);
+		return (Map<String, Object>) getSqlMapClientTemplate().queryForObject(
+			"MS-TBL-ORDER-INFO-SEARCH-FIND-BY-CONDITION-COUNT", param);
+	}
+	
+	@Override
+	public List<OrderFlowStatusCountVO> findByUserGroupByFlow(TblOrderInfoDO tblOrderInfoDO,
+																Date beginDate, Date endDate) {
+		if (tblOrderInfoDO == null) {
+			throw new IllegalArgumentException("Can't select by a null data object.");
+		}
+		
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("tblOrderInfo", tblOrderInfoDO);
+		param.put("beginDate", beginDate);
+		param.put("endDate", endDate);
+		List<Map<String, Object>> tempList = getSqlMapClientTemplate().queryForList(
+			"MS-TBL-ORDER-INFO-SEARCH-FIND-BY-USERID-GROUPBY-FLOW", param);
+		if (ListUtil.isEmpty(tempList)) {
+			return Lists.newArrayList();
+		}
+		List<OrderFlowStatusCountVO> statusCountVOs = Lists.newArrayList();
+		for (Map<String, Object> itemMap : tempList) {
+			OrderFlowStatusCountVO countVO = new OrderFlowStatusCountVO();
+			MiscUtil.setInfoPropertyByMap(itemMap, countVO);
+			statusCountVOs.add(countVO);
+		}
+		return statusCountVOs;
+	}
+
+	@Override
+	public List<OrderDetailVO> findSupplierOrderByCondition(TblOrderInfoDO tblOrderInfoDO,
+															String itemProductName,
+															List<String> statusList,
+															String orderId, long itemProductId,
+															Date beginDate, Date endDate,
+															long limitStart, long pageSize,
+															String orderBy, List supplierIds,
+															List<String> refundList,
+															String selectO2oAndB2c,List<String> batchIdList) {
+		// TODO Auto-generated method stub
+		if (tblOrderInfoDO == null) {
+			throw new IllegalArgumentException("Can't select by a null data object.");
+		}
+		
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("tblOrderInfo", tblOrderInfoDO);
+		param.put("itemProductName", itemProductName);
+		param.put("orderId", orderId);
+		param.put("itemProductId", new Long(itemProductId));
+		
+		param.put("limitStart", new Long(limitStart));
+		param.put("pageSize", new Long(pageSize));
+		param.put("beginDate", beginDate);
+		param.put("endDate", endDate);
+		param.put("statusList", statusList);
+		param.put("orderBy", orderBy);
+		param.put("supplierIds", supplierIds);
+		param.put("selectO2oAndB2c", selectO2oAndB2c);
+		param.put("batchIdList", batchIdList);
+		if(refundList!=null&&refundList.contains("EMPTY")){
+			param.put("refundOut", "true");
+		}else{
+			param.put("refundList", refundList);
+		}
+		return getSqlMapClientTemplate().queryForList(
+			"MS-TBL-ORDER-INFO-SEARCHMYORDER-FIND-BY-CONDITION", param);
+	}
+
+	@Override
+	public Map<String, Object> findSupplierOrderByConditionCount(TblOrderInfoDO tblOrderInfoDO,
+																	String itemProductName,
+																	List<String> statusList,
+																	String orderId,
+																	long itemProductId,
+																	Date beginDate, Date endDate,
+																	List supplierIds,
+																	List<String> refundList,
+																	String selectO2oAndB2c,List<String> batchIdList) {
+		// TODO Auto-generated method stub
+		if (tblOrderInfoDO == null) {
+			throw new IllegalArgumentException("Can't select by a null data object.");
+		}
+		
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("tblOrderInfo", tblOrderInfoDO);
+		param.put("itemProductName", itemProductName);
+		param.put("orderId", orderId);
+		param.put("itemProductId", new Long(itemProductId));
+		param.put("beginDate", beginDate);
+		param.put("endDate", endDate);
+		param.put("statusList", statusList);
+		param.put("supplierIds", supplierIds);
+		param.put("refundList", refundList);
+		param.put("selectO2oAndB2c", selectO2oAndB2c);
+		param.put("batchIdList", batchIdList);
+		return (Map<String, Object>) getSqlMapClientTemplate().queryForObject(
+			"MS-TBL-ORDER-INFO-SEARCHMYORDER-FIND-BY-CONDITION-COUNT", param);
+	}
+
+	@Override
+	public List<OrderDetailVO> findSupplierOrderByBatchNo(long batchNo, long supplierId, long userId) {
+		
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("batchNo", batchNo);
+		param.put("supplierId", supplierId);
+		param.put("userId", userId);
+		return getSqlMapClientTemplate().queryForList("MS-TBL-ORDER-INFO-SEARCH-FIND-BY-BATCH_NO",
+			param);
+	}
+
+	@Override
+	public List<TblOrderInfoDO> queryOutDateOrder() {
+		// TODO Auto-generated method stub
+		return getSqlMapClientTemplate().queryForList("MS-TBL-ORDER-INFO-QUERY-OUT-DATE-ORDER");
+	}
+		
+}

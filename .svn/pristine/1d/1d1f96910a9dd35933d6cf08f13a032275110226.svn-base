@@ -1,0 +1,207 @@
+package com.yjf.esupplier.dal.dataobject;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PopInfoDO implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/*
+	* ID
+	* */
+	private long popId;
+	/*
+	* 信息标题
+	* */
+	private String title;
+	/*
+	* 大类
+	* */
+	private short type;
+	/*
+	* 状态
+	* */
+	private short status;
+	/*
+	* 所属分类
+	* */
+	private long parentId;
+	/*
+	* 所属分类名称
+	* */
+	private String parentName;
+	/*
+	* 内容
+	* */
+	private String content;
+	/*
+	* 添加时间
+	* */
+	private Date addTime;
+	/*
+	* 修改时间
+	* */
+	private Date modifyTime;
+	/*
+	* 备注
+	* */
+	private String remark;
+	/*
+	* 图片链接
+	* */
+	private String rem1;
+	/*
+	* 排序号
+	* */
+	private int sortOrder;
+
+	private long hits;
+	/*
+	* 是否热点
+	* */
+	private String ishot;
+	/*
+	* 发布时间
+	* */
+    private Date publicDate;
+	/*
+	* 发布状态
+	* */
+    private String publicStatus;
+    
+    private String isParent;
+
+	/*所属景区userBaseID*/
+    private String belongTo;
+
+	public long getPopId() {
+		return popId;
+	}
+	public void setPopId(long popId) {
+		this.popId = popId;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public short getType() {
+		return type;
+	}
+	public void setType(short type) {
+		this.type = type;
+	}
+	public short getStatus() {
+		return status;
+	}
+	public void setStatus(short status) {
+		this.status = status;
+	}
+	public long getParentId() {
+		return parentId;
+	}
+	public void setParentId(long parentId) {
+		this.parentId = parentId;
+	}
+	public String getParentName() {
+		return parentName;
+	}
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public Date getAddTime() {
+		return addTime;
+	}
+	public void setAddTime(Date addTime) {
+		this.addTime = addTime;
+	}
+	public Date getModifyTime() {
+		return modifyTime;
+	}
+	public void setModifyTime(Date modifyTime) {
+		this.modifyTime = modifyTime;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getRem1() {
+		return rem1;
+	}
+	public void setRem1(String rem1) {
+		this.rem1 = rem1;
+	}
+	
+	public int getSortOrder() {
+		return sortOrder;
+	}
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+	public long getHits() {
+		return hits;
+	}
+	public void setHits(long hits) {
+		this.hits = hits;
+	}
+	public String getIshot() {
+		return ishot;
+	}
+	public void setIshot(String ishot) {
+		this.ishot = ishot;
+	}
+
+    public Date getPublicDate() {
+        return publicDate;
+    }
+
+    public void setPublicDate(Date publicDate) {
+        this.publicDate = publicDate;
+    }
+
+    public String getPublicStatus() {
+        return publicStatus;
+    }
+
+    public void setPublicStatus(String publicStatus) {
+        this.publicStatus = publicStatus;
+    }
+
+    public String getIsParent() {
+		return this.isParent;
+	}
+	public void setIsParent(String isParent) {
+		this.isParent = isParent;
+	}
+
+	public String getBelongTo() {
+		return belongTo;
+	}
+
+	public void setBelongTo(String belongTo) {
+		this.belongTo = belongTo;
+	}
+
+	@Override
+	public String toString() {
+		return "PopInfoDO [popId=" + popId + ", title=" + title + ", type="
+				+ type + ", status=" + status + ", parentId=" + parentId
+				+ ", parentName=" + parentName + ", content=" + content
+				+ ", addTime=" + addTime + ", modifyTime=" + modifyTime
+				+ ", remark=" + remark + ", rem1=" + rem1 + ", sortOrder="
+				+ sortOrder + ", hits=" + hits + ", ishot=" + ishot+ ", belongTo=" + belongTo
+				+ "]";
+	}
+	
+}

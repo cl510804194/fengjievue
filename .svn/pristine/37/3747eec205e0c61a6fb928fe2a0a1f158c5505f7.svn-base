@@ -1,0 +1,62 @@
+
+<script type="text/javascript" src="/resources/js/jquery-ui-1.8rc3.custom.min.js"></script>
+
+
+
+#parse("/front/platform/layout/header-title.vm")
+<title>商品评价</title>
+</head>
+<body>
+    <div class="warp">
+        <!-- header begin -->
+        #parse("/front/platform/layout/header.vm")
+        <!-- header end -->
+
+        <!-- content begin -->
+        <div class="warp fn-mt20">
+        	<div class="fn-container bd-box">
+        		<div class="blank50"></div>
+	        	<table height="51" align="center" width="792" cellspacing="0" cellpadding="0">
+					<tbody>
+						<tr>
+							<td height="39" class="title" style="background:#5d8853;"><span class="span-tit">商品评价</span></td>
+						</tr>
+						<tr>
+							<td height="51" class="boder_y fn-fs14">
+								有<b class="green fn-ml5 fn-mr5">$!{batchResult.totalCount}</b>条,对你的评论。
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<table border="0" width="100%" cellspacing="0" cellpadding="0" class="table_border" style="margin-top: 20px; font-size: 14px">
+									<tr>
+										<td  bgcolor="#e8f5fb" align="center" width="200" height="40">评价分数</td>
+										<td bgcolor="#e8f5fb" align="center" width="200" height="40">订单号</td>
+										<td bgcolor="#e8f5fb" align="center" width="200" height="40">评价留言</td>
+										<td bgcolor="#e8f5fb" align="center" width="200" height="40">评价人</td>
+									</tr>
+									#foreach($tRInfo in $!batchResult.pageList)
+									<tr style="border-bottom: 1px #dcdcdc solid">
+										<td height="40" align="center">$!{tRInfo.AvgScore}</td>
+										<td align="center">$!{tRInfo.orderId}</td>
+										<td align="center">$!{tRInfo.remark}</td>
+										<td align="center">$!stringUtil.overlay($!{tRInfo.buyerName},'****',2,4)</td>
+									</tr>
+									#end
+								</table>
+								<div class="p-box pages-b fn-clear fn-mt30">#parse("/backstage/page/page.vm")</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+        </div>
+        <!-- content end -->
+
+        <!-- footer begin -->
+        #parse("/front/platform/layout/footer.vm")
+        <!-- footer end -->
+    </div>
+</body>
+</html>
+

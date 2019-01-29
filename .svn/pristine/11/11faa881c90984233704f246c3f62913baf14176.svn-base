@@ -1,0 +1,195 @@
+package com.yjf.esupplier.service.giftMoney.query.impl;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+
+import com.yjf.esupplier.dal.daointerface.GiftMoneyDAO;
+import com.yjf.esupplier.dal.dataobject.GiftMoneyDO;
+import com.yjf.esupplier.domain.GiftMoneyDomain;
+import com.yjf.esupplier.domain.convert.DomainConvert;
+import com.yjf.esupplier.domain.service.repository.GiftMoneyDomainRepository;
+import com.yjf.esupplier.service.base.BaseAutowiredDAOService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyQueryService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTypeEnum;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyInfo;
+import com.yjf.esupplier.ws.gifamount.query.order.GiftMoneyQueryOrder;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service("giftMoneyQueryService")
+public class GiftMoneyQueryServiceImpl extends BaseAutowiredDAOService implements
+		GiftMoneyQueryService {
+	@Autowired
+	GiftMoneyDomainRepository giftMoneyDomainRepository;
+
+	@Autowired
+	GiftMoneyDAO giftMoneyDAO;
+	
+	@Override
+	public QueryBaseBatchResult<GiftMoneyInfo> queryGiftMoneyRule(GiftMoneyQueryOrder demandQueryOrder) {
+		QueryBaseBatchResult<GiftMoneyInfo> batchResult = new QueryBaseBatchResult<GiftMoneyInfo>();
+		
+		try {
+			demandQueryOrder.check();
+			List<GiftMoneyInfo> pageList = new ArrayList<GiftMoneyInfo>(
+				(int) demandQueryOrder.getPageSize());
+			
+			GiftMoneyDO giftMoneyDO = initGiftMoneyDO(demandQueryOrder);
+            List<String> typeList = new ArrayList<String>();
+            if(ListUtil.isNotEmpty(demandQueryOrder.getTypeList())){
+                for(GiftMoneyTypeEnum typeEnum : demandQueryOrder.getTypeList()){
+                    typeList.add(typeEnum.code());
+                }
+            }
+
+
+			long totalCount = giftMoneyDAO.giftMoneyCountByCondition(giftMoneyDO,typeList);
+			PageComponent component = new PageComponent(demandQueryOrder, totalCount);
+			List<GiftMoneyDO> recordList = giftMoneyDAO.giftMoneyListByCondition(giftMoneyDO,
+				component.getFirstRecord(), component.getPageSize(),typeList);
+			for (GiftMoneyDO item : recordList) {
+				GiftMoneyInfo info = new GiftMoneyInfo();
+				DomainConvert.convertGiftMoneyDomain(info, item);
+				pageList.add(info);
+			}
+			batchResult.initPageParam(component);
+			batchResult.setSuccess(true);
+			batchResult.setPageList(pageList);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return batchResult;
+	}
+	
+	@Override
+	public GiftMoneyInfo findById(long giftId) {
+		GiftMoneyDomain demandDomain = giftMoneyDomainRepository.loadByGiftMoneyId(giftId);
+		if (demandDomain != null) {
+			GiftMoneyInfo info = new GiftMoneyInfo();
+			BeanCopier.staticCopy(demandDomain, info);
+			return info;
+		}
+		return null;
+	}
+	
+	@Override
+	public GiftMoneyInfo active(long giftId) {
+		GiftMoneyDomain demandDomain = giftMoneyDomainRepository.active(giftId, true);
+		if (demandDomain.getGiftId() > 0) {
+			GiftMoneyInfo info = new GiftMoneyInfo();
+			BeanCopier.staticCopy(demandDomain, info);
+			return info;
+		}
+		return null;
+	}
+	
+	@Override
+	public boolean checkExistsGiftName(long giftId, String giftName) {
+		long count = giftMoneyDAO.findCountByGiftName(giftId, giftName);
+		return count > 0;
+	}
+	
+	@Override
+	public boolean checkExistsSameGiftMoney(GiftMoneyQueryOrder demandQueryOrder) {
+		GiftMoneyDO giftMoneyDO = initGiftMoneyDO(demandQueryOrder);
+		long count = giftMoneyDAO.checkExistsSameGiftMoney(giftMoneyDO);
+		return count > 0;
+	}
+	
+	@Override
+	public List<GiftMoneyInfo> giveGiftMoneyListByCondition(GiftMoneyQueryOrder demandQueryOrder) {
+		GiftMoneyDO giftMoneyDO = initGiftMoneyDO(demandQueryOrder);
+		List<GiftMoneyDO> recordList = giftMoneyDAO.giveGiftMoneyListByCondition(giftMoneyDO,
+			demandQueryOrder.getCurrentDate());
+		List<GiftMoneyInfo> list = new ArrayList<GiftMoneyInfo>();
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyDO item : recordList) {
+			GiftMoneyInfo info = new GiftMoneyInfo();
+			DomainConvert.convertGiftMoneyDomain(info, item);
+			list.add(info);
+		}
+		return list;
+	}
+
+    @Override
+    public List<GiftMoneyInfo> giveGainMoneyListByCondition(GiftMoneyQueryOrder demandQueryOrder) {
+        GiftMoneyDO giftMoneyDO = initGiftMoneyDO(demandQueryOrder);
+//        List<GiftMoneyDO> recordList = giftMoneyDAO.giveGainMoneyListByCondition(giftMoneyDO,
+//                demandQueryOrder.getCurrentDate());
+        List<GiftMoneyDO> recordList = giftMoneyDAO.giveGiftMoneyListByCondition(giftMoneyDO,
+            demandQueryOrder.getCurrentDate());
+        List<GiftMoneyInfo> list = new ArrayList<GiftMoneyInfo>();
+        if (ListUtil.isEmpty(recordList)) {
+            return list;
+        }
+        for (GiftMoneyDO item : recordList) {
+            GiftMoneyInfo info = new GiftMoneyInfo();
+            DomainConvert.convertGiftMoneyDomain(info, item);
+            list.add(info);
+        }
+        return list;
+    }
+
+    @Override
+	public List<GiftMoneyInfo> giveAllInvestGiftMoneyListByCondition(	GiftMoneyQueryOrder demandQueryOrder) {
+		GiftMoneyDO giftMoneyDO = initGiftMoneyDO(demandQueryOrder);
+		List<GiftMoneyDO> recordList = giftMoneyDAO.giveAllInvestGiftMoneyListByCondition(
+			giftMoneyDO, demandQueryOrder.getCurrentDate());
+		List<GiftMoneyInfo> list = new ArrayList<GiftMoneyInfo>();
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyDO item : recordList) {
+			GiftMoneyInfo info = new GiftMoneyInfo();
+			DomainConvert.convertGiftMoneyDomain(info, item);
+			list.add(info);
+		}
+		return list;
+	}
+	
+	@Override
+	public List<GiftMoneyInfo> queryExpireGiftMoney() {
+		List<GiftMoneyDO> recordList = giftMoneyDAO.queryExpireGiftMoneyListByCondition(getSysdate());
+		List<GiftMoneyInfo> list = new ArrayList<GiftMoneyInfo>();
+		if (ListUtil.isEmpty(recordList)) {
+			return list;
+		}
+		for (GiftMoneyDO item : recordList) {
+			GiftMoneyInfo info = new GiftMoneyInfo();
+			DomainConvert.convertGiftMoneyDomain(info, item);
+			list.add(info);
+		}
+		return list;
+	}
+	
+	private GiftMoneyDO initGiftMoneyDO(GiftMoneyQueryOrder giftMoneyQueryOrder) {
+		GiftMoneyDO giftMoneyDO = new GiftMoneyDO();
+		BeanCopier.staticCopy(giftMoneyQueryOrder, giftMoneyDO);
+		if (giftMoneyQueryOrder.getGiveType() != null) {
+			giftMoneyDO.setGiveType(giftMoneyQueryOrder.getGiveType().code());
+		}
+
+        if(giftMoneyQueryOrder.getType() != null){
+            giftMoneyDO.setType(giftMoneyQueryOrder.getType().getCode());
+        }
+
+		return giftMoneyDO;
+	}
+
+
+}

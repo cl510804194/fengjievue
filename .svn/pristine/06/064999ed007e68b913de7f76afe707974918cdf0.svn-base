@@ -1,0 +1,97 @@
+<table sqlname="tbl_message_wall">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO tbl_message_wall(id,user_id,user_name,title,raw_add_time) VALUES (?,?,?,?,?)
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE tbl_message_wall SET user_id=?,user_name=?,title=? WHERE id=?
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  id ,user_id ,user_name,title,raw_add_time ,raw_update_time  FROM tbl_message_wall WHERE id=?
+
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM tbl_message_wall WHERE id=?
+			]]>
+		</sql>
+	</operation>
+
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM tbl_message_wall
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findByCondition" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  *  FROM tbl_message_wall
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  *  FROM tbl_message_wall
+	          where 1=1
+	        <dynamic>
+	            <isGreaterThan property="tblMessageWall.userId"  compareValue="0" prepend=" and ">
+	                user_id = #tblMessageWall.userId#
+	            </isGreaterThan>
+	             <isNotEmpty property="tblMessageWall.userName" prepend=" and ">
+	             	user_name like #tblMessageWall.userName#
+	             </isNotEmpty>
+	        </dynamic>
+            ORDER by raw_add_time desc
+            
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+        </sqlmap>
+    </operation>
+	<operation name="findByConditionCount" paramtype="object" >
+        <sql>
+            <![CDATA[
+	       SELECT count(*)  FROM tbl_message_wall
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  count(*)  FROM tbl_message_wall
+	          where 1=1
+	        <dynamic>
+	            <isGreaterThan property="userId"  compareValue="0" prepend=" and ">
+	                user_id = #userId#
+	            </isGreaterThan>
+	             <isNotEmpty property="userName" prepend=" and ">
+	             	user_name like #userName#
+	             </isNotEmpty>
+	        </dynamic>
+	        ]]>
+        </sqlmap>
+    </operation>
+	
+	
+</table>

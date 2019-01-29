@@ -1,0 +1,100 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.openingbank.result;
+
+import java.util.List;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import com.yjf.common.lang.result.ResultBase;
+import com.yjf.esupplier.service.openingbank.info.BankInfo;
+import com.yjf.esupplier.service.openingbank.info.CardInfo;
+import com.yjf.esupplier.service.openingbank.info.ProvinceInfo;
+import com.yjf.esupplier.ws.enums.SettleResultEnum;
+
+/**
+ *  查询得到支行信息结果                     
+ * @Filename BankInfoResult.java
+ *
+ * @Description 
+ *
+ * @Version 1.0
+ *
+ * @Author yangjun
+ *
+ * @Email yangjun@yiji.com
+ *       
+ * @History
+ *<li>Author: yangjun</li>
+ *<li>Date: 2012-9-16</li>
+ *<li>Version: 1.0</li>
+ *<li>Content: create</li>
+ *
+ */
+public class BankInfoResult extends ResultBase {
+	
+	/** Comment for <code>serialVersionUID</code> */
+	private static final long	serialVersionUID	= -2549498738906898533L;
+	
+	private SettleResultEnum	resultCode			= SettleResultEnum.UN_KNOWN_EXCEPTION;
+	/**
+	 * 所在开户行银行信息
+	 */
+	private BankInfo			bankInfo			= null;
+	/**
+	 * 银行卡的属性信息,
+	 * 在getAllDistrict 、getOpeningBankByDistrictNameAndBankId中该值为null
+	 */
+	private CardInfo			cardInfo			= null;
+	private List<ProvinceInfo>	provinceInfos		= null;
+	
+	@Override
+	public boolean isExecuted() {
+		
+		return resultCode == SettleResultEnum.EXECUTE_SUCCESS ? true : false;
+	}
+	
+	public SettleResultEnum getResultCode() {
+		return resultCode;
+	}
+	
+	public void setResultCode(SettleResultEnum resultCode) {
+		this.resultCode = resultCode;
+	}
+	
+	public BankInfo getBankInfo() {
+		return bankInfo;
+	}
+	
+	public void setBankInfo(BankInfo bankInfo) {
+		this.bankInfo = bankInfo;
+	}
+	
+	public CardInfo getCardInfo() {
+		return cardInfo;
+	}
+	
+	public void setCardInfo(CardInfo cardInfo) {
+		this.cardInfo = cardInfo;
+	}
+	
+	public List<ProvinceInfo> getProvinceInfos() {
+		return provinceInfos;
+	}
+	
+	public void setProvinceInfos(List<ProvinceInfo> provinceInfos) {
+		this.provinceInfos = provinceInfos;
+	}
+	
+	/**
+	 * @return
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+	}
+}

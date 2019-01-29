@@ -1,0 +1,120 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	
+	$("#formSubmit").click(function(){
+		var userName = $('[name=userName]').val();
+		var borkerNo = $('[name=brokerNo]').val();
+		var reason = $('[name=reason1]').val();
+		var token    = $('[name=token]').val();
+		if(!userName.length>0){
+			alert("请输入投资人用户名");
+			return;
+		}
+		if(!borkerNo.length>0){
+			alert("请输入要更改到经纪人的编号");
+			return;
+		}
+		$.ajax({
+			url : '/backstage/userManage/changeBrokerSubmit',
+			type : 'post',
+			dataType : 'json',
+			data : {
+				userName : userName,
+				borkerNo : borkerNo,
+				reason : reason, 
+				token    : token
+			},
+			success : function(res){
+				alert(res.message);
+				document.location.href = document.location.href;
+			}
+		});
+	})
+	
+	$("#changeMarketing").click(function(){
+		var brokerUserName = $('[name=brokerUserName]').val();
+		var markettingUserName = $('[name=markettingUserName]').val();
+		var reason = $('[name=reason2]').val();
+		var token    = $('[name=token]').val();
+		if(!brokerUserName.length>0){
+			alert("请输入经纪人用户名");
+			return;
+		}
+		if(!markettingUserName.length>0){
+			alert("请输入要更改到营销机构的用户名");
+			return;
+		}
+		$.ajax({
+			url : '/backstage/userManage/changeMarkettingSubmit',
+			type : 'post',
+			dataType : 'json',
+			data : {
+				brokerUserName : brokerUserName,
+				markettingUserName : markettingUserName,
+				reason : reason, 
+				token    : token
+			},
+			success : function(res){
+				alert(res.message);
+				document.location.href = document.location.href;
+			}
+		});
+	})
+
+
+    $("#changeInvestorToBroker").click(function(){
+        var userName = $('[name=investorToBrokeruserName]').val();
+        var orgId = $('[name=investorToBrokerOrgId]').val();
+        var reason = $('[name=reason2]').val();
+        var token    = $('[name=token]').val();
+        if(!userName.length>0){
+            alert("请输入投资用户名");
+            return;
+        }
+        if(!orgId.length>0){
+            alert("请选择营销机构！");
+            return;
+        }
+
+        $.ajax({
+            url : '/backstage/userManage/changeInvestorToBroker',
+            type : 'post',
+            dataType : 'json',
+            data : {
+                userName : userName,
+                orgId : orgId,
+                reason : reason,
+                token    : token
+            },
+            success : function(res){
+                alert(res.message);
+                document.location.href = document.location.href;
+            }
+        });
+    })
+
+    $("#brokerToInvestor").click(function(){
+        var userName = $('[name=brokerToInvestoruserName]').val();
+        var referees = $('[name=brokerToInvestorReferees]').val();
+        if(!referees.length>0){
+            alert("归属经纪人编号！");
+            return;
+        }
+
+        $.ajax({
+            url : '/backstage/userManage/changeBrokerToInvestor',
+            type : 'post',
+            dataType : 'json',
+            data : {
+                userName : userName,
+                referees : referees,
+                token    : $('[name=token]').val()
+            },
+            success : function(res){
+                alert(res.message);
+                document.location.href = document.location.href;
+            }
+        });
+    })
+
+});

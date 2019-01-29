@@ -1,0 +1,116 @@
+package com.yjf.esupplier.service.user.query.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.dal.daointerface.UserRelationDAO;
+import com.yjf.esupplier.dal.dataobject.UserRelationDO;
+import com.yjf.esupplier.service.base.OpenApiBaseContextServiceBase;
+import com.yjf.esupplier.service.user.info.UserRelationInfo;
+import com.yjf.esupplier.service.user.query.UserRelationQueryService;
+import com.yjf.esupplier.service.user.result.UserRelationQueryResult;
+import com.yjf.esupplier.ws.enums.UserRelationStatusEnum;
+
+@Service("userRelationQueryService")
+public class UserRelationQueryServiceImpl extends OpenApiBaseContextServiceBase implements
+																				UserRelationQueryService {
+	
+	@Autowired
+	UserRelationDAO userRelationDAO;
+	
+	@Override
+	public UserRelationQueryResult findUserRelationByChildId(long childId) {
+		UserRelationQueryResult queryResult = new UserRelationQueryResult();
+		if (childId <= 0)
+			return queryResult;
+		UserRelationDO relationDO = new UserRelationDO();
+		relationDO.setChildId(childId);
+		setOneRelationData(queryResult, relationDO);
+		return queryResult;
+	}
+	
+	@Override
+	public UserRelationQueryResult findUserRelationByMemberNo(String memberNo) {
+		UserRelationQueryResult queryResult = new UserRelationQueryResult();
+		if (StringUtil.isBlank(memberNo))
+			return queryResult;
+		UserRelationDO relationDO = new UserRelationDO();
+		relationDO.setMemberNo(memberNo);
+		setOneRelationData(queryResult, relationDO);
+		return queryResult;
+	}
+	
+	@Override
+	public UserRelationQueryResult findUserRelationByParentId(long parentId) {
+		UserRelationQueryResult queryResult = new UserRelationQueryResult();
+		if (parentId <= 0)
+			return queryResult;
+		UserRelationDO relationDO = new UserRelationDO();
+		relationDO.setParentId(parentId);
+		List<UserRelationDO> relationDOs = userRelationDAO.findByCondition(relationDO, 0, 999999);
+		List<UserRelationInfo> relationInfos = new ArrayList<UserRelationInfo>();
+		for (UserRelationDO tempRelationDO : relationDOs) {
+			UserRelationInfo relationInfo = new UserRelationInfo();
+			BeanCopier.staticCopy(tempRelationDO, relationInfo);
+			relationInfos.add(relationInfo);
+		}
+		queryResult.setQueryUserRelationList(relationInfos);
+		queryResult.setSuccess(true);
+		return queryResult;
+	}
+	
+	@Override
+	public UserRelationQueryResult findUserRelationCountByParentId(long parentId) {
+		UserRelationQueryResult queryResult = new UserRelationQueryResult();
+		if (parentId <= 0)
+			return queryResult;
+		UserRelationDO relationDO = new UserRelationDO();
+		relationDO.setParentId(parentId);
+		long totalCount = userRelationDAO.findByConditionCount(relationDO, 0, 0);
+		queryResult.setQueryCount(totalCount);
+		queryResult.setSuccess(true);
+		return queryResult;
+	}
+	
+	private void setOneRelationData(UserRelationQueryResult queryResult, UserRelationDO relationDO) {
+		List<UserRelationDO> relationDOs = userRelationDAO.findByCondition(relationDO, 0, 999999);
+		if (ListUtil.isNotEmpty(relationDOs)) {
+			UserRelationDO userRelationDO = relationDOs.get(0);
+			UserRelationInfo relationInfo = new UserRelationInfo();
+			BeanCopier.staticCopy(userRelationDO, relationInfo);
+			relationInfo.setRelationStatus(UserRelationStatusEnum.getByCode(userRelationDO
+				.getRelationStatus()));
+			queryResult.setQueryUserRelationInfo(relationInfo);
+			queryResult.setSuccess(true);
+		}
+	}
+	
+	@Override
+	public long getUserRelationMaxMemberNo(String orgCode, String brokerAffix) {
+		String tempKey = StringUtil.defaultIfEmpty(brokerAffix);
+		long userNO = userRelationDAO.findMaxUserNo(orgCode);
+		if (userNO >= 1) {
+			return userNO;
+		} else {
+			String memberNoK = orgCode + tempKey + "%";
+			String memberNoKBegin = orgCode + tempKey + "00";
+			String memberNoKEnd = orgCode + tempKey + "9999999";
+			String memberNoMax = userRelationDAO.findMaxMemberNo(memberNoK, memberNoKBegin,
+				memberNoKEnd);
+			if (memberNoMax == null)
+				return 0;
+			else {
+				memberNoMax = memberNoMax.replaceAll(orgCode + tempKey, "");
+				return NumberUtil.parseLong(memberNoMax);
+			}
+		}
+		
+	}
+}

@@ -1,0 +1,247 @@
+package com.yjf.esupplier.service.openapi.impl;
+
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.ApplicationConstant;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.integration.openapi.context.OpenApiContext;
+import com.yjf.esupplier.integration.openapi.info.YjfAccountInfo;
+import com.yjf.esupplier.integration.openapi.order.QueryYjfMerchantOrder;
+import com.yjf.esupplier.integration.openapi.result.CustomerResult;
+import com.yjf.esupplier.integration.openapi.result.MerchantQueryResult;
+import com.yjf.esupplier.service.openapi.ReceiveOpenApiService;
+import com.yjf.esupplier.service.openapi.result.YjfLoginResult;
+import com.yjf.esupplier.service.recharge.order.DepositFlowOrder;
+import com.yjf.esupplier.service.security.token.LoginDataToken;
+import com.yjf.esupplier.service.security.token.info.LoginData;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.order.UpdateRealNameStatusOrder;
+import com.yjf.esupplier.ws.enums.CertifyStatusEnum;
+import com.yjf.esupplier.ws.enums.ExtPayTypeEnum;
+import com.yjf.esupplier.ws.enums.RealNameAuthStatusEnum;
+import com.yjf.esupplier.ws.enums.UserRegisterFromEnum;
+import com.yjf.esupplier.ws.enums.UserStateEnum;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+
+@Service("receiveOpenApiService")
+public class ReceiveOpenApiServiceImpl extends ReceiveOpenApiServiceBase implements
+																		ReceiveOpenApiService {
+	
+	static final String[] registerFrom = new String[] { "E_TURNOVER", "POS", "EASY_TRADE",
+														"EXT_IMPORT", "CARD_ACQUIRING", "WIRELESS",
+														"EASY_TRADE_EC" };
+	
+	@Override
+	public EsupplierBaseResult netBankDepositComplete(Map<String, String> paramMap) {
+		EsupplierBaseResult backResult = new EsupplierBaseResult();
+		OpenApiContext openApiContext = this.getOpenApiContext();
+		boolean validateResult = validateSign(paramMap, backResult, openApiContext);
+		if (!validateResult)
+			return backResult;
+		try {
+			String batchNo = paramMap.get("batchNo");
+			String depositAmount = paramMap.get("depositAmount");
+			String notifyTime = paramMap.get("notifyTime");
+			String orderNo = paramMap.get("orderNo");
+			String signType = paramMap.get("signType");// MD5
+			String isSuccess = paramMap.get("isSuccess");// true false
+			String amountIn = paramMap.get("amountIn");// true false
+			if (StringUtil.equals("true", isSuccess)) {
+				Money chargeAmount = new Money();
+				Money depositAmountMoney = new Money(depositAmount);
+				if (StringUtil.isNotEmpty(amountIn)) {
+					chargeAmount = depositAmountMoney.subtract(new Money(amountIn));
+				}
+				DepositFlowOrder depositFlowOrder = new DepositFlowOrder();
+				depositFlowOrder.setAmount(new Money(depositAmount));
+				depositFlowOrder.setAmountCharge(chargeAmount);
+				depositFlowOrder.setOutBizNo(orderNo);
+				depositFlowOrder.setPayType(ExtPayTypeEnum.EBANK);
+				depositFlowOrder.setStatus(1);
+				depositFlowService.update(depositFlowOrder);
+			} else {
+				Money chargeAmount = new Money();
+				Money depositAmountMoney = new Money(depositAmount);
+				if (StringUtil.isNotEmpty(amountIn)) {
+					chargeAmount = depositAmountMoney.subtract(new Money(amountIn));
+				}
+				DepositFlowOrder depositFlowOrder = new DepositFlowOrder();
+				depositFlowOrder.setAmount(new Money(depositAmount));
+				depositFlowOrder.setAmountCharge(chargeAmount);
+				depositFlowOrder.setOutBizNo(orderNo);
+				depositFlowOrder.setStatus(0);
+				depositFlowService.update(depositFlowOrder);
+			}
+			backResult.setSuccess(true);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return backResult;
+	}
+	
+	@Override
+	public YjfLoginResult yjfLogin(String accessToken) {
+		YjfLoginResult loginResult = new YjfLoginResult();
+		try {
+			CustomerResult customerResult = yjfLoginWebServer.loginYjfInfo(accessToken);
+			if (customerResult.isSuccess()) {
+				String userId = customerResult.getUserId();
+				UserInfo userInfo = null;
+				
+				loginResult = yjfUserRegister(customerResult.getLoginId(), userId,
+					UserRegisterFromEnum.YJF);
+				if (loginResult.getCreditsysResultEnum() == EsupplierResultEnum.USER_EXIST
+					&& loginResult.getUserInfo() != null) {
+					userInfo = loginResult.getUserInfo();
+					updateRealNameAuthentication(userId, userInfo);
+					if (userInfo.getPwdErrorCount() > 0) {
+						try {
+							UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserId(userInfo
+								.getUserId());
+							userBaseInfoDO.setPwdErrorCount(0);
+							userBaseInfoDAO.update(userBaseInfoDO);
+						} catch (Exception e) {
+							logger.error("重置密码错误次数异常", e);
+						}
+					}
+					if ("Y".equals(AppConstantsUtil.getOnlyYjfLogin())
+						&& loginResult.getUserInfo().getState() == UserStateEnum.INACTIVE) {
+						UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserId(userInfo
+							.getUserId());
+						userBaseInfoDO.setState(UserStateEnum.NORMAL.getCode());
+						userBaseInfoDAO.update(userBaseInfoDO);
+					}
+					loginResult.setSuccess(true);
+				}
+				
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		if (loginResult.isSuccess()) {
+			LoginData loginDataTemp = new LoginData();
+			LoginDataToken loginData = new LoginDataToken(loginDataTemp);
+			loginData.setValidate(false);
+			loginData.setInfo(loginResult.getUserInfo());
+			loginData.setPassword("888888".toCharArray());
+			loginData.setUsername("username");
+			loginData.getLoginData().setPassword("888888");
+			loginData.getLoginData().setUsername("username");
+			loginService.loginOtherByYjf(loginData);
+		}
+		return loginResult;
+	}
+	
+	/**
+	 * 更新实名状态
+	 * @param userId
+	 * @param userInfo
+	 */
+	private void updateRealNameAuthentication(String userId, UserInfo userInfo) {
+		try {
+			UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserId(userInfo.getUserId());
+			if (StringUtil.notEquals(userBaseInfoDO.getRealNameAuthentication(),
+				RealNameAuthStatusEnum.IS.code())) {
+				YjfAccountInfo yjfAccountInfo = this.customerService.queryUserAccount(userId,
+					getOpenApiContext()).getYjfAccountInfo();
+				if (CertifyStatusEnum.AUTHORIZED.message()
+					.equals(yjfAccountInfo.getCertifyStatus())) {
+					UpdateRealNameStatusOrder order = new UpdateRealNameStatusOrder();
+					order.setCertNo(yjfAccountInfo.getCertNo());
+					order.setYjfReturnStatus(RealNameAuthStatusEnum.IS.getYjfStatus());
+					order.setRealName(yjfAccountInfo.getRealName());
+					order.setAccountId(yjfAccountInfo.getUserId());
+					userInfo.setRealName(yjfAccountInfo.getRealName());
+					userBaseInfoManager.updateRealNameStatus(order);
+				}
+			}
+			
+		} catch (Exception e) {
+			logger.error("更新用户认证状态出错", e);
+		}
+	}
+	
+	@Override
+	public YjfLoginResult yjfUserRegister(String loginId, String userId,
+											UserRegisterFromEnum userRegisterFromEnum) {
+		YjfLoginResult result = new YjfLoginResult();
+		
+		result.setSuccess(true);
+		return result;
+	}
+	
+	protected YjfLoginResult validateUserCanLogin(String accountId) {
+		YjfLoginResult loginResult = new YjfLoginResult();
+		boolean isCanLogin = false;
+		QueryYjfMerchantOrder merchantOrder = new QueryYjfMerchantOrder();
+		merchantOrder.setUserId(accountId);
+		MerchantQueryResult queryResult = yjfMerchantService.getUserIdYjfMerchantInfo(
+			merchantOrder, getOpenApiContext());
+		if (queryResult.isSuccess()) {
+			if (StringUtil.isNotEmpty(queryResult.getMerchantId())) {
+				String bizMerchantId = sysParameterService
+					.getSysParameterValue(ApplicationConstant.SYS_PARAM_YJF_BUSINESS_USER_ID);
+				if (StringUtil.equals(bizMerchantId, queryResult.getMerchantId())) {
+					isCanLogin = true;
+				}
+			} else {
+				if (StringUtil.equalsIgnoreCase("E_TURNOVER", queryResult.getRegisterFrom())) {
+					isCanLogin = true;
+				}
+			}
+			
+		}
+		if (!isCanLogin) {
+			loginResult.setSuccess(false);
+			loginResult.setMessage("当前用户不登录该平台");
+			return loginResult;
+		}
+		loginResult.setSuccess(true);
+		return loginResult;
+	}
+	
+	/**
+	 * 更新易极付账户ID
+	 */
+	@Override
+	public EsupplierBaseResult updateYjfAccountId(String accountId, String accountName) {
+		
+		EsupplierBaseResult esupplierBaseResult = new EsupplierBaseResult();
+		try {
+			UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByAccountName(accountName);
+			
+			if (userBaseInfoDO != null) {
+				
+				userBaseInfoDO.setAccountId(accountId);
+				
+				userBaseInfoDAO.update(userBaseInfoDO);
+				
+				esupplierBaseResult.setSuccess(true);
+				
+				esupplierBaseResult.setMessage("更新易极付账户ID成功");
+				
+			}
+			
+		} catch (Exception e) {
+			logger.error("更新易极付账户ID出错", e);
+			
+			esupplierBaseResult.setSuccess(false);
+			
+			esupplierBaseResult.setMessage("更新易极付账户ID出错");
+		}
+		
+		return esupplierBaseResult;
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+	
+}

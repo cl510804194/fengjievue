@@ -1,0 +1,9 @@
+define(function(require) {
+	var Site = require('comp/init.js');
+    
+	var storesInfo_form = $('#storesInfo_form');
+	$('.fn-submit').click(function() {
+		storesInfo_form.submit();
+	})
+
+});

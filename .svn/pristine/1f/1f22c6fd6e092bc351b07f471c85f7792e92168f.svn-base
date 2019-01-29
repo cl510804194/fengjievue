@@ -1,0 +1,54 @@
+package com.yjf.esupplier.service.user.order;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yjf.esupplier.ws.enums.SysUserRoleEnum;
+
+public class YjfUserRegisterOrder extends RegisterBaseOrder {
+	
+	private static final long serialVersionUID = -6447305967982181608L;
+	String accountId;
+	boolean isQftUser = false;
+	
+	public YjfUserRegisterOrder() {
+		List<SysUserRoleEnum> roles = new ArrayList<SysUserRoleEnum>();
+		roles.add(SysUserRoleEnum.BUYER);
+		this.setRole(roles);
+	}
+	
+	@Override
+	public void check() {
+		validateHasText(accountId, "易极付账户id");
+	}
+	
+	public String getAccountId() {
+		return this.accountId;
+	}
+	
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
+	
+	public boolean isQftUser() {
+		return this.isQftUser;
+	}
+	
+	public void setQftUser(boolean isQftUser) {
+		this.isQftUser = isQftUser;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("YjfUserRegisterOrder [accountId=");
+		builder.append(accountId);
+		builder.append(", isQftUser=");
+		builder.append(isQftUser);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>用户管理-机构用户管理</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="">开户管理</a> > 机构人员管理</p>
+					</div>
+					<div class="search fn-clear">
+						<form action="/UserInfo/pageQueryUserBaseInfo?type=JC"  method="post" >
+							<dl>
+								<dt>机构类型：</dt>
+								<dd>
+									<div class="jqtransform jqtransform-select3">
+										<select name="userType_JC" id="">
+											<option value="YJ">营销机构</option>
+											<option value="BJ">保荐机构</option>
+										</select>
+									</div>
+								</dd>
+							</dl>
+							<dl>
+								<dt>企业名称：</dt>
+								<dd><input type="text" class="u-input w120" name="realName" value="$!{queryUserBaseForm.realName}"/></dd>
+							</dl>
+							<button type="submit" class="s-btn mr5">搜索</button><a href="" class="s-btn">导入</a>
+						</form>
+					</div>
+					<div class="t-box">
+						<div class="p-box pages-t fn-clear">
+							#parse("/backstage/page/page.vm")
+						</div>
+						
+						<table class="m-table">
+							<tr>
+								<th width="250">机构ID</th>
+								<th width="250">$!appConstantsUtil.getProductName()金融账户名</th>
+								<th width="250">企业名称</th>
+								<th width="230">状态</th>
+								<th class="text-r">操作</th>
+							</tr>
+						#if($page.result.size()==0)
+            				<tr class="even">
+                				<td colspan=5 align=center>暂时没有机构人员管理记录</td>
+                			</tr>
+						#end
+						#foreach($info in $page.result)
+							<tr>
+								<td>$!{info.userId}</td>
+								<td>$!{info.userName}</td>
+								<td>$!{info.realName}</td>
+								#if($!{info.userState}=="freeze")
+									<td class="red">冻结</td>
+								#elseif($!{info.userState}=="inactive")
+									<td class="gray">未激活</td>
+								#elseif($!{info.userState}=="disable")
+									<td class="gray">禁用</td>
+								#elseif($!{info.userState}=="normal")
+									<td>正常</td>
+								#else
+									<td>状态暂无</td>
+								#end
+								
+								<td class="text-r"><a href="">查看</a><span class="line">|</span><a href="">添加</a></td>
+							</tr>
+						#end
+						</table>
+						<div class="p-box pages-b fn-clear">
+							#parse("/backstage/page/page.vm")
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/UserInfo/pageQueryUserBaseInfo?type=JC"
+			+"&realName=$!{queryUserBaseForm.realName}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

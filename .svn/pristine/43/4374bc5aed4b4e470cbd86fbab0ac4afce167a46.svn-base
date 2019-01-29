@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>添加银行卡</title>
+	<link type="text/css" href="/resources/css/loan.css" rel="stylesheet" />
+</head>
+<body>
+	<!--头部-->
+	#parse("/front/index/common/header.vm")
+	<!--内容-->
+	<div class="container fn-clear">
+		<!--左侧导航-->
+		#parse("/front/user/common/left.vm")
+		<!--右侧内容-->
+		<div class="main-content mc-border fn-right">
+			<h3 class="con-title mb20">添加提现银行卡</h3> 
+			<div class="fn-y-tip">
+				<em></em>
+				<div class="fn-y-con">
+					<p>平台目前支持的银行均来自与易极付合作的银行，为了您更好地体验，我们也在不断更新中,如有疑问请联系客服。<a href="javascript:;" id="checkBankChanels">查看银行支付能力</a></p>
+				</div>
+			</div>
+            <div id="showBankChanels" style="display:none;z-index:10;"><img src="/resources/images/bank/bankChanels.png"/></div>
+			<form action="/bank/addBankCardSubmit" target="_blank" method="post" id="addBankCard_form">
+				<fieldset class="border-b fn-mt20">
+				#if($!{oldBankOpenName})
+				<div class="fn-item">
+					<label class="fn-label">已绑卡银行账户名：</label>
+					<input type="text" class="fn-text fn-t-disable w235" disabled="disabled" value="$!{oldBankOpenName}" />
+				</div>
+				#end
+				<div class="fn-item">
+					<label class="fn-label">本次绑卡银行账户名：</label>
+					<input type="text" class="fn-text fn-t-disable w235" disabled="disabled" value="$!{realName}" />
+				</div>
+				<div class="fn-item" style="z-index:10;">
+					<label class="fn-label">开户银行：</label>
+					<div class="bank" >
+						<div class="choose-bank">
+							<div class="select-box">
+								<img src="/images/bank/zhongxin.jpg" alt="中信银行" />
+								<a href="javascript:;" class="select-right"></a>
+							</div>
+							<ul class="bank-list fn-clear">
+								#foreach($binkInfo in $!{bankList})
+								<li t="$!{binkInfo.bankCode}"><img src="$!{binkInfo.logoUrl}" alt="$!{binkInfo.bankName}"/></li>
+								#end
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="fn-item fn-clear" style="z-index:10;">
+					<label class="fn-label">开户所在地：</label>
+					<div class="jqtransform jqtransform-select3 Y-selectarea" province="$!{province}" city="$!{city}">
+						<select name="bankProvince" class="Y-province">
+						</select>
+						<select name="bankCity" class="Y-city">
+						</select>
+					</div>
+				</div>
+				<div class="fn-item">
+					<label class="fn-label">银行账号：</label>
+					<input type="text" class="fn-text w235" maxlength="30" name="bankCardNo" value="$!{bankCardNo}"/>
+					<b class="fn-tip">为保证您的资金划转成功，该银行账号开户人必须为 <b class="ft-f60">$!{realName}</b>#if($!{type}=='GR'), 并且身份证号只能是 <b class="ft-f60">$!{certNo}</b>#end.</b>
+				</div>
+				</fieldset>
+				<div class="fn-item">
+					<input type="hidden" name="bankOpenName" value="$!{realName}" />
+					<input type="hidden" name="bankType" value="$!{bankType}" />
+					<input type="hidden" name="bankKey" />
+					<a href="javascript:;" class="fn-g-btn mr10"><button type="submit">确定</button></a>
+					<a href="/userManage/userHome" class="fn-h-btn"><span>返回</span></a>
+				</div>
+			</form>
+		</div>
+	</div>
+	#parse("/front/index/common/footer.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'addBankCard');
+		$("#checkBankChanels").click(function(){
+			if($(this).text() == "查看银行支付能力"){
+    			$(this).text("");
+				$(this).text("关闭");
+			}else{
+				$(this).text("");
+				$(this).text("查看银行支付能力");
+			}
+			$("#showBankChanels").toggle();
+		});
+    </script>
+</body>
+</html>

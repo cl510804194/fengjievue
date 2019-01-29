@@ -1,0 +1,268 @@
+package com.yjf.esupplier.service.user.query.order;
+
+import java.util.Date;
+import java.util.List;
+
+import com.yjf.esupplier.ws.enums.RealNameAuthStatusEnum;
+import com.yjf.esupplier.ws.enums.UserStateEnum;
+import com.yjf.esupplier.ws.enums.UserTypeEnum;
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelEnum;
+
+public class UserQueryOrder extends QueryPageBase {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3342989123450659568L;
+	
+	/** 用户ID */
+	private long userId;
+	/** 易代网用户名ID */
+	private String userBaseId;
+	/** 易代网用户名 */
+	private String userName;
+	/** 资金账户名 */
+	private String accountName;
+	/** 资金账ID */
+	private String accountId;
+	/** 真实姓名 */
+	private String realName;
+	
+	/** 用户状态 */
+	private UserStateEnum state;
+	/** 实名状态 */
+	private RealNameAuthStatusEnum realNameAuthentication;
+	/** 邮箱 */
+	private String email;
+	/** 手机 */
+	private String mobile;
+	/** 机构号段名称 */
+	private String identityName;
+	/** 重银账户名 */
+	private String cqBankName;
+	/** 重银账户id */
+	private String cqBankId;
+	/** 用户类型 */
+	private UserTypeEnum type;
+	/** 用户会员等级 */
+	private UserLevelEnum userLevelEnum;
+	
+	private String accountIsNull;
+	
+	private int roleId;
+	
+	private String userLevels;
+	
+	protected Date registrationStartTime;
+	
+	protected Date registrationEndTime;
+	
+	public long getUserId() {
+		return userId;
+	}
+	
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	
+	public String getUserBaseId() {
+		return userBaseId;
+	}
+	
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+	
+	public String getUserName() {
+		return userName;
+	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	public String getAccountName() {
+		return accountName;
+	}
+	
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
+	
+	public String getAccountId() {
+		return accountId;
+	}
+	
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
+	
+	public String getRealName() {
+		return realName;
+	}
+	
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+	
+	public UserStateEnum getState() {
+		return state;
+	}
+	
+	public void setState(UserStateEnum state) {
+		this.state = state;
+	}
+	
+	public RealNameAuthStatusEnum getRealNameAuthentication() {
+		return realNameAuthentication;
+	}
+	
+	public void setRealNameAuthentication(RealNameAuthStatusEnum realNameAuthentication) {
+		this.realNameAuthentication = realNameAuthentication;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+	
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	public String getMobile() {
+		return mobile;
+	}
+	
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+	
+	public String getCqBankName() {
+		return cqBankName;
+	}
+	
+	public void setCqBankName(String cqBankName) {
+		this.cqBankName = cqBankName;
+	}
+	
+	public String getCqBankId() {
+		return cqBankId;
+	}
+	
+	public void setCqBankId(String cqBankId) {
+		this.cqBankId = cqBankId;
+	}
+	
+	public String getIdentityName() {
+		return identityName;
+	}
+	
+	public void setIdentityName(String identityName) {
+		this.identityName = identityName;
+	}
+	
+	public UserTypeEnum getType() {
+		return type;
+	}
+	
+	public void setType(UserTypeEnum type) {
+		this.type = type;
+	}
+	
+	public String getAccountIsNull() {
+		return accountIsNull;
+	}
+	
+	public void setAccountIsNull(String accountIsNull) {
+		this.accountIsNull = accountIsNull;
+	}
+	
+	public UserLevelEnum getUserLevelEnum() {
+		return this.userLevelEnum;
+	}
+	
+	public void setUserLevelEnum(UserLevelEnum userLevelEnum) {
+		this.userLevelEnum = userLevelEnum;
+	}
+	
+	public int getRoleId() {
+		return roleId;
+	}
+	
+	public void setRoleId(int roleId) {
+		this.roleId = roleId;
+	}
+	
+	public Date getRegistrationStartTime() {
+		return this.registrationStartTime;
+	}
+	
+	public void setRegistrationStartTime(Date registrationStartTime) {
+		this.registrationStartTime = registrationStartTime;
+	}
+	
+	public Date getRegistrationEndTime() {
+		return this.registrationEndTime;
+	}
+	
+	public void setRegistrationEndTime(Date registrationEndTime) {
+		this.registrationEndTime = registrationEndTime;
+	}
+	
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserQueryOrder [userId=");
+		builder.append(userId);
+		builder.append(", userBaseId=");
+		builder.append(userBaseId);
+		builder.append(", userName=");
+		builder.append(userName);
+		builder.append(", accountName=");
+		builder.append(accountName);
+		builder.append(", accountId=");
+		builder.append(accountId);
+		builder.append(", realName=");
+		builder.append(realName);
+		builder.append(", state=");
+		builder.append(state);
+		builder.append(", realNameAuthentication=");
+		builder.append(realNameAuthentication);
+		builder.append(", email=");
+		builder.append(email);
+		builder.append(", mobile=");
+		builder.append(mobile);
+		builder.append(", identityName=");
+		builder.append(identityName);
+		builder.append(", cqBankName=");
+		builder.append(cqBankName);
+		builder.append(", cqBankId=");
+		builder.append(cqBankId);
+		builder.append(", type=");
+		builder.append(type);
+		builder.append(", userLevelEnum=");
+		builder.append(userLevelEnum);
+		builder.append(", accountIsNull=");
+		builder.append(accountIsNull);
+		builder.append(", roleId=");
+		builder.append(roleId);
+		builder.append(", registrationStartTime=");
+		builder.append(registrationStartTime);
+		builder.append(", registrationEndTime=");
+		builder.append(registrationEndTime);
+		builder.append("]");
+		return builder.toString();
+	}
+
+	public String getUserLevels() {
+		return userLevels;
+	}
+
+	public void setUserLevels(String userLevels) {
+		this.userLevels = userLevels;
+	}
+
+	
+}

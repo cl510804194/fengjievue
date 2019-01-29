@@ -1,0 +1,237 @@
+package com.yjf.esupplier.service.user.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yjf.esupplier.ws.product.order.ProductTypeQueryOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.esupplier.dal.daointerface.DeliveryPersonDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductTypeDAO;
+import com.yjf.esupplier.dal.dataobject.DeliveryPersonDO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.product.ProductTypeService;
+import com.yjf.esupplier.service.user.DeliveryPersonService;
+import com.yjf.esupplier.service.user.info.DeliveryPersonInfo;
+import com.yjf.esupplier.service.user.order.AssignDeliveryPersonOrder;
+import com.yjf.esupplier.service.user.order.DeliveryCompletedOrder;
+import com.yjf.esupplier.service.user.order.DeliveryPersonSearchOrder;
+import com.yjf.esupplier.service.user.order.UpdateDeliveryPersonOrder;
+import com.yjf.esupplier.service.user.result.AssignDeliveryPersonResult;
+import com.yjf.esupplier.service.user.result.UserQueryResult;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.product.info.ProductTypeInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.userManage.enums.DeliveryPersonStatusEnum;
+
+@Service("deliveryPersonService")
+public class DeliveryPersonServiceImpl extends BaseBizService implements DeliveryPersonService {
+	
+	@Autowired
+	DeliveryPersonDAO deliveryPersonDAO;
+	@Autowired
+	TblProductTypeDAO tblProductTypeDAO;
+	@Autowired
+	ProductTypeService productTypeService;
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new AssignDeliveryPersonResult();
+	}
+	
+	@Override
+	public EsupplierBaseResult updateDeliveryPersonStatus(	final UpdateDeliveryPersonOrder deliveryPersonOrder) {
+		return commonProcess(deliveryPersonOrder, "修改配送员状态", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				DeliveryPersonDO personDO = deliveryPersonDAO.findByIdForUpdate(deliveryPersonOrder
+					.getUserId());
+				if (DeliveryPersonStatusEnum.BUSY.code().equals(personDO.getStatus())) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能直接修改在工作中的配送员状态");
+				}
+				personDO.setStatus(deliveryPersonOrder.getStatus().code());
+				deliveryPersonDAO.update(personDO);
+				return null;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult deliveryCompleted(final DeliveryCompletedOrder deliveryPersonOrder) {
+		return commonProcess(deliveryPersonOrder, "配送员完成", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				DeliveryPersonDO personDO = deliveryPersonDAO.findByIdForUpdate(deliveryPersonOrder
+					.getUserId());
+				if (deliveryPersonOrder.getBelongTo() == personDO.getBelongTo()) {
+					if (!DeliveryPersonStatusEnum.BUSY.code().equals(personDO.getStatus())) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "配送员状态异常");
+					}
+					personDO.setStatus(DeliveryPersonStatusEnum.UNWANTED.code());
+					deliveryPersonDAO.update(personDO);
+				} else {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "配送区域异常");
+				}
+				return null;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public QueryBaseBatchResult<DeliveryPersonInfo> getPersonList(	DeliveryPersonSearchOrder searchOrder) {
+		QueryBaseBatchResult<DeliveryPersonInfo> baseBatchResult = new QueryBaseBatchResult<DeliveryPersonInfo>();
+		try {
+			DeliveryPersonDO searchDo = new DeliveryPersonDO();
+			BeanCopier.staticCopy(searchOrder, searchDo);
+			if (searchOrder.getStatus() != null) {
+				searchDo.setStatus(searchOrder.getStatus().code());
+			}
+			/*查询总数据*/
+			long count = deliveryPersonDAO.findByConditionCount(searchDo,
+				searchOrder.getLimitStart(), searchOrder.getPageSize(),
+				searchOrder.getServiceType());
+			PageComponent component = new PageComponent(searchOrder, count);
+			if (component.getPageSize() > 0) {
+				ProductTypeQueryOrder queryOrder = new ProductTypeQueryOrder();
+				List<ProductTypeInfo> productTypeInfoList = productTypeService
+					.getSecondProductType(queryOrder);
+				/*查询结果*/
+				List<DeliveryPersonDO> deliveryPersonDOList = deliveryPersonDAO.findByCondition(
+					searchDo, searchOrder.getLimitStart(), searchOrder.getPageSize(),
+					searchOrder.getServiceType());
+				/*返回info类型的list*/
+				List<DeliveryPersonInfo> resultList = new ArrayList<DeliveryPersonInfo>(
+					deliveryPersonDOList.size());
+				/*转换*/
+				for (DeliveryPersonDO deliveryPersonDO : deliveryPersonDOList) {
+					DeliveryPersonInfo deliveryPersonInfo = new DeliveryPersonInfo();
+					BeanCopier.staticCopy(deliveryPersonDO, deliveryPersonInfo);
+					UserQueryResult userQueryResult = userQueryService
+						.queryByUserId(deliveryPersonInfo.getUserId());
+					if (userQueryResult.getQueryUserInfo() != null) {
+						deliveryPersonInfo
+							.setMobile(userQueryResult.getQueryUserInfo().getMobile());
+					}
+					deliveryPersonInfo.setStatus(DeliveryPersonStatusEnum
+						.getByCode(deliveryPersonDO.getStatus()));
+					StringBuffer ptTypeNameBuffer = new StringBuffer();
+					for (ProductTypeInfo typeInfo : productTypeInfoList) {
+						if (deliveryPersonDO.getServiceType().indexOf(typeInfo.getPtCode()) != -1) {
+							ptTypeNameBuffer.append(typeInfo.getPtTypeName() + ",");
+						}
+					}
+					String ptTypeName = ptTypeNameBuffer.toString();
+					if (StringUtil.isNotEmpty(ptTypeName)) {
+						ptTypeName = ptTypeName.substring(0, ptTypeName.length() - 1);
+					}
+					deliveryPersonInfo.setServiceTypeName(ptTypeName);
+					resultList.add(deliveryPersonInfo);
+				}
+				/*设置baseBatchResult值*/
+				baseBatchResult.setPageList(resultList);
+			}
+			baseBatchResult.initPageParam(component);
+			baseBatchResult.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		return baseBatchResult;
+	}
+	
+	@Override
+	public DeliveryPersonInfo getPersonInfo(long userId) {
+		
+		DeliveryPersonDO deliveryPersonDO = deliveryPersonDAO.findById(userId);
+		if (deliveryPersonDO != null) {
+			DeliveryPersonInfo deliveryPersonInfo = new DeliveryPersonInfo();
+			BeanCopier.staticCopy(deliveryPersonDO, deliveryPersonInfo);
+			deliveryPersonInfo.setStatus(DeliveryPersonStatusEnum.getByCode(deliveryPersonDO
+				.getStatus()));
+			UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserId(userId);
+			deliveryPersonInfo.setMobile(userBaseInfoDO.getMobile());
+			return deliveryPersonInfo;
+		}
+		return null;
+	}
+	
+	@Override
+	public AssignDeliveryPersonResult assignDeliveryPerson(	final AssignDeliveryPersonOrder deliveryPersonOrder) {
+		
+		AssignDeliveryPersonResult assignDeliveryPersonResult = new AssignDeliveryPersonResult();
+		DeliveryPersonInfo deliveryPersonInfo = null;
+		List<DeliveryPersonDO> personDOs = deliveryPersonDAO.findByCanUse(
+			DeliveryPersonStatusEnum.UNWANTED.code(), deliveryPersonOrder.getBelongTo());
+		if (ListUtil.isEmpty(personDOs)) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "无可用的配送员");
+		}
+		for (DeliveryPersonDO personDO : personDOs) {
+			DeliveryPersonDO tempPersonDO = deliveryPersonDAO.findByIdForUpdate(personDO
+				.getUserId());
+			if (DeliveryPersonStatusEnum.UNWANTED.code().equals(tempPersonDO.getStatus())) {
+				tempPersonDO.setStatus(DeliveryPersonStatusEnum.BUSY.code());
+				deliveryPersonDAO.update(tempPersonDO);
+				deliveryPersonInfo = new DeliveryPersonInfo();
+				BeanCopier.staticCopy(tempPersonDO, deliveryPersonInfo);
+				deliveryPersonInfo.setStatus(DeliveryPersonStatusEnum.getByCode(tempPersonDO
+					.getStatus()));
+				break;
+			}
+		}
+		if (deliveryPersonInfo == null) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "无可用的配送员");
+		}
+		assignDeliveryPersonResult.setSuccess(true);
+		assignDeliveryPersonResult.setDeliveryPersonInfo(deliveryPersonInfo);
+		return assignDeliveryPersonResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateDeliveryPerson(final UpdateDeliveryPersonOrder deliveryPersonOrder) {
+		// TODO Auto-generated method stub
+		return commonProcess(deliveryPersonOrder, "修改技师", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				EsupplierBaseResult result = new EsupplierBaseResult();
+				DeliveryPersonDO deliveryPersonDo = new DeliveryPersonDO();
+				deliveryPersonDo = deliveryPersonDAO.findById(deliveryPersonOrder.getUserId());
+				BeanCopier.staticCopy(deliveryPersonOrder, deliveryPersonDo);
+				try {
+					deliveryPersonDAO.update(deliveryPersonDo);
+					result.setSuccess(true);
+					result.setMessage("修改成功");
+				} catch (IllegalArgumentException e) {
+					result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+				} catch (DataAccessException e) {
+					logger.error(e.getMessage(), e);
+					result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					result.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+				}
+				return null;
+			}
+		}, null, null);
+		
+	}
+}

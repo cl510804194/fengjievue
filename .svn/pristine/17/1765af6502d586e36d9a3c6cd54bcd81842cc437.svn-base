@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+	#parse("/website/header-title.vm")
+	<style type="text/css">
+		.company{
+			background-color: #f5eee0;
+		}
+		.company_cont{
+			//height: 500px;			
+		}
+		.main-left{
+			width: 200px;
+			float: left;
+		}
+		.main-left ul li{
+			margin-bottom: 1px;
+		}
+		.company_list{
+			display: inline-block;
+			width: 100%;
+			height: 45px;
+			line-height: 45px;
+			text-align: center;
+			background-color: #000;
+			color: #fff;
+		}
+		.company_list:hover{
+			background-color: #cc0f16;
+		}
+		.main-content{
+			width: 830px;
+			margin-left: 10px;
+			float: left;
+			background-color: #fff;
+			min-height: 590px;
+			margin-top: 25px;
+			padding: 10px 30px;
+		}
+		.company-title,.company-title2{
+			position: relative;
+			height: 57px;
+			padding-bottom: 10px;
+			background: url('/styles/images/webIndex/company-title.png') left center no-repeat;
+			border-bottom: 1px solid #eee;
+		}
+		.ctitle-name{
+			position: absolute;
+			left: 22px;
+			top: 23px;
+		}
+		.newsMs{
+			width: 640px;
+			height: 100px;
+			margin-left: 20px;
+		}
+		.newsMs .title{
+			padding: 10px 0;
+		}
+		.newsMs .title a{
+			display: inline-block;
+			width: 390px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			font-size: 16px;
+			color: #333;
+		}
+		.newsMs .title a:hover{color: #bb0007;}
+		.newsMs .content{
+			height: 48px;
+			font-size: 14px;
+			color: #666;
+			line-height: 24px;
+		}
+		.newsList ul li{
+			padding:  15px 0;
+			border-bottom: 1px dashed #eee;
+		}
+		.newsList .addMore{
+			text-align: center;
+			background-color: #f8f8f8;
+			color: #666;
+			line-height: 30px;
+			margin: 20px 0 40px 0;
+		}
+		a.readmore{
+			color: #00a0e9;
+		}
+	</style>
+<body>		
+	#parse("/website/header2.vm")
+	<div class="company mt100">
+		<div class="company_banner">
+			<img src="/styles/images/webIndex/contactUs-banner.jpg" width="100%">
+		</div>
+		<div class="company_cont  clearfix wrapper">
+			#parse("/website/main_left.vm")
+			<div class="main-content">
+				<p class="company-title">
+					<span class="ctitle-name fn-fff">新闻中心</span>
+				</p>
+				<div class="newsList">
+					<ul>
+						<li class="clearfix">
+							<div class="fn-left">
+								<img src="/styles/images/webIndex/news-pic.jpg" width="170px" height="100px">
+							</div>
+							<div class="newsMs fn-left">
+								<p class="title"><a href="#">市旅游局副局长王定国一行到龙门村开展春节慰问活动</a><span class="fn-fs12 ml30 fn-999" style="vertical-align: text-top;">2017-01-23 10:32</span></p>
+								<div class="content">
+									中国奉节网讯 春节将至，为了让贫困户过上一个安定、祥和的春节,近日，重庆市旅游局副局长王定国一行亲临结对帮扶的兴隆镇龙门村走访慰问。中国奉节网讯 春节将至，为了让贫困户过上一个安定、祥和的春节,近日，重庆市旅游局副局长王定国一行亲临结对帮扶的兴隆镇龙门村走访慰问<a href="javascript:void(0)" class="readmore">[详细]</a>
+								</div>
+							</div>
+						</li>
+						<li class="clearfix">
+							<div class="fn-left">
+								<img src="/styles/images/webIndex/news-pic.jpg" width="170px" height="100px">
+							</div>
+							<div class="newsMs fn-left">
+								<p class="title"><a href="#">市旅游局副局长王定国一行到龙门村开展春节慰问活动</a><span class="fn-fs12 ml30 fn-999" style="vertical-align: text-top;">2017-01-23 10:32</span></p>
+								<div class="content">
+									中国奉节网讯 春节将至，为了让贫困户过上一个安定、祥和的春节,近日，重庆市旅游局副局长王定国一行亲临结对帮扶的兴隆镇龙门村走访慰问。中国奉节网讯 春节将至，为了让贫困户过上一个安定、祥和的春节,近日，重庆市旅游局副局长王定国一行亲临结对帮扶的兴隆镇龙门村走访慰问<a href="javascript:void(0)" class="readmore">[详细]</a>
+								</div>
+							</div>
+						</li>
+					</ul>
+					<p class="addMore">点击加载更多</p>
+				</div>
+				
+			</div>
+		</div>
+		
+	</div>
+	#parse("/website/footer.vm")
+<script type="text/javascript" src="/resources/js/lib/jquery.unslider.js"></script>
+<script>
+	seajs.use($_GLOBAL.mode +'newsCenter');
+</script>
+</body>
+</html>

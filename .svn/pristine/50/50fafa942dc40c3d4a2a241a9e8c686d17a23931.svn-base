@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>忘记密码-设置新密码</title>
+	<link type="text/css" href="/resources/css/loan.css" rel="stylesheet" />
+</head>
+<body>
+	<!--头部-->
+	#parse("/front/index/common/header.vm")
+	<!--内容-->
+	<div class="container">
+		<ul class="fn-steps fn-clear">
+			<li>1.发送邮件</li>
+			<li class="current">2.设置新密码</li>
+			<li>3.成功</li>
+		</ul>
+		<div class="mc-border pt5">
+			<form action="/PasswordManage/NewPayPassword" method="post" class="mt20" id="password_form">
+				<fieldset class="border-b fn-mb20">
+					<div class="fn-item ">
+						<label class="fn-label">$!appConstantsUtil.getProductName()金融账号：</label>
+						<input type="text" class="fn-text fn-t-disable w235" disabled="disabled" value="$!{userName}" />
+					</div>
+					<div class="fn-item">
+						<label class="fn-label">请输入新的支付密码：</label>
+						<input type="password" class="fn-text w235" name="payPassword" id="payPassword"/>
+						<b class="fn-tip">由6-20个英文字母、数字或符号组成。建议使用大小写字母与数字混合设置密码。</b>
+					</div>
+					<div class="fn-item">
+						<label class="fn-label">确认新支付密码：</label>
+						<input type="password" class="fn-text w235"  name="newPayPassword"/>
+					</div>
+				</fieldset>
+				<div class="fn-item">
+					<input type="hidden"  name="md5UserBaseId" value="$!{md5UserBaseId}"/>
+					<input type="hidden"  name="token" value="$!{token}"/>
+					<a href="javascript:;" class="fn-g-btn"><button type="submit" name="next">确认</button></a>
+				</div>
+			</form>
+		</div>
+	</div>
+	#parse("/front/index/common/footer.vm")
+	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'newPayPassword');
+    </script>
+</body>
+</html>

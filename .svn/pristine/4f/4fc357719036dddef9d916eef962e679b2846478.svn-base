@@ -1,0 +1,142 @@
+#parse("/front/platform/layout/header-title.vm")
+<title>我的优惠券</title>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+.color_g{ color:#ffffff; background: #36923e; text-align:center;}
+.color_g2{ color:#36923e; background: #f5f5f5;text-align:center;}
+.wz-18b{ color:#112482; font-size:18px; text-align:center; padding-left:15px;}
+td.zuo {padding: 10px 0px; text-align: center;}	
+table.list tr.head{
+  background-color:#f5f5f5;
+  hegiht: 30px;
+  line-height: 30px;
+}
+table.list td.head{
+  background-color:#000000;
+}
+table.list tr.content {padding:10px 0px;}
+table.list tr.row td{
+  background-color:#ffffff;
+}
+table.list tr.altRow td{background-color: #f3f8fb;}
+libiaobg{background:#f5f5f5; border-top:1px solid #cee2ec; height:20px; border-right:1px solid #e7e7e7; color:#112482; text-align:center;}
+.clearTime{ position: absolute; left: 175px; top: 4px;display: none;}
+.clearTime2{ position: absolute; left: 390px; top: 4px;display: none;}
+</style>
+</head>
+
+<body class="fn-bgf5">
+#parse("/front/platform/layout/header_member.vm")
+<div class="warp">
+<div class="fn-container fn-mt20 fn-clear">
+#parse("/front/platform/member/layout/person_member_left.vm")
+<div class="member-right fn-right fn-bgf fn-mt25">
+	<div class="tit-box fn-clear">
+    <p class="fn-left">我的红包</p>
+    ##<a onclick="javascript:window.history.back();" class="fn-right">返回</a>
+</div>
+<div class="order-table">	
+
+		  <!--查询条件-->
+                    <form action="/do/userGiftMoney/pageQueryGainMoney.htm" method="post">
+                       <div class="mb-link fn-clear">
+                           <span class="fn-left fn-lh30 fn-mr5">状态:</span>
+                           <select name="status" class="pub-input fn-left" style="width: 100px;">
+                               <option value="">全部</option>
+                               <option value="NORMAL" #if($!{queryConditions.status}=="NORMAL") selected="selected" #end>未使用</option>
+                               <option value="EXPIRE" #if($!{queryConditions.status}=="EXPIRE") selected="selected" #end>过期</option>
+                               <option value="FINISH" #if($!{queryConditions.status}=="FINISH") selected="selected" #end>已使用</option>
+
+                           </select>
+                        <div class="fn-left fn-pa">
+                        生效时间:
+						<input class="pub-input" readonly="readonly" type="text" name="startDate" id="beginDate" style="width: 100px;" size="10" value="$!queryConditions.startDate"/>&nbsp;-&nbsp;
+                        截止时间:
+					   	<input class="pub-input" readonly="readonly" type="text" name="endDate" id="endDate" style="width: 100px;" size="10" value="$!queryConditions.endDate">
+                        <a href="javascript:;" class="clearTime">x</a>
+                        <a href="javascript:;" class="clearTime2">x</a>
+                        <a href="javascript:;" class="fn-h-btn ml5"><button class="green-btn" type="submit" >筛选 </button></a>
+                        </div>
+                        </div>
+                    </form>
+                    <!--列表-->
+                    <table cellpadding="0" cellspacing="0" border="0" width="100%" class="mtable-list list fn-mt10">
+                        <tr class="head">
+                            <th>类型</th>
+                            <th>所属红包</th>
+                            <th>红包金额</th>
+                            <th>生效时间</th>
+                            <th>截止时间</th>
+                            <th>用途</th>
+                            <th>状态</th>
+                           ##<th>使用详情</th>
+                        </tr>
+                        #if($page.result.size()==0)
+                            <tr class="even content">
+                                <td class="zuo" colspan=8 align=center>未领取红包</td>
+                            </tr>
+                        #end
+                        #foreach($info in $page.result)
+                            <tr class="content">
+                                <td class="zuo">$!{info.type.message}</td>
+                                <td class="zuo">$!{info.giftName}</td>
+                                <td class="zuo">$!{info.amount.toStandardString()}</td>
+                                <td class="zuo">$!dateUtil.simpleFormat($!{info.startDate})</td>
+                                <td class="zuo">$!dateUtil.simpleFormat($!{info.endDate})</td>
+                                <td class="zuo">消费</td>
+                                <td class="zuo">#if($!{info.status}=="NORMAL") 未使用 #elseif($!{info.status}=='EXPIRE') 过期 #else 已使用  #end</td>
+                                ##<td class="zuo"><a href="/userGiftMoney/pageQueryUseGainMoney?giftId=$!{info.giftTradeId}">使用详情</a></td>
+                            </tr>
+                        #end
+                    </table>
+                    <!--分页-->
+                    <div class="fn-tb-bottom fn-clear">
+                        #parse("/backstage/page/page.vm")
+                    </div>
+                </div>
+                <div class="blank30"></div>
+            </div>
+        </div>
+        <div class="blank50"></div>
+    </div>
+    #parse("/front/platform/layout/footer.vm")
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'queryBuyOrder');
+    </script>
+    <script type="text/javascript">
+        seajs.use($_GLOBAL.mode + 'demo');
+        function toPage(totalPage, pageNo){
+            if(totalPage<pageNo){
+                return false;
+            }
+            var url = "/do/userGiftMoney/pageQueryGainMoney.htm"
+                    +"?startDate=$!{queryConditions.startDate}"
+                    +"&endDate=$!{queryConditions.endDate}"
+                    +"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+            window.location.href=url;
+        }
+        $('.left-yhj').addClass('fn-dc0');
+
+        $('.clearTime').click(function(event) {
+            $('#beginDate').val('');
+            $(this).hide();
+        });
+        $('.clearTime2').click(function(event) {
+            $('#endDate').val('');
+            $(this).hide();
+        });
+        $('#beginDate').change(function(event) {
+            if ($(this).val()) {
+                $('.clearTime').show();
+            }
+        });
+        $('#endDate').change(function(event) {
+            if ($(this).val()) {
+                $('.clearTime2').show();
+            }
+        });
+    </script>
+
+</body>
+</html>

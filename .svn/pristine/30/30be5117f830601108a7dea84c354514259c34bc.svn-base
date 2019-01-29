@@ -1,0 +1,67 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.ws.enums.RealNameAuthStatusEnum;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelRuleType;
+
+public class ChangeUserLevelOrder extends ValidateOrderBase {
+	
+	private static final long serialVersionUID = -2072706534419370813L;
+	long userId;
+	UserLevelRuleType userLevelRuleType;
+	private long points;
+	private RealNameAuthStatusEnum realNameAuthentication;
+	
+	public long getUserId() {
+		return this.userId;
+	}
+	
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+	
+	public UserLevelRuleType getUserLevelRuleType() {
+		return this.userLevelRuleType;
+	}
+	
+	public void setUserLevelRuleType(UserLevelRuleType userLevelRuleType) {
+		this.userLevelRuleType = userLevelRuleType;
+	}
+	
+	public long getPoints() {
+		return this.points;
+	}
+	
+	public void setPoints(long points) {
+		this.points = points;
+	}
+	
+	public RealNameAuthStatusEnum getRealNameAuthentication() {
+		return this.realNameAuthentication;
+	}
+	
+	public void setRealNameAuthentication(RealNameAuthStatusEnum realNameAuthentication) {
+		this.realNameAuthentication = realNameAuthentication;
+	}
+	
+	@Override
+	public void check() {
+		super.check();
+		validateHasZore(userId, "用户userId");
+		validateNotNull(userLevelRuleType, "用户等级变更类型");
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChangeUserLevelOrder [userId=");
+		builder.append(userId);
+		builder.append(", userLevelRuleType=");
+		builder.append(userLevelRuleType);
+		builder.append(", points=");
+		builder.append(points);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

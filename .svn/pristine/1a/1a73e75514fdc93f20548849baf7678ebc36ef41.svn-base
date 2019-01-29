@@ -1,0 +1,40 @@
+package com.yjf.esupplier.service.security.query.order;
+
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class RoleQueryOrder extends QueryPageBase {
+	
+	private static final long serialVersionUID = 6210895087305000075L;
+	String roleCode;
+	String roleName;
+	
+	public String getRoleCode() {
+		return this.roleCode;
+	}
+	
+	public void setRoleCode(String roleCode) {
+		this.roleCode = roleCode;
+	}
+	
+	public String getRoleName() {
+		return this.roleName;
+	}
+	
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("RoleQueryOrder [roleCode=");
+		builder.append(roleCode);
+		builder.append(", roleName=");
+		builder.append(roleName);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

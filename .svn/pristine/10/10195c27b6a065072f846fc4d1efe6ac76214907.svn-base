@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>优惠券管理-优惠券</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="/backstage/giftMoney/pageQueryGiftMoney">优惠券管理</a> > 领取详情</p>
+					</div>
+					<div class="search fn-clear">
+						<form action="/backstage/giftMoney/pageQueryGiftMoneyTrade"  method="post" >
+							<dl style="width:250px;">
+								<dt>账户名：</dt>
+								<dd><input type="text" class="u-input" name="username" value="$!{queryConditions.username}"/>
+                                    <input type="hidden" class="u-input" name="giftId" value="$!{queryConditions.giftId}"/></dd>
+							</dl>
+
+                            <dl style="width:250px;">
+                                <dt>状态：</dt>
+                                <dd>  <div class="jqtransform jqtransform-select3">
+                                    <select name="status" id="status" style="width: 150px;">
+                                        <option value="">所有</option>
+									    <option value="NORMAL" #if($!{queryConditions.status}=="NORMAL") selected="selected"  #end>未使用</option>
+                                        <option value="EXPIRE" #if($!{queryConditions.status}=="EXPIRE") selected="selected"  #end>过期</option>
+                                        <option value="USED" #if($!{queryConditions.status}=="USED") selected="selected"  #end>已使用</option>
+
+                                    </select>
+                                </div>
+                                </dd>
+                            </dl>
+                            <button type="submit" class="s-btn">搜索</button>
+						</form>
+					</div>
+					<div class="t-box">
+                        <div class="p-box pages-b fn-clear">
+                                #parse("/backstage/page/page.vm")
+                        </div>
+						<table class="m-table">
+							<tr>
+                                <th>账户名</th>
+                                <th>所属优惠券</th>
+                                <th>领取金额(元)</th>
+                                <th>已使用金额(元)</th>
+                                <th>优惠券开始时间</th>
+                                <th>优惠券结束时间</th>
+                                <th>领取时间</th>
+                                <th>使用时间</th>
+                                <th>优惠券用途</th>
+                                <th>状态</th>
+                                <th>使用详情</th>
+
+							</tr>
+							#if($page.result.size()==0)
+                				<tr class="even">
+                					<td colspan=8 align=center>未领取优惠券</td>
+                				</tr>
+							#end
+							#foreach($info in $page.result)
+							<tr>
+                                <td>$!{info.username}</td>
+                                <td>$!{info.giftName}</td>
+                                <td>$!{info.amount.toStandardString()}</td>
+                                <td>$!{info.usedAmount.toStandardString()}</td>
+                                <td>$!dateUtil.simpleFormat($!{info.startDate})</td>
+                                <td>$!dateUtil.simpleFormat($!{info.endDate})</td>
+                                <td>$!dateUtil.simpleFormat($!{info.rawAddTime})</td>
+                                <td>$!dateUtil.simpleFormat($!{info.rawUpdateTime})</td>
+								<td>#if($!{info.useType}=="ONLY_INVEST") 投资  #end  </td>
+                                <td>#if($!{info.status}=="NORMAL") 未使用 #elseif($!{info.status}=="EXPIRE") 过期 #else 已使用  #end</td>
+                                <td><a href="/backstage/giftMoney/pageQueryUseGiftMoneyTrade?giftId=$!{info.giftTradeId}">使用详情</a></td>
+							</tr>
+							#end
+						</table>
+                        <div class="p-box pages-b fn-clear">
+                             #parse("/backstage/page/page.vm")
+                        </div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+        seajs.use($_GLOBAL.mode + 'pageQueryGiftMoneyTradeInfo');
+
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/backstage/giftMoney/pageQueryGiftMoneyTrade"
+			+"?username=$!{queryConditions.username}"
+			+"&status="+$("#status").val()
+			+"&giftId=$!{queryConditions.giftId}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+    </script>
+</body>
+</html>

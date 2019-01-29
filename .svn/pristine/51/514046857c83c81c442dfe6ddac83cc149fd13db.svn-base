@@ -1,0 +1,65 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="toProductList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+
+        <div class="left_cnt DIB push_pro">
+            <p class="nav_title"><span class="DIB">技师信息</span><a onclick="javascript:window.history.back();"
+                                                                   class="fn-right">返回</a></p>
+            <div class="left_content">
+                <form action="deliveryPersonSubmit.json" method="post" id="form1" theme="simple">
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>技师编号：</span>
+                        <input type="text"  name="personInfo.nickName"/>
+                    </div>
+					<div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>账号：</span>
+                        <input type="text" class="u-input w170"  name="personInfo.userName" />
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>手机号码：</span>
+                        <input type="text" class="u-input w170"  name="mobile" />
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>姓名：</span>
+                        <input type="text" class="u-input w170"  name="personInfo.realName" />
+                    </div>
+					 <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>级别：</span>
+                        <input type="text" class="u-input w170"  name="personInfo.level"/>
+                    </div>
+					 <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>服务类型：</span>
+						#foreach($productType in $!{productTypeInfoList})
+							<input type="checkbox" name="serviceTypes"  class="serviceType" id="serviceType"                                                     		
+                            	  value="$productType.ptCode">$productType.ptTypeName &nbsp&nbsp
+						#end
+						<i class="serviceTypes_error" style="display:none;color:red">请选择服务类型！</i> 
+                    </div>
+                    <div class="inpt">
+                        <input type="button" value="提交" id="all" class="submit"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">seajs.use($_GLOBAL.mode +'deliveryPersonEditApply');</script>
+<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="/resources/js/kindeditor/kindeditor.js"></script>
+<script charset="utf-8" src="/resources/js/kindeditor/lang/zh_CN.js"></script>
+</html>

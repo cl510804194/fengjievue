@@ -1,0 +1,162 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+
+
+
+
+
+
+
+    $(".fn-new").bind("click",function(){
+        var c_increase = $("input[name='c_increase']:checked").val();
+        if(c_increase == "Y"){
+            if($(".rule_xx").length ==1){
+                alert("亲，递增，只能新增一条规则!");
+                return ;
+            }
+        }
+        var htmlText = '';
+         htmlText = htmlText + '  <div class="item fn-clear rule_xx" >单笔交易金额<input type="text" class="u-input w170 mask_money" name="ruleAmount" id="ruleAmount" /> 元及以上可使用' +
+             '&nbsp;&nbsp; &nbsp;&nbsp;<input type="text" class="u-input w170 mask_money" name="amount" id="amount"/> (元)的优惠券 &nbsp;&nbsp; <span><a href="javascript:;" class="fn-del">删除</a></span> </div>';
+        $("#div_rule").after(htmlText);
+
+
+        $(".fn-del").bind("click",function(){
+            $(this).closest("div.rule_xx").remove();
+        });
+
+        money();
+
+    })
+
+
+    $(".fn-del").bind("click",function(){
+        $(this).closest("div.rule_xx").remove();
+    });
+
+
+
+
+
+
+
+    var addForm = $('#add_giftMoney');
+    if (addForm.length) {
+        addForm.validate({
+            submitHandler: function () {
+                addForm.ajaxSubmit({
+                    success: function (res) {
+                        alert(res.message);
+                        if (res.code == 1) {
+                            window.location.href = "/admin/giftMoneyTemplate/pageQueryGiftMoneyTemplate.htm";
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function money(){
+        var  maskMoney = $('.mask_money');
+        maskMoney.css('ime-mode','disabled');
+        maskMoney.bind("copy cut paste", function (e) { // 通过空格连续添加复制、剪切、粘贴事件
+            e.preventDefault(); // 阻止事件的默认行为
+        });
+        if (maskMoney.length > 0){
+            maskMoney.keypress(function(event){
+
+                var keyCode = event.which, value = $(this).val();
+                if(/mask_only_number/.test(this.className) && keyCode === 46){
+                    event.preventDefault();
+                }
+                if (keyCode === 0 || keyCode === 46 || keyCode === 8 || (keyCode >= 48 && keyCode <= 57)){
+                    if (value.indexOf('.') !== -1){
+                        if (keyCode === 46){
+                            return false;
+                        }
+                        var _this=this;
+                        var getCurserIndex = function(){
+                            var oTxt1 = _this;
+                            var cursurPosition=-1;
+                            if(oTxt1.selectionStart){//非IE浏览器
+                                cursurPosition= oTxt1.selectionStart;
+                            }else{//IE
+                                if(document.selection) {
+                                    var range = document.selection.createRange();
+                                } else {
+                                    return -1;
+                                }
+                                range.moveStart("character",-oTxt1.value.length);
+                                cursurPosition=range.text.length;
+                            }
+                            return cursurPosition;
+                        }
+                        var cursorIndex = getCurserIndex();
+                        var content;
+                        if(document.all)
+                        {
+                            if(document.selection) {
+                                content = document.selection.createRange();
+                            } else {
+                                content = {};
+                            }
+                        }
+                        else
+                        {
+                            content = window.getSelection();
+                            content.text = content.toString();
+                        }
+                        var selectStr = content.text;
+                        if (value.substring(value.indexOf('.') + 1).length > 1 && keyCode !== 8 && cursorIndex>value.indexOf('.') && keyCode!==0 && !selectStr.length){
+                            return false;
+
+                        }
+                    }
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }).focus(function(){
+                this.style.imeMode = 'disabled';
+            });
+        }
+
+    }
+
+
+
+    $(".fn-submit1").bind("click", function () {
+
+        var giftName = $("#templateName").val();
+        if(!$.trim(giftName)){
+            alert("亲！请输入模板名称!");
+            return;
+        }
+
+
+        var ruleAmount = $('input[name=ruleAmount]');
+           if(ruleAmount.length ==0){
+                alert("亲！请添加发送规则!");
+                return;
+            }else{
+                if(!$(ruleAmount[0]).val()){
+                    alert("亲！请输入发送规则金额!");
+                    return;
+                }
+
+                var amount = $('input[name=amount]');
+                if(!$(amount[0]).val()){
+                    alert("亲！请输入可使用的优惠券金额!");
+                    return;
+                }
+
+
+            }
+            $("#increase").val( $("input[name='c_increase']:checked").val());
+
+
+
+        addForm.submit();
+    });
+});

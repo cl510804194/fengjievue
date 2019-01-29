@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	#parse("/website/header-title.vm")
+	<style type="text/css">
+		
+	</style>
+<body>		
+	#parse("/website/header.vm")
+	<div class="aboutFj mt100">
+		<div class="aboutFj_banner">
+			<img src="/styles/images/webIndex/aboutFj-banner.jpg" width="100%">
+		</div>
+	</div>
+	#parse("/website/footer.vm")
+<script type="text/javascript" src="/resources/js/lib/jquery.unslider.js"></script>
+<script>
+	seajs.use($_GLOBAL.mode +'findFj');
+</script>
+</body>
+</html>

@@ -1,0 +1,492 @@
+define(function(require) {
+  var validRules1, validRules2, validConfig;
+
+  require('comp/init.js');
+  require('Y-all/Y-script/Y-tip.js');
+  require('content/applayContractUpload.js');
+  require('plugins/jquery.box.js');
+  require('plugins/jquery.combobox.js');
+  require('plugins/jquery.window.js');
+  require('Y-all/Y-script/Y-htmluploadify.js');
+
+
+  //表单一验证规则
+  validRules1 = require('content/applayContractRules');
+  validRules2 = require('content/applayContractRules2');
+  validConfig = $.extend(true, {}, validRules1, validRules2, {
+
+    errorClass: 'error-tip',
+    errorElement: 'b',
+    errorPlacement: function(error, element) {
+      if (element.attr('name') == 'loanAmount') {
+        element.next().after(error);
+      } else if (element.attr('name') == 'captcha') {
+        element.parent().next().next().after(error);
+      } else {
+        element.after(error);
+      }
+    },
+    submitHandler: function() {
+      applyContract_form.ajaxSubmit({
+        success: function(res) {
+//          alert(res);
+          window.location.href = window.location.href;
+        }
+      });
+    },
+    onkeyup: false
+
+  });
+
+  var verify = $('.new_captcha');
+  //    require('content/securityPassword.js')(210,31);
+  var newcaptcha = $('#newcaptcha');
+  verify.click(function() {
+    var img = new Image();
+    img.src = '/anon/getImgCode?dateTag=' + new Date().getTime();
+    img.onload = function() {
+      var obj = $(img).addClass('img_code DIB');
+//      obj.attr('title', newcaptcha.attr('title')).css({
+//        width: 60,
+//        height: 20
+//      });
+      newcaptcha.after(obj);
+      newcaptcha.remove();
+      obj.click(function() {
+        verify.click();
+      })
+      newcaptcha = obj;
+    }
+  });
+
+  var applyContract_form = $('#applyContract_form');
+
+  $('#fn-submit1').click(function() {
+    var certificateDate = $('#certificateDate').val();
+    var undated = $("#UNDATED_id").attr("checked");
+    if (certificateDate == "" && undated != 'checked') {
+      alert("请选择证件有效期!");
+        $('#certificateDate').focus();
+      return false;
+    }
+    applyContract_form.submit();
+  })
+
+  /*jquery validate验证规则添加*/
+  var chrnum = /1[3|5|7|8|][0-9]{9}/;
+  jQuery.validator.addMethod("chrnumComb", function(value, element) {
+    return this.optional(element) || (chrnum.test(value));
+  }, "请输入正确的手机号码");
+
+  var chrnum1 = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+  jQuery.validator.addMethod("chrnumComb1", function(value, element) {
+    return this.optional(element) || (chrnum1.test(value));
+  }, "请输入正确的身份证号码");
+
+
+  /** 验证借款申请FORM表单*/
+  if (applyContract_form.length) {
+    applyContract_form.validate(validConfig);
+  }
+
+  $("#marital_id").change(function() {
+    var maritalTatus = $('select[name="maritalTatus"]').val();
+    if (maritalTatus == 'MARRIED') {
+      $("#mate_div_id").css('display', 'block');
+    } else {
+      $("#mate_div_id").css('display', 'none');
+    }
+  });
+
+  $("#UNDATED_id").click(function() {
+    var undated = $("#UNDATED_id").attr("checked");
+    if (undated == 'checked') {
+      $("#certificateDate_id").attr("disabled", "disabled");
+    } else {
+      $("#certificateDate_id").removeAttr("disabled");
+    }
+  });
+
+  /** 查询身份证号是否存在 **/
+  $("#certificateCard_id").blur(function() {
+    var cardNumber = $("#certificateCard_id").val();
+    if (cardNumber == '') {
+      return;
+    }
+    $.ajax({
+      url: '/admin/application/ajaxCustomerInfoByCardNumber.json?cardNumber=' + cardNumber,
+      type: 'get',
+      async: false,
+      success: function(data, success) {
+        if (data.success) {
+          $("#name_id").text(data.customerInfo.name);
+          if (data.customerInfo.sex == 'MAN') {
+            $("#sex_id").text("男");
+          } else {
+            $("#sex_id").text("女");
+          }
+          $("#mobile_id").text(data.customerInfo.mobileNumber);
+          $("#card_id").text(data.customerInfo.certificateCard);
+          $("#contractId").val(data.customerInfo.contractId);
+          $('body').window({
+            content: '#changeStatusDiv',
+            simple: true,
+            closeEle: '.u-btn-gray'
+          });
+        }
+      },
+      error: function() {
+        alert('查询身份证号失败');
+      }
+    });
+  });
+
+  /** 查询手机号是否存在 **/
+  $("#mobileNumber_id").blur(function() {
+    var mobileNumber = $("#mobileNumber_id").val();
+    if (mobileNumber == '') {
+      return;
+    }
+    $.ajax({
+      url: '/admin/application/ajaxCustomerInfoByMobileNumber.json?mobileNumber=' + mobileNumber,
+      type: 'get',
+      async: false,
+      success: function(data, success) {
+        if (data.success) {
+          alert(data.message);
+        }
+      }
+    });
+  });
+
+  /** 贷款本金 **/
+  $("#downPayment").blur(function() {
+    var commodityAmount = $("#commodityAmount").val();
+    var downPayment = $("#downPayment").val();
+    if (commodityAmount == '' || downPayment == '' || downPayment > commodityAmount) {
+      return;
+    }
+    var loanAmount = commodityAmount - downPayment;
+    $("#loanAmount").val(loanAmount);
+  });
+
+    /** 计算月供 **/
+    $("#stagesNum").change(function(){
+       var loanType = $("#loanType").val();
+        var commodityType = $("#commodityType").val();
+        var loanAmount = $("#loanAmount").val();
+        var stagesNum = $("#stagesNum").val();alert(stagesNum);
+        $.ajax({
+            url: '/admin/application/calculateChangeAmount.json',
+            type: 'get',
+            data: {
+                loanType: loanType,
+                commodityType: commodityType,
+                loanAmount: loanAmount,
+                stagesNum: stagesNum
+            },
+            async: false,
+            success: function(data, success) {
+                if (data.success) {
+                    $("#monthlyAmount").val(money);
+                }
+            }
+        });
+    });
+
+
+    /** 商品种类 **/
+    $("#commodityType").change(function() {
+        var commodityType = $("#commodityType").val();
+        if (commodityType == '') {
+            return;
+        }
+        $("#commodityType1").val(commodityType);
+    });
+
+
+  /** 获取验证码 **/
+  $("#getCode").click(function() {
+    var mobileNumber = $("#mobileNumber_id").val();
+    if (mobileNumber == '') {
+      return;
+    }
+    $.ajax({
+      url: '/anon/sendSmsContractCode.json',
+      dataType: 'json',
+      type: 'get',
+      data: {
+        mobile: mobileNumber,
+        business: 'input_contract'
+      },
+      async: false,
+      success: function(data, success) {
+        if (data.code != 1) {
+          alert(data.message);
+        }
+      },
+      error: function() {
+        alert('获取动态验证码失败');
+      }
+    });
+  });
+
+  /** 验证码 **/
+  $("#checkCode").click(function() {
+    var code = $("#code").val();
+    var mobileNumber = $("#mobileNumber_id").val();
+    if (code == '') {
+      return;
+    }
+    $.ajax({
+      url: '/anon/checkSmsCode.json',
+      type: 'get',
+      dataType: 'json',
+      data: {
+        mobile: mobileNumber,
+        business: 'input_contract',
+        code: code
+      },
+      async: false,
+      success: function(data, success) {
+        if (data.code != 1) {
+          alert(data.message);
+        }
+      },
+      error: function() {
+        alert('获取动态验证码失败');
+      }
+    });
+  });
+
+    //户籍选择省份之后，联动带出城市信息
+    $('#province').change(function() {
+        var regionId = $("#province").val();
+        $("#city").empty();
+        $("#city").append("<option>请选择城市</option>");
+        $("#country_id").empty();
+        $("#country_id").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#city").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#city").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //户籍选择城市之后，联动带出区/县信息
+    $('#city').change(function() {
+        var regionId = $("#city").val();
+        $("#country_id").empty();
+        $("#country_id").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#country_id").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#country_id").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //现居地址选择省份之后，联动带出城市信息
+    $('#liveProvince').change(function() {
+        var regionId = $("#liveProvince").val();
+        $("#liveCity").empty();
+        $("#liveCity").append("<option>请选择城市</option>");
+        $("#liveCounty").empty();
+        $("#liveCounty").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#liveCity").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#liveCity").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //现居地选择城市之后，联动带出区/县信息
+    $('#liveCity').change(function() {
+        var regionId = $("#liveCity").val();
+        $("#liveCounty").empty();
+        $("#liveCounty").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#liveCounty").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#liveCounty").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //家庭地址选择省份之后，联动带出城市信息
+    $('#memberProvince').change(function() {
+        var regionId = $("#memberProvince").val();
+        $("#memberCity").empty();
+        $("#memberCity").append("<option>请选择城市</option>");
+        $("#memberConty").empty();
+        $("#memberConty").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#memberCity").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#memberCity").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //家庭地址选择城市之后，联动带出区/县信息
+    $('#memberCity').change(function() {
+        var regionId = $("#memberCity").val();
+        $("#memberConty").empty();
+        $("#memberConty").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#memberConty").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#memberConty").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //家庭地址选择省份之后，联动带出城市信息
+    $('#unitProvince').change(function() {
+        var regionId = $("#unitProvince").val();
+        $("#unitCity").empty();
+        $("#unitCity").append("<option>请选择城市</option>");
+        $("#unitCountry").empty();
+        $("#unitCountry").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#unitCity").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#unitCity").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //家庭地址选择城市之后，联动带出区/县信息
+    $('#unitCity').change(function() {
+        var regionId = $("#unitCity").val();
+        $("#unitCountry").empty();
+        $("#unitCountry").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#unitCountry").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#unitCountry").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //收货地址选择省份之后，联动带出城市信息
+    $('#deliverProvince').change(function() {
+        var regionId = $("#deliverProvince").val();
+        $("#deliverCity").empty();
+        $("#deliverCity").append("<option>请选择城市</option>");
+        $("#deliverContry").empty();
+        $("#deliverContry").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#deliverCity").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#deliverCity").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+    //收货地址选择城市之后，联动带出区/县信息
+    $('#deliverCity').change(function() {
+        var regionId = $("#deliverCity").val();
+        $("#deliverContry").empty();
+        $("#deliverContry").append("<option>请选择区/县</option>");
+        $.ajax({
+            type: 'post',
+            url: '/admin/systemUserManage/selectRegionCity.htm',
+            dataType: 'json',
+            data: "regionId="+regionId,
+            success: function(jsonStr){
+                $("#deliverContry").attr("disabled",false);
+                $.each(jsonStr, function (i,region) {
+                    $("#deliverContry").append("<option value='" + region.regionId + "'>" + region.regionName + "</option>");
+                });
+            },
+            error: function(text) {}
+        });
+        return false;
+    })
+
+
+});

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<title>$!appConstantsUtil.getProductName()--中心审核</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/front/platform/member/layout/member_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/front/platform/member/layout/member_left.vm")</td>
+    <td width="792" valign="top" >
+	<!--内容块 -->
+	<!--<% 
+		SupplierService supplierservice = new SupplierService();
+		String strState = String.valueOf(supplierservice.getSupplier(MemberService.getMemberId(session)).getApproveState()); 
+	%>-->
+    #if($!strState == "ManualVerify")
+        <table width="680" border="0" align="center" cellpadding="10" cellspacing="0" style="margin-top:20px;border:1px #6cbc48 solid;font-size:16px;">
+          <tr>
+            <td align="center"><p><img src="../../image/wait.gif">　</p>
+            	<p><strong>供应商服务网络管理中心尚未审核通过您的开通申请，请稍候。</strong></p>
+              </td>
+          </tr>
+        </table>
+        
+    #elseif($!strState == "Completed")       
+		
+        <table width="680" border="0" align="center" cellpadding="10" cellspacing="0"style="margin-top:20px;border:1px #6cbc48 solid;font-size:16px;">
+          <tr>
+            <td align="center"><p>[祝贺图片]　</p>
+            	<p><strong>祝贺您，您申请的供应商服务已经开通！</strong></p>
+            	<p>【<a href="/asn/do">现在进入商务会员中心</a>】</p>
+              </td>
+          </tr>
+        </table>
+        
+   #elseif($!strState == "Rejected")      
+        <table width="680" border="0" align="center" cellpadding="10" cellspacing="0"style="margin-top:20px;border:1px #6cbc48 solid;font-size:16px; ">
+          <tr>
+            <td align="center"><p><img src="../../image/sorry.gif">　</p>
+            	<p><strong>管理中心拒绝了你的供应商资料！</strong></p>
+            	<p><strong>请<a href="updateSupplier">修改后重新提交</a>，若有疑问与中心联系。</strong></p>
+              </td>
+          </tr>
+        </table>
+    #end
+	<!--内容块 -->
+	</td>
+  </tr>
+</table>
+#parse("/front/platform/member/layout/member_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+</script>
+</body>
+</html>

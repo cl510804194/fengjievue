@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新建优惠券</title>
+    <link type="text/css" href="/resources/css/after.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="warp">
+    <!--头部-->
+    #parse("/backstage/layout/logo.vm")
+    <!--内容-->
+    <div class="container fn-clear">
+        #parse("/backstage/layout/left.vm")
+        <div class="main-content fn-right">
+            <div class="mc">
+                <div class="top">
+                    <p><a href="">优惠券管理</a> > 新建优惠券</p>
+                </div>
+                <form action="/backstage/giftMoney/addGiftMoneySubmit" method="post" class="ui-form" id="add_giftMoney">
+                    <fieldset>
+                        <legend><h3>优惠券信息</h3></legend>
+                        <input type="hidden" name="guaranteeAudit" value="NO"/>
+						<input type="hidden" name="type" value="GAIN_AMOUNT"/>
+						<input type="hidden" name="giveRuleType" value="DIRECT"/>
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券名称：</label>
+                            <input type="text" class="u-input w170" name="giftName" id="giftName"/>
+
+                        </div>
+
+                        <div class="item">
+                          <label for="" class="u-label"><span class="required">*</span>优惠券总额：</label>
+                          <input type="text" class="u-input w170 mask_money" name="totalAmount" id="totalAmount"/>
+                        </div>
+						<!--
+                        <div class="item fn-clear" style="z-index:25">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券类型：</label>
+                            <div class="jqtransform jqtransform-select3">
+                                <select name="type" id="type" style="width: 150px;">
+                                    #foreach($type in $!{types})
+                                        <option value="$!{type.code}">$!{type.message}</option>
+                                    #end
+                                </select>
+                            </div>
+
+                        </div>
+						-->
+						
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>活动时间：</label>
+                            <input type="text" class="u-input fn-time" name="startDate" id="startDate"/> -
+                            <input type="text" class="u-input fn-time" name="endDate" id="endDate"/>
+                        </div>
+
+
+
+
+                        <div class="item fn-clear" style="z-index:18">
+                            <label for="" class="u-label"><span class="required"></span>使用规则：</label>
+
+                            <div class="jqtransform jqtransform-select3">
+                                <select name="useType" id="useType" style="width: 150px;">
+                                    <option value="INVEST">单笔交易满</option>
+                                </select>
+                            </div>
+                            <span><input type="text" class="u-input w170" name="useAmount" id="useAmount"/> 元</span>
+							
+                        </div>
+
+           
+                        <div  class="item fn-clear" id="registerDateRule" style="display: none;padding-left: 300px;">
+                            <label for="" class="u-label">用户注册时间：</label>
+                            <input type="text" class="u-input fn-time" name="registerDateRuleStartDate" id="registerDateRuleStartDate" /> -
+                            <input type="text" class="u-input fn-time" name="registerDateRuleEndDate" id="registerDateRuleEndDate" />
+                        </div>
+
+                        <div class="item" id="giftMoneyDate">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券有效期：</label>
+                            <input type="radio"  name="r_time" value="tzd" >
+                            <input type="text" class="u-input fn-time" name="useStartDate" id="useStartDate" disabled/> -
+                            <input type="text" class="u-input fn-time" name="useEndDate" id="useEndDate" disabled/>
+                            <br>
+                            <br>
+                            <input type="radio"   name="r_time" value="tds"> <input type="text" id="timeLimit" name="timeLimit"  class="u-input w170" disabled>
+                            天（有效天数是按优惠券领取当天进行计算）
+                        </div>
+
+
+                        <div class="item" style="display: none">
+                            <label for="" class="u-label">增益收益：</label>
+                            <input type="text" class="u-input w170 mask_money" name="rateOfYear" id="rateOfYear"/>
+
+                        </div>
+
+
+                    </fieldset>
+                    <div class="item mt10" style="margin-left:50px;">
+                        <a href="javascript:;" class="u-btn u-btn-blue fn-submit1">保存</a><a
+                            href="javascript:history.go(-1);" class="u-btn u-btn-gray">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var $_GLOBAL =
+    {
+    }
+    ;
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript">
+
+    seajs.use($_GLOBAL.mode +'addGiftMoney');
+
+
+</script>
+</body>
+</html>

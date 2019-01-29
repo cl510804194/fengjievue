@@ -1,0 +1,55 @@
+<table sqlname="user_extend">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO user_extend(user_id,property_key,property_value,raw_add_time) VALUES (?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+				<![CDATA[
+				UPDATE user_extend SET property_value=? WHERE user_id=? AND property_key=?
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="findByPropertyNameUserId" paramtype="string">
+		<sql>
+				<![CDATA[
+			SELECT  user_id ,property_key ,property_value ,raw_add_time ,raw_update_time  FROM user_extend WHERE user_id=? and property_key=?
+
+		]]>
+		</sql>
+	</operation>
+
+	<operation name="findByPropertyName" paramtype="string" multiplicity="many">
+		<sql>
+				<![CDATA[
+			SELECT  user_id ,property_key ,property_value ,raw_add_time ,raw_update_time  FROM user_extend WHERE property_key=?
+
+		]]>
+		</sql>
+	</operation>
+	<operation name="deletePropertyName" paramtype="object">
+		<sql>
+				<![CDATA[
+				DELETE FROM user_extend WHERE user_id=? AND property_key=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteByUserIdAutoTest" paramtype="long">
+		<sql>
+				<![CDATA[
+				DELETE FROM user_extend WHERE user_id=? 
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByUserIdAutoTest" paramtype="long">
+		<sql>
+				<![CDATA[
+				SELECT * FROM user_extend WHERE user_id=? 
+			]]>
+		</sql>
+	</operation>
+</table>

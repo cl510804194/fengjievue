@@ -1,0 +1,31 @@
+package com.yjf.esupplier.service.common.services.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.esupplier.service.base.data.BankDataService;
+import com.yjf.esupplier.service.base.data.BaseDataLoader;
+import com.yjf.esupplier.service.common.services.SysParameterService;
+import com.yjf.esupplier.service.mail.MailSenderInfo;
+import com.yjf.esupplier.ws.service.SysClearCacheWebService;
+
+/**
+ * 系统参数webservice服务实现 Created by wqh on 2014/5/22.
+ */
+@Service("sysClearCacheWebService")
+public class SysClearCacheWebServiceImpl implements SysClearCacheWebService {
+	@Autowired
+	SysParameterService sysParameterService;
+	@Autowired
+	BankDataService bankDataService;
+	@Autowired
+	BaseDataLoader baseDataLoader;
+	
+	@Override
+	public void clearCache() {
+		sysParameterService.clearCache();
+		bankDataService.clearCache();
+		baseDataLoader.clearCache();
+		MailSenderInfo.clearMailSession();
+	}
+}

@@ -1,0 +1,31 @@
+/*huzx的分页样式*/
+
+.current_page_huzx {
+	background-color:#ebf9df;
+    font-weight: bold;
+    border:1px #6cbc48 solid;
+}
+/*
+.page_up_down_huzx {
+    padding: 0px 4px;
+    background: #e6f2fe;
+    color: #555;
+    font-size: 15px;
+}
+
+.not_current_page_huzx {
+    padding: 0px 6px;
+    background: #e6f2fe;
+    font-size: 15px;
+}
+*/
+.page_first_upbutton{padding:2px 7px;border:1px #666666 solid;margin-right:2px; background-color:#fefefe;}
+		
+#pageDiv{float:right; height:35px; padding-top:15px; text-align:right; color:#666; font-size:12px;}
+#pageDiv a{padding:2px 7px;border:1px #1d6e00 solid;font-size:12px;margin:0 2px;}	
+#pageDiv a:link { color:#666666; text-decoration: none; font-size:12px;} 
+#pageDiv a:visited { color:#666666; text-decoration: none;font-size:12px;} 
+#pageDiv a:hover { color: #000000;  background:#ebf9df;font-size:12px;} 
+#pageDiv a:active { color: #FF5151; text-decoration: underline;font-size:12px;}
+#pageDiv span{padding:2px 7px;border:1px #1d6e00 solid;font-size:12px;margin:0 2px;background:#A5D2A7;}	
+

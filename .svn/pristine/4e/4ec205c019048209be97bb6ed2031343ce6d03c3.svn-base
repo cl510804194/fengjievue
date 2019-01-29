@@ -1,0 +1,41 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.common.services;
+
+/**
+ * 
+ * @Filename SysFunctionConfigService.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2014-7-31</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ * 
+ */
+public interface SysFunctionConfigService {
+	boolean isTradeFeeCharge();
+	
+	boolean isAllEconomicMan();
+	
+	boolean isSendMesToBroker();
+	
+	public String getTradeChargeAccountId();
+	
+	public String getMonthMode();
+	/**
+	 * 支持数据库pdf合同未上线前，平台用的PDFTypeCode 
+	 * @return
+	 */
+	public String getHistoryPDFTypeCode();
+
+    public double getTradeCharge();
+
+}

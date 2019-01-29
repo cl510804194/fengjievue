@@ -1,0 +1,2 @@
+testId,resultCode,merchantId,processorId,supplierId,id,userId,orderStatus,totalAmount,workflowStatus,supplierName,saleTypeB2c,saleTypeO2o,facade,paymentFlowId,refundStatus,saleTypeHotels,resortsBusinessId,batchNo,tuneMeal,isPayed,takegoodsId,paymentMethod,saleTypeOrderMeal,tableNumber,tableNumberSeq,idTOI,orderId,itemProductId,itemProductName,quantity,proPrice,picPath,postFree
+1001,EXECUTE_SUCCESS,1258,1452,2456,3545,4458,YFH,1000,WAIT_BUYER_PAY,回复,NO,NO,SEVEN_AFTER,6585,EMPTY,NO,7585,8455,NO,NO,24521,OFFLINE,NO,10,112233,3152,5214,2587,SSD省,3,20,14ddf,852

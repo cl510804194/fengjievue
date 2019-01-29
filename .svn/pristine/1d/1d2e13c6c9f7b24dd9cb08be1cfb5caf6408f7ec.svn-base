@@ -1,0 +1,157 @@
+package com.yjf.esupplier.service.login.order;
+
+import com.yjf.esupplier.ws.enums.*;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class UserLoginOrder extends ValidateOrderBase {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8792527846557173238L;
+	/**
+	 * 用户名
+	 */
+	private String userName;
+	/**
+	 * 用户密码
+	 */
+	private String password;
+	/**
+	 * ip地址
+	 */
+	private String ipAddress;
+	/**
+	 * userAgent
+	 */
+	private String userAgent;
+	
+	private boolean isValidatePassword = true;
+
+	/*
+	* 登录来源
+	* */
+	private LoginFromTypeEnum loginFromTypeEnum = LoginFromTypeEnum.PC_CENTER;
+	
+	/** 手机号**/
+	private String phone;
+	
+	/** 验证码**/
+	private String securityCode ;
+	/** 登录方式**/
+	private LoginMethodEnum loginMethodEnum;
+	/** 角色分类**/
+	private UserBizTypeEnum userBizTypeEnum;
+	
+	public String getUserName() {
+		return userName;
+	}
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+	
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	public String getIpAddress() {
+		return ipAddress;
+	}
+	
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+	
+	public boolean isValidatePassword() {
+		return this.isValidatePassword;
+	}
+	
+	public void setValidatePassword(boolean isValidatePassword) {
+		this.isValidatePassword = isValidatePassword;
+	}
+
+	public LoginFromTypeEnum getLoginFromTypeEnum() {
+		return loginFromTypeEnum;
+	}
+
+	public void setLoginFromTypeEnum(LoginFromTypeEnum loginFromTypeEnum) {
+		this.loginFromTypeEnum = loginFromTypeEnum;
+	}
+
+	public String getUserAgent() {
+		return this.userAgent;
+	}
+	
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
+	}
+	
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getSecurityCode() {
+		return securityCode;
+	}
+
+	public void setSecurityCode(String securityCode) {
+		this.securityCode = securityCode;
+	}
+	
+	@Override
+	public void check() {
+		validateHasText(userName, "用户名");
+		if (isValidatePassword)
+			validateHasText(password, "密码");
+		validateHasText(ipAddress, "ip地址");
+	}
+	
+	public LoginMethodEnum getLoginMethodEnum() {	
+		return loginMethodEnum;
+	}
+	
+	public void setLoginMethodEnum(LoginMethodEnum loginMethodEnum) {
+		this.loginMethodEnum = loginMethodEnum;
+	}
+	
+	public UserBizTypeEnum getUserBizTypeEnum() {
+		return userBizTypeEnum;
+	}
+	
+	public void setUserBizTypeEnum(UserBizTypeEnum userBizTypeEnum) {
+		this.userBizTypeEnum = userBizTypeEnum;
+	}
+	
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserLoginOrder [userName=");
+		builder.append(userName);
+		builder.append(", password=");
+		builder.append(password);
+		builder.append(", ipAddress=");
+		builder.append(ipAddress);
+		builder.append(", isValidatePassword=");
+		builder.append(isValidatePassword);
+		builder.append(", loginFromTypeEnum=");
+		builder.append(loginFromTypeEnum);
+		builder.append(", phone=");
+		builder.append(phone);
+		builder.append(", securityCode=");
+		builder.append(securityCode);
+		builder.append(", userBizTypeEnum=");
+		builder.append(userBizTypeEnum);
+		builder.append("]");
+		return builder.toString();
+	}
+}

@@ -1,0 +1,86 @@
+<table sqlname="payment_flow">
+	<column name="payment_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="red_pay" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="ticket_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="refund_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO payment_flow(payment_flow_id,order_no,payment_amount,user_id,user_name,real_name,bank_code,payment_date,payment_success_date,payment_type,status,order_ids,raw_add_time,red_pay,integral_pay,ticket_amount,refund_status,refund_amount,payment_mode,ticket_id,trade_no,ext_order,ext_order1) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+		SELECT  * FROM payment_flow WHERE payment_flow_id=?
+
+	     ]]>
+		</sql>
+	</operation>
+	<operation name="findByOrderNo" paramtype="string">
+		<sql>
+			<![CDATA[
+		SELECT  *  FROM payment_flow WHERE order_no=?
+
+	     ]]>
+		</sql>
+	</operation>
+
+	<operation name="findByExtOrder" paramtype="string">
+		<sql>
+			<![CDATA[
+		SELECT  *  FROM payment_flow WHERE ext_order=?
+
+	     ]]>
+		</sql>
+	</operation>
+
+	<operation name="findByIdForUpdate" paramtype="string">
+		<sql>
+			<![CDATA[
+		SELECT  *  FROM payment_flow  WHERE payment_flow_id=? for update
+
+	     ]]>
+		</sql>
+	</operation>
+	<operation name="findByOrderNoForUpdate" paramtype="string">
+		<sql>
+			<![CDATA[
+		SELECT  *  FROM payment_flow  WHERE order_no=? for update
+
+	     ]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+		DELETE FROM payment_flow WHERE payment_flow_id=?
+	        	]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE payment_flow SET order_no=?,payment_amount=?,user_id=?,user_name=?,real_name=?,bank_code=?,payment_date=?,payment_success_date=?,payment_type=?,status=?,order_ids=?,red_pay=?,integral_pay=?,ticket_amount=?,refund_status=?,refund_amount=?,payment_mode=?,ticket_id=?,trade_no=?,ext_order=?,ext_order1=? WHERE payment_flow_id=?
+
+	       ]]>
+		</sql>
+	</operation>
+	<operation name="findByUserIdAutotest" paramtype="long">
+		<sql>
+			<![CDATA[
+		SELECT *  FROM payment_flow WHERE user_id=?
+	        	]]>
+		</sql>
+	</operation>
+	<operation name="deleteByUserIdAutotest" paramtype="long">
+		<sql>
+			<![CDATA[
+		DELETE  FROM payment_flow WHERE user_id=?
+	        	]]>
+		</sql>
+	</operation>
+</table>

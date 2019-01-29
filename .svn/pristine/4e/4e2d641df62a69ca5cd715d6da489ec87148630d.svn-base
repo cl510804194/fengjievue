@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Y.Window</title>
+</head>
+<style>
+    table{
+		border: 1px solid #C8CCD1;
+		border-width: 1px 0 0 1px;
+		border-spacing: 0px;
+		line-height: 1.5em;
+		font-family: Arial, Helvetica, sans-serif,"宋体";
+		vertical-align: middle;
+		border-collapse: separate;
+	}
+	.table_1{
+	}
+	.table_1 td{
+		border: 1px solid #C8CCD1;
+		border-width: 0 1px 1px 0;
+	}
+	table td{
+		padding: 5px 10px;
+		line-height: 18px;
+		text-align: left;
+		vertical-align: top;
+	}
+	.head_tr{background: #E5EFFB;color:#555;}
+	.table_0{color:#2679ba;}
+	.table_0 a{
+		font-size: 12px;
+		line-height: 20px;
+		text-decoration: underline;
+		text-align: -webkit-match-parent;
+		border-collapse: separate;
+		border-spacing: 2px;
+		border-color: gray;
+	}
+	h2{color:#1366b9;}
+	.block{color:block;}
+	.color_0{color:#555;}
+	.color_1{color:#0A8021;}
+</style>
+<body>
+
+<h2 id="constructor">构造函数</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>构造函数</td>
+		<td>描述</td>
+	</tr>
+	<tr>
+		<td class="color_1">HtmlUploadify</td>
+		<td class="color_0">生成一个弹出层，根据配置生成一个或多个file框，可上传多个文件</td>
+	</tr>
+</table>
+<h2 id="config_args">配置参数</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>配置参数</td>
+		<td>参数说明</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td>fileTypeExts</td>
+		<td>字符串，允许的文件类型</td>
+		<td class="color_0">格式如：'*.jpg; *.jpeg'</td>
+	</tr>
+	<tr class="color_1">
+		<td>multi</td>
+		<td>是否支持多个文件上传</td>
+		<td class="color_0">若配置为false，则只生成一个file框</td>
+	</tr>
+	<tr class="color_1">
+		<td>queueSizeLimit</td>
+		<td>file框的数量 </td>
+		<td class="color_0">在multi为true的情况下有效</td>
+	</tr>
+	<tr class="color_1">
+		<td>auto</td>
+		<td>true/false ，默认true</td>
+		<td class="color_0">为false时没调用一次upload方法只上传一个文件，
+		</br>为true时依次上传所有文件</td>
+	</tr>
+	<tr class="color_1">
+		<td>addAble</td>
+		<td>是否允许用户添加file框，默认false </td>
+		<td class="color_0"></td>
+	</tr>
+	<tr class="color_1">
+		<td>fileObjName</td>
+		<td>字符串，上传时file框的name </td>
+		<td class="color_0"></td>
+	</tr><tr class="color_1">
+		<td>autoDisappear</td>
+		<td>队列上传完后是否自动关闭，默认true </td>
+		<td class="color_0"></td>
+	</tr>
+	</tr><tr class="color_1">
+		<td>其他</td>
+		<td>参见Window组件 </td>
+		<td class="color_0"></td>
+	</tr>
+</table>
+<h2 id="object_function">对象方法</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>方法</td>
+		<td>参数说明</td>
+		<td>返回值</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td>upload</td>
+		<td>无</td>
+		<td></td>
+		<td class="color_0">上传文件</td>
+	</tr>
+	<tr class="color_1">
+		<td>getQueue()</td>
+		<td></td>
+		<td>上传队列jquery集合</td>
+		<td class="color_0">获取上传队列，即所有file框集合，不包括空file框</td>
+	</tr>
+	<tr class="color_1">
+		<td>addItem()</td>
+		<td></td>
+		<td>无</td>
+		<td class="color_0">添加一个file框</td>
+	</tr>
+	<tr class="color_1">
+		<td>removeItem(item)</td>
+		<td>file框的父级div</td>
+		<td></td>
+		<td class="color_0">移除一个file框</td>
+	</tr>
+	<tr class="color_1">
+		<td>checkFile(fileName)</td>
+		<td>文件名</td>
+		<td>true/false</td>
+		<td class="color_0">检测一个文件名是否符合fileTypeExts配置允许的类型</td>
+	</tr>
+	<tr class="color_1">
+		<td>showInfo(item,msg,callback)</td>
+		<td>item:file框的父级div,msg:显示的字符串,callback:消息消失时的回调，一般不传</td>
+		<td></td>
+		<td class="color_0">在file框后显示一个提示，提示两秒后自动消失</td>
+	</tr>
+	<tr class="color_1">
+		<td>其他</td>
+		<td></td>
+		<td></td>
+		<td class="color_0">参见Window方法</td>组件
+	</tr>
+</table>
+<h2 id="object_function">对象属性</h2>
+<table class="table_1">
+	<tr class="head_tr">
+		<td>属性</td>
+		<td>描述</td>
+	</tr>
+	<tr class="color_1">
+		<td></td>
+		<td class="color_0">参见Window组件</td>
+	</tr>
+</table>
+</body>
+</html>

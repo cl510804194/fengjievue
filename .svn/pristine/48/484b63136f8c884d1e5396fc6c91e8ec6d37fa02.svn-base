@@ -1,0 +1,103 @@
+#parse("/front/index/common/header-title.vm")
+
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+	
+	
+	
+<!--content begin----------------->	
+	
+<div class="login">
+	<div class="log-container">
+    	<div class="log-box">
+
+        	<h2 class="log-tit"><span>会员登录</span>  </h2>
+	    	<p class="err" #if($!message) style="color:#e60000;" #end >$!message</p>
+            <div class="log-form mt20">
+            	<form action="/login/login.htm" method="post" class="m-form" id="login_form">
+                    <div class="log-item">
+                        <label class="fn-label"><span class="required">*</span>用户名：</label>
+                        <input type="text" class="fn-text w190"  name="userName">
+                    </div>
+					
+					<!--20141209 begin-->
+					<div class="log-item">
+                        <label class="fn-label"><span class="required">*</span>密码控件：</label>
+                        <input type="radio" class="w50"  name="whithControl" value="0" checked="checked">启用
+						<input type="radio" class="w50"  name="whithControl" value="1">禁用
+                    </div>
+					<!--20141209 end-->
+					
+                    <div class="log-item">
+                        <label class="fn-label"><span class="required">*</span>密&nbsp;&nbsp;&nbsp;码：</label>    
+						<div class="withControl">
+							<div id="flexContent"></div>
+						</div>
+						
+						<!--20141209 begin-->
+						<div class="withOutControl" style="display:none;">
+							##禁用密码控件时打开
+							##<input type="hidden" class="w50"  name="whithControl" value="1" id="whithControl">
+							<input type="password" class="fn-text w190" id="passwords"/>
+						</div>
+						<!--20141209 end-->
+						
+						<input type="hidden" name="password" id="password"/>
+                        <p class="forget-pw"><a href="/PasswordManage/forgetLogPassword.htm">忘记登录密码？</a></p>
+                    </div>
+					
+					<!--20141209 begin-->
+					##登陆是否需要验证码
+					#if($!{appConstantsUtil.getLoginWithOutCheckCode()}=="Y" || $!{appConstantsUtil.getLoginWithOutCheckCode()}=="YY")
+						#set($withOutImgCode=false)
+					#else
+						#set($withOutImgCode=true)	
+					#end
+					#if($!{needcheck})
+						#set($withOutImgCode=true)
+					#end
+					#if($withOutImgCode)	
+					<!--20141209 end-->
+                    <div class="log-item">
+                        <label class="fn-label"><span class="required">*</span>验证码：</label>
+                        <i class="icon validIcon"></i>
+                        <input type="text" class="fn-text w80" id="verifyCode" name="captcha">
+                        <a title="全英文字符不分大小写" href="javascript:;" class="new_captcha">
+                        	<img id="newcaptcha" class="code-img " src="/anon/getImgCode" alt="" style="width:105px;height:35px"  />
+                        </a>
+                        <a href="javascript:;" class="new_captcha">刷新</a> 
+                    </div>
+					<!--20141209 begin-->
+						<input type="hidden" value="true"  class="needCode">##需要验证码
+					#else
+						<input type="hidden" value="false" class="needCode">##不需要验证码
+					#end
+					<!--20141209 end-->
+                    <div class="log-btn">
+                    <input type="hidden" name="redirect" value="$!stringUtil.filterXSS($!{request.getParameter('redirect')})"/>
+                    <a class="fn-g-btn" href="javascript:;"  id="submit-a">登&nbsp;&nbsp;录</a>
+                    </div>
+                    <div class="no-acount f-tar">还没有帐号，<a href="/anon/newInvestorsOpen.htm">免费注册</a></div><!--20141209 -->
+					
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/comp/swfobject.js"></script>
+	<script type="text/javascript">
+		seajs.use($_GLOBAL.mode + 'login');
+</script>
+
+
+<!--content end----------------->	
+	#parse("/front/index/common/footer-yrd.vm")
+</body>
+</html>

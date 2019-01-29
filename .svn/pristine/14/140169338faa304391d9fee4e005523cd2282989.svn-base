@@ -1,0 +1,200 @@
+@charset "UTF-8";
+/**
+ * html5doctor.com Reset Stylesheet v1.6.1 (http://html5doctor.com/html-5-reset-stylesheet/)
+ * Richard Clark (http://richclarkdesign.com)
+ * http://cssreset.com
+ */
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video { margin:0; padding:0; border:0; outline:0; font-size:100%; vertical-align:baseline; background:transparent; }
+body { line-height:1; }
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section { display:block; }
+nav ul { list-style:none; }
+blockquote, q { quotes:none; }
+blockquote:before, blockquote:after,
+q:before, q:after { content:''; content:none; }
+a { margin:0; padding:0; font-size:100%; vertical-align:baseline; background:transparent; }
+/* change colours to suit your needs */
+ins { background-color:#ff9; color:#000; text-decoration:none; }
+/* change colours to suit your needs */
+mark { background-color:#ff9; color:#000; font-style:italic; font-weight:bold; }
+del { text-decoration: line-through; }
+abbr[title], dfn[title] { border-bottom:1px dotted; cursor:help; }
+table { border-collapse:collapse; border-spacing:0; }
+/* change border colour to suit your needs */
+hr { display:block; height:1px; border:0; border-top:1px solid #cccccc; margin:1em 0; padding:0; }
+input, select { vertical-align:middle; }
+
+/*
+ ********************************************
+ * 全局样式
+ ********************************************
+ */
+html,body{font: 10px/1.4 Tahoma,Arial,Roboto,"Droid Sans","Helvetica Neue","Droid Sans Fallback","Heiti SC",sans-self;color: #333;}
+
+
+/*
+ ********************************************
+ * 布局     layout
+ * 前缀     .l-
+ ********************************************
+ */
+.l-ct{width: 90%;margin-left: auto;margin-right: auto;}
+
+
+/*
+ ********************************************
+ * 模块     module
+ * 前缀     .m-
+ ********************************************
+ */
+
+/**
+ * head
+ */
+.m-hd{
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background:#ff9900;
+  font-weight: bold;
+  color: #fff;
+  font-size: 1.6em;
+}
+
+/**
+ * 表单
+ */
+.m-form .control{
+  flex-flow:row nowrap;
+  margin-top: -1px;
+  background:#fff;
+  border:1px solid #CCC;
+}
+.m-form .control .label{
+  float:left;
+  width: 55px;
+  height: 38px;
+  margin:0 -75px 0 0;
+  line-height: 38px;
+  padding: 0 10px;
+  font-size: 1.3em;
+}
+.m-form .control .text{
+  box-sizing: border-box;
+  padding:0 0 0 75px;
+  background:none;
+  width:100%; 
+  border-width:0;
+  height: 38px;
+  line-height: 38px;
+  outline: none;
+  font-size: 1.3em;
+}
+.m-form .control2:after{
+	display:block;
+	width:0;
+	height:0;
+	line-height:0;
+	content:' ';
+	clear:both;
+}
+.m-form .control2 .fn-h-btn,
+.m-form .control2 .countdown-countdown{
+  float:right;
+  margin:4px 2px 0 -130px;
+}
+
+
+.m-form .control2 .text{
+  float:left;
+  padding:0 92px 0 75px;
+}
+/*提示*/
+.m-form .tips{
+  text-align: left;
+  padding:0 5px;
+  color: #666;
+  font-size: 1.3em;
+  margin-top:2px;
+  margin-bottom:5px;
+}
+.m-form .require{
+  color: #fb3100;
+}
+
+/*重写易极付控件样式*/
+.m-form .countdown-countdown{padding:0 0 0 5px;}
+.m-form .countdown-countdown span{padding:0 5px 0 0;}
+/*
+ ********************************************
+ * 元件     unit
+ * 前缀     .u-
+ ********************************************
+ */
+.u-btn2{
+  display: inline-block;
+  font-size: 1.4em;
+  text-align: center;
+  text-decoration: none;
+}
+
+/*颜色*/
+.u-btn2.org2{
+  border-width:0;
+  background: #ff9900;
+  color: #fff;
+}
+
+/*尺寸*/
+.u-btn2.full2{
+  height: 35px;
+  line-height: 35px;
+  width: 100%;
+}
+/*
+ ********************************************
+ * 功能     function
+ * 前缀     .f-
+ ********************************************
+ */
+.f-mt20{
+  margin-top: 20px;
+}
+
+/*背景色*/
+.f-bgGray{background:#f2f2f2;}
+
+
+/**短信按钮*/
+.fn-h-btn {
+  vertical-align: middle;
+  cursor: pointer;
+  text-align: left;
+  display: inline-block;
+  height: 31px;
+  background: url(images/common/com-btn.jpg) no-repeat left -72px;
+  padding: 0 0 0 15px;
+  }
+a {
+  color: #594E4E;
+}
+.fn-h-btn span {
+  text-align: right;
+  height: 31px;
+  display: inline-block;
+  line-height: 31px;
+  background: url(images/common/com-btn.jpg) no-repeat right -72px;
+  padding: 0 15px 0 0;
+  color: #666;
+}

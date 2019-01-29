@@ -1,0 +1,21 @@
+package com.yjf.esupplier.service.common.services;
+
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface LoadUserByNotifyTypeService {
+	
+	QueryBaseBatchResult<UserInfo> loadAllUser(int pageSize, int pageNumber);
+	
+	QueryBaseBatchResult<UserInfo> loadPlatinumUser(int pageSize, int pageNumber);
+	
+	QueryBaseBatchResult<UserInfo> loadDiamondUser(int pageSize, int pageNumber);
+	
+	QueryBaseBatchResult<UserInfo> loadVIPUser(int pageSize, int pageNumber);
+	
+	QueryBaseBatchResult<UserInfo> loadGeneralUser(int pageSize, int pageNumber);
+	
+	QueryBaseBatchResult<UserInfo> loadUserData(long pageSize, long pageNumber,
+												String searchUserMethodName);
+
+}

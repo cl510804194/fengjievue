@@ -1,0 +1,30 @@
+package com.yjf.esupplier.service.contract.result;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class CalculateChangeResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = 3003340798532094404L;
+	Money monthRepayAmount = Money.zero();
+	
+	public Money getMonthRepayAmount() {
+		return this.monthRepayAmount;
+	}
+	
+	public void setMonthRepayAmount(Money monthRepayAmount) {
+		this.monthRepayAmount = monthRepayAmount;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CalculateChangeResult [monthRepayAmount=");
+		builder.append(monthRepayAmount);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

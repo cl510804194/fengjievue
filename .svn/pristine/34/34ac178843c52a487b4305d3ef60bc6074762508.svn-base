@@ -1,0 +1,33 @@
+package com.yjf.esupplier.service.job;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import com.yjf.esupplier.service.job.inter.EsupplierProcessJobService;
+import com.yjf.esupplier.service.user.integral.IntegralService;
+
+@Service("userIntegralExpireJob")
+public class UserIntegralExpireJob extends YrdJobBase implements EsupplierProcessJobService {
+	@Autowired
+	IntegralService integralService;
+	
+	@Scheduled(cron = "0 0 0-6 * * ? ")
+	//@Scheduled(cron = "0 0/1 * * * ? ")
+	@Override
+	public void doJob() throws Exception {
+		
+		if (!isRun)
+			return;
+		try {
+			logger.info("积分超期处理 " + new Date().toString());
+			integralService.expireUserIntegralJob();
+		} catch (Exception e) {
+			logger.error("积分超期处理---异常原因：" + e.getMessage(), e);
+		}
+		
+		logger.info("积分超期处理每日任务结束在 " + new Date().toString());
+	}
+}

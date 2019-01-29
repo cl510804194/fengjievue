@@ -1,0 +1,98 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="orderManage">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+
+        <div class="left_cnt DIB order_dtl">
+            <p class="nav_title"><span class="DIB">商家确认收货</span><a onclick="javascript:window.history.back();"
+                                                                   class="fn-right">返回</a></p>
+
+            <div class="left_content ">
+                <div class="order-info">
+                    <p class="return_num order-ttl"><span>商品信息</span></p>
+
+                    <div class="com_list push_pro">
+                        <p class="order_tl">
+                            <span class="DIB pp_img1">商品图片</span>
+                            <span class="DIB pp_name">商品名称</span>
+                            <span class="DIB pp_prc">单价(元)</span>
+                            <span class="DIB prod_opt">数量</span>
+                            <span class="DIB prod_opt">运费</span>
+                            <span class="DIB pp_prc">货品总价(元)</span>
+                            <span class="DIB prod_opt">合计(元)</span>
+                        </p>
+
+                        <div class="order_list">
+                            <div class="list_i">
+                                <p class="list_hd">
+                                    <span>订单编号：<label>$!refundOrderInfo.orderId</label></span>
+                                </p>
+
+                                <div class="list_cnt">
+			    						<span class="DIB pp_img1">
+			    							<label class="list_img DIB">
+                                                <IMG alt="商品图片" src="${refundOrderInfo.picPath}" width="80" height="80">
+                                            </label>
+			    						</span>
+                                    <span class="DIB pp_name">$!refundOrderInfo.productName</span>
+                                    <span class="DIB pp_prc"><div
+                                            title='$!{refundOrderInfo.proPrice.toStandardString()}'>$!{refundOrderInfo.proPrice.toStandardString()}</div></span>
+                                    <span class="DIB prod_opt"> <div
+                                            title='$refundOrderInfo.quantity'>$refundOrderInfo.quantity</div></span>
+                                    <span class="DIB prod_opt">$!{orderInfo.postFee.toStandardString()}</span>
+                                    <span class="DIB pp_prc">$orderInfo.payAmount.toStandardString()</span>
+                                    <span class="DIB prod_opt">$orderInfo.totalAmount.toStandardString()</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form method="post" id="form" action="refundConfirmGoodsSubmit.htm">
+                        <input type="hidden" value="$!refundOrderInfo.orderId" name="orderId" id="orderId"/>
+                        <input type="hidden" value="$!refundOrderInfo.orderItemId" name="orderItemId" id="orderItemId"/>
+                        <input type="hidden" value="$!refundOrderInfo.refundId" name="refundId" id="refundId"/>
+                        <input type="hidden" value="$!token" name="token" id="token"/>
+
+                        <div class="r_user_info sure-get">
+                            <div class="verify_btn submit">
+                                <input  id="refundTypeOK" type="button" value="同意" class="agree judge"/>
+                                <input type="button" value="返回" class="no_agree judge" onclick="history.go(-1)"/>
+                            </div>
+                        </div>
+                        <!--提示弹窗-->
+                        <div class="dlg box_shadow pop-up" refundType ="$!{refundOrderInfo.refundType}">
+                            <p class="dlg_tl">
+                                提示
+                                <label>X</label>
+                            </p>
+                            <div class="dlg_cnt">
+                                <p class="cnt_txt">
+                                    <i class="warn"></i>
+                                    <span></span>
+                                </p>
+                            </div>
+                            <div class="dlg_btn">
+                                <input type="button" value="确定" class="sm-submit8 popUp sure" id="popUpOk"/>
+                                <input type="button" value="取消" class="sm-submit8 popUp canle" id="popUpNo"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode +'refundConfirmGoods');
+</script>
+</html>

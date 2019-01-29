@@ -1,0 +1,1237 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.common.services.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.enums.CertTypeEnum;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.service.base.AfterProcessInvokeService;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.esupplier.common.util.CommonUtil;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.common.util.YrdConstants;
+import com.yjf.esupplier.common.util.YrdConstants.CommonConfig;
+import com.yjf.esupplier.dal.daointerface.InstitutionsInfoDAO;
+import com.yjf.esupplier.dal.daointerface.PersonalInfoDAO;
+import com.yjf.esupplier.dal.daointerface.UserBaseInfoDAO;
+import com.yjf.esupplier.dal.dataobject.InstitutionsInfoDO;
+import com.yjf.esupplier.dal.dataobject.PersonalInfoDO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.dal.dataobject.UserExtendDO;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.integration.openapi.NonMainlandRealNameService;
+import com.yjf.esupplier.integration.openapi.enums.AttributionEnum;
+import com.yjf.esupplier.integration.openapi.enums.CertifyLevelEnum;
+import com.yjf.esupplier.integration.openapi.enums.PeasonSexEnum;
+import com.yjf.esupplier.integration.openapi.info.YjfAccountInfo;
+import com.yjf.esupplier.integration.openapi.order.BusinessCertOrder;
+import com.yjf.esupplier.integration.openapi.order.NonMainlandRealNameOrder;
+import com.yjf.esupplier.integration.openapi.order.PersonalCertOrder;
+import com.yjf.esupplier.integration.openapi.order.UserQuickCertifyOrder;
+import com.yjf.esupplier.integration.openapi.result.QueryAccountResult;
+import com.yjf.esupplier.integration.openapi.result.RealNameLevelResult;
+import com.yjf.esupplier.service.common.info.GuarantorInfo;
+import com.yjf.esupplier.service.common.order.SendNonMainlandRealNameInfoOrder;
+import com.yjf.esupplier.service.common.services.GuarantorManagerService;
+import com.yjf.esupplier.service.common.services.RealNameAuthenticationService;
+import com.yjf.esupplier.service.exception.CreditsysBizException;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.service.session.SessionLocal;
+import com.yjf.esupplier.service.supplier.SupplierService;
+import com.yjf.esupplier.service.user.convert.UserConvertUtils;
+import com.yjf.esupplier.service.user.impl.UserBaseInfoBaseService;
+import com.yjf.esupplier.service.user.info.PersonalInfo;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.order.ApplyRealNameOrder;
+import com.yjf.esupplier.service.user.order.NonMainlandRealAuthenticateOrder;
+import com.yjf.esupplier.service.user.order.UpdateRealNameStatusOrder;
+import com.yjf.esupplier.service.user.query.UserAccountQueryService;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.CertifyStatusEnum;
+import com.yjf.esupplier.ws.enums.RealNameAuthStatusEnum;
+import com.yjf.esupplier.ws.enums.RealNameCertifyStatusEnum;
+import com.yjf.esupplier.ws.enums.UpdateRealNameStatusResult;
+import com.yjf.esupplier.ws.enums.UserTypeEnum;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+import com.yjf.esupplier.ws.userManage.enums.UserExtendEnum;
+import com.yjf.esupplier.ws.userManage.order.WithdrawCertifyOrder;
+
+/**
+ * 
+ * @Filename RealNameAuthenticationServiceImpl.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2014-4-7</li> <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ * 
+ */
+@Service("realNameAuthenticationService")
+public class RealNameAuthenticationServiceImpl extends UserBaseInfoBaseService implements
+																				RealNameAuthenticationService {
+	
+	@Autowired
+	UserBaseInfoDAO				userBaseInfoDAO;
+	
+	@Autowired
+	InstitutionsInfoDAO			institutionsInfoDAO;
+	@Autowired
+	PersonalInfoDAO				personalInfoDAO;
+	
+	@Autowired
+	NonMainlandRealNameService	nonMainlandRealNameService;
+	
+	@Autowired
+	UserAccountQueryService		userAccountQueryService;
+	
+	@Autowired
+	GuarantorManagerService		guarantorManagerService;
+	
+	@Autowired
+	SupplierService				supplierService;
+	
+	@Override
+	public EsupplierBaseResult sendEnterpriseRealNameInfo(String userBaseId) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		
+		UserBaseInfoDO userBaseInfo = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (userBaseInfo == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		InstitutionsInfoDO institutionsInfo = institutionsInfoDAO.findByUserBaseId(userBaseId);
+		if (institutionsInfo == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		if (CommonUtil.validationImage(institutionsInfo.getCertFrontPath())
+			&& CommonUtil.validationImage(institutionsInfo.getCertBackPath())
+			&& CommonUtil.validationImage(institutionsInfo.getBusinessLicenseCachetPath())) {
+			
+			BusinessCertOrder business = new BusinessCertOrder();
+			
+			if ("longTime".equals(institutionsInfo.getBusinessPeriod())) {
+				business.setComCycle(0);
+			} else {
+				business.setComCycle(NumberUtil.parseInt(institutionsInfo.getBusinessPeriod()
+					.replaceAll("-", "")));// 营业期限
+			}
+			business.setComName(institutionsInfo.getEnterpriseName());// 企业名称
+			business.setConCardid(institutionsInfo.getContactCertNo());// 联系人身份证号
+			business.setOrganizationcode(institutionsInfo.getOrganizationCode());// 组织机构代码
+			business.setLegalPersonCardPic(institutionsInfo.getCertFrontPath());// 法人身份证正面照
+			business.setLegalPersonCardPic1(institutionsInfo.getCertBackPath());// 法人身份证背面照
+			business.setNickname(institutionsInfo.getLegalRepresentativeName());// 法人真实姓名
+			business.setTaxAuthority(institutionsInfo.getTaxRegistrationNo());// 税务登记号
+			business.setProvname(institutionsInfo.getBusinessLicenseProvince());// 公司注册省份
+			business.setCityname(institutionsInfo.getBusinessLicenseCity());// 公司注册城市
+			business.setComAddress(institutionsInfo.getCommonlyUsedAddress());// 公司联系地址
+			business.setConMobile(institutionsInfo.getCompanyPhone());// 公司联系电话
+			business.setIsLegalPerAudit("N");// 以法人信息实名
+			business.setCoreCustomerUserId(userBaseInfo.getAccountId());// 易极付帐户ID
+			if ("longTime".equals(institutionsInfo.getLegalRepresentativeCardPeriod())) {
+				business.setLegalPersonCardOff(0);
+			} else {
+				business.setLegalPersonCardOff(NumberUtil.parseInt(institutionsInfo
+					.getLegalRepresentativeCardPeriod().replaceAll("-", "")));// 法人身份证到期时间
+			}
+			business.setLegalPersonCardid(institutionsInfo.getLegalRepresentativeCardNo());// 法人身份证号
+			business.setLegalPersonCardType("2");
+			business.setLicence(institutionsInfo.getBusinessLicensePath());// 营业执照副本
+			business.setLicencecopy(institutionsInfo.getBusinessLicenseCachetPath());
+			business.setLicencenum(institutionsInfo.getBusinessLicenseNo());// 营业执照注册号
+			business.setContextName(institutionsInfo.getContactName());// 联系人姓名
+			business.setContextPhone(userBaseInfo.getMobile());// 联系电话
+			
+			business.setHoldingName(institutionsInfo.getLegalRepresentativeName());
+			business.setHoldingCardType("2");
+			business.setHoldingCardid(institutionsInfo.getLegalRepresentativeCardNo());
+			business.setHoldingCardOff(business.getLegalPersonCardOff());
+			business.setHoldingCardPic(business.getLegalPersonCardPic());
+			business.setHoldingCardPic1(business.getLegalPersonCardPic1());
+			
+			logger.info("企业实名认证,comName=" + business.getComName() + ",nickName="
+						+ business.getNickname() + ",licence:" + business.getLicence()
+						+ ",organizationcode=" + business.getOrganizationcode()
+						+ ",legalPersonCardPic=" + business.getLegalPersonCardPic()
+						+ ",legalPersonCardPic1=" + business.getLegalPersonCardPic1()
+						+ ",taxauthority=" + business.getTaxAuthority() + ",provname="
+						+ business.getProvname() + ",cityname=" + business.getCityname()
+						+ ",comAddress=" + business.getComAddress() + "isLegalPersAudit="
+						+ business.getIsLegalPerAudit() + ",conPhone" + business.getConPhone()
+						+ ",legalPersonCardOff=" + business.getLegalPersonCardOff()
+						+ ",legalPersonCardid=" + business.getLegalPersonCardid() + ",comCycle:"
+						+ business.getComCycle() + "licencenum=" + business.getLicencenum());
+			EsupplierBaseResult result = this.customerService.realNameEnterpriseCertSave(business,
+				this.getOpenApiContext());
+			processing(userBaseInfo, result);
+			userBaseInfoDAO.update(userBaseInfo);
+			baseResult.setMessage(result.getMessage());
+		} else {
+			baseResult.setSuccess(false);
+			baseResult.setMessage("实名认证发送失败！法人身份证照片或营业执照副本照片未上传或图片格式错误!");
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult applyRealName(final ApplyRealNameOrder order) {
+		return commonProcess(order, "易极付实名认证申请", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(order
+					.getUserBaseId());
+				if (userBaseInfoDO == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"用户信息不存在");
+				}
+				UserInfo userInfo = getUserInfoByDO(userBaseInfoDO);
+				PersonalInfoDO personalInfoDO = personalInfoDAO.findByUserBaseId(order
+					.getUserBaseId());
+				//新实名认证需求
+				if (userInfo.getUserRealStatus() != null) {
+					if (userInfo.getCertifyLevelEnum() == CertifyLevelEnum.CERT_EXPIRE) {
+						userInfo.setUserRealStatus(RealNameCertifyStatusEnum.EXPIRED_UPGRADE_AUDIT);
+					} else if (userInfo.getUserRealStatus() == RealNameCertifyStatusEnum.UNAUTHERIZED) {
+						userInfo.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_PASSING);
+					} else if (userInfo.getUserRealStatus() == RealNameCertifyStatusEnum.CHECK_PASSING
+								|| userInfo.getUserRealStatus() == RealNameCertifyStatusEnum.EXPIRED_UPGRADE_AUDIT) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经提交申请");
+					} else if (userInfo.getCertifyLevel() >= CertifyLevelEnum.PERSON_NORMAL_RANK
+						.getCertifyLevel()) {
+						if (userInfo.getCertifyLevel() == CertifyLevelEnum.PERSON_NORMAL_RANK
+							.getCertifyLevel()
+							&& StringUtil.isNotBlank(order.getHandheldDocumentsPath())) {
+							userInfo
+								.setUserRealStatus(RealNameCertifyStatusEnum.ENHANCED_REAL_NAME_AUDIT);
+						} else if (isExpireInOneMonth(personalInfoDO.getBusinessPeriod())) {
+							userInfo
+								.setUserRealStatus(RealNameCertifyStatusEnum.EXPIRED_UPGRADE_AUDIT);
+						} else {
+							throw ExceptionFactory.newYrdException(
+								EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经实名认证");
+						}
+					}
+					UserConvertUtils.UserIndoConvertDO(userBaseInfoDO, userInfo);
+				} else {
+					if (!(StringUtil.isEmpty(userBaseInfoDO.getRealNameAuthentication()) || (userBaseInfoDO
+						.getRealNameAuthentication().equals(RealNameAuthStatusEnum.N.code()) || userBaseInfoDO
+						.getRealNameAuthentication().equals(RealNameAuthStatusEnum.NO.code())))) {
+						if (userBaseInfoDO.getRealNameAuthentication().equals(
+							RealNameAuthStatusEnum.IS.code())) {
+							QueryAccountResult nameLevelResult = customerService.userInfoQuery(
+								userBaseInfoDO.getAccountId(), getOpenApiContext());
+							if (nameLevelResult.getYjfAccountInfo().getCertifyLevel()
+								.getCertifyLevel() >= 3) {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经申请");
+							}
+						} else {
+							throw ExceptionFactory.newYrdException(
+								EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经申请");
+						}
+					}
+				}
+				
+				userBaseInfoDO.setRealName(order.getRealName());
+				personalInfoDO.setCertNo(order.getCertNo());
+				personalInfoDO.setRealName(order.getRealName());
+				int gender = CommonUtil.getGender(order.getCertNo());
+				if (gender != 3) {
+					personalInfoDO.setGender(gender);
+				}
+				personalInfoDO.setBusinessPeriod(order.getBusinessPeriod());
+				personalInfoDO.setCertFrontPath(order.getCertFrontPath());
+				personalInfoDO.setCertBackPath(order.getCertBackPath());
+				sendRealNameProcess(userBaseInfoDO, personalInfoDO);
+				userBaseInfoDAO.update(userBaseInfoDO);
+				personalInfoDAO.update(personalInfoDO);
+				return null;
+			}
+			
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult updateLicenseValidTime(final ApplyRealNameOrder order) {
+		return commonProcess(order, "易极付实名认证过期升级", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(order
+					.getUserBaseId());
+				if (userBaseInfoDO == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"用户信息不存在");
+				}
+				PersonalInfoDO personalInfoDO = personalInfoDAO.findByUserBaseId(order
+					.getUserBaseId());
+				if (null == personalInfoDO) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"个人信息不存在");
+				}
+				UserInfo userInfo = getUserInfoByDO(userBaseInfoDO);
+				if (userInfo.getUserRealStatus() != null) {
+					if (isExpireInOneMonth(personalInfoDO.getBusinessPeriod())
+						&& userInfo.getCertifyLevel() >= CertifyLevelEnum.PERSON_NORMAL_RANK
+							.getCertifyLevel()) {
+						userInfo.setUserRealStatus(RealNameCertifyStatusEnum.EXPIRED_UPGRADE_AUDIT);
+					} else if (userInfo.getCertifyLevel() >= CertifyLevelEnum.PERSON_NORMAL_RANK
+						.getCertifyLevel()) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "实名认证未到过期时间(过渡期),无法升级");
+					} else {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "未实名认证，无法升级");
+					}
+				} else {
+					QueryAccountResult nameLevelResult = customerService.userInfoQuery(
+						userBaseInfoDO.getAccountId(), getOpenApiContext());
+					if (nameLevelResult.getYjfAccountInfo().getCertifyLevel().getCertifyLevel() < CertifyLevelEnum.PERSON_NORMAL_RANK
+						.getCertifyLevel()) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "未实名认证，无法升级");
+					}
+				}
+				
+				personalInfoDO.setCertNo(order.getCertNo());
+				personalInfoDO.setRealName(order.getRealName());
+				int gender = CommonUtil.getGender(order.getCertNo());
+				if (gender != 3) {
+					personalInfoDO.setGender(gender);
+				}
+				personalInfoDO.setBusinessPeriod(order.getBusinessPeriod());
+				personalInfoDO.setCertFrontPath(order.getCertFrontPath());
+				personalInfoDO.setCertBackPath(order.getCertBackPath());
+				sendRealNameProcess(userBaseInfoDO, personalInfoDO, true);
+				personalInfoDAO.update(personalInfoDO);
+				
+				return null;
+			}
+			
+		}, null, null);
+	}
+	
+	@Override
+	public boolean isExpireInOneMonth(String businessPeriod) {
+		if (StringUtil.isBlank(businessPeriod) || "longTime".equals(businessPeriod)) {
+			return false;
+		}
+		
+		Date expireDate = DateUtil.strToDtSimpleFormat(businessPeriod);
+		if (null == expireDate) {
+			return false;
+		}
+		
+		Date now = new Date();
+		now = DateUtil.getStartTimeOfTheDate(now);
+		long days = DateUtil.countDays(new Date(), expireDate);
+		if (days >= 0 && days < 30) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public EsupplierBaseResult applyUserQuickCertifyOrder(final UserQuickCertifyOrder order) {
+		return commonProcess(order, "易极付实名认证申请", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserBaseInfoDO infoDO = new UserBaseInfoDO();
+				infoDO.setAccountId(order.getUserId());
+				List<UserBaseInfoDO> users = userBaseInfoDAO.findByCondition(infoDO, 0, 1, null);
+				if (ListUtil.isEmpty(users)) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"用户信息不存在");
+				}
+				UserBaseInfoDO userBaseInfoDO = users.get(0);
+				UserInfo userInfo = getUserInfoByDO(userBaseInfoDO);
+				if (userInfo.getUserRealStatus() != null) {
+					if (userInfo.getCertifyLevel() >= 1) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请弱实名,已经实名认证");
+					}
+				} else {
+					if (!(StringUtil.isEmpty(userBaseInfoDO.getRealNameAuthentication()) || (userBaseInfoDO
+						.getRealNameAuthentication().equals(RealNameAuthStatusEnum.N.code()) || userBaseInfoDO
+						.getRealNameAuthentication().equals(RealNameAuthStatusEnum.NO.code())))) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经申请");
+					}
+				}
+				
+				PersonalInfoDO personalInfoDO = personalInfoDAO.findByUserBaseId(userBaseInfoDO
+					.getUserBaseId());
+				userBaseInfoDO.setRealName(order.getRealName());
+				personalInfoDO.setCertNo(order.getCertNo());
+				personalInfoDO.setRealName(order.getRealName());
+				int gender = CommonUtil.getGender(order.getCertNo());
+				if (gender != 3) {
+					personalInfoDO.setGender(gender);
+				}
+				if (StringUtil.isEmpty(order.getCertValidTime())) {
+					personalInfoDO.setBusinessPeriod("longTime");
+				}
+				
+				EsupplierBaseResult result = customerService.userQuickCertify(order,
+					getOpenApiContext());
+				if (result.isSuccess()) {
+					userBaseInfoDO.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+					userBaseInfoDO.setCertifyLevel(CertifyLevelEnum.PERSON_QUICK_RANK
+						.getCertifyLevel());
+				} else {
+					userBaseInfoDO.setRealNameAuthentication(null);
+					userBaseInfoDO.setCertifyLevel(CertifyLevelEnum.NO_RANK.getCertifyLevel());
+				}
+				EsupplierDomainHolder.get().addAttribute("userBaseInfoDo", userBaseInfoDO);
+				userBaseInfoDAO.update(userBaseInfoDO);
+				personalInfoDAO.update(personalInfoDO);
+				if (result.isSuccess()) {
+					SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+					sessionLocal.setRealName(order.getRealName());
+					sessionLocal.setCertifyLevel(1);
+					ShiroSessionUtils.setSessionLocal(sessionLocal);
+				} else {
+					result = (EsupplierBaseResult) EsupplierDomainHolder.get().getAttribute(
+						HOLDER_RESULT_KEY);
+					result.setSuccess(false);
+					result.setCreditsysResultEnum(EsupplierResultEnum.OPENAPI_ACCESS_FAILURE);
+				}
+				return null;
+			}
+			
+		}, null, new AfterProcessInvokeService() {
+			@Override
+			public Domain after(Domain domain) {
+				UserBaseInfoDO userBaseInfoDO = (UserBaseInfoDO) EsupplierDomainHolder.get()
+					.getAttribute("userBaseInfoDo");
+				if (userBaseInfoDO != null) {
+					if (StringUtil.equalsIgnoreCase(userBaseInfoDO.getRealNameAuthentication(),
+						RealNameAuthStatusEnum.IS.code())) {
+						
+					}
+				}
+				return null;
+			}
+		});
+	}
+	
+	@Override
+	public EsupplierBaseResult applyNonMainlandRealName(final NonMainlandRealAuthenticateOrder order) {
+		return commonProcess(order, "易极付非大陆实名认证申请", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(order
+					.getUserBaseId());
+				if (userBaseInfoDO == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"用户信息不存在");
+				}
+				if (!(StringUtil.isEmpty(userBaseInfoDO.getRealNameAuthentication())
+						|| userBaseInfoDO.getRealNameAuthentication().equals(
+							RealNameAuthStatusEnum.N.code()) || userBaseInfoDO
+					.getRealNameAuthentication().equals(RealNameAuthStatusEnum.NO.code()))) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经申请");
+				}
+				
+				PersonalInfoDO personalInfoDO = personalInfoDAO.findByUserBaseId(order
+					.getUserBaseId());
+				userBaseInfoDO.setRealName(order.getRealName());
+				personalInfoDO.setRealName(order.getRealName());
+				personalInfoDO.setCertNo(order.getCertNo());
+				CertTypeEnum certTypeEnum;
+				if (order.getAttribution() == AttributionEnum.HK
+					|| order.getAttribution() == AttributionEnum.MC) {
+					certTypeEnum = CertTypeEnum.Other;
+				} else if (order.getAttribution() == AttributionEnum.TW) {
+					certTypeEnum = CertTypeEnum.Other;
+				} else {
+					certTypeEnum = CertTypeEnum.Identity_Card;
+				}
+				
+				personalInfoDO.setBankType(certTypeEnum.code());
+				/**
+				 * 1为男，0为女
+				 */
+				int gender = order.getSex() == PeasonSexEnum.WOMAN ? 0 : 1;
+				personalInfoDO.setGender(gender);
+				personalInfoDO.setBusinessPeriod(order.getBusinessPeriod());
+				personalInfoDO.setCertFrontPath(order.getCertFrontPath());
+				personalInfoDO.setCertBackPath(order.getCertBackPath());
+				personalInfoDO.setBankType(certTypeEnum.code());
+				userBaseInfoDO.setRealNameAuthentication(RealNameAuthStatusEnum.APPLY.code());
+				userBaseInfoDO.setCertifyLevel(CertifyLevelEnum.NO_RANK.getCertifyLevel());
+				userBaseInfoDO.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_PASSING.code());
+				personalInfoDO.setBankProvince(order.getAttribution().code());
+				personalInfoDO.setBankAddress(order.getAddress());
+				userBaseInfoDAO.update(userBaseInfoDO);
+				personalInfoDAO.update(personalInfoDO);
+				return null;
+			}
+			
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult rejectNonMainlandRealName(final String userBaseId) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		try {
+			UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+			if (userBaseInfoDO == null) {
+				throw ExceptionFactory
+					.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "用户信息不存在");
+			}
+			if (!StringUtil.equals(userBaseInfoDO.getRealNameAuthentication(),
+				RealNameAuthStatusEnum.APPLY.code())) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.DO_ACTION_STATUS_ERROR,
+					"不能驳回实名认证");
+			}
+			userBaseInfoDO.setRealNameAuthentication(RealNameAuthStatusEnum.NO.code());
+			userBaseInfoDO.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_NO_PASS.code());
+			userBaseInfoDAO.update(userBaseInfoDO);
+			baseResult.setSuccess(true);
+		} catch (CreditsysBizException e) {
+			baseResult.setSuccess(false);
+			baseResult.setMessage(e.getErrorMsg());
+			baseResult.setCreditsysResultEnum(e.getResultCode());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			baseResult.setSuccess(false);
+			baseResult.setMessage(e.getMessage());
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult sendNonMainlandRealNameInfo(	final SendNonMainlandRealNameInfoOrder nonMainlandRealNameOrder) {
+		return commonProcess(nonMainlandRealNameOrder, "易极付非大陆实名认证申请",
+			new BeforeProcessInvokeService() {
+				
+				@Override
+				public Domain before() {
+					UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO
+						.findByUserBaseId(nonMainlandRealNameOrder.getUserBaseId());
+					
+					if (userBaseInfoDO == null) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+							"用户信息不存在");
+					}
+					PersonalInfo personalInfo = userQueryService.queryPersonalInfoByBaseId(
+						userBaseInfoDO.getUserBaseId()).getQueryPersonalInfo();
+					if (!StringUtil.equals(userBaseInfoDO.getRealNameAuthentication(),
+						RealNameAuthStatusEnum.APPLY.code())) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能发送实名认证申请");
+					}
+					GuarantorInfo guarantorInfo = guarantorManagerService
+						.findById(nonMainlandRealNameOrder.getGuarantorId());
+					
+					NonMainlandRealNameOrder mainlandRealNameOrder = new NonMainlandRealNameOrder();
+					BeanCopier.staticCopy(personalInfo, mainlandRealNameOrder);
+					BeanCopier.staticCopy(guarantorInfo, mainlandRealNameOrder);
+					mainlandRealNameOrder.setGuaranteeName(guarantorInfo.getGuarantorName());
+					mainlandRealNameOrder.setGuaranteeCertType(CertTypeEnum.getByCode(guarantorInfo
+						.getGuaranteeCertType().code()));
+					mainlandRealNameOrder.setAddress(personalInfo.getBankAddress());
+					mainlandRealNameOrder.setAttribution(AttributionEnum.getByCode(personalInfo
+						.getBankProvince()));
+					
+					mainlandRealNameOrder.setGuaranteePic(nonMainlandRealNameOrder
+						.getGuaranteePic());
+					mainlandRealNameOrder.setPhone(userBaseInfoDO.getMobile());
+					mainlandRealNameOrder.setAuditpic(mainlandRealNameOrder.getCertFrontPath());
+					if ("longTime".equals(personalInfo.getBusinessPeriod())) {
+						mainlandRealNameOrder.setCertValidTime("0");
+					} else {
+						mainlandRealNameOrder.setCertValidTime(personalInfo.getBusinessPeriod()
+							.replaceAll("-", ""));// 身份证到期时间
+					}
+					if ("longTime".equals(guarantorInfo.getGuaranteeCertValidTime())) {
+						mainlandRealNameOrder.setGuaranteeCertValidTime("0");
+					} else {
+						mainlandRealNameOrder.setGuaranteeCertValidTime(guarantorInfo
+							.getGuaranteeCertValidTime().replaceAll("-", ""));// 身份证到期时间
+					}
+					mainlandRealNameOrder.setAttribution(AttributionEnum.getByCode(personalInfo
+						.getBankProvince()));
+					mainlandRealNameOrder.setGuaranteeOccupation(guarantorInfo
+						.getGuaranteeOccupation().code());
+					mainlandRealNameOrder.setSex(personalInfo.getGender() == 1 ? PeasonSexEnum.MAN
+						: PeasonSexEnum.WOMAN);
+					mainlandRealNameOrder.setUserId(userBaseInfoDO.getAccountId());
+					mainlandRealNameOrder.setCertType(CertTypeEnum.getByCode(personalInfo
+						.getBankType()));
+					EsupplierBaseResult baseResult = nonMainlandRealNameService.applyRealName(
+						mainlandRealNameOrder, getOpenApiContext());
+					if (!baseResult.isSuccess()
+						&& baseResult.getCreditsysResultEnum() == EsupplierResultEnum.INCOMPLETE_REQ_PARAM) {
+						throw ExceptionFactory.newYrdException(baseResult.getCreditsysResultEnum(),
+							baseResult.getMessage());
+					} else if (!baseResult.isSuccess()) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.OPENAPI_ACCESS_FAILURE, baseResult.getMessage());
+					} else {
+						userBaseInfoDO.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_PASS
+							.code());
+						userBaseInfoDO.setCertifyLevel(CertifyLevelEnum.PERSON_NORMAL_RANK
+							.getCertifyLevel());
+						userBaseInfoDO.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+						userBaseInfoDAO.update(userBaseInfoDO);
+						PersonalInfoDO personalInfoDO = personalInfoDAO
+							.findByUserBaseId(userBaseInfoDO.getUserBaseId());
+						personalInfoDO.setCustomerSource(nonMainlandRealNameOrder.getGuaranteePic());
+						personalInfoDO.setBankKey(String.valueOf(nonMainlandRealNameOrder
+							.getGuarantorId()));
+						personalInfoDAO.update(personalInfoDO);
+					}
+					
+					return null;
+				}
+				
+			}, null, null);
+		
+	}
+	
+	/**
+	 * @param userBaseId
+	 * @return EsupplierBaseResult
+	 */
+	@Override
+	public EsupplierBaseResult sendPersonalRealNameInfo(String userBaseId) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO userBaseInfo = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (userBaseInfo == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		PersonalInfoDO personalInfo = personalInfoDAO.findByUserBaseId(userBaseId);
+		if (personalInfo == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		
+		// 验证是否可以提前升级
+		boolean preUpdate = false;
+		
+		if (CommonUtil.validationImage(personalInfo.getCertFrontPath())
+			&& CommonUtil.validationImage(personalInfo.getCertBackPath())) {
+			sendRealNameProcess(userBaseInfo, personalInfo, preUpdate);
+			if (preUpdate) {
+				personalInfoDAO.update(personalInfo);
+			} else {
+				userBaseInfoDAO.update(userBaseInfo);
+			}
+			baseResult.setMessage("实名认证发送成功");
+		} else {
+			baseResult.setSuccess(false);
+			baseResult.setMessage("实名认证发送失败!未上传身份证照片!");
+		}
+		return baseResult;
+	}
+	
+	/**
+	 * @param userBaseInfo 用户信息
+	 * @param personalInfo 个人信息
+	 * @param preUpdate 是否提前过期申请认证
+	 */
+	private void sendRealNameProcess(UserBaseInfoDO userBaseInfo, PersonalInfoDO personalInfo,
+										boolean preUpdate) {
+		EsupplierBaseResult result;
+		PersonalCertOrder person = new PersonalCertOrder();
+		person.setPreUpdate(preUpdate);
+		person.setNickname(personalInfo.getRealName());// 实名
+		person.setCardid(personalInfo.getCertNo());// 身份证号
+		person.setCardtype("2");// 二代身份证
+		person.setCardpic(personalInfo.getCertFrontPath());// 身份证下面照路径
+		person.setCardpic1(personalInfo.getCertBackPath());// 身份证背面照
+		person.setMobile(userBaseInfo.getMobile());
+		if ("longTime".equals(personalInfo.getBusinessPeriod())) {
+			person.setCardoff(0);
+		} else {
+			person.setCardoff((int) NumberUtil.parseLong(personalInfo.getBusinessPeriod()
+				.replaceAll("-", ""), 0));// 身份证到期时间
+		}
+		// 其他平台
+		person.setCoreCustomerUserId(userBaseInfo.getAccountId());
+		logger.info("个人实名认证参数:" + "realName=" + person.getNickname() + ",certNo="
+					+ person.getCardid() + ",cardPic=" + person.getCardpic() + ",cardPic1="
+					+ person.getCardpic1() + ",cardOff=" + person.getCardoff() + ",accountId="
+					+ person.getCoreCustomerUserId());
+		result = this.customerService.realNameCertSave(person, this.getOpenApiContext());
+		this.processing(userBaseInfo, result);
+		if (!result.isSuccess() && StringUtil.isNotEmpty(result.getMessage())
+			&& result.getMessage().indexOf("不能重复申请") != -1) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.DO_ACTION_STATUS_ERROR,
+				result.getMessage());
+		} else if (!result.isSuccess()) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.OPENAPI_ACCESS_FAILURE,
+				result.getMessage());
+		}
+	}
+	
+	private void sendRealNameProcess(UserBaseInfoDO userBaseInfo, PersonalInfoDO personalInfo) {
+		sendRealNameProcess(userBaseInfo, personalInfo, false);
+	}
+	
+	/**
+	 * 处理实名认证返回结果
+	 * 
+	 * @param userBaseInfo
+	 * @param result
+	 */
+	protected void processing(UserBaseInfoDO userBaseInfo, EsupplierBaseResult result) {
+		EsupplierBaseResult result1 = new EsupplierBaseResult();
+		if (result.isSuccess()) {
+			result1.setSuccess(true);
+			result1.setMessage("实名认证发送成功");
+			userBaseInfo.setRealNameAuthentication("IN");
+			yrdMessageService.notifyUserRealName(userBaseInfo.getRealName());
+		} else {
+			result1.setSuccess(false);
+			result1.setMessage(result.getMessage());
+			result1.setUrl(result.getUrl());
+			
+			String resultMessage = result.getMessage();
+			if (StringUtil.isNotEmpty(resultMessage)) {
+				if (resultMessage.indexOf("不能重复申请") != -1) {
+					userBaseInfo.setRealNameAuthentication("IN");
+					userBaseInfo.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_PASSING.code());
+					result1.setMessage(result.getMessage());
+					logger.error("实名认证失败原因:" + result);
+					return;
+				} else {
+					userBaseInfo.setRealNameAuthentication("NO");
+				}
+			}
+			userBaseInfo.setRealNameAuthentication("NO");
+			logger.error("实名认证失败原因:" + result);
+		}
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new UpdateRealNameStatusResult();
+	}
+	
+	@Override
+	public long countCertNoUsed(String certNo) {
+		try {
+			PersonalInfoDO personalInfo = new PersonalInfoDO();
+			personalInfo.setCertNo(certNo);
+			return personalInfoDAO.findByConditionCount(personalInfo, 0, 0);
+		} catch (Exception e) {
+			return 0;
+		}
+		
+	}
+	
+	protected UserInfo getUserInfoByDO(UserBaseInfoDO userBaseInfoDO) {
+		UserInfo userInfo = new UserInfo();
+		UserConvertUtils.UserDOConvertInfo(userBaseInfoDO, userInfo);
+		return userInfo;
+	}
+	
+	@Override
+	public UpdateRealNameStatusResult updateRealNameStatus(final UpdateRealNameStatusOrder order) {
+		return (UpdateRealNameStatusResult) commonProcess(order, "易极付实名认证通知或同步",
+			new BeforeProcessInvokeService() {
+				
+				@Override
+				public Domain before() {
+					updateRealStatusProcess(order);
+					return null;
+				}
+				
+			}, null, new AfterProcessInvokeService() {
+				
+				@SuppressWarnings("unchecked")
+				@Override
+				public Domain after(Domain domain) {
+					
+					UserBaseInfoDO userBaseInfo = (UserBaseInfoDO) EsupplierDomainHolder.get()
+						.getAttribute("userBaseInfo");
+					RealNameAuthStatusEnum realNameAuthenticationStatus = (RealNameAuthStatusEnum) EsupplierDomainHolder
+						.get().getAttribute("realNameAuthenticationStatus");
+					
+					if (order.getIsSendMessage() == BooleanEnum.YES) {
+						List<UserInfo> queryList = (List<UserInfo>) EsupplierDomainHolder.get()
+							.getAttribute("queryList");
+						String sendMsg = (String) EsupplierDomainHolder.get().getAttribute(
+							"sendMsg");
+						if (("success".equals(order.getYjfReturnStatus())
+								|| "fail".equals(order.getYjfReturnStatus()) || "expire"
+							.equals(order.getYjfReturnStatus()))
+							|| "upgradeFail".equals(order.getYjfReturnStatus())) {
+							if (StringUtil.isBlank(order.getRealName())) {
+								if (ListUtil.isNotEmpty(queryList)) {
+									for (UserInfo userInfo : queryList) {
+										StringBuilder toMessage = new StringBuilder();
+										String content = YrdConstants.MessageNotifyConstants.REAL_NAME_AUTH_NOTIFY;
+										content = content.replace("var1", userInfo.getUserName());
+										content = content.replace("var2", sendMsg);
+										toMessage.append(content);
+										String notifyType = CommonConfig.REAL_NAME_NOTIFY_TYPE;
+										yrdMessageService.notifyUserByType(userInfo,
+											toMessage.toString(), notifyType);
+									}
+								}
+							}
+						}
+					}
+					if (StringUtil.equalsIgnoreCase(order.getYjfReturnStatus(), "success")
+						&& realNameAuthenticationStatus == RealNameAuthStatusEnum.IS) {
+						
+					}
+					return null;
+				}
+			});
+	}
+	
+	private void updateRealStatusProcess(final UpdateRealNameStatusOrder order) {
+		List<UserInfo> queryList = userQueryService.queryListByAccountId(order.getAccountId())
+			.getQueryUserList();
+		String sendMsg = "";
+		UpdateRealNameStatusResult statusResult = (UpdateRealNameStatusResult) EsupplierDomainHolder
+			.get().getAttribute("result");
+		if (ListUtil.isNotEmpty(queryList)) {
+			for (UserInfo userInfo : queryList) {
+				UserBaseInfoDO userBaseInfo = userBaseInfoDAO.findByUserId(userInfo.getUserId());
+				String oldRealNameAuthenticationStatus = userBaseInfo.getRealNameAuthentication();
+				EsupplierDomainHolder.get().addAttribute("userBaseInfo", userBaseInfo);
+				if ("success".equals(order.getYjfReturnStatus())) {
+					//认证成功实名状态
+					if (StringUtil.notEquals(RealNameAuthStatusEnum.IS.code(),
+						userBaseInfo.getRealNameAuthentication())) {
+						EsupplierDomainHolder.get().addAttribute("realNameAuthenticationStatus",
+							RealNameAuthStatusEnum.IS);
+						userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+					}
+					if (order.getIsNotify() == BooleanEnum.YES) {
+						if (userBaseInfo.getCertifyLevel() < CertifyLevelEnum.PERSON_NORMAL_RANK
+							.getCertifyLevel()) {
+							userBaseInfo.setCertifyLevel(CertifyLevelEnum.PERSON_NORMAL_RANK
+								.getCertifyLevel());
+							userBaseInfo.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_PASS
+								.code());
+						} else if (userBaseInfo.getCertifyLevel() >= CertifyLevelEnum.PERSON_NORMAL_RANK
+							.getCertifyLevel()
+									|| StringUtil.equalsIgnoreCase(
+										userBaseInfo.getUserRealStatus(),
+										RealNameCertifyStatusEnum.EXPIRED_UPGRADE_AUDIT.code())
+									|| StringUtil.equalsIgnoreCase(
+										userBaseInfo.getUserRealStatus(),
+										RealNameCertifyStatusEnum.ENHANCED_REAL_NAME_AUDIT.code())) {
+							userBaseInfo.setCertifyLevel(CertifyLevelEnum.PERSON_NORMAL_RANK
+								.getCertifyLevel());
+							userBaseInfo.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_PASS
+								.code());
+						} else {
+							throw ExceptionFactory.newYrdException(
+								EsupplierResultEnum.OPENAPI_REPEAT_NOTIFY, "已经实名认证成功");
+						}
+					} else {
+						QueryAccountResult levelResult = customerService.userInfoQuery(
+							order.getAccountId(), getOpenApiContext());
+						if (levelResult.getYjfAccountInfo().getCertifyLevel() == CertifyLevelEnum.PERSON_QUICK_RANK) {
+							userBaseInfo.setCertifyLevel(CertifyLevelEnum.PERSON_QUICK_RANK
+								.getCertifyLevel());
+						} else {
+							userBaseInfo.setCertifyLevel(CertifyLevelEnum.PERSON_NORMAL_RANK
+								.getCertifyLevel());
+						}
+					}
+					
+					//真实姓名
+					if (StringUtil.isNotBlank(order.getRealName())
+						&& StringUtil.notEquals(order.getRealName(), userBaseInfo.getRealName())) {
+						userBaseInfo.setRealName(order.getRealName());
+					}
+					if (UserTypeEnum.GR.code().equals(userBaseInfo.getType())) {
+						updatePersionalInfo(order, userBaseInfo.getUserBaseId());
+					} else if (UserTypeEnum.JG.code().equals(userBaseInfo.getType())) {
+						updateEnterpriseInfo(order, userBaseInfo.getUserBaseId());
+					}
+					
+					sendMsg = "认证成功";
+					
+				} else if ("fail".equals(order.getYjfReturnStatus())
+							|| "upgradeFail".equals(order.getYjfReturnStatus())) {
+					if (order.getIsNotify() == BooleanEnum.YES) {
+						if (userBaseInfo.getCertifyLevel() >= CertifyLevelEnum.PERSON_NORMAL_RANK
+							.getCertifyLevel()) {
+							QueryAccountResult accountResult = customerService.queryUserAccount(
+								userBaseInfo.getAccountId(), getOpenApiContext());
+							if (CertifyStatusEnum.REJECT.code().equals(
+								accountResult.getYjfAccountInfo().getCertifyStatus())) {
+								RealNameLevelResult levelResult = customerService
+									.queryRealNameAuthenticationLevel(order.getAccountId(),
+										getOpenApiContext());
+								if (levelResult.getCertifyLevel() == CertifyLevelEnum.PERSON_QUICK_RANK) {
+									userBaseInfo
+										.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+									userBaseInfo.setCertifyLevel(CertifyLevelEnum.PERSON_QUICK_RANK
+										.getCertifyLevel());
+									userBaseInfo
+										.setUserRealStatus(RealNameCertifyStatusEnum.FORCED_DISMISSED
+											.code());
+								} else if (levelResult.getCertifyLevel().getCertifyLevel() < CertifyLevelEnum.PERSON_QUICK_RANK
+									.getCertifyLevel()) {
+									userBaseInfo
+										.setRealNameAuthentication(RealNameAuthStatusEnum.NO.code());
+									userBaseInfo.setCertifyLevel(CertifyLevelEnum.NO_RANK
+										.getCertifyLevel());
+									userBaseInfo
+										.setUserRealStatus(RealNameCertifyStatusEnum.FORCED_DISMISSED
+											.code());
+								}
+							} else {
+								if (StringUtil.equalsIgnoreCase(userBaseInfo.getUserRealStatus(),
+									RealNameCertifyStatusEnum.ENHANCED_REAL_NAME_AUDIT.code())
+									|| StringUtil.equalsIgnoreCase(
+										userBaseInfo.getUserRealStatus(),
+										RealNameCertifyStatusEnum.EXPIRED_UPGRADE_AUDIT.code())) {
+									userBaseInfo
+										.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_NO_PASS
+											.code());
+								}
+							}
+						} else {
+							if (userBaseInfo.getCertifyLevel() <= 0) {
+								userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO
+									.code());
+								userBaseInfo
+									.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_NO_PASS
+										.code());
+							} else {
+								if (userBaseInfo.getCertifyLevel() == 1) {
+									userBaseInfo
+										.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+								}
+								userBaseInfo
+									.setUserRealStatus(RealNameCertifyStatusEnum.CHECK_NO_PASS
+										.code());
+							}
+						}
+						sendMsg = "认证失败,原因：" + order.getMessage();
+						realNameFailReason(sendMsg, userBaseInfo);
+					} else {
+						userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO.code());
+						userBaseInfo.setUserRealStatus(RealNameCertifyStatusEnum.FORCED_DISMISSED
+							.code());
+						userBaseInfo.setCertifyLevel(CertifyLevelEnum.NO_RANK.getCertifyLevel());
+					}
+					
+				} else if ("expire".equals(order.getYjfReturnStatus())) {
+					//认证过期实名状态
+					if (StringUtil.notEquals(RealNameAuthStatusEnum.NO.code(),
+						userBaseInfo.getRealNameAuthentication())) {
+						userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO.code());
+						
+					}
+					if (userBaseInfo.getCertifyLevel() == CertifyLevelEnum.CERT_EXPIRE
+						.getCertifyLevel()) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.OPENAPI_REPEAT_NOTIFY, "实名认证已经超期，不能再设置为超期");
+					}
+					userBaseInfo.setCertifyLevel(CertifyLevelEnum.CERT_EXPIRE.getCertifyLevel());
+					sendMsg = "身份证已过期,需要重新认证";
+					realNameFailReason(sendMsg, userBaseInfo);
+				} else if ("precess".equals(order.getYjfReturnStatus())) {
+					// userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IN.code());
+					sendMsg = "认证中";
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.OPENAPI_REPEAT_NOTIFY, "认证中已经通知");
+				} else {
+					sendMsg = "认证已申请";
+				}
+				statusResult.setCertifyLevel(userBaseInfo.getCertifyLevel());
+				if (!RealNameAuthStatusEnum.IS.code().equals(oldRealNameAuthenticationStatus)
+					&& RealNameAuthStatusEnum.IS.code().equals(
+						userBaseInfo.getRealNameAuthentication())) {
+					EsupplierDomainHolder.get().addAttribute("realNameAuthenticationStatus",
+						RealNameAuthStatusEnum.IS);
+				}
+				userBaseInfoDAO.update(userBaseInfo);
+				addOperationJournalInfo(
+					"更新实名认证",
+					"更新实名认证",
+					"userId=" + userBaseInfo.getUserId() + ",userName="
+							+ userBaseInfo.getUserName() + ",order=" + order.toString());
+			}
+			EsupplierDomainHolder.get().addAttribute("queryList", queryList);
+			EsupplierDomainHolder.get().addAttribute("sendMsg", sendMsg);
+		} else {
+			logger.error("实名认证 order={},无此用户", order);
+		}
+	}
+	
+	/** 更新个人信息：真实姓名、身份证好码、身份证有效期 */
+	private void updatePersionalInfo(final UpdateRealNameStatusOrder order, String baseUserId) {
+		PersonalInfoDO infoDO = personalInfoDAO.findByUserBaseId(baseUserId);
+		if (null == infoDO) {
+			return;
+		}
+		
+		boolean isUpdatePersonalInfo = false;
+		//真实姓名
+		if (StringUtil.isNotBlank(order.getRealName())
+			&& StringUtil.notEquals(order.getRealName(), infoDO.getRealName())) {
+			infoDO.setRealName(order.getRealName());
+			isUpdatePersonalInfo = true;
+		}
+		
+		//身份证号码
+		if (StringUtil.isNotBlank(order.getCertNo())
+			&& StringUtil.notEquals(order.getCertNo(), infoDO.getCertNo())) {
+			infoDO.setCertNo(order.getCertNo());
+			isUpdatePersonalInfo = true;
+		}
+		
+		//身份证有效期
+		if (StringUtil.isNotBlank(order.getLicenseValidTime())
+			&& DateUtil.isNewValidBusinessPeriod(infoDO.getBusinessPeriod(),
+				order.getLicenseValidTime())) {
+			infoDO.setBusinessPeriod(order.getLicenseValidTime());
+			isUpdatePersonalInfo = true;
+		}
+		
+		if (isUpdatePersonalInfo) {
+			personalInfoDAO.update(infoDO);
+		}
+	}
+	
+	/** 更新企业信息：企业名称、经营期限 */
+	private void updateEnterpriseInfo(final UpdateRealNameStatusOrder order, String baseUserId) {
+		InstitutionsInfoDO institutionsInfoDO = institutionsInfoDAO.findByUserBaseId(baseUserId);
+		if (null == institutionsInfoDO) {
+			return;
+		}
+		
+		boolean isUpdateEnterpriseInfo = false;
+		//企业名称
+		if (StringUtil.isNotBlank(order.getRealName())
+			&& StringUtil.notEquals(order.getRealName(), institutionsInfoDO.getEnterpriseName())) {
+			institutionsInfoDO.setEnterpriseName(order.getRealName());
+			isUpdateEnterpriseInfo = true;
+		}
+		
+		//经营期限
+		if (StringUtil.isNotBlank(order.getLicenseValidTime())
+			&& DateUtil.isNewValidBusinessPeriod(institutionsInfoDO.getBusinessPeriod(),
+				order.getLicenseValidTime())) {
+			institutionsInfoDO.setBusinessPeriod(order.getLicenseValidTime());
+			isUpdateEnterpriseInfo = true;
+		}
+		
+		if (isUpdateEnterpriseInfo) {
+			institutionsInfoDAO.update(institutionsInfoDO);
+		}
+	}
+	
+	private void realNameFailReason(String sendMsg, UserBaseInfoDO userBaseInfo) {
+		try {
+			UserExtendDO extendDO = userExtendDAO.findByPropertyNameUserId(
+				userBaseInfo.getUserId(), UserExtendEnum.REAL_NAME_AUTHENTICATION.code());
+			if (extendDO == null) {
+				extendDO = new UserExtendDO();
+			}
+			extendDO.setUserId(userBaseInfo.getUserId());
+			extendDO.setPropertyKey(UserExtendEnum.REAL_NAME_AUTHENTICATION.code());
+			extendDO.setPropertyValue(sendMsg);
+			userExtendDAO.deletePropertyName(extendDO);
+			userExtendDAO.insert(extendDO);
+		} catch (Exception e) {
+			logger.error("保存实名没有认证通过的原因", e);
+		}
+	}
+	
+	@Override
+	public void updateLocalAccountByRemote(UserInfo userBaseInfo, YjfAccountInfo accountInfo) {
+		updateLocalAccountByRemote(userBaseInfo, accountInfo, false);
+	}
+	
+	@Override
+	public void updateLocalAccountByRemote(UserInfo userBaseInfo, YjfAccountInfo accountInfo,
+											boolean isBackstage) {
+		SessionLocal sessionLocal = ShiroSessionUtils.getSessionLocal();
+		if (!isBackstage) {
+			if (null == sessionLocal || StringUtil.isEmpty(sessionLocal.getAccountId())) {
+				return;
+			}
+		}
+		
+		UpdateRealNameStatusOrder order = new UpdateRealNameStatusOrder();
+		order.setCertNo(accountInfo.getCertNo());
+		order.setRealName(accountInfo.getRealName());
+		order.setAccountId(accountInfo.getUserId());
+		// 特殊情况 实名认证不一致 “认证成功”
+		if (CertifyStatusEnum.AUTHORIZED.message().equals(accountInfo.getCertifyStatus())) {
+			if (isBackstage) {
+				if (userBaseInfo.getRealNameAuthentication() == null
+					|| !BooleanEnum.IS.code().equals(
+						userBaseInfo.getRealNameAuthentication().code())) {
+					order.setYjfReturnStatus(RealNameAuthStatusEnum.IS.getYjfStatus());
+					order.setLicenseValidTime(accountInfo.getLicenseValidTime());
+					updateRealNameStatus(order);
+					userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IS);
+				} else {
+					
+					if (accountInfo.getCertifyLevel().getCertifyLevel() != userBaseInfo
+						.getCertifyLevel()) {
+						order.setYjfReturnStatus(RealNameAuthStatusEnum.IS.getYjfStatus());
+						order.setLicenseValidTime(accountInfo.getLicenseValidTime());
+						UpdateRealNameStatusResult nameStatusResult = updateRealNameStatus(order);
+						userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IS);
+						userBaseInfo.setCertifyLevel(nameStatusResult.getCertifyLevel());
+					}
+				}
+			} else {
+				if (userBaseInfo.getRealNameAuthentication() == null
+					|| !BooleanEnum.IS.code().equals(
+						userBaseInfo.getRealNameAuthentication().code())) {
+					order.setYjfReturnStatus(RealNameAuthStatusEnum.IS.getYjfStatus());
+					order.setLicenseValidTime(accountInfo.getLicenseValidTime());
+					UpdateRealNameStatusResult nameStatusResult = updateRealNameStatus(order);
+					userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IS);
+					sessionLocal.setCertifyLevel(nameStatusResult.getCertifyLevel());
+					ShiroSessionUtils.setSessionLocal(sessionLocal);
+				} else if (sessionLocal.getCertifyLevel() != userBaseInfo.getCertifyLevel()) {
+					order.setYjfReturnStatus(RealNameAuthStatusEnum.IS.getYjfStatus());
+					order.setLicenseValidTime(accountInfo.getLicenseValidTime());
+					UpdateRealNameStatusResult nameStatusResult = updateRealNameStatus(order);
+					userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IS);
+					sessionLocal.setCertifyLevel(nameStatusResult.getCertifyLevel());
+					ShiroSessionUtils.setSessionLocal(sessionLocal);
+				}
+			}
+		}
+		if (CertifyStatusEnum.UNAUTHERIZED.message().equals(accountInfo.getCertifyStatus())) {
+			if (userBaseInfo.getRealNameAuthentication() != null
+				&& (RealNameAuthStatusEnum.NO != userBaseInfo.getRealNameAuthentication() || RealNameAuthStatusEnum.N != userBaseInfo
+					.getRealNameAuthentication())) {
+				order.setYjfReturnStatus(RealNameAuthStatusEnum.NO.getYjfStatus());
+				updateRealNameStatus(order);
+				userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO);
+			}
+		} else if (CertifyStatusEnum.REJECT.message().equals(accountInfo.getCertifyStatus())) {
+			// 实名“认证被驳回”，同步到易八
+			if (userBaseInfo.getRealNameAuthentication() == null
+				|| !BooleanEnum.NO.code().equals(userBaseInfo.getRealNameAuthentication().code())) {
+				order.setYjfReturnStatus(RealNameAuthStatusEnum.NO.getYjfStatus());
+				updateRealNameStatus(order);
+				userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO);
+			}
+		} else if (CertifyStatusEnum.CERT_EXPIRE.message().equals(accountInfo.getCertifyStatus())) {
+			// 实名“认证过期”，同步到易八
+			if (userBaseInfo.getRealNameAuthentication() == null
+				|| userBaseInfo.getCertifyLevel() != CertifyLevelEnum.CERT_EXPIRE.getCertifyLevel()) {
+				order.setYjfReturnStatus("expire");
+				updateRealNameStatus(order);
+				userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO);
+			}
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult withdrawCertifyOrder(final WithdrawCertifyOrder order) {
+		// TODO Auto-generated method stub
+		return commonProcess(order, "提现实名认证", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserBaseInfoDO infoDO = userBaseInfoDAO.findByUserId(order.getUserId());
+				if (infoDO == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"用户信息不存在");
+				}
+				UserInfo userInfo = getUserInfoByDO(infoDO);
+				if (userInfo.getUserRealStatus() != null) {
+					if (userInfo.getCertifyLevel() >= 1) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请弱实名,已经实名认证");
+					}
+				} else {
+					if (!(StringUtil.isEmpty(infoDO.getRealNameAuthentication()) || (infoDO
+						.getRealNameAuthentication().equals(RealNameAuthStatusEnum.N.code()) || infoDO
+						.getRealNameAuthentication().equals(RealNameAuthStatusEnum.NO.code())))) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "不能申请实名认证，已经申请");
+					}
+				}
+				
+				if (StringUtil.equals(infoDO.getType(), UserTypeEnum.GR.code())) {
+					PersonalInfoDO personalInfoDO = personalInfoDAO.findByUserBaseId(infoDO
+						.getUserBaseId());
+					if (personalInfoDO != null) {
+						personalInfoDO.setRealName(order.getRealName());
+						personalInfoDO.setBusinessPeriod("longTime");
+						personalInfoDAO.update(personalInfoDO);
+					}
+				}
+				
+				if (StringUtil.equals(infoDO.getType(), UserTypeEnum.JG.code())) {
+					InstitutionsInfoDO institutionsInfoDO = institutionsInfoDAO
+						.findByUserBaseId(infoDO.getUserBaseId());
+					if (institutionsInfoDO != null) {
+						institutionsInfoDO.setEnterpriseName(order.getRealName());
+						institutionsInfoDAO.update(institutionsInfoDO);
+					}
+				}
+				
+				infoDO.setRealName(order.getRealName());
+				infoDO.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+				userBaseInfoDAO.update(infoDO);
+				EsupplierDomainHolder.get().addAttribute("userBaseInfoDo", infoDO);
+				
+				SupplierInfo supplierInfo = supplierService.getSupplier(infoDO.getUserId());
+				if (supplierInfo != null) {
+					supplierInfo.setRealName(order.getRealName());
+					supplierService.updateSupplier(supplierInfo);
+					
+				}
+				return null;
+			}
+			
+		}, null, new AfterProcessInvokeService() {
+			@Override
+			public Domain after(Domain domain) {
+				
+				return null;
+			}
+		});
+	}
+	
+}

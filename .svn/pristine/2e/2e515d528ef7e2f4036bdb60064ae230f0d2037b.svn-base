@@ -1,0 +1,37 @@
+<!--header start-->
+<div class="head2 MO">
+    <div class="MI clearfix">
+        <div class="wel_ws">您好，欢迎来到$!appConstantsUtil.getProductName()</div>
+        <div class="ls_ol">
+			#if($!webSessionUtil.isLogin())
+                <span class="after_login">
+                    <label href="#">您好，$!webSessionUtil.getUserViewName()</label>
+                    <a href="/login/frontLogout.htm">[退出登录]</a>
+			    </span>
+			#else
+                <span class="login_sign">
+                    <a href="/login/frontLogin.htm" target="_blank">登录</a>
+                    <a href="/anon/newInvestorsOpen.htm" target="_blank">注册</a>
+    		    </span>
+			#end
+            <span class="order_list">
+    			<a href="/do/infoOrder/buyer/queryBuyOrder.htm?orderType=O2O&itemType=bulk" class="my_order">我的订单</a>
+    		</span>
+        </div>
+    </div>
+</div><!--header end-->
+	    
+	    <!--logoArea start-->
+	    <div class="logo_area MO">
+	    	<div class="MI clearfix">
+		    	<span class="logo_img">
+		    		<a href="/front/platform/mall/mallIndex.htm"><img src="/styles/images/common/logo1.png" alt="$!appConstantsUtil.getProductName()"/></a>
+		    	</span>
+		    	<span class="flow">
+		    		<i class="flow_1"></i>
+		    		<label class="DIB cart_i on">我的购物车</label>
+		    		<label class="DIB order_i">提交订单</label>
+		    		<label class="DIB pay_i">支付</label>
+		    	</span>
+	    	</div>
+	    </div><!--logoArea end-->

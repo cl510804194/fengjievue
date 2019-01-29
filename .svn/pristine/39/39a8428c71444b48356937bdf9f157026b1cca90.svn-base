@@ -1,0 +1,224 @@
+<table sqlname="tbl_pop_user">
+    <operation name="insert" paramtype="object">
+        <sql>
+            <![CDATA[
+				INSERT INTO tbl_pop_user(pop_user_id,pop_id,type,user_id,raw_add_time) VALUES (?,?,?,?,?)
+			]]>
+        </sql>
+    </operation>
+    <operation name="update" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_pop_user SET pop_id=?,user_id=?,type=? WHERE pop_user_id=?
+			]]>
+        </sql>
+    </operation>
+    <operation name="findById" paramtype="string">
+        <sql>
+            <![CDATA[
+				SELECT  pop_user_id ,pop_id,type,user_id ,raw_add_time ,raw_update_time  FROM tbl_pop_user WHERE pop_user_id=?
+			]]>
+        </sql>
+    </operation>
+    <operation name="findListByUserId" paramtype="string" multiplicity="many">
+        <sql>
+            <![CDATA[
+				SELECT  pop_user_id ,pop_id,type,user_id ,raw_add_time ,raw_update_time  FROM tbl_pop_user WHERE user_id=?
+			]]>
+        </sql>
+    </operation>
+
+    <operation name="deleteById" paramtype="string">
+        <sql>
+            <![CDATA[
+				DELETE FROM tbl_pop_user WHERE pop_user_id=?
+			]]>
+        </sql>
+    </operation>
+    <operation name="deleteByPopAndUser" paramtype="string">
+        <sql>
+            <![CDATA[
+				DELETE FROM tbl_pop_user WHERE user_id=? and pop_id=? and type = ?
+			]]>
+        </sql>
+    </operation>
+        <operation name="deleteBySupplierAndUser" paramtype="string">
+        <sql>
+            <![CDATA[
+				DELETE FROM tbl_pop_user WHERE user_id=? and type=?
+			]]>
+        </sql>
+    </operation>
+    <operation name="findAllCount" multiplicity="many">
+        <sql>
+            <![CDATA[
+				SELECT  count(*) FROM tbl_pop_user
+			]]>
+        </sql>
+    </operation>
+
+	<operation name="findByUserId" paramtype="object" multiplicity="many">
+		<extraparams>
+			<param name="limitStart" javatype="long"/>
+			<param name="pageSize" javatype="long"/>
+			<param name="popName" javatype="java.lang.String"/>
+			<param name="beginDate" javatype="java.util.Date"/>
+			<param name="endDate" javatype="java.util.Date"/>
+		</extraparams>
+		<sql>
+			<![CDATA[
+	         SELECT  u.* FROM pop_info t,tbl_pop_user u
+	        where t.base_id=u.pop_id
+	        ]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+            SELECT  u.* FROM pop_info t,tbl_pop_user u
+	        where t.base_id=u.pop_id
+	        <dynamic>
+	            <isGreaterThan property="tblPopUser.popUserId"  compareValue="0" prepend=" and ">
+	                u.pop_user_id = #tblPopUser.popUserId#
+	            </isGreaterThan>
+	             <isGreaterThan property="tblPopUser.popId"  compareValue="0" prepend=" and ">
+	                u.pop_id = #tblPopUser.popId#
+	            </isGreaterThan>
+	            <isNotEmpty property="tblPopUser.type"  prepend=" and ">
+	                u.type = #tblPopUser.type#
+	            </isNotEmpty>
+	            <isGreaterThan property="tblPopUser.userId"  compareValue="0" prepend=" and ">
+	                u.user_id = #tblPopUser.userId#
+	            </isGreaterThan>
+	            <isNotEmpty property="popName" prepend=" and ">
+	              t.title like concat('%',#popName#,'%')
+	            </isNotEmpty>
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by u.raw_add_time desc
+
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+		</sqlmap>
+	</operation>
+	<operation name="findByUserIdCount" paramtype="object">
+		<extraparams>
+			<param name="popName" javatype="java.lang.String"/>
+			<param name="beginDate" javatype="java.util.Date"/>
+			<param name="endDate" javatype="java.util.Date"/>
+		</extraparams>
+		<sql>
+			<![CDATA[
+	       SELECT  count(*)   FROM pop_info t,tbl_pop_user u
+	       WHERE t.base_id=u.pop_id
+	        ]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+	         SELECT  count(*)  FROM pop_info t,tbl_pop_user u
+	         where t.base_id=u.pop_id
+	         <dynamic>
+	            <isGreaterThan property="tblPopUser.popUserId"  compareValue="0" prepend=" and ">
+	                u.pop_user_id = #tblPopUser.popUserId#
+	            </isGreaterThan>
+	             <isGreaterThan property="tblPopUser.popId"  compareValue="0" prepend=" and ">
+	                u.pop_id = #tblPopUser.popId#
+	            </isGreaterThan>
+	            <isNotEmpty property="tblPopUser.type"  prepend=" and ">
+	                u.type = #tblPopUser.type#
+	            </isNotEmpty>
+	            <isGreaterThan property="tblPopUser.userId"  compareValue="0" prepend=" and ">
+	                u.user_id = #tblPopUser.userId#
+	            </isGreaterThan>
+	            <isNotEmpty property="popName" prepend=" and ">
+	               t.title like concat('%',#popName#,'%')
+	            </isNotEmpty>
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+	        ]]>
+		</sqlmap>
+	</operation>
+
+    <operation name="findInfoByTypes" paramtype="object"  multiplicity="many">
+        <extraparams>
+            <param name="popIds" javatype="java.util.List"/>
+            <param name="types" javatype="java.util.List"/>
+            <param name="userId" javatype="long"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  u.*  FROM pop_info t,tbl_pop_user u
+	        where t.base_id=u.pop_id
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	       SELECT  u.*  FROM pop_info t,tbl_pop_user u
+	        where t.base_id=u.pop_id
+	        <dynamic>
+	            <isGreaterThan property="userId"  compareValue="0" prepend=" and ">
+	                u.user_id = #userId#
+	            </isGreaterThan>
+	             <isNotEmpty property="popIds" prepend=" and ">
+					u.pop_id in
+					<iterate property="popIds" open="(" close=")" conjunction=",">
+						#popIds[]#
+					</iterate>
+				</isNotEmpty>
+				 <isNotEmpty property="types" prepend=" and ">
+					u.type in
+					<iterate property="types" open="(" close=")" conjunction=",">
+						#types[]#
+					</iterate>
+				</isNotEmpty>
+	        </dynamic>
+            ORDER by u.raw_add_time desc;
+	        ]]>
+        </sqlmap>
+    </operation>
+
+	<operation name="findInfoByTypesCount" paramtype="object">
+		<extraparams>
+			<param name="popIds" javatype="java.util.List"/>
+			<param name="types" javatype="java.util.List"/>
+			<param name="userId" javatype="long"/>
+		</extraparams>
+		<sql>
+			<![CDATA[
+	       SELECT  count(*)  FROM pop_info t,tbl_pop_user u
+	       WHERE t.base_id=u.pop_id
+	        ]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+          SELECT  count(*)  FROM pop_info t,tbl_pop_user u
+	       WHERE t.base_id=u.pop_id
+	        <dynamic>
+	            <isGreaterThan property="userId"  compareValue="0" prepend=" and ">
+	                u.user_id = #userId#
+	            </isGreaterThan>
+	             <isNotEmpty property="popIds" prepend=" and ">
+					u.pop_id in
+					<iterate property="popIds" open="(" close=")" conjunction=",">
+						#popIds[]#
+					</iterate>
+				</isNotEmpty>
+				 <isNotEmpty property="types" prepend=" and ">
+					u.type in
+					<iterate property="types" open="(" close=")" conjunction=",">
+						#types[]#
+					</iterate>
+				</isNotEmpty>
+	        </dynamic>
+	        ]]>
+		</sqlmap>
+	</operation>
+</table>

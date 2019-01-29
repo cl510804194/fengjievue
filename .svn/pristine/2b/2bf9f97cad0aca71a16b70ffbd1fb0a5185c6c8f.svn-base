@@ -1,0 +1,835 @@
+<table sqlname="tbl_supplier">
+    <column name="spend_per" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="lowest_handsel_amount" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="open_time" javatype="java.lang.String"/>
+    <column name="close_time" javatype="java.lang.String"/>
+    <column name="room_lowest_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="room_normal_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="total_sale" javatype="com.yjf.common.lang.util.money.Money"/>
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+
+			INSERT INTO tbl_supplier(supplier_id,user_base_id,real_name,nickname,biz_domain,product_type,o2o,order_meal,hotels,lowest_handsel_amount,store_name,supplier_type,approve_state,lock_state,voucher_id,vouch_state,run_state,review_average,review_product,review_delivery,review_communication,promise_state,introduction,store_style,store_url,raw_add_time,check_time,address,open_time,close_time,merchant_state,spend_per,merchant_type,merchant_pic_path1,merchant_pic_path2,merchant_pic_path3,merchant_pic_path4,longitude,latitude,mobile,scenic_id,scenic_name,score_sum,rate_sum,product_sum,toShop,shopGrade,table_number,room_lowest_price,room_normal_price,recommend_room,special_room,long_rent_room,morning_room,dining,dining_supplier_type,dining_run_state,service_charge_rate,hotel_order_score,total_sale,recommend,product_discount,around_line) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+			UPDATE tbl_supplier SET user_base_id=?,real_name=?,nickname=?,biz_domain=?,product_type=?,o2o=?,order_meal=?,hotels=?,lowest_handsel_amount=?,store_name=?,supplier_type=?,approve_state=?,lock_state=?,voucher_id=?,vouch_state=?,run_state=?,review_average=?,review_product=?,review_delivery=?,review_communication=?,promise_state=?,introduction=?,store_style=?,store_url=?,check_time=?,address=?,open_time=?,close_time=?,merchant_state=?,spend_per=?,merchant_type=?,merchant_pic_path1=?,merchant_pic_path2=?,merchant_pic_path3=?,merchant_pic_path4=?,longitude=?,latitude=?,mobile=?,scenic_id=?,scenic_name=?,score_sum=?,rate_sum=?,product_sum=?,toShop=?,shopGrade=?,table_number=?,room_lowest_price=?,room_normal_price=?,recommend_room=?,special_room=?,long_rent_room=?,morning_room=?,dining=?,dining_supplier_type=?,dining_run_state=?,service_charge_rate=?,total_sale=?,hotel_order_score=?,recommend = ?,product_discount = ?,around_line=? WHERE supplier_id=?
+			]]>
+		</sql>
+	</operation>
+    <operation name="updateSupplierGrade" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_supplier SET shopGrade=? WHERE supplier_id=?
+			]]>
+        </sql>
+    </operation>
+
+	<operation name="updateRecommend" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE tbl_supplier SET recommend=? WHERE supplier_id=?
+			]]>
+		</sql>
+	</operation>
+
+    <operation name="updateSupplierRecommend" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_supplier SET recommend_room=? WHERE supplier_id=?
+			]]>
+        </sql>
+    </operation>
+
+    <operation name="updateSupplierSpecial" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_supplier SET special_room=? WHERE supplier_id=?
+			]]>
+        </sql>
+    </operation>
+
+    <operation name="updateSupplierLong" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_supplier SET long_rent_room=? WHERE supplier_id=?
+			]]>
+        </sql>
+    </operation>
+
+    <operation name="updateSupplierMorning" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_supplier SET morning_room=? WHERE supplier_id=?
+			]]>
+        </sql>
+    </operation>
+
+    <operation name="findById" paramtype="string">
+        <sql>
+            <![CDATA[
+
+				SELECT  *  FROM tbl_supplier WHERE supplier_id=?
+
+			]]>
+        </sql>
+    </operation>
+    <operation name="findByIdForUpdate" paramtype="string">
+        <sql>
+            <![CDATA[
+
+				SELECT  *  FROM tbl_supplier WHERE supplier_id=? for update
+
+			]]>
+        </sql>
+    </operation>
+    <operation name="findByUserId" paramtype="string">
+        <sql>
+            <![CDATA[
+				SELECT  *  FROM tbl_supplier WHERE user_base_id=?
+
+
+			]]>
+        </sql>
+    </operation>
+    <operation name="updateScenicName" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE tbl_supplier SET scenic_name=? WHERE scenic_id=?
+			]]>
+        </sql>
+    </operation>
+    <operation name="deleteById" paramtype="string">
+        <sql>
+            <![CDATA[
+			
+			DELETE FROM tbl_supplier WHERE supplier_id=?
+			]]>
+        </sql>
+    </operation>
+    <operation name="findByIds" multiplicity="many">
+        <extraparams>
+            <param name="idList" javatype="java.util.List"/>
+            <param name="limitStart" javatype="long"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  *  FROM tbl_supplier
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  *  FROM tbl_supplier
+
+	            <dynamic prepend="where">
+				<isNotEmpty property="idList" prepend=" and ">
+				supplier_id in
+				<iterate  property="idList" open="(" close=")" conjunction=",">
+					#idList[]#
+				</iterate>
+				</isNotEmpty>
+				<isEmpty property="idList" prepend=" and ">
+				    supplier_id=0
+				</isEmpty>
+				  </dynamic>
+	           ORDER by raw_add_time
+        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="findByCondition" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+            <param name="searchName" javatype="java.lang.String"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="statusList" javatype="java.util.List"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  *  FROM tbl_supplier
+
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  *  FROM tbl_supplier
+
+	          where 1=1
+	        <dynamic>
+	            <isGreaterThan property="tblSupplier.supplierId"  compareValue="0" prepend=" and ">
+	                supplier_id = #tblSupplier.supplierId#
+	            </isGreaterThan>
+	             <isGreaterThan property="tblSupplier.userBaseId"  compareValue="0" prepend=" and ">
+	                user_base_id = #tblSupplier.userBaseId#
+	            </isGreaterThan>
+	             <isNotEmpty property="tblSupplier.realName" prepend=" and ">
+	             	real_name = #tblSupplier.realName#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.nickname" prepend=" and ">
+	             	nickname = #tblSupplier.nickname#
+	             </isNotEmpty>
+	             <isNotEmpty property="searchName" prepend=" and ">
+	             	( real_name like #searchName# 
+	             	or nickname like #searchName# )
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantState" prepend=" and ">
+	             	merchant_state = #tblSupplier.merchantState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.o2o" prepend=" and ">
+	             	o2o = #tblSupplier.o2o#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.orderMeal" prepend=" and ">
+	             	<isEqual property="tblSupplier.orderMeal" compareValue="NO">
+    	      				(order_meal is null or  
+    				</isEqual>
+	             	order_meal = #tblSupplier.orderMeal#
+	             	<isEqual property="tblSupplier.orderMeal" compareValue="NO">
+    	      				)
+    				</isEqual>
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.hotels" prepend=" and ">
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				(hotels is null or  
+    				</isEqual>
+	             	hotels = #tblSupplier.hotels#
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				)
+    				</isEqual>
+	             </isNotEmpty>
+	          	 <isGreaterThan property="tblSupplier.supplierType"  compareValue="0" prepend=" and ">
+	                supplier_type = #tblSupplier.supplierType#
+	            </isGreaterThan>
+	             <isNotEmpty property="tblSupplier.approveState" prepend=" and ">
+	             	approve_state = #tblSupplier.approveState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.dining" prepend=" and ">
+	             	dining = #tblSupplier.dining#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.diningSupplierType" prepend=" and ">
+	             	dining_supplier_type = #tblSupplier.diningSupplierType#
+	             </isNotEmpty>
+	             
+	              <isNotEmpty property="tblSupplier.lockState" prepend=" and ">
+	             	lock_state = #tblSupplier.lockState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.runState" prepend=" and ">
+	             	run_state = #tblSupplier.runState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.diningRunState" prepend=" and ">
+	             	dining_run_state = #tblSupplier.diningRunState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.promiseState" prepend=" and ">
+	             	promise_state = #tblSupplier.promiseState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	             	store_name like #tblSupplier.storeName#
+	             </isNotEmpty>
+	             <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by raw_add_time
+            
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="findByConditionCount" paramtype="object">
+        <extraparams>
+            <param name="searchName" javatype="java.lang.String"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="statusList" javatype="java.util.List"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  count(*) FROM tbl_supplier 
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  count(*)  FROM tbl_supplier
+	          where 1=1
+	             <dynamic>
+	            <isGreaterThan property="tblSupplier.supplierId"  compareValue="0" prepend=" and ">
+	                supplier_id = #tblSupplier.supplierId#
+	            </isGreaterThan>
+	             <isNotEmpty property="tblSupplier.realName" prepend=" and ">
+	             	real_name = #tblSupplier.realName#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.nickname" prepend=" and ">
+	             	nickname = #tblSupplier.nickname#
+	             </isNotEmpty>
+	             <isNotEmpty property="searchName" prepend=" and ">
+	             	( real_name like #searchName# 
+	             	or nickname like #searchName# )
+	             </isNotEmpty>
+	             
+	             <isGreaterThan property="tblSupplier.supplierType"  compareValue="0" prepend=" and ">
+	                supplier_type = #tblSupplier.supplierType#
+	            </isGreaterThan>
+	             
+	              <isNotEmpty property="tblSupplier.approveState" prepend=" and ">
+	             	approve_state = #tblSupplier.approveState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+	            <isNotEmpty property="tblSupplier.merchantState" prepend=" and ">
+	             	merchant_state = #tblSupplier.merchantState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.o2o" prepend=" and ">
+	             	o2o = #tblSupplier.o2o#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.orderMeal" prepend=" and ">
+	             	<isEqual property="tblSupplier.orderMeal" compareValue="NO">
+    	      				(order_meal is null or  
+    				</isEqual>
+	             	order_meal = #tblSupplier.orderMeal#
+	             	<isEqual property="tblSupplier.orderMeal" compareValue="NO">
+    	      				)
+    				</isEqual>
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.hotels" prepend=" and ">
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				(hotels is null or  
+    				</isEqual>
+	             	hotels = #tblSupplier.hotels#
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				)
+    				</isEqual>
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.lockState" prepend=" and ">
+	             	lock_state = #tblSupplier.lockState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.dining" prepend=" and ">
+	             	dining = #tblSupplier.dining#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.diningSupplierType" prepend=" and ">
+	             	dining_supplier_type = #tblSupplier.diningSupplierType#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.runState" prepend=" and ">
+	             	run_state = #tblSupplier.runState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.diningRunState" prepend=" and ">
+	             	dining_run_state = #tblSupplier.diningRunState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.promiseState" prepend=" and ">
+	             	promise_state = #tblSupplier.promiseState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	             	store_name like #tblSupplier.storeName#
+	             </isNotEmpty>
+	             <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+	        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="findAllCount" multiplicity="many">
+        <sql>
+            <![CDATA[
+				SELECT  count(*) FROM tbl_storage_inout_detail
+			]]>
+        </sql>
+    </operation>
+    <operation name="findBySupplierId" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+            <param name="userId" javatype="long"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+
+        </extraparams>
+        <sql>
+            <![CDATA[
+	      SELECT  t.* 	FROM tbl_supplier t,tbl_product_user u
+
+	        WHERE t.supplier_id=u.supplier_id
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+            SELECT  t.* 	FROM tbl_supplier t,tbl_product_user u
+
+	        WHERE t.supplier_id=u.supplier_id
+	        <dynamic>
+	             <isNotEmpty property="tblSupplier.hotels" prepend=" and ">
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				(hotels is null or
+    				</isEqual>
+	             	hotels = #tblSupplier.hotels#
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				)
+    				</isEqual>
+	             </isNotEmpty>
+	            <isGreaterThan property="userId"  compareValue="0" prepend=" and ">
+	              u.user_id = #userId#
+	            </isGreaterThan>
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by u.raw_add_time desc
+            
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="findBySupplierIdCount" paramtype="object">
+        <extraparams>
+            <param name="userId" javatype="long"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  count(*)   FROM tbl_supplier t,tbl_product_user u
+	       WHERE t.supplier_id=u.product_id
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	          SELECT  count(*)   FROM tbl_supplier t,tbl_product_user u
+	     	  WHERE t.supplier_id=u.supplier_id
+	         <dynamic>
+	             <isNotEmpty property="tblSupplier.hotels" prepend=" and ">
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				(hotels is null or
+    				</isEqual>
+	             	hotels = #tblSupplier.hotels#
+	             	<isEqual property="tblSupplier.hotels" compareValue="NO">
+    	      				)
+    				</isEqual>
+	             </isNotEmpty>
+	            <isGreaterThan property="userId"  compareValue="0" prepend=" and ">
+	              u.user_id = #userId#
+	            </isGreaterThan>
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} u.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+	        ]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="selectOrderMealAddress" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+            <param name="latitude" javatype="double"/>
+            <param name="longitude" javatype="double"/>
+            <param name="choseList" javatype="java.util.List"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  t.* 	FROM tbl_supplier t,tbl_product_user u
+	      
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+            SELECT  t.* 	FROM tbl_supplier t
+
+	        WHERE  (t.order_meal="YES" or t.dining = "YES")
+	        <dynamic>
+	            <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	              store_name like concat('%',#tblSupplier.storeName#,'%')
+	            </isNotEmpty>
+	            <isNotEmpty property="tblSupplier.runState" prepend=" and ">
+	             	run_state = #tblSupplier.runState#
+	            </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.diningRunState" prepend=" and ">
+	             	dining_run_state = #tblSupplier.diningRunState#
+	             </isNotEmpty>
+	            <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantState" prepend=" and ">
+	             	merchant_state = #tblSupplier.merchantState#
+	             </isNotEmpty>
+	            <isNotNull  property="choseList" prepend=" and ">
+	                t.supplier_id not in 
+		            <iterate open="(" close=")" conjunction=",">
+						#choseList[]#
+					</iterate>
+	            </isNotNull>
+	        </dynamic>
+	         <isGreaterThan property="latitude" compareValue="0">
+                  <isGreaterThan property="longitude" compareValue="0">
+                   ORDER by  IFNULL(fun_getDistance(#latitude#,#longitude#,ifnull(t.latitude,0),ifnull(t.longitude,0)),0),t.raw_add_time desc
+             	  </isGreaterThan>
+             </isGreaterThan>
+             <isLessEqual property="latitude" compareValue="0">
+            	ORDER by t.raw_add_time desc
+             </isLessEqual>
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="selectOrderMealAddressCount" paramtype="object">
+        <extraparams>
+            <param name="choseList" javatype="java.util.List"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  count(*) 	FROM tbl_supplier t
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+            SELECT count(*) 	FROM tbl_supplier t
+
+	        WHERE  (t.order_meal="YES" or t.dining = "YES")
+	        <dynamic>
+	            <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	              store_name like concat('%',#tblSupplier.storeName#,'%')
+	            </isNotEmpty>
+	            <isNotEmpty property="tblSupplier.runState" prepend=" and ">
+	             	run_state = #tblSupplier.runState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.diningRunState" prepend=" and ">
+	             	dining_run_state = #tblSupplier.diningRunState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantState" prepend=" and ">
+	             merchant_state = #tblSupplier.merchantState#
+	             </isNotEmpty>
+	            <isNotNull  property="choseList" prepend=" and ">
+	                t.supplier_id not in 
+		            <iterate open="(" close=")" conjunction=",">
+						#choseList[]#
+					</iterate>
+	            </isNotNull>
+	        </dynamic>
+	        ]]>
+        </sqlmap>
+    </operation>
+
+
+    <operation name="searchForOrderMeal" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+            <param name="diningSupplierId" javatype="long"/>
+            <param name="belongTo" javatype="long"/>
+            <param name="searchSelf" javatype="java.lang.String"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	      SELECT s.* FROM tbl_supplier s 
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT s.* FROM tbl_supplier s left join user_base_info u ON u.user_id = s.supplier_id left join tbl_supplier_dining_config c ON s.supplier_id = c.available_supplier_id AND c.supplier_id =#diningSupplierId#
+	         
+	          where 1=1
+	        <dynamic>
+	            <isGreaterThan property="tblSupplier.supplierId"  compareValue="0" prepend=" and ">
+	                s.supplier_id = #tblSupplier.supplierId#
+	            </isGreaterThan>
+	             <isGreaterThan property="tblSupplier.userBaseId"  compareValue="0" prepend=" and ">
+	                s.user_base_id = #tblSupplier.userBaseId#
+	            </isGreaterThan>
+	            <isGreaterThan property="diningSupplierId"  compareValue="0" prepend=" and ">
+	            	<isEqual property="searchSelf" compareValue="YES">
+    	      				(s.supplier_id = #diningSupplierId#  or   
+    				</isEqual>
+	                c.supplier_id = #diningSupplierId#
+	                <isEqual property="searchSelf" compareValue="YES">
+    	      				)   
+    				</isEqual>
+	            </isGreaterThan>
+	            <isGreaterThan property="belongTo" compareValue="0" prepend=" and ">
+				   u.belong_to = #belongTo# 
+				</isGreaterThan>
+	            <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	s.merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantState" prepend=" and ">
+	             	s.merchant_state = #tblSupplier.merchantState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.o2o" prepend=" and ">
+	             	s.o2o = #tblSupplier.o2o#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.orderMeal" prepend=" and ">
+	             	s.order_meal = #tblSupplier.orderMeal#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.hotels" prepend=" and ">
+	             	s.hotels = #tblSupplier.hotels#
+	             </isNotEmpty>
+	          	 <isGreaterThan property="tblSupplier.supplierType"  compareValue="0" prepend=" and ">
+	                s.supplier_type = #tblSupplier.supplierType#
+	            </isGreaterThan>
+	             <isNotEmpty property="tblSupplier.approveState" prepend=" and ">
+	             	s.approve_state = #tblSupplier.approveState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.dining" prepend=" and ">
+	             	s.dining = #tblSupplier.dining#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.diningSupplierType" prepend=" and ">
+	             	s.dining_supplier_type = #tblSupplier.diningSupplierType#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.lockState" prepend=" and ">
+	             	s.lock_state = #tblSupplier.lockState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.runState" prepend=" and ">
+	             	s.run_state = #tblSupplier.runState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.diningRunState" prepend=" and ">
+	             	s.dining_run_state = #tblSupplier.diningRunState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	             	s.store_name like #tblSupplier.storeName#
+	             </isNotEmpty>
+	             <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} s.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} s.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by raw_add_time
+            
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="searchForOrderMealCount" paramtype="object">
+        <extraparams>
+            <param name="diningSupplierId" javatype="long"/>
+            <param name="belongTo" javatype="long"/>
+            <param name="searchSelf" javatype="java.lang.String"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	        SELECT count(*) FROM tbl_supplier s    WHERE  1=1 
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT count(*) FROM tbl_supplier s left join user_base_info u ON u.user_id = s.supplier_id left join tbl_supplier_dining_config c ON s.supplier_id = c.available_supplier_id AND c.supplier_id =#diningSupplierId#
+	         
+	          where 1=1
+	           <dynamic>
+	            <isGreaterThan property="tblSupplier.supplierId"  compareValue="0" prepend=" and ">
+	                s.supplier_id = #tblSupplier.supplierId#
+	            </isGreaterThan>
+	             <isGreaterThan property="tblSupplier.userBaseId"  compareValue="0" prepend=" and ">
+	                s.user_base_id = #tblSupplier.userBaseId#
+	            </isGreaterThan>
+	            <isGreaterThan property="diningSupplierId"  compareValue="0" prepend=" and ">
+	            	<isEqual property="searchSelf" compareValue="YES">
+    	      				(s.supplier_id = #diningSupplierId#  or   
+    				</isEqual>
+	                c.supplier_id = #diningSupplierId#
+	                <isEqual property="searchSelf" compareValue="YES">
+    	      				)   
+    				</isEqual>
+	            </isGreaterThan>
+	            <isGreaterThan property="belongTo" compareValue="0" prepend=" and ">
+				   u.belong_to = #belongTo# 
+				</isGreaterThan>
+	            <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	s.merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.merchantState" prepend=" and ">
+	             	s.merchant_state = #tblSupplier.merchantState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.o2o" prepend=" and ">
+	             	s.o2o = #tblSupplier.o2o#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.orderMeal" prepend=" and ">
+	             	s.order_meal = #tblSupplier.orderMeal#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.hotels" prepend=" and ">
+	             	s.hotels = #tblSupplier.hotels#
+	             </isNotEmpty>
+	          	 <isGreaterThan property="tblSupplier.supplierType"  compareValue="0" prepend=" and ">
+	                s.supplier_type = #tblSupplier.supplierType#
+	            </isGreaterThan>
+	             <isNotEmpty property="tblSupplier.approveState" prepend=" and ">
+	             	s.approve_state = #tblSupplier.approveState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.dining" prepend=" and ">
+	             	s.dining = #tblSupplier.dining#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.diningSupplierType" prepend=" and ">
+	             	s.dining_supplier_type = #tblSupplier.diningSupplierType#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.lockState" prepend=" and ">
+	             	s.lock_state = #tblSupplier.lockState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.runState" prepend=" and ">
+	             	s.run_state = #tblSupplier.runState#
+	             </isNotEmpty>
+	             <isNotEmpty property="tblSupplier.diningRunState" prepend=" and ">
+	             	s.dining_run_state = #tblSupplier.diningRunState#
+	             </isNotEmpty>
+	              <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	             	s.store_name like #tblSupplier.storeName#
+	             </isNotEmpty>
+	             <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} s.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} s.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+	        ]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="supplierRecommend" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="orderNormal" javatype="java.lang.String"/>
+            <param name="recommendType" javatype="java.lang.String"/>
+            <param name="belongTo" javatype="java.lang.String"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+            SELECT  t.*  FROM tbl_supplier t
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	        SELECT  t.*  FROM tbl_supplier t inner join tbl_supplier_recommend r on t.supplier_id=r.supplier_id left join user_base_info u on u.user_id = t.supplier_id
+	        where 1=1
+	        <dynamic>
+	            <isGreaterThan property="tblSupplier.supplierId"  compareValue="0" prepend=" and ">
+	                t.supplier_id = #tblSupplier.supplierId#
+	            </isGreaterThan>
+	              <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	             	t.store_name like #tblSupplier.storeName#
+	             </isNotEmpty>
+	            <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	t.merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+
+	            <isGreaterThan property="belongTo" compareValue="0" prepend=" and ">
+				   u.belong_to = #belongTo#
+				</isGreaterThan>
+
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} r.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} r.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="recommendType" prepend=" and ">
+	              ${cdata-start} r.type = #recommendType# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+
+            <dynamic>
+            	<isEqual property="orderNormal" compareValue="NORMAL">
+            		 ORDER by  r.raw_add_time desc
+				</isEqual>
+            </dynamic>
+            <isEmpty property="orderNormal">
+            ORDER by rand()
+            </isEmpty>
+
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="supplierRecommendCount" paramtype="object">
+        <extraparams>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="recommendType" javatype="java.lang.String"/>
+			<param name="belongTo" javatype="java.lang.String"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  count(*)   FROM tbl_supplier t
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  count(*)   FROM tbl_supplier t
+	        left join tbl_supplier_recommend r on t.supplier_id=r.supplier_id
+	        left join user_base_info u on u.user_id = t.supplier_id
+	         where 1=1
+	        <dynamic>
+	            <isGreaterThan property="tblSupplier.supplierId"  compareValue="0" prepend=" and ">
+	                t.supplier_id = #tblSupplier.supplierId#
+	            </isGreaterThan>
+	              <isNotEmpty property="tblSupplier.storeName" prepend=" and ">
+	             	t.store_name like #tblSupplier.storeName#
+	             </isNotEmpty>
+	            <isNotEmpty property="tblSupplier.merchantType" prepend=" and ">
+	             	t.merchant_type = #tblSupplier.merchantType#
+	             </isNotEmpty>
+
+	            <isGreaterThan property="belongTo" compareValue="0" prepend=" and ">
+				   u.belong_to = #belongTo#
+				</isGreaterThan>
+
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} r.raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} r.raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	             <isNotEmpty property="recommendType" prepend=" and ">
+	              ${cdata-start} r.type = #recommendType# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+	        ]]>
+        </sqlmap>
+    </operation>
+    <operation name="deleteByRealNameAutoTest" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM  tbl_supplier  WHERE real_name=?
+			]]>
+		</sql>
+	</operation>
+	 <operation name="selectByRealNameAutoTest" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT * FROM  tbl_supplier  WHERE real_name=?
+			]]>
+		</sql>
+	</operation>
+</table>

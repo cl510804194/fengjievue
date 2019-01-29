@@ -1,0 +1,222 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	require('../Y-all/Y-script/Y-selectarea.js');
+	require('../Y-all/Y-script/Y-selectbranch.js');
+	require('../Y-all/Y-script/Y-imgplayer.js');
+	require('../Y-all/Y-script/Y-htmluploadify.js');
+	require('../content/fileUpload.js');
+	require('../plugins/jquery.uploadify.js');
+	require('../Y-all/Y-script/Y-msg.js');
+	require('../My97DatePicker/WdatePicker.js');
+
+
+	var Site = require('../Y-all/Y-script/Y-tip.js');
+
+	$('[name=p]')[0].onchange = function () {
+		$('[name=province]').val($('[name=p]').val());
+	}
+	$('[name=c]')[0].onchange = function () {
+		$('[name=city]').val($('[name=c]').val());
+	}
+
+	var addForm = $('#scenic_form');
+
+	$('.submit').click(function() {
+		var openTime = $(".openTime").val();
+		var closeTime = $(".closeTime").val();
+		//var longitude = $(".longitude").val();
+		//var latitude = $(".latitude").val();
+		//&& validationLatAndLon(longitude,latitude)
+		if(validationWorkTime(openTime,closeTime)){
+			addForm.submit();
+		}
+	})
+	 function validationWorkTime(openTime,closeTime){
+		var userreg=/^([0-2]?[0-9]|2[0-3]):([0-5][0-9])$/;
+		if(userreg.test(openTime) && userreg.test(closeTime)){
+			return true;
+		}else{
+			$(".worktime_error").show();
+			return false;
+		}
+	};
+
+	if (addForm.length) {
+		addForm.validate({
+			ignore: '',
+			errorClass: 'error-tip',
+			errorElement: 'b',
+			errorPlacement: function(error, element) {
+				if (element.attr('name') == 'imgCode') {
+					element.next().next().after(error);
+				} else {
+					element.after(error);
+				}
+			},
+			rules: {
+				address: {
+					required: true				
+				},
+				phone: {
+					required: true
+				},
+				p: {
+					required: true
+				},
+				c: {
+					required: true
+				}
+			},
+			messages: {
+				address: {
+					required: '请输入景区地址'				
+				},
+				phone: {
+					required: '请输入景区电话'
+				},
+				p: {
+					required: '请选择省'
+				},
+				c: {
+					required: '请选择市'
+				}
+			},
+			submitHandler: function() {
+				addForm.ajaxSubmit({
+					success: function(res) {
+						alert(res.message);
+						if (res.code == 1) {
+							window.location.reload()
+						}
+					}
+				});
+			},
+			onkeyup: false
+		});
+	}
+
+	$('.sl-file-input').each(function() {
+		var controlId = $(this).attr("id");
+
+		$('#' + controlId).uploadify({
+			height: 26,
+			width: 100,
+			buttonClass: 'u-btn u-btn-gray',
+			buttonText: '选择上传图片',
+			fileTypeExts: '*.png;*.jpg;*.bmp',
+			multi: false,
+			swf: '/resources/swf/uploadify.swf',
+			uploader: '/do/upload/imagesUploads.htm;SUPSESSIONID=' + $_GLOBAL.sessionID, //jsessionid SUPSESSIONID
+			fileSizeLimit: '3MB',
+			successTimeout: 180000,
+			onUploadStart: function() {
+				$('body').Y('Window', {
+					content: "<span><img src='/resources/images/common/loadingScroll.gif' /><br/>上传中，请稍后...</span>",
+					key: 'lodding',
+					simple: true
+				});
+			},
+			onUploadSuccess: function(file, data, response) {
+				handdleResult(data, controlId + "_imgcontainer", controlId + "Img", controlId + "Link", controlId + "_hidden", controlId + "_originalPic");
+				Y.getCmp('lodding').close();
+			},
+			onUploadError: function(file, errorCode, errorMsg,
+									errorString) {
+				alter("图片上传失败："+errorMsg);
+				Y.getCmp('lodding').close();
+			},
+			onCancel: function(file) {
+				Y.getCmp('lodding').close();
+				alert("已取消！");
+			}
+		});
+	});
+
+	function handdleResult(data, containerId, imgId, linkId, storePathId, serverPathId) {
+		var result = "";
+		if (data.indexOf("pre") > 0) {
+			var startIndex = data.indexOf(">") + 1;
+			var endIndex = data.length - 6;
+			data = data.substring(startIndex, endIndex);
+			data = eval("(" + data + ")");
+			if (data.code == 0) {
+				var imgUrl = data.resData;
+				$("#" + imgId).attr("src", imgUrl);
+				//$("#"+linkId).attr("href", imgUrl);
+				$("#" + storePathId).val(imgUrl).trigger('blur');
+
+			} else {
+				result = "<span style='color:red;'>" + data.resData + "</span>";
+			}
+		} else {
+			data = eval("(" + data + ")");
+			if (data.code == 0) {
+				var imgUrl = data.resData;
+				$("#" + imgId).attr("src", imgUrl);
+				//$("#"+linkId).attr("href", imgUrl);
+				$("#" + storePathId).val(imgUrl).trigger('blur');
+				$("#" + serverPathId).val(data.serverPath).trigger('blur');
+				if ($('#' + linkId).data('jqzoom')) {
+					$('#' + linkId).data('jqzoom').largeimage.node.src = imgUrl;
+				};
+
+				$("#" + imgId).parents('.item').css('height', 360);
+			} else {
+				result = "<span style='color:red;'>" + data.resData + "</span>";
+			}
+		}
+		$("#" + containerId).append(result);
+
+		$('#' + containerId).show(1500);
+		setTimeout(function() {
+			$('#' + containerId).height(75);
+		}, 1000);
+	}
+
+	function validationLatAndLon(longitude,latitude){
+		var longreg=/^[-]?(\d|([1-9]\d)|(1[0-7]\d)|(180))(\.\d*)?$/g;
+		var latreg=/^[-]?(\d|([1-8]\d)|(90))(\.\d*)?$/g;
+		if(longreg.test(longitude) ){
+			if(latreg.test(latitude)){
+				return true;
+			}
+			else{
+				$(".lat_error").show();
+				//alert("输入的纬度不规范(注意格式),如 23.05");
+				return false;
+			}
+		}else{
+			$(".long_error").show();
+			//	alert("输入的经度不规范(注意格式),如 105.05");
+			return false;
+		}
+	};
+	 $('.openTime').blur(function () {
+	    	
+	    	//if($(this).val()&&$(this).val()!=''){
+	    	if($('.openTime').val().length>0){
+	    		$(".worktime_error").hide();
+	    	}
+	 })
+    $('.closeTime').blur(function () {
+    	
+    	//if($(this).val()&&$(this).val()!=''){
+    	if($('.closeTime').val().length>0){
+    		$(".worktime_error").hide();
+    	}
+    })
+});
+
+KindEditor.ready(function (K) {
+	$('.u-area').each(function () {
+		var id = $(this).attr('id');
+		window.editor = K.create('#' + id, {
+			uploadJson: '/do/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+			fileManagerJson: '/do/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+			allowFileManager: true,
+			afterBlur: function () {
+				this.sync();
+			}
+		});
+	});
+});

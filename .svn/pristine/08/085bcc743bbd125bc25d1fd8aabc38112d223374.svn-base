@@ -1,0 +1,363 @@
+package com.yjf.esupplier.service.contract.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+/**
+ * 
+ * @Filename CustomerExtInfoOrder.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author sxiaomeng
+ * 
+ * @Email weizhi@yiji.com
+ * 
+ * @History <li>Author: sxiaomeng</li> <li>Date: 2015-3-26</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ * 
+ */
+public class CustomerExtInfoOrder extends ValidateOrderBase {
+	
+	private static final long serialVersionUID = 7411062922308760690L;
+	
+	/**
+	 * 配偶姓名
+	 */
+	private String mateName;
+	
+	/**
+	 * 配偶联系手机
+	 */
+	private String mateMobile;
+	
+	/**
+	 * 配偶证件号
+	 */
+	private String mateCertificateCard;
+	
+	/**
+	 * 配偶联系电话
+	 */
+	private String matePhone;
+	
+	/**
+	 * 配偶办公电话
+	 */
+	private String mateExtPhone;
+	
+	/**
+	 * 成员姓名
+	 */
+	private String memberName;
+	
+	/**
+	 * 成员关系类型
+	 */
+	private String memberType;
+	
+	/**
+	 * 成员联系手机
+	 */
+	private String memberMobile;
+	
+	/**
+	 * 成员所在省
+	 */
+	private String memberProvince;
+	
+	/**
+	 * 成员所在市
+	 */
+	private String memberCity;
+	
+	/**
+	 * 成员所在区
+	 */
+	private String memberContry;
+	
+	/**
+	 * 成员详细地址
+	 */
+	private String memberAddress;
+	
+	/**
+	 * 其它联系人姓名
+	 */
+	private String otherContactName;
+	
+	/**
+	 * 其它联系人关系类型
+	 */
+	private String otherContactType;
+	
+	/**
+	 * 其它联系手机号
+	 */
+	private String otherContactMobile;
+	
+	/**
+	 * 备注
+	 */
+	private String remark;
+	
+	/**
+	 * 收货人姓名
+	 */
+	private String deliverName;
+	
+	/**
+	 * 收货人手机
+	 */
+	private String deliverMobile;
+	
+	/**
+	 * 收货地址 省
+	 */
+	private String deliverProvince;
+	
+	/**
+	 * 收货地址 市
+	 */
+	private String deliverCity;
+	
+	/**
+	 * 收货地址 区
+	 */
+	private String deliverContry;
+	
+	/**
+	 * 收货地址详细地址
+	 */
+	private String deliverAddress;
+	
+	public String getMateName() {
+		return mateName;
+	}
+	
+	public void setMateName(String mateName) {
+		this.mateName = mateName;
+	}
+	
+	public String getMateMobile() {
+		return mateMobile;
+	}
+	
+	public void setMateMobile(String mateMobile) {
+		this.mateMobile = mateMobile;
+	}
+	
+	public String getMateCertificateCard() {
+		return mateCertificateCard;
+	}
+	
+	public void setMateCertificateCard(String mateCertificateCard) {
+		this.mateCertificateCard = mateCertificateCard;
+	}
+	
+	public String getMatePhone() {
+		return matePhone;
+	}
+	
+	public void setMatePhone(String matePhone) {
+		this.matePhone = matePhone;
+	}
+	
+	public String getMateExtPhone() {
+		return mateExtPhone;
+	}
+	
+	public void setMateExtPhone(String mateExtPhone) {
+		this.mateExtPhone = mateExtPhone;
+	}
+	
+	public String getMemberName() {
+		return memberName;
+	}
+	
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+	
+	public String getMemberType() {
+		return memberType;
+	}
+	
+	public void setMemberType(String memberType) {
+		this.memberType = memberType;
+	}
+	
+	public String getMemberMobile() {
+		return memberMobile;
+	}
+	
+	public void setMemberMobile(String memberMobile) {
+		this.memberMobile = memberMobile;
+	}
+	
+	public String getMemberProvince() {
+		return memberProvince;
+	}
+	
+	public void setMemberProvince(String memberProvince) {
+		this.memberProvince = memberProvince;
+	}
+	
+	public String getMemberCity() {
+		return memberCity;
+	}
+	
+	public void setMemberCity(String memberCity) {
+		this.memberCity = memberCity;
+	}
+	
+	public String getMemberContry() {
+		return memberContry;
+	}
+	
+	public void setMemberContry(String memberContry) {
+		this.memberContry = memberContry;
+	}
+	
+	public String getMemberAddress() {
+		return memberAddress;
+	}
+	
+	public void setMemberAddress(String memberAddress) {
+		this.memberAddress = memberAddress;
+	}
+	
+	public String getOtherContactName() {
+		return otherContactName;
+	}
+	
+	public void setOtherContactName(String otherContactName) {
+		this.otherContactName = otherContactName;
+	}
+	
+	public String getOtherContactType() {
+		return otherContactType;
+	}
+	
+	public void setOtherContactType(String otherContactType) {
+		this.otherContactType = otherContactType;
+	}
+	
+	public String getOtherContactMobile() {
+		return otherContactMobile;
+	}
+	
+	public void setOtherContactMobile(String otherContactMobile) {
+		this.otherContactMobile = otherContactMobile;
+	}
+	
+	public String getRemark() {
+		return remark;
+	}
+	
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	
+	public String getDeliverName() {
+		return deliverName;
+	}
+	
+	public void setDeliverName(String deliverName) {
+		this.deliverName = deliverName;
+	}
+	
+	public String getDeliverMobile() {
+		return deliverMobile;
+	}
+	
+	public void setDeliverMobile(String deliverMobile) {
+		this.deliverMobile = deliverMobile;
+	}
+	
+	public String getDeliverProvince() {
+		return deliverProvince;
+	}
+	
+	public void setDeliverProvince(String deliverProvince) {
+		this.deliverProvince = deliverProvince;
+	}
+	
+	public String getDeliverCity() {
+		return deliverCity;
+	}
+	
+	public void setDeliverCity(String deliverCity) {
+		this.deliverCity = deliverCity;
+	}
+	
+	public String getDeliverContry() {
+		return deliverContry;
+	}
+	
+	public void setDeliverContry(String deliverContry) {
+		this.deliverContry = deliverContry;
+	}
+	
+	public String getDeliverAddress() {
+		return deliverAddress;
+	}
+	
+	public void setDeliverAddress(String deliverAddress) {
+		this.deliverAddress = deliverAddress;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CustomerExtInfoOrder [mateName=");
+		builder.append(mateName);
+		builder.append(", mateMobile=");
+		builder.append(mateMobile);
+		builder.append(", mateCertificateCard=");
+		builder.append(mateCertificateCard);
+		builder.append(", matePhone=");
+		builder.append(matePhone);
+		builder.append(", mateExtPhone=");
+		builder.append(mateExtPhone);
+		builder.append(", memberName=");
+		builder.append(memberName);
+		builder.append(", memberType=");
+		builder.append(memberType);
+		builder.append(", memberMobile=");
+		builder.append(memberMobile);
+		builder.append(", memberProvince=");
+		builder.append(memberProvince);
+		builder.append(", memberCity=");
+		builder.append(memberCity);
+		builder.append(", memberContry=");
+		builder.append(memberContry);
+		builder.append(", memberAddress=");
+		builder.append(memberAddress);
+		builder.append(", otherContactName=");
+		builder.append(otherContactName);
+		builder.append(", otherContactType=");
+		builder.append(otherContactType);
+		builder.append(", otherContactMobile=");
+		builder.append(otherContactMobile);
+		builder.append(", remark=");
+		builder.append(remark);
+		builder.append(", deliverName=");
+		builder.append(deliverName);
+		builder.append(", deliverMobile=");
+		builder.append(deliverMobile);
+		builder.append(", deliverProvince=");
+		builder.append(deliverProvince);
+		builder.append(", deliverCity=");
+		builder.append(deliverCity);
+		builder.append(", deliverContry=");
+		builder.append(deliverContry);
+		builder.append(", deliverAddress=");
+		builder.append(deliverAddress);
+		
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

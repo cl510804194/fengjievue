@@ -1,0 +1,178 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * zeyong 2014-11-4 上午11:15:16 创建
+ */
+package com.yjf.esupplier.service.recharge.order;
+
+import java.util.Date;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.common.service.OrderBase;
+import com.yjf.common.util.ToString.Invisible;
+import com.yjf.esupplier.ws.enums.ExtPayTypeEnum;
+
+/**
+ * 
+ * 
+ * @author zeyong
+ * 
+ */
+public class DepositFlowOrder extends OrderBase {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private long inUserId;
+	private String outBizNo;
+	private String bankName;
+	private String bankAccountNo;
+	private String bankAcountName;
+	private Money amount = Money.zero();
+	private Money amountCharge = Money.zero();
+	private Date payTime;
+	private int status;
+	private ExtPayTypeEnum payType;
+	private String rem1;
+	
+	private String yjfAccountId;
+	
+	public long getInUserId() {
+		return this.inUserId;
+	}
+	
+	public void setInUserId(long inUserId) {
+		this.inUserId = inUserId;
+	}
+	
+	public ExtPayTypeEnum getPayType() {
+		return this.payType;
+	}
+	
+	public void setPayType(ExtPayTypeEnum payType) {
+		this.payType = payType;
+	}
+	
+	public String getOutBizNo() {
+		return this.outBizNo;
+	}
+	
+	public void setOutBizNo(String outBizNo) {
+		this.outBizNo = outBizNo;
+	}
+	
+	public String getBankName() {
+		return this.bankName;
+	}
+	
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+	
+	public String getBankAccountNo() {
+		return this.bankAccountNo;
+	}
+	
+	public void setBankAccountNo(String bankAccountNo) {
+		this.bankAccountNo = bankAccountNo;
+	}
+	
+	public String getBankAcountName() {
+		return this.bankAcountName;
+	}
+	
+	public void setBankAcountName(String bankAcountName) {
+		this.bankAcountName = bankAcountName;
+	}
+	
+	public Money getAmount() {
+		return this.amount;
+	}
+	
+	public void setAmount(Money amount) {
+		this.amount = amount;
+	}
+	
+	public Date getPayTime() {
+		return this.payTime;
+	}
+	
+	public void setPayTime(Date payTime) {
+		this.payTime = payTime;
+	}
+	
+	public int getStatus() {
+		return this.status;
+	}
+	
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	public Money getAmountCharge() {
+		return this.amountCharge;
+	}
+	
+	public void setAmountCharge(Money amountCharge) {
+		this.amountCharge = amountCharge;
+	}
+	
+	public String getRem1() {
+		return this.rem1;
+	}
+	
+	public void setRem1(String rem1) {
+		this.rem1 = rem1;
+	}
+	
+	public String getYjfAccountId() {
+		return yjfAccountId;
+	}
+	
+	public void setYjfAccountId(String yjfAccountId) {
+		this.yjfAccountId = yjfAccountId;
+	}
+	
+	/**
+	 * @return
+	 * @see com.yjf.common.service.OrderBase#isCheckGid()
+	 */
+	@Override
+	@Invisible
+	public boolean isCheckGid() {
+		return false;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DepositFlowOrder [inUserId=");
+		builder.append(inUserId);
+		builder.append(", outBizNo=");
+		builder.append(outBizNo);
+		builder.append(", bankName=");
+		builder.append(bankName);
+		builder.append(", bankAccountNo=");
+		builder.append(bankAccountNo);
+		builder.append(", bankAcountName=");
+		builder.append(bankAcountName);
+		builder.append(", amount=");
+		builder.append(amount);
+		builder.append(", amountCharge=");
+		builder.append(amountCharge);
+		builder.append(", payTime=");
+		builder.append(payTime);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", payType=");
+		builder.append(payType);
+		builder.append(", rem1=");
+		builder.append(rem1);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

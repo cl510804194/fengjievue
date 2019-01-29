@@ -1,0 +1,41 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2012 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.pop;
+
+import com.alibaba.fastjson.JSONObject;
+import com.yjf.esupplier.ws.enums.PopUserTypeEnum;
+import com.yjf.esupplier.ws.info.PopUserInfo;
+import com.yjf.esupplier.ws.order.PopUserOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+/**
+ * 
+ * 
+ * @Filename PopUserService.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author min
+ * 
+ * @Email oyangnuo@yiji.com
+ * 
+ * @History <li>Author: huangxl</li> <li>Date: 2016-7-17上午10:54:20</li> <li>
+ * Version: 1.0</li> <li>Content: create</li>
+ */
+public interface PopUserService {
+	
+	EsupplierBaseResult insertPopUser(PopUserOrder order);
+	
+	QueryBaseBatchResult<PopUserInfo> getPopUserList(PopUserOrder order);
+	
+	EsupplierBaseResult deletePopUser(long userId, long popId, PopUserTypeEnum type);
+	
+	/** 攻略收藏点赞统计 */
+	long countPopInfo(PopUserOrder order);
+	
+}

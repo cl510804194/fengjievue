@@ -1,0 +1,188 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.ws.enums.*;
+
+public class QuickInvestorRegisterOrder extends InvestorRegisterOrder {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 3728849816015504613L;
+
+	/** 用户名 */
+	private String userName;
+
+	/** 密码 */
+	private String password;
+
+	/** 账户类型 */
+	private String type;
+
+	/** 验证码 */
+	private String captcha;
+
+	/** ip地址 */
+	private String ipAddress;
+
+	private SmsBizType smsBizType;
+
+	private boolean validatePassword = true;
+	/** 设备号 */
+	String equipmentNo;
+	/** userAgent */
+	String userAgent;
+
+	/*
+	* 登录来源
+	* */
+	private LoginFromTypeEnum loginFromTypeEnum = LoginFromTypeEnum.APP_USER;
+
+	/** 验证码 **/
+	private String securityCode;
+	/** 登录方式 **/
+	private LoginMethodEnum loginMethodEnum;
+	/** 角色分类 **/
+	private UserBizTypeEnum userBizTypeEnum;
+
+	@Override
+	public void check() {
+		super.check();
+	}
+
+
+	public String getUserName() {
+		if(StringUtil.isNotEmpty(userName)){
+			return userName;
+		}else{
+			return mobile;
+		}
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getCaptcha() {
+		return captcha;
+	}
+
+	public void setCaptcha(String captcha) {
+		this.captcha = captcha;
+	}
+
+	public String getIpAddress() {
+		return this.ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public boolean isValidatePassword() {
+		return this.validatePassword;
+	}
+
+	public void setValidatePassword(boolean validatePassword) {
+		this.validatePassword = validatePassword;
+	}
+
+	public String getEquipmentNo() {
+		return this.equipmentNo;
+	}
+
+	public void setEquipmentNo(String equipmentNo) {
+		this.equipmentNo = equipmentNo;
+	}
+
+	public LoginFromTypeEnum getLoginFromTypeEnum() {
+		return loginFromTypeEnum;
+	}
+
+	public void setLoginFromTypeEnum(LoginFromTypeEnum loginFromTypeEnum) {
+		this.loginFromTypeEnum = loginFromTypeEnum;
+	}
+
+	public String getUserAgent() {
+		return this.userAgent;
+	}
+
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
+	}
+
+	public String getSecurityCode() {
+		return securityCode;
+	}
+
+	public void setSecurityCode(String securityCode) {
+		this.securityCode = securityCode;
+	}
+
+	public SmsBizType getSmsBizType() {
+		return smsBizType;
+	}
+
+	public void setSmsBizType(SmsBizType smsBizType) {
+		this.smsBizType = smsBizType;
+	}
+
+	public LoginMethodEnum getLoginMethodEnum() {
+		return loginMethodEnum;
+	}
+
+	public void setLoginMethodEnum(LoginMethodEnum loginMethodEnum) {
+		this.loginMethodEnum = loginMethodEnum;
+	}
+
+	public UserBizTypeEnum getUserBizTypeEnum() {
+		return userBizTypeEnum;
+	}
+
+	public void setUserBizTypeEnum(UserBizTypeEnum userBizTypeEnum) {
+		this.userBizTypeEnum = userBizTypeEnum;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("LoginData [userName=");
+		builder.append(userName);
+		builder.append(", password=");
+		builder.append("");
+		builder.append(", type=");
+		builder.append(type);
+		builder.append(", captcha=");
+		builder.append(captcha);
+		builder.append(", ipAddress=");
+		builder.append(ipAddress);
+		builder.append(", validatePassword=");
+		builder.append(validatePassword);
+		builder.append(", equipmentNo=");
+		builder.append(equipmentNo);
+		builder.append(", userAgent=");
+		builder.append(userAgent);
+		builder.append(", loginFromTypeEnum=");
+		builder.append(loginFromTypeEnum);
+		builder.append(", securityCode=");
+		builder.append(securityCode);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

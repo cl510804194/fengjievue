@@ -1,0 +1,27 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * Administrator 下午12:07:59 创建
+ */
+package com.yjf.esupplier.service.user.query;
+
+import com.yjf.esupplier.integration.openapi.result.QueryAccountResult;
+import com.yjf.esupplier.service.session.SessionLocal;
+
+/**
+ * 
+ * 
+ * @author Administrator
+ * 
+ */
+public interface UserAccountQueryService {
+	QueryAccountResult getAccountInfo(SessionLocal userInfo);
+
+	QueryAccountResult getAccountInfo(long userId);
+
+	QueryAccountResult getAccountYjfInfo(String accountId);
+}

@@ -1,0 +1,40 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+	    <!--centerContent start-->
+	    <div class="content person_cntr MO footer_link">
+	    	<div class="MI">
+		    	<div class="perct_nav DIB">
+		    		<!--<p>个人中心</p>-->
+		    		<div class="proManage leftNav">
+		    			<span class="DIB">新手指南</span>
+		    			<a class="DIB">购物流程</a>
+		    			<a class="DIB">常见问题</a>
+		    		</div>
+		    		<div class="tradeManage leftNav up">
+		    			<span class="DIB">关于我们</span>
+		    			<a class="DIB on">买入订单</a>
+		    			<a class="DIB">网站介绍</a>
+		    			<a class="DIB">联系我们</a>
+		    		</div>
+		    	</div>
+		    	<div class="left_cnt DIB footer_link_lc">
+					<p class="link_nav">
+						<a class="DIB">新手指南</a>>
+						<span class="DIB">常见问题</span>
+					</p>
+					<div class="content_info"></div>
+		    	</div>
+	    	</div>
+	    </div><!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'orderConfirm');
+</script>
+</html>

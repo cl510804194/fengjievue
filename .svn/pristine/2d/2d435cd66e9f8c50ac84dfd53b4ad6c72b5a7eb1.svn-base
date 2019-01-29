@@ -1,0 +1,64 @@
+define(function(require) {
+	 var Site = require('../comp/init.js');
+	//新增，最多只能增加6个
+//    $('.new_add').bind('click',newAdd);
+    function newAdd(event){
+    	var parentRadio = $('.new_add').parent();
+    	var length = parentRadio.find('.radio-content').length;
+    	if(length >= 6){
+    		alert('最多只能添加6个！');
+    		return;
+    	};
+    	var tmp = parentRadio.find('.clone-content').clone(true)
+    	tmp.removeClass('clone-content').addClass('clone-content-' + length);
+    	tmp.append('<a href="javascript:void(0)" class="delete_this">删除</a>').find('select').attr('id','userGrounp' + length);
+    	tmp.find('input[type=text]').val('');
+    	//console.log(tmp);
+    	parentRadio.append(tmp);
+    	event.stopPropagation();
+    }
+    //删除
+    $('.radio').on('click', '.delete_this', function(){
+    	$(this).parent().remove();
+    })
+    //单选
+    $('.radio input[type=radio]').click(function(){
+    	var _this = $(this);
+    	var thisParents = _this.parents('.radio');
+    	var other = thisParents.siblings('.radio');
+    	var thisEle = thisParents.find('.radio_on');
+    	var otherEle = other.find('.radio_on');
+    	otherEle.attr('disabled','disabled');
+    	thisEle.removeAttr('disabled');
+
+    	if(thisParents.find('a.radio_on').length === 1){
+    		$('.new_add').bind('click',newAdd);
+    		event.stopPropagation();
+    	}else{
+    		$('.new_add').unbind('click',newAdd);
+    	}
+    	
+    });
+    $('.radio_dflt input[type=radio]').trigger('click');
+   
+    var addForm = $('#add_giftMoney');
+    if (addForm.length) {
+        addForm.validate({
+            submitHandler: function () {
+                addForm.ajaxSubmit({
+                    success: function (res) {
+                        alert(res.message);
+                        if (res.code == 1) {
+                            window.location.href = "/do/scenic/doCenter/directSend/directSend.htm";
+                        }
+                    }
+                });
+            }
+        });
+    }
+    
+
+    $(".fn-submit1").bind("click", function () {
+        addForm.submit();
+    });
+})

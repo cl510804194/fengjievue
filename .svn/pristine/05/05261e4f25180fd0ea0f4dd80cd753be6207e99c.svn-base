@@ -1,0 +1,2 @@
+testId,resultCode,padSupplierId,tableNumber,id,supplierId,consumeAmount,orderCount,settleAccountsAmount,peopleNo,status,canSettle,tableNumberSeq,userId,orderStatus,totalAmount,workflowStatus,supplierName,saleTypeB2c,saleTypeO2o,facade,paymentFlowId,refundStatus,saleTypeHotels,resortsBusinessId
+1001,EXECUTE_SUCCESS,1253,5,585,457,1000,5,500,5,SUING,YES,15,3558,PAD_ORDER,1000,HAVE_BEEN_ISSUED,哞哞商户,YES,NO,SEVEN_AFTER,2589,EMPTY,NO,1583

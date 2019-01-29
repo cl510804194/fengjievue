@@ -1,0 +1,50 @@
+package com.yjf.esupplier.service.giftMoney.query.impl;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.esupplier.dal.daointerface.GiftMoneyRuleDAO;
+import com.yjf.esupplier.dal.dataobject.GiftMoneyRuleDO;
+import com.yjf.esupplier.domain.service.repository.GiftMoneyDomainRepository;
+import com.yjf.esupplier.service.base.BaseAutowiredDAOService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyRuleQueryService;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyRuleInfo;
+
+@Service("giftMoneyRuleQueryService")
+public class GiftMoneyRuleQueryServiceImpl extends BaseAutowiredDAOService implements
+        GiftMoneyRuleQueryService {
+    @Autowired
+    GiftMoneyDomainRepository giftMoneyDomainRepository;
+
+    @Autowired
+    GiftMoneyRuleDAO giftMoneyRuleDAO;
+
+
+    @Override
+    public List<GiftMoneyRuleInfo> queryGiftMoneyRuleByGiftId(long giftId) {
+        List<GiftMoneyRuleDO> giftMoneyRuleDOs = giftMoneyRuleDAO.findByGiftId(giftId);
+        List<GiftMoneyRuleInfo> giftMoneyRuleInfos = new ArrayList<GiftMoneyRuleInfo>();
+        if(ListUtil.isNotEmpty(giftMoneyRuleDOs)){
+            for(GiftMoneyRuleDO giftMoneyRuleDO :giftMoneyRuleDOs){
+
+                GiftMoneyRuleInfo giftMoneyRuleInfo = new GiftMoneyRuleInfo();
+                BeanCopier.staticCopy(giftMoneyRuleDO, giftMoneyRuleInfo);
+                giftMoneyRuleInfos.add(giftMoneyRuleInfo);
+            }
+        }
+        return giftMoneyRuleInfos;
+    }
+
+    @Override
+    public List<GiftMoneyRuleInfo> queryGiftMoneyRuleRegisterByGiftId(long giftId) {
+        List<GiftMoneyRuleDO> giftMoneyRuleDOs = giftMoneyRuleDAO.findByGiftId(giftId);
+        List<GiftMoneyRuleInfo> giftMoneyRuleInfos = new ArrayList<GiftMoneyRuleInfo>();
+        return giftMoneyRuleInfos;
+    }
+}

@@ -1,0 +1,85 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.bill.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.log.Logger;
+import com.yjf.common.log.LoggerFactory;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.dal.daointerface.AppEquipmentLoginDAO;
+import com.yjf.esupplier.dal.dataobject.AppEquipmentLoginDO;
+import com.yjf.esupplier.integration.youmenSend.order.youmengOrder;
+import com.yjf.esupplier.integration.youmenSend.service.YoumenMessageSendService;
+import com.yjf.esupplier.service.bill.NewOrderPushService;
+
+/**
+ *
+ *
+ * @author zhouwei
+ *
+ */
+@Service("newOrderPushService")
+public class NewOrderPushServiceImpl implements NewOrderPushService {
+	
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	YoumenMessageSendService youmenMessageSendService;
+
+	@Autowired
+	AppEquipmentLoginDAO appEquipmentLoginDAO;
+
+	@Override
+	public void execute(Object[] objects) {
+		if (objects == null || objects.length < 1) {
+			logger.error("execute(Object[] objects)" + "参数为空");
+			return;
+		}
+		try {
+			String sendType = (String) objects[0];
+			if (StringUtil.equals("newOrderNotice", sendType)) {
+			List<Long> pushUserIds = (List<Long>) objects[1];
+				for (long userId : pushUserIds) {
+					List<AppEquipmentLoginDO> appEquipmentLoginDOs = appEquipmentLoginDAO
+						.findByUserId(userId);
+					if (ListUtil.isNotEmpty(appEquipmentLoginDOs)) {
+						for (int i = 0; i < appEquipmentLoginDOs.size(); i++) {
+							AppEquipmentLoginDO equipmentLoginDO = appEquipmentLoginDOs.get(i);
+							Date date = DateUtil.getStartTimeOfTheDate(new Date());
+							if (equipmentLoginDO.getRawUpdateTime() == null) {
+								continue;
+							}
+							if (i == 0
+								|| date.getTime() < equipmentLoginDO.getRawUpdateTime().getTime()) {
+								if (StringUtil.isNotBlank(equipmentLoginDO.getInfo1())) {
+									youmengOrder order = new youmengOrder();
+									order.setTitle("新订单提醒");
+									order.setText("您有一条新订单");
+									order.setTicker("您有一条新订单");
+									order.setUserId(String.valueOf(userId));
+									order.setDevice_tokens(equipmentLoginDO.getInfo1());
+									youmenMessageSendService.send(order);
+								}
+							}
+						}
+
+					}
+
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
+	}
+	
+}

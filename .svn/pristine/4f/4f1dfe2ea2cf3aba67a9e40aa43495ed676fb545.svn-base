@@ -1,0 +1,51 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	//修改部分
+	var systemParam_form = $('#systemParam_form');
+	$('.submit_form').click(function() {
+		systemParam_form.submit();
+	})
+	if (systemParam_form.length) {
+		systemParam_form.validate({
+			errorClass : 'error-tip',
+			errorElement : 'b',
+			submitHandler : function() {
+				systemParam_form.ajaxSubmit({
+				    type: 'post',  
+				    url: '/admin/sysParamManage/updateSysParamSubmit.json',  
+				    dataType: 'json',  
+				    success: function(jsonStr){ 
+				    	alert(jsonStr.message);
+				    	window.location.href = "/admin/sysParamManage/sysParamManage.htm";
+				    }  
+				});
+			},
+			errorPlacement : function(error, element) {
+				element.after(error);
+			},
+			rules : {
+                paramName: {
+                    required: true
+                },
+                paramValue: {
+                    required: true
+                }
+            },
+			messages : {
+				paramName : {
+					required : '请输入参数名称'
+				},
+				paramValue : {
+					required : '请输入参数值'
+				}
+			},
+			onkeyup : false
+		});
+	}
+	
+	//取消处理
+	$('#Cancel').click(function() {
+		window.location.href = "/admin/sysParamManage/sysParamManage.htm";
+	})
+	
+});

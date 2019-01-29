@@ -1,0 +1,11 @@
+package com.yjf.esupplier.service.pay;
+
+import com.yjf.esupplier.integration.openapi.context.OpenApiContext;
+import com.yjf.esupplier.service.pay.order.AppPayOrder;
+import com.yjf.esupplier.service.pay.result.AppPayResult;
+
+public interface AppPayService {
+	
+	AppPayResult creatPayOrder(AppPayOrder appPayOrder, OpenApiContext openApiContext);
+
+}

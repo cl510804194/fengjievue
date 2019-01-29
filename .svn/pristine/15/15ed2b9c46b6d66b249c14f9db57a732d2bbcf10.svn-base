@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<meta charset="UTF-8"/>
+	<title>demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<link type="text/css" rel="stylesheet" href="../Y-source/css/Y-all.css"></link>
+</head>
+<body>
+<form>
+<div id='div1' >
+<input type="checkbox" id="isModal" /><span>模态</span>
+<div>
+<input id="str" value="测试" /><button id='btn1' type="button">简单内容</button>
+</div>
+<button id='btn2' type="button">复杂内容</button>
+<br/>
+<button id='btn3' type="button">直接弹出</button>
+</div>
+</form>
+<div style="width:300px;height:160px;display:none;background:#fff" id="popdiv">
+  <P>
+    Window组件可将任意html内容弹出到页面，并可对页面进行遮罩，默认会自动生成标题栏，关闭按钮，
+	不过如果不需要，也可以不生成标题栏
+  </p>
+  <div>
+     <button id="popagain" type="button">再弹一个</button><button type="button" class='fn-close'>关闭</button>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="../jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="../../lib/sea.js"></script>
+<script type="text/javascript">
+ seajs.use("./demo-window.js");
+</script>
+</html>

@@ -1,0 +1,123 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body style="background: #fdfaf1;">
+
+#if($sessionLocal.userBizType.code=="BUYER")
+    #parse("/front/platform/layout/header_member2.vm")
+#else
+	#parse("/front/platform/layout/header.vm")
+#end
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="refundManage">
+    <div class="MI" style="margin-bottom: 30px;">
+    #if($sessionLocal.userBizType.code=="BUYER")
+      #parse("/front/platform/member/layout/person_member_left2.vm")
+    	
+    #else
+       #parse("/front/platform/member/layout/member_left.vm")
+    #end
+        <div class="left_cnt DIB r_pro_dtl">
+            <p class="nav_title"><span class="DIB">退款商品信息查看</span><a onclick="javascript:window.history.back();" class="fn-right">返回</a></p>
+			<div class="left_content order_dtl">
+            	<div class="order-info">
+	            <p class="return_num order-ttl"><span>商品信息</span></p>
+				<p class="return_num return_num_1">
+					<span>订单编号:$!{refundOrderInfo.orderId}</span>
+                    <span>买家信息:$!{orderInfo.buyerNickname}</span>
+				</p>
+				<div class="com_list push_pro">
+	    			<div class="order_list">
+	    				<div class="list_i">
+	    					<p class="order_tl">
+								#if($!orderInfo.productVary!='ticket')
+			    				<span class="DIB pp_img1">商品图片</span>
+								#end
+			    				<span class="DIB pp_name1">商品名称</span>
+			    				<span class="DIB pp_prc">单价</span>
+			    				<span class="DIB pp_prc">数量</span>
+
+			    				<span class="DIB pp_stt1">总金额(元)</span>
+			    			</p>
+	    					<div class="list_cnt">
+								#if($!orderInfo.productVary!='ticket')
+	    						<span class="DIB pp_img1">
+	    							<label class="list_img DIB">
+                                            <img src="$!{itemInfoOne.picPath}" height="50" width="81">
+									</label>
+	    						</span>
+								#end
+	    						<span class="DIB pp_name1">
+									<p>$!{itemInfoOne.itemProductName}</p>
+								</span>
+								<span class="DIB pp_prc">$!{itemInfoOne.proPrice}</span>
+	    						<span class="DIB pp_prc">$!{itemInfoOne.quantity}</span>
+	    						<span class="DIB pp_stt1">￥$!{itemInfoOne.totalAmount.toStandardString()}
+                                    </span>##(含 运费：$!{itemInfoOne.postFree.toStandardString()})
+	    					</div>
+	    					
+	    				</div>
+	    				<div class="order-content l_tips">
+	                        <p>
+	                            <label>服务类型：</label>
+	                            <span>$!{refundOrderInfo.refundType.message}</span>
+	                        </p>
+							#if($!{refundOrderInfo.refundType.code}=="RETURNED_PURCHASE")
+	                        <p>
+	                            <label>$!{refundOrderInfo.refundType.message}数量：</label>
+	                            <span>$!{refundOrderInfo.refundQuantity}</span>
+	                        </p>
+							#end
+	                        <p>
+	                            <label>$!{refundOrderInfo.refundType.message}金额：</label>
+	                            <span>$!{refundOrderInfo.refundAmount.toStandardString()}</em>元</span>
+	                        </p>
+	                        <p>
+	                            <label>$!{refundOrderInfo.refundType.message}原因：</label>
+	                            <span>$!{refundOrderInfo.refundReason}</span>
+	                        </p>
+	                        <p>
+	                            <label>申请时间：</label>
+	                            <span>$dateUtil.simpleFormat($!{refundOrderInfo.applyDate})</span>
+	                        </p>
+	                        <p>
+	                            <label>审核时间：</label>
+	                            <span>$dateUtil.simpleFormat($!{refundOrderInfo.checkPassDate})</span>
+	                        </p>
+	                     <!--   <p>
+	                            <label>问题描述：</label>
+	                            <span>$!{refundOrderInfo.refundDesc}</span>
+	                        </p>
+	                        <label>图片凭证：</label>
+                            <span class="cont_txt cont_img DIB">
+                                #if($listUtil.isNotEmpty($imageList))
+                                    #foreach($img in $imageList)
+                                        <img src="$img.requestPath" height="250" width="581">
+                                    #end
+                                #end
+                            </span>
+							-->
+                    	</div>
+	    			</div>
+	    		</div>
+			</div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+#if($sessionLocal.userBizType.code=="BUYER")
+    #parse("/front/platform/layout/footer-lg.vm")
+#else
+    #parse("/front/platform/layout/footer.vm")
+#end
+<!-- footer end -->
+</body>
+<script>
+    //clickShow(2,0);
+    function doRedirect(url){
+        window.location.href=url;
+    }
+</script>
+</html>

@@ -1,0 +1,102 @@
+<table sqlname="tbl_hotel_long_detail">
+	 <column name="amount" javatype="com.yjf.common.lang.util.money.Money"/>
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO tbl_hotel_long_detail(id,set_id,days,discount,amount,raw_add_time) VALUES (?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[	
+			UPDATE tbl_hotel_long_detail SET set_id = ?,days=?,discount =?,amount=? WHERE id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+			SELECT  id ,set_id,days ,discount,amount,raw_add_time ,raw_update_time  FROM tbl_hotel_long_detail WHERE id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findBySetId" paramtype="string" multiplicity="many">
+		<sql>
+			<![CDATA[
+			SELECT  id ,set_id,days ,discount,amount,raw_add_time ,raw_update_time  FROM tbl_hotel_long_detail WHERE set_id=?
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM tbl_hotel_long_detail WHERE id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteBySetId" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM tbl_hotel_long_detail WHERE set_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount">
+		<sql>
+			<![CDATA[
+				
+			SELECT  count(*) FROM tbl_hotel_long_detail
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findAllDiscount" multiplicity="many">
+		<sql>
+			<![CDATA[				
+			SELECT  * FROM tbl_hotel_long_detail
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findByConditionCount">
+		<extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+        </extraparams>
+		<sql>
+			<![CDATA[				
+			SELECT  count(*) FROM tbl_hotel_long_detail where 1=1
+			]]>
+		</sql>
+		 <sqlmap>
+            <![CDATA[
+            SELECT  count(*) FROM tbl_hotel_long_detail where 1=1	
+            ORDER by raw_add_time
+            LIMIT #limitStart#,#pageSize#;
+            ]]>
+         </sqlmap>
+	</operation>
+	
+	<operation name="findByCondition" multiplicity="many">
+		<extraparams>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+        </extraparams>
+		<sql>
+			<![CDATA[				
+			SELECT  * FROM tbl_hotel_long_detail where 1=1
+			]]>
+		</sql>
+		 <sqlmap>
+            <![CDATA[
+            SELECT  * FROM tbl_hotel_long_detail where 1=1	
+            ORDER by raw_add_time
+            LIMIT #limitStart#,#pageSize#;
+            ]]>
+         </sqlmap>
+	</operation>
+</table>

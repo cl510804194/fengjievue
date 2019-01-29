@@ -1,0 +1,558 @@
+#parse("/front/index/common/header-title.vm")
+</head>
+<body class="warp">
+    #parse("/front/index/common/header-yrd.vm")
+<div class="home-section_bd pt20">
+<div class="blank20"></div>
+<div class="bd-box db-p14 container fn-clear">
+    <h2 class="title2 mt10"><span class="tit-name">项目详情</span><a class="return" href="javascript:history.go(-1);">《
+        返回</a><span class="balance" href="#">可用余额<span
+            class="ml5">￥$!{yjfAccountInfo.availableBalance.toStandardString()}</span><a
+            href="/userManage/topUp/withholdingIndex"></a></span></h2>
+
+    <div class="blank15"></div>
+    <div class="short-borrowing fn-left">
+        <h2 class="f-title fn-clear"><span
+                class="assure-icon fn-right">100%本息担保</span>短期借款：$stringUtil.subString($!{trade.detailTransferInfo.tradeName},10,"..")
+        </h2>
+        <ul class="fs-num fn-clear">
+            <li class="bd-line" style="width:32%">原始投资金额<strong
+                    class="g-green">$!{trade.detailTransferInfo.originalAmount.toStandardString()}元</strong></li>
+            <li class="bd-line" style="width:32%">项目总金额<strong
+                    class="g-green">$!{trade.tradeInfo.tradeAmount.toStandardString()}元</strong></li>
+            <li class="bd-line" style="width:15%">年化利率<strong
+                    class="g-orange"> $!rateUtil.getRate($!{trade.detailTransferInfo.profitRate})</strong></li>
+            <li class="bd-line" style="width:15%">
+                借款期限<strong>$!{trade.detailTransferInfo.timeLimit} $!{trade.detailTransferInfo.timeLimitUnit.viewName}</strong>
+            </li>
+        </ul>
+        <div class="fs-use">借款用途：$!{trade.loanDemandInfo.loanPurpose}</div>
+    </div>
+    #set($ia = $!{investableAmount})
+    <div class="cast-money fn-right">
+        <h2 class="f-title">转让金额</h2>
+
+        <div class="cast-money-box">
+
+            <div class="blank50"></div>
+            <p>实际利率：$!rateUtil.getRate($!{trade.detailTransferInfo.realProfitRate}) </p>
+
+            <p>转让金额：$!{trade.detailTransferInfo.amount.toStandardString()} 元</p>
+
+            <div class="blank30"></div>
+                <span>
+                    #set($st=$permission.check('/invest/invest'))
+                        #if( $!{trade.detailTransferInfo.status}=='TRANSFERRING' && $!{sessionScope.userId}!=$!{trade.detailTransferInfo.applyUserId})<!--待成立状态下、投资未满 才可投资-->
+
+                        #if(!$sessionScope)  <!--未登录时跳转-->
+                                                <a href="$!{rc.contextPath}/login/login" class="btn red-btn"
+                                                   style="color:#FFFFFF">立即投资</a>
+                        #else
+                            #if($st > 0 && $!{trade.detailTransferInfo.status} == 'TRANSFERRING') <!--投资人才可以投资-->
+                		                          	   <a href="javascript:void(0);" class="btn red-btn"
+                                                          style="color:#FFFFFF" id="invest-btn">立即投资</a>
+                            #else
+                                <a href="javascript:history.go(-1);" class="btn gray-btn">返回</a>
+                            #end
+                        #end
+
+                    #else
+                        <a href="javascript:history.go(-1);" class="btn gray-btn">返回</a>
+                    #end 
+				</span>
+        </div>
+    </div>
+    <div class="blank15"></div>
+    <div class="blank50"></div>
+    <div class="borrowing-info">
+        <div class="b-tab fn-clear">
+            <ul>
+                <li class="curr" id="tradeinfo"><a href="javascript:;">借款信息</a></li>
+            </ul>
+        </div>
+        <div class="borrowing-list f-clear" id="tradediv">
+            <div class="blank5"></div>
+            <div class="borrow-box fn-left ml20">
+                <h2>项目信息</h2>
+
+                <div class="b-border pro-info">
+                    <ul>
+                        <li><span>项目名称：</span>
+
+                            <p>$!{trade.detailTransferInfo.tradeName}</p></li>
+                        <li><span>原始金额：</span>
+
+                            <p>$!{trade.detailTransferInfo.originalAmount.toStandardString()}元</p></li>
+                        <li><span>转让金额：</span>
+
+                            <p>$!{trade.detailTransferInfo.amount.toStandardString()}元</p></li>
+                        <li><span>成本年化率：</span>
+
+                            <p> $!rateUtil.getRate($!{trade.detailTransferInfo.profitRate})</p></li>
+                        <li><span>期限：</span>
+
+                            <p>$!{trade.detailTransferInfo.timeLimit} $!{trade.detailTransferInfo.timeLimitUnit.viewName}</p>
+                        </li>
+                        <li><span>还款方式：</span>
+
+                            <p>$!{trade.loanDemandInfo.repayDivisionWay.message}</p></li>
+                        <li><span>承诺函编号：</span>
+
+                            <p>$!{trade.loanDemandInfo.guaranteeLicenceNo}</p></li>
+                        <li><span>成立时间：</span>
+
+                            <p>
+                                $!{dateUtil.dtSimpleFormat($!{trade.detailTransferInfo.tradeEffectiveDate})}</p></li>
+                        <li><span>状态：</span>
+
+                            <p>$!{trade.detailTransferInfo.status.message}</p></li>
+                        <li><span>借款人：</span>
+
+                            <p>$stringUtil.subString($!{trade.loanDemandInfo.loanerName},1,"****")</p></li>
+                        <br/>
+                        <li><span>项目用途：</span>
+
+                            <p>$stringUtil.subString($!{trade.loanDemandInfo.loanPurpose},10,"..")</p></li>
+                    </ul>
+                </div>
+                <input type="hidden" name="demandId" value="$!{loanDemand.demandId}"/>
+            </div>
+            <div class="borrow-box fn-left ml20">
+                <h2>承诺信息</h2>
+
+                <div class="b-border pro-info"
+                ">   <!--class="assure-info"-->
+                <ul>
+
+                    <p><span>承诺机构：</span>$!{loanDemand.guaranteeName}</p>
+                    #if($!{loanDemand.guaranteeStatement}!="")
+                        <p><span>承诺机构话语：</span> $!{loanDemand.guaranteeStatement} </p>
+                    #end
+                    <p><span>承诺函：</span></p>
+
+                    <p class="b-img mt10">
+
+                        #if($!{loanDemand.guaranteeLicenseUrl}!="")
+                            <img id="guaranteeLicenseUrl_Img" src="$!{loanDemand.guaranteeLicenseUrl}" width="240"
+                                 height="127" alt="承诺函"/>
+                        #else
+                            &nbsp;
+                        #end
+
+                    </p>
+
+                    #if($!{loanDemand.contractPdfUrl})
+                        <p><span>正式承诺函:</span></p>
+
+                        <p class="b-img mt10"><img id="guaranteeLicenseUrl_Img" src="$!{loanDemand.contractPdfUrl}"
+                                                   width="240" height="127" alt="正式承诺函"/></p>
+                    #else
+                        &nbsp;
+                    #end
+
+                    <div class="down-list">
+                        #if($!{loanDemand.contractPdfUrl} && $!{loanDemand.letterPdfUrl})
+                            <p><span>承诺函已生成：</span>
+                                <a href="/upload/downLoadFile?demandId=$!{loanDemand.demandId}&type=downLoad&fileType=letter"
+                                   class="download">下载</a>&nbsp;
+
+                                <a target="_blank"
+                                   href="/upload/downLoadFile?demandId=$!{loanDemand.demandId}&type=privew&fileType=letter">预览</a>
+
+                            </p>
+
+                            <p><span>正式合同已生成：</span>
+                                <a href="/upload/downLoadFile?demandId=$!{loanDemand.demandId}&type=downLoad&fileType=contract"
+                                   class="download">下载</a>&nbsp;
+
+                                <a target="_blank"
+                                   href="/upload/downLoadFile?demandId=$!{loanDemand.demandId}&type=privew&fileType=contract">预览</a>
+
+                            </p>
+                        #else
+
+                            <p><span>借款合同：已生成</span>
+                                <a href="$!{pdfhost}/tradeDownload/downLoadWord?type=contract_DB&tradeId=$!{trade.tradeInfo.tradeId}&detailID=0&downType=downLoad"
+                                   class="download">下载</a>
+
+                                <a target="_blank"
+                                   href="$!{pdfhost}/tradeDownload/downLoadWord?type=contract_DB&tradeId=$!{trade.tradeInfo.tradeId}&detailID=0&downType=privew">预览</a>
+
+                            </p>
+
+                            <!--
+			<p>
+				<a href="$!{pdfhost}/tradeDownload/downLoadWord?type=letter_e8&tradeId=$!{trade.tradeId}&detailID=0&downType=downLoad" class="download">下载承诺函(原始)</a>
+				<a target="_blank" href="$!{pdfhost}/tradeDownload/downLoadWord?type=letter_e8&tradeId=$!{trade.tradeId}&detailID=0&downType=privew" >预览</a>
+			</p>
+			-->
+                        #end
+                        #if($!{investsDownLoadable})
+                            <p>
+                                <a target="_blank" href="/tradeDownload/downLoaduserInvests?demandId=$!{trade.demandId}"
+                                   class="download">下载投资信息</a>
+                            </p>
+                        #end
+                    </div>
+                    <!--
+                        <div><p style="color:#f60;">提示：“正式”为承诺函、合同已加盖公章PDF文件 ,“原始”为未加盖公章PDF文件 </p></div>
+                    -->
+                </ul>
+            </div>
+        </div>
+        <div class="blank30"></div>
+    </div>
+</div>
+
+
+<div class="m-layer" style="width:500px; display:none;" id="invest-window">
+    <div class="invest-tit fn-clear">
+        <h2 class="u-tt">确认投资金额</h2>
+        <a class="u-close" href="#" id="invest-cancel"></a>
+
+
+    </div>
+    <div class="lyct">
+        <form name="" method="post" action="#" class="m-form">
+            <fieldset>
+                <div class="invest-up">
+                    <div class="fn-item">
+                        <label class="fn-label">投资金额：</label>
+                        <input type="text" class="fn-text" name="invest-pay" id="invest-pay-amount"
+                               value="$!{trade.detailTransferInfo.amount.toStandardString()}" disabled/> <span
+                            class="fn-span">元</span><b class="error-tip" id="invest-pay-amount-messge"></b>
+                        <br/>
+
+                        <p class="fn-span" id="invest-pay-amount-chinese-messge"></p>
+                    </div>
+
+                    <div class="fn-item">
+                        <label class="fn-label"><span class="required">*</span>验证码：</label>
+                        <input id="code1" type="text" class="fn-text w90" name="code"/><b class="error-tip"
+                                                                                          id="code-message"></b>
+                        <input id="mobile1" type="hidden" disabled="disabled" class="fn-text w130" name="mobile"
+                               value="$!{userBaseInfo.mobile}"/>
+                        <a id="getCode1" class="fn-h-btn Y-countdown" href="javascript:;"
+                           style="display: inline-block;">
+                            <span class="timedown">获取验证码</span>
+                        </a>
+                        <input id="business1" type="hidden" name="business" value="invest"/>
+                    </div>
+
+
+                    <div class="fn-item fn-clear">
+                        <label class="fn-label"></label>
+
+                        <input type="hidden" id="token" name="token" value="$!{token}"/>
+
+                        <a href="javascript:;" class="affirm mr15" id="invest-ok">确认投资</a><a href="javascript:;"
+                                                                                             class="consider"
+                                                                                             id="invest-cancel">再考虑一下</a>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+
+<div class="blank10"></div>
+</div>
+<div class="blank50"></div>
+</div>
+    #parse("/front/index/common/footer-yrd.vm")
+    #parse("/front/index/common/js.vm")
+<script type="text/javascript">
+        $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/content/chineseAmountExchange.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/comp/security.js"></script>
+
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode+"index_invest_detail");
+</script>
+
+<script type="text/javascript">
+
+$('#invest-btn').click(function () {
+    var e1 = $('#invest-pay-amount-chinese-messge');
+    var e3 = $('#invest-pay-amount-messge');
+    var e5 = $('#invest-pay-password-messge');
+
+    e3.hide();
+    e5.hide();
+    $('#code-message').hide();
+    var json = checkTrade();
+    if (json.status == false) {
+        alert(json.message);
+        return;
+    }
+    json = checkInvest();
+    if (json.status == false) {
+        alert(json.message);
+        return;
+    }
+
+    var result = isInvest();
+    if (result.code == 2) {
+        alert(result.message);
+        return;
+    }
+    if (islogin()) {
+        var chineseAmount = convertCurrency($('#invest-pay-amount').val());
+        var amountPreWord = "金额大写： ";
+        $('#invest-pay-amount-chinese-messge').html(amountPreWord + chineseAmount).show();
+        $('body').window({
+            content: '#invest-window',
+            simple: true,
+            closeEle: '#invest-cancel',
+            close: function () {
+                document.location.href = document.location.href;
+            }
+        });
+    } else {
+        document.location.href = '$!{rc.contextPath}/login/login?redirect=' + document.location.href;
+    }
+});
+
+function isInvest() {
+    var url = '/invest/isInvest';
+    var data = {'demandId': $('[name=demandId]').val()};
+    return $_GLOBAL.ajax(url,data);
+
+}
+
+var pwd;
+var modulus = "";
+var exponent = "";
+$('#invest-pay-password').change(function () {
+    checkPayPassword();
+});
+
+function getKey() {
+    var url = '/login/keyPair';
+    var result = $_GLOBAL.ajax(url);
+    if (result.code == 1) {
+        modulus = result.modulus;
+        exponent = result.exponent;
+        setHiddenPwd();
+    }
+}
+
+function setHiddenPwd() {
+    var thisPwd = $('#invest-pay-password').val();
+    var key = RSAUtils.getKeyPair(exponent, '', modulus);
+    pwd = RSAUtils.encryptedString(key, thisPwd);
+}
+
+$('#invest-ok').click(function () {
+    $('body').Y('Window', {
+        content: "<span>处理中，请您耐心等候...</span>",
+        key: 'lodding',
+        simple: true
+    });
+    if (checkAmount() && checkCode()) {   //&& checkPayPassword()
+
+        var url = '$!{rc.contextPath}/boot/investTransfer';
+        //alert($("#code1").val());
+        var data = {mailCode: $('#code1').val(),
+            token: $('#token').val(),
+            bizNo:$!{trade.tradeInfo.tradeId},
+            tradeTransferId:$!{trade.detailTransferInfo.tradeTransferId}};
+
+        setTimeout(function () {
+            var result = $_GLOBAL.ajax(url, data);
+            alert(result.message);
+            window.location.reload();
+
+        }, 100);
+        return false;
+    } else {
+        Y.getCmp('lodding').close();
+        return false;
+    }
+});
+
+
+function checkAmount() {
+    var amount = $('#invest-pay-amount').val();
+    var e = $('#invest-pay-amount-messge').hide();
+    if (amount.length < 1) {
+        e.html('投资金额不能为空').show();
+        return false;
+    }
+
+    return true;
+}
+
+
+function checkPayPassword() {
+    var e = $('#invest-pay-password-messge');
+    e.hide();
+    var password = $('#invest-pay-password').val();
+    if (password.length < 1) {
+        e.html('支付密码不能为空').show();
+        return false;
+    }
+    getKey();
+    if (!pwd) {
+        setTimeout(getKey, 10);
+    }
+    var url = '$!{rc.contextPath}/invest/checkpaypassword';
+    var data = {'password': pwd};
+    var status = $_GLOBAL.ajax(url, data);
+    if (!status) {
+        e.html('支付密码错误').show();
+    }
+    return status;
+}
+
+function checkCode() {
+    $('#code-message').hide();
+    var code = $('#code1').val();
+    var mobile = $('#mobile1').val();
+    var business = $('#business1').val();
+    if (code.length < 1) {
+        $('#code-message').html('手机验证码不能为空').show();
+        return false;
+    }
+    var url = '$!{rc.contextPath}/anon/checkSmsCode'
+    var data = {'mobile': mobile, 'business': business, 'code': code};
+    var res = $_GLOBAL.ajax(url, data);
+    if (res.code == 0) {
+        $('#code-message').html('手机验证码错误').show();
+        return false;
+    }
+    return true;
+}
+
+function islogin() {
+    var url = '$!{rc.contextPath}/login/islogin';
+    return $_GLOBAL.ajax(url);
+}
+
+function checkTrade(tradeId) {
+    var url = '$!{rc.contextPath}/invest/checktrade/$!{trade.tradeInfo.tradeId}';
+    return $_GLOBAL.ajax(url);
+}
+
+function checkInvest() {
+    var url = '$!{rc.contextPath}/invest/checkinvest/$!{trade.tradeInfo.tradeId}';
+    return $_GLOBAL.ajax(url);
+}
+$("#contractPreview").hover(function () {
+    $("#contract-demo").show();
+}, function () {
+    $("#contract-demo").hide();
+});
+$(".checkbox").click(
+        function () {
+            if ($('.checkbox').attr("checked") == "checked") {
+                $("#invest-ok").css("display", "inline-block");
+            } else {
+                alert("请勾选同意合同");
+                $("#invest-ok").css("display", "none");
+            }
+        }
+);
+
+$('#lastInvestAvlb').click(function () {
+    var e1 = $('#invest-pay-amount-chinese-messge');
+    var e3 = $('#invest-pay-amount-messge');
+    var e5 = $('#invest-pay-password-messge');
+    e1.html();
+    e3.html();
+    e5.html();
+    if (islogin()) {
+        $('input[name=invest-pay]').val('');
+        $('.fn-item label[id]').empty();
+        $('body').window({
+            content: '#invest-window',
+            simple: true,
+            closeEle: '#invest-cancel',
+            close: function () {
+                document.location.href = document.location.href;
+            }
+        });
+    } else {
+        document.location.href = '$!{rc.contextPath}/login/login?redirect=' + document.location.href;
+    }
+});
+
+$("#contractPreview").click(
+        function () {
+            window.open('/upload/downLoadFile?demandId=0&type=preivew&fileType=inverst');
+        }
+);
+var e1 = $('#invest-pay-amount-chinese-messge');
+var e3 = $('#invest-pay-amount-messge');
+var e5 = $('#invest-pay-password-messge');
+e1.html();
+e3.html();
+e5.html();
+
+
+// -------------------------------------发送手机验证码-----------------------------------------------
+//	$('#getCode1').click(function() {
+//		var business = $("#business1").val();
+//		var mobile = $("#mobile1").val();
+//		var countdown = Y.getCmp('getCode1');
+//		sendMobile(business, mobile, countdown);
+//	});
+
+
+function sendMobile(business, mobile, conutdown) {
+    jQuery.ajax({
+        url: '/anon/sendSmsCode',
+        dataType: 'json',
+        data: {
+            mobile: mobile,
+            business: business
+        },
+        cache: false,
+        success: function (res) {
+            if (res.code == 1) {
+            } else {
+                alert(res.message);
+                if (countdown) {
+                    countdown.close();
+                }
+            }
+        },
+        error: function () {
+            alert('获取验证码失败');
+            if (countdown) {
+                countdown.close();
+            }
+        }
+    });
+}
+<!--分页跳转-->
+function toPage(totalPage, pageNo) {
+
+    if (totalPage < pageNo) {
+        return false;
+    }
+    var url = "$!{rc.contextPath}/boot/lookup/$!{trade.demandId},$!{trade.tradeId}?pageSize=$!{page.pageSize}&pageNo=" + pageNo + "&tab=invest";
+    //alert (url);
+    window.location.href = url;
+}
+
+function toInvestListTab() {
+    $("#tradediv").hide();
+    $("#touzhidiv").show();
+    $('#tradeinfo').removeClass('curr');
+    $('#touziinfo').addClass('curr');
+
+}
+
+//分页跳转后显示正确的tab页面
+    #if($!{tab}=='invest')
+    toInvestListTab();
+    #end
+
+
+</script>
+</body>
+</html>

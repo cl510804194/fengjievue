@@ -1,0 +1,112 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="toProductList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB pro_list">
+            <p class="nav_title"><span class="DIB">优惠券发送列表</span><a onclick="javascript:window.history.back();" class="fn-right">返回</a></p>
+
+            <div class="left_content ">
+             #*   <form action="/do/scenic/doCenter/toMerchantList.htm" method="post">
+                    <input type="hidden" name="productStatus" value="$!productStatus"></input>
+					
+                    <div class="search_list">
+							<span class="inpt">
+								<label class="inpt_txt">优惠券名称：</label>
+								##<input type="text" name="searchNumber" size="20" value="$!searchNumber"/>
+								<input type="text" name="merchantName" size="20" value="$!{queryConditions.merchantName}"/>
+							</span>						
+							
+							<span class="inpt">
+								<input type="submit" class="button5" value="查询"/>				
+							</span>
+                    </div>     
+             </form>    
+             *#       
+            <form action="/do/scenic/doCenter/handGiftMoneyHistory.htm?giftType=GAIN_AMOUNT&itemType=gainTemp" method="post">
+                    <div class="">
+                        <div class="pushPro on">
+                            <div class="com_list push_pro">
+                                <p class="order_tl">
+                                    <span class="DIB pp_img1">名称</span>
+                                    <span class="DIB pp_name">类型</span>
+                                    <span class="DIB pp_prc1">活动开始时间</span>
+                                    <span class="DIB pp_prc1">活动结束时间</span>
+                                    <span class="DIB pp_stt">状态</span>
+                                  
+                                </p>
+								#if($page.result.size()==0)
+		            				<div class="order_list">
+		                				<p class="list_show_msg">暂时没有优惠券用户记录</p>
+		                			</div>
+								#end
+                                <div class="order_list">
+                                    #foreach($info in $page.result)
+                                        <div class="list_i">
+                                            <div class="list_cnt">
+					    						<span class="DIB pp_img1">    				
+					    							<label>
+                                                       $!{info.giftName}
+                                                    </label>
+					    						</span>
+                                         
+                                                <span class="DIB pp_name">
+                                                	<label>
+                                                		$!{info.type.message}
+                                                	</label>
+                                                </span>
+					    						<span class="DIB pp_prc1">
+													<label>
+													   $!dateUtil.simpleFormat($!{info.startDate})
+													</label>
+					    						</span>
+                                                <span class="DIB pp_prc1">
+                                                		<label>
+                                                	   $!dateUtil.simpleFormat($!{info.endDate})
+                                                		</label>			
+                                                </span>
+                                                <span class="DIB pp_stt">
+                                                		<label>
+                                                			 $!{info.status.message}
+                                                		</label>			
+                                                </span>                                            
+                                            </div>
+                                            <input type="hidden" value="JG" data="userType"/>
+                                        </div>
+                                    #end
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="center_page">
+                        <table width="100%" height="40" cellpadding="0" cellspacing="0" style="text-align: right;">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <input type="hidden" name="pages" id=""/>
+                                    $!{pageBar}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>      
+                   </form>   
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+</html>

@@ -1,0 +1,196 @@
+<table sqlname="refund_item">
+	<column name="commodity_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="loan_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="monthly_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="current_refund_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<column name="breach_of_contract_amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO refund_item(item_id,contract_id,yjf_account_id,yjf_account_name,out_biz_no,sales_date,sales_area,customer_name,certificate_card,customer_sex,customer_birthday,commodity_type,commodity_brand,commodity_amount,loan_amount,stages_num,monthly_amount,user_name,store_name,store_id,referrer_name,stage_num,current_num,refund_bank,refund_card_number,loan_type,user_id,current_refund_amount,breach_of_contract_amount,refund_time,actual_refund_time,refund_status,remark,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE refund_item SET contract_id=?,yjf_account_id=?,yjf_account_name=?,sales_date=?,sales_area=?,customer_name=?,certificate_card=?,customer_sex=?,customer_birthday=?,commodity_type=?,commodity_brand=?,commodity_amount=?,loan_amount=?,stages_num=?,monthly_amount=?,user_name=?,store_name=?,store_id=?,referrer_name=?,stage_num=?,current_num=?,refund_bank=?,refund_card_number=?,loan_type=?,user_id=?,current_refund_amount=?,breach_of_contract_amount=?,refund_time=?,actual_refund_time=?,out_biz_no=?,refund_status=?,remark=? WHERE item_id=?
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  item_id ,contract_id ,yjf_account_id ,yjf_account_name ,sales_date ,sales_area ,customer_name ,certificate_card ,customer_sex ,customer_birthday ,commodity_type ,commodity_brand ,commodity_amount ,loan_amount ,stages_num ,monthly_amount ,user_name ,store_name ,store_id ,referrer_name ,stage_num ,current_num ,refund_bank ,refund_card_number ,loan_type ,user_id ,current_refund_amount ,breach_of_contract_amount ,refund_time ,actual_refund_time ,refund_status ,remark ,out_biz_no,raw_add_time ,raw_update_time  FROM refund_item WHERE item_id=?
+
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByIdForUpdate" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  item_id ,contract_id ,yjf_account_id ,yjf_account_name ,sales_date ,sales_area ,customer_name ,certificate_card ,customer_sex ,customer_birthday ,commodity_type ,commodity_brand ,commodity_amount ,loan_amount ,stages_num ,monthly_amount ,user_name ,store_name ,store_id ,referrer_name ,stage_num ,current_num ,refund_bank ,refund_card_number ,loan_type ,user_id ,current_refund_amount ,breach_of_contract_amount ,refund_time ,actual_refund_time ,refund_status ,out_biz_no,remark ,raw_add_time ,raw_update_time  FROM refund_item WHERE item_id=? for update
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByOutBizNo" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  item_id ,contract_id ,yjf_account_id ,yjf_account_name ,sales_date ,sales_area ,customer_name ,certificate_card ,customer_sex ,customer_birthday ,commodity_type ,commodity_brand ,commodity_amount ,loan_amount ,stages_num ,monthly_amount ,user_name ,store_name ,store_id ,referrer_name ,stage_num ,current_num ,refund_bank ,refund_card_number ,loan_type ,user_id ,current_refund_amount ,breach_of_contract_amount ,refund_time ,actual_refund_time ,refund_status ,out_biz_no,remark ,raw_add_time ,raw_update_time  FROM refund_item WHERE out_biz_no=?
+
+			]]>
+		</sql>
+	</operation>
+	 <operation name="queryCondition" paramtype="object" multiplicity="many">
+        <extraparams>
+            <param name="customerBirthdayStart" javatype="java.util.Date" />
+            <param name="customerBirthdayEnd" javatype="java.util.Date" />
+            <param name="refundTimeStart" javatype="java.util.Date" />
+            <param name="refundTimeEnd" javatype="java.util.Date" />
+            <param name="actualRefundTimeStart" javatype="java.util.Date" />
+            <param name="actualRefundTimeEnd" javatype="java.util.Date" />
+            <param name="limitStart" javatype="long" />
+            <param name="pageSize" javatype="long" />
+        </extraparams>
+        <sql><![CDATA[
+		SELECT  item_id ,contract_id ,yjf_account_id ,yjf_account_name ,sales_date ,sales_area ,customer_name ,certificate_card ,customer_sex ,customer_birthday ,commodity_type ,commodity_brand ,commodity_amount ,loan_amount ,stages_num ,monthly_amount ,user_name ,store_name ,store_id ,referrer_name ,stage_num ,current_num ,refund_bank ,out_biz_no,refund_card_number ,loan_type ,user_id ,current_refund_amount ,breach_of_contract_amount ,refund_time ,actual_refund_time ,refund_status ,remark ,raw_add_time ,raw_update_time  FROM refund_item WHERE 1=1
+
+       	]]></sql>
+        <sqlmap>
+            <![CDATA[
+       			SELECT  item_id ,contract_id ,yjf_account_id ,yjf_account_name ,sales_date ,sales_area ,customer_name ,certificate_card ,customer_sex ,customer_birthday ,commodity_type ,commodity_brand ,commodity_amount ,loan_amount ,stages_num ,monthly_amount ,user_name ,store_name ,store_id ,referrer_name ,stage_num ,current_num ,out_biz_no,refund_bank ,refund_card_number ,loan_type ,user_id ,current_refund_amount ,breach_of_contract_amount ,refund_time ,actual_refund_time ,refund_status ,remark ,raw_add_time ,raw_update_time  FROM refund_item WHERE 1=1
+			<dynamic>
+					<isNotEmpty property="refundItem.salesArea" prepend=" and ">
+                       sales_area = #refundItem.salesArea#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.customerName" prepend=" and ">
+                       customer_name = #refundItem.customerName#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.certificateCard" prepend=" and ">
+                       certificate_card = #refundItem.certificateCard#
+                   	</isNotEmpty>
+					<isNotEmpty property="refundItem.commodityType" prepend="and">
+                       commodity_type = #refundItem.commodityType#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.customerSex" prepend="and">
+                       customer_sex = #refundItem.customerSex#
+                   	</isNotEmpty>
+                   	
+                   	<isNotEmpty property="customerBirthdayStart" prepend="and">
+                       ${cdata-start} customer_birthday >= #customerBirthdayStart# ${cdata-end}
+                   	</isNotEmpty>
+                   	
+                   	<isNotEmpty property="customerBirthdayEnd" prepend="and">
+                       ${cdata-start}  customer_birthday <= #customerBirthdayEnd#  ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.userName" prepend=" and ">
+                       user_name = #refundItem.userName#
+                   	</isNotEmpty>	
+                   	<isNotEmpty property="refundItem.referrerName" prepend=" and ">
+                       referrer_name = #refundItem.referrerName#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.refundStatus" prepend=" and ">
+                       refund_status = #refundItem.refundStatus#
+                   	</isNotEmpty>	
+					<isNotEmpty property="refundTimeStart" prepend="and">
+                       ${cdata-start} refund_time >= #refundTimeStart# ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundTimeEnd" prepend="and">
+                       ${cdata-start}  refund_time <= #refundTimeEnd#  ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="actualRefundTimeStart" prepend="and">
+                       ${cdata-start} actual_refund_time >= #actualRefundTimeStart# ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="actualRefundTimeEnd" prepend="and">
+                       ${cdata-start}  actual_refund_time <= #actualRefundTimeEnd#  ${cdata-end}
+                   	</isNotEmpty>
+		         </dynamic>
+					order by add_update_time desc 
+			        LIMIT #limitStart#,#pageSize#;
+       		]]>
+        </sqlmap>
+    </operation>
+    <operation name="queryConditionCount" paramtype="object" >
+        <extraparams>
+            <param name="customerBirthdayStart" javatype="java.util.Date" />
+            <param name="customerBirthdayEnd" javatype="java.util.Date" />
+            <param name="refundTimeStart" javatype="java.util.Date" />
+            <param name="refundTimeEnd" javatype="java.util.Date" />
+            <param name="actualRefundTimeStart" javatype="java.util.Date" />
+            <param name="actualRefundTimeEnd" javatype="java.util.Date" />
+        </extraparams>
+        <sql><![CDATA[
+		SELECT  count(*)  FROM refund_item WHERE 1=1
+
+       	]]></sql>
+        <sqlmap>
+            <![CDATA[
+       			SELECT  count(*)  FROM refund_item WHERE 1=1
+			<dynamic>
+					<isNotEmpty property="refundItem.salesArea" prepend=" and ">
+                       sales_area = #refundItem.salesArea#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.customerName" prepend=" and ">
+                       customer_name = #refundItem.customerName#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.certificateCard" prepend=" and ">
+                       certificate_card = #refundItem.certificateCard#
+                   	</isNotEmpty>
+					<isNotEmpty property="refundItem.commodityType" prepend="and">
+                       commodity_type = #refundItem.commodityType#
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.customerSex" prepend="and">
+                       customer_sex = #refundItem.customerSex#
+                   	</isNotEmpty>
+                   	
+                   	<isNotEmpty property="customerBirthdayStart" prepend="and">
+                       ${cdata-start} customer_birthday >= #customerBirthdayStart# ${cdata-end}
+                   	</isNotEmpty>
+                   	
+                   	<isNotEmpty property="customerBirthdayEnd" prepend="and">
+                       ${cdata-start}  customer_birthday <= #customerBirthdayEnd#  ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundItem.userName" prepend=" and ">
+                       user_name = #refundItem.userName#
+                   	</isNotEmpty>	
+                   		<isNotEmpty property="refundItem.referrerName" prepend=" and ">
+                       referrer_name = #refundItem.referrerName#
+                   	</isNotEmpty>	
+					<isNotEmpty property="refundTimeStart" prepend="and">
+                       ${cdata-start} refund_time >= #refundTimeStart# ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="refundTimeEnd" prepend="and">
+                       ${cdata-start}  refund_time <= #refundTimeEnd#  ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="actualRefundTimeStart" prepend="and">
+                       ${cdata-start} actual_refund_time >= #actualRefundTimeStart# ${cdata-end}
+                   	</isNotEmpty>
+                   	<isNotEmpty property="actualRefundTimeEnd" prepend="and">
+                       ${cdata-start}  actual_refund_time <= #actualRefundTimeEnd#  ${cdata-end}
+                   	</isNotEmpty>
+		         </dynamic>
+       		]]>
+        </sqlmap>
+    </operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM refund_item WHERE item_id=?
+
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM refund_item
+			]]>
+		</sql>
+	</operation>
+	
+</table>

@@ -1,0 +1,36 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.common.services;
+
+import com.yjf.esupplier.service.common.result.EmailCodeResult;
+import com.yjf.esupplier.service.common.result.SmsCodeResult;
+import com.yjf.esupplier.ws.enums.SmsBizType;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+/**
+ * 
+ * @Filename SmsEmailManagerService.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author huangxl
+ *
+ * 
+ */
+public interface SmsEmailManagerService {
+
+	public EmailCodeResult verifyEmailCode(String email, SmsBizType bizCode, String validateCode,
+										   boolean del);
+
+	public EsupplierBaseResult sendEmailCode(String email,String realName, SmsBizType bizType,
+											 String extendMessage);
+
+	public EsupplierBaseResult sendEmail(String email,String realName, String smsContent);
+
+	public EsupplierBaseResult sendEmail(String email,String realName, SmsBizType bizType);
+
+}

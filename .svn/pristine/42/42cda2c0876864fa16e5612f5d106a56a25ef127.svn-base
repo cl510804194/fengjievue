@@ -1,0 +1,65 @@
+#parse("/front/index/common/header-title.vm")
+
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+<!--content begin----------------->	
+	
+	
+	
+	<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="bd-box db-p14 container">
+    	<h2 class="title2 mt10"><span class="tit-name">项目列表</span><a href="/" class="return">《 返回</a> #if($sessionScope) <span href="javascript:;" class="balance">可用余额<span class="ml5">￥$!{yjfAccountInfo.availableBalance.toStandardString()} </span> #end<a href="/userManage/topUp/withholdingIndex"></a></span></h2>
+        
+               #parse("/front/index/common/entries-hard.vm")   
+		         
+  
+                <!--分页-->
+				<div class="pages account-page mt20">
+					<div class="fn-right">
+	    				#parse("/backstage/page/page.vm")
+	    			</div>	
+				</div>
+			
+            
+            <div class="blank30"></div>
+       
+    </div>
+    <div class="blank50"></div>
+</div>
+
+
+
+
+
+<!--content end----------------->	
+	#parse("/front/index/common/footer-yrd.vm")
+	
+
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="/resources/js/comp/swfobject.js"></script>	
+	
+	<script type="text/javascript">
+	function lookup(demandId, tradeId){
+		top.location.href = '$!{rc.contextPath}/boot/lookup/' + demandId + ',' + tradeId;
+	}
+	</script>
+	
+	<script type="text/javascript">
+	function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/boot/moreIndex/$!{page.pageSize}/"+pageNo+"?status=1";
+			window.location.href=url;
+	}
+    </script>
+
+	
+	
+</body>
+</html>

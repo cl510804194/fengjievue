@@ -1,0 +1,40 @@
+package com.yjf.esupplier.service.security.query.order;
+
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class PermissonQueryOrder extends QueryPageBase {
+	
+	private static final long serialVersionUID = 1913588311092817260L;
+	String permissionCode;
+	String permissionName;
+	
+	public String getPermissionCode() {
+		return this.permissionCode;
+	}
+	
+	public void setPermissionCode(String permissionCode) {
+		this.permissionCode = permissionCode;
+	}
+	
+	public String getPermissionName() {
+		return this.permissionName;
+	}
+	
+	public void setPermissionName(String permissionName) {
+		this.permissionName = permissionName;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PermissonQueryOrder [permissionCode=");
+		builder.append(permissionCode);
+		builder.append(", permissionName=");
+		builder.append(permissionName);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

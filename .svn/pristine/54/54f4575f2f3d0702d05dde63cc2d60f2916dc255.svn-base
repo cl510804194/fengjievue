@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="License">
+	<typeAlias alias="License" type="com.yjf.esupplier.dal.custom.dataobject.LicenseDO"/>
+	<resultMap class="License" id="LicenseResult">
+		<result property="licenseid" column="license_id"/>
+		<result property="memberid" column="member_id"/>
+		<result property="title" column="title"/>
+		<result property="authority" column="authority"/>
+		<result property="serial" column="serial"/>
+		<result property="verifyState" column="verify_state"/>
+		<result property="verifyMemberid" column="verify_member_id"/>
+		<result property="verifyRemark" column="verify_remark"/>
+	</resultMap>
+	
+	<insert id="addLicense" parameterClass="License">
+		insert into tbl_license(
+					license_id,member_id,
+					title,
+					authority,
+					serial,
+					verify_state,
+					verify_member_id,
+					verify_remark
+				)
+				values(
+					#licenseid#,
+					#memberid#,
+					#title#,
+					#authority#,
+					#serial#,
+					#verifyState#,
+					#verifyMemberid#,
+					#verifyRemark#
+				)
+	
+	</insert>
+	
+	<select id="getLicenseById" parameterClass="Long" resultMap="LicenseResult">
+		select * from tbl_license
+			where member_id=#memberid#
+	</select>
+	
+	<update id="updateLicense" parameterClass="License">
+		update tbl_license set
+					title = #title#,
+					authority = #authority#,
+					serial = #serial#,
+					verify_state = #verifyState#,
+					verify_member_id = #verifyMemberid#,
+					verify_remark = #verifyRemark#
+		where license_id = #licenseid#
+	</update>
+	
+	<delete id="delLicenseById" parameterClass="Long">
+		delete from tbl_license where license_id = #licenseid#
+	</delete>
+	
+	<delete id="delLicense" parameterClass="Long">
+		delete from tbl_license where member_id=#memberid#
+	</delete>
+
+</sqlMap>

@@ -1,0 +1,165 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;	
+	background-color:#FFF;
+	color:#555555;
+	line-height:24px;
+}
+a:link {
+	color: #555555;
+	text-decoration: none;
+}
+a:visited {
+	color: #555555;
+	text-decoration: none;
+}
+a:hover {
+	color: #ff0000;
+	text-decoration: none;
+}
+a:active {
+	color: #555555;
+	text-decoration: none;
+}
+
+.red a:link {
+	color: #ff0000;
+	text-decoration: none;
+}
+.red a:visited {
+	color: #ff0000;
+	text-decoration: none;
+}
+.red a:hover {
+	color: #ff0000;
+	text-decoration: none;
+}
+.red a:active {
+	color: #ff0000;
+	text-decoration: none;
+}
+
+.title a:link {
+	color: #ffffff;
+	text-decoration: none;
+}
+.title a:visited {
+	color: #ffffff;
+	text-decoration: none;
+}
+.title a:hover {
+	color: #ffffff;
+	text-decoration: none;
+}
+.title a:active {
+	color: #ffffff;
+	text-decoration: none;
+}
+/*����������ʽ*/
+.pl5{ padding-left:5px;}
+.pl30{ padding-left:30px;}
+.pr5{ padding-right:5px;}
+.mt10{ margin-top:10px;}
+.m10{ margin-top:10px;}
+.line{ border:1px solid #e1e1eb; border-top:none;}
+.line2{ border:1px solid #e1e1eb; border-top:none; border-bottom:none;}
+.wz_title{ color:#dc1f00; font-size:14px; font-weight:bold; padding-left:8px;}
+
+
+/*ͷ����ʽ*/
+.head{ background:url(../../../image/channel/zys/head_bg.jpg) repeat-x; width:980px; height:26px; word-spacing:6px;}
+.sousuo{ background:url(../../../image/channel/zys/sousuo_bg.jpg) repeat-x;}
+.redb{ color:#FF0000; font-weight:bold; font-size:12px;}
+.logo{background-image:url(../../../image/channel/zys/logo_zys.jpg); width:220px; height:70px;}
+.wz_search{ font-size:14px; font-weight:bold;}
+.nav{ background:url(../../../image/channel/zys/nav.jpg) no-repeat; }
+.title{ font-size:14px; font-weight:bold; color:#ffffff; text-align:center;}
+.red{ color:#FF0000;font-size:12px;}
+.gwc{ padding-left:40px; text-align:left;}
+
+/*����*/
+.wz14hui{ font-size:14px; font-weight:bold;}
+.xbd4{ background:url(../../../image/channel/zys/xbd4.jpg) no-repeat; background-position:95%;50%; height:24px; line-height:24px;}
+.line3{ border-bottom:1px dotted  #e1e1eb;}
+.mb8{ margin-bottom:6px;}
+
+/*�������������Ʒ */
+.dh1{ background:url(../../../image/channel/zys/dht01.jpg) no-repeat;}
+.dh2{ background:url(../../../image/channel/zys/dht02.jpg) repeat-x;font-size:14px; font-weight:bold; color:#dc1f00; text-align:left;}
+.dh3{ background:url(../../../image/channel/zys/dht03.jpg) no-repeat;}
+
+
+
+
+/*�������������� */
+.huiyuan img{ width:65px; height:75px; border:1px solid #ccc; padding:2px;}
+.hg18{ line-height:18px;}
+.hzt_bt{ color:#ff6600; font-size:14px; font-weight:bold;}
+
+
+
+/*�۸�������ʽ*/
+.dht_left{ width:226px; height:30px; background:url(../../../image/channel/zys/dht226.jpg) no-repeat;}
+.dht_r{ background:url(../../../image/channel/zys/dht202.jpg) no-repeat;}
+.xbd11{ background:url(../../../image/channel/zys/xbd11.jpg) no-repeat; background-position:left 50%; height:24px; padding-left:15px; text-align:left;}
+.xbd3{ background:url(../../../image/channel/zys/xbd3.jpg) no-repeat; background-position:left 50%; height:24px; padding-left:10px; text-align:left;}
+
+/*��ͼƬ��ʽ*/
+.ztp img{ width:546px; height:210px; padding:1px; border:1px solid #e0e0e8;}
+
+/*��ҵ��Ѷ��ʽ*/
+.dht_right{ width:226px; height:30px;  background:url(../../../image/channel/zys/dht226.jpg) no-repeat;}
+
+/*���¼�����ҵ��ʽ*/
+.zxjrqy{ background:url(../../../image/channel/zys/zxjrqy.jpg) no-repeat;}
+
+
+/*��Ʒչʾ��ʽ*/
+.nav1{ background:url(../../../image/channel/zys/nav1.jpg) no-repeat; font-size:14px; font-weight:bold; color:#dc1f00; text-align:center; background-position:50% 50%;}
+.nav2{ background:url(../../../image/channel/zys/nav2.jpg); height:33px; color:#333333; font-size:14px; line-height:33px; text-align:left;}
+.nav3{ background:url(../../../image/channel/zys/nav3.jpg) no-repeat;}
+
+
+/*������Ϣ��ʽ*/
+.nav_a{ background:url(../../../image/channel/zys/nav_a.jpg) no-repeat;font-size:14px; font-weight:bold; color:#dc1f00; text-align:center;}
+.nav_b{ background:url(../../../image/channel/zys/nav_b.jpg) no-repeat; color:#333333; font-size:14px; line-height:33px; text-align:center;}
+.green{ color:#3a6d00;}
+
+/*��Ʒչʾ��ʽ*/
+.cpzs{width:744px; height:30px; background:url(../../../image/channel/zys/cpzs744.jpg) no-repeat;}
+.more{ padding-right:10px;}
+.title_cpzs{ font-weight:bold; color:#ffffff; font-size:14px; text-align:right;}
+.chanpin img{ width:116px; height:116px; border:1px solid #ccc; padding:0px; margin:5px;}
+.huib{ color:#595959; font-weight:bold;}
+.wz_xsj{ color:#ff6308; font-weight:bold;}
+.wz_xsj a:link {
+	color: #ff6308;
+	text-decoration: none;
+}
+.wz_xsj a:visited {
+	color: #ff6308;
+	text-decoration: none;
+}
+.wz_xsj a:hover {
+	color: #ff6308;
+}
+.wz_xsj a:active {
+	color: #ff6308;
+	text-decoration: none;
+}
+.mt5{ margin-top:4px; margin-bottom:5px;}
+
+
+
+ 
+
+/*foot*/
+.wzph{ color:#ff6308; font-weight:bold; padding-right:4px;}
+.scj{text-decoration:line-through;}
+.foot{ background:url(../../../image/channel/zys/footmid.jpg) repeat-x;}
+.gwzn{ background:url(../../../image/channel/zys/gwzn.jpg) no-repeat; background-position:left 50%;}
+.fkfs{ background:url(../../../image/channel/zys/fkfs.jpg) no-repeat; background-position:left 50%;}
+.psfs{ background:url(../../../image/channel/zys/psfs.jpg) no-repeat; background-position:left 50%;}
+.shfw{ background:url(../../../image/channel/zys/shfw.jpg) no-repeat; background-position:left 50%;}
+.wz_foot{ line-height:24px;}
+.phone_foot{ color:#0e569e; font-weight:bold;}

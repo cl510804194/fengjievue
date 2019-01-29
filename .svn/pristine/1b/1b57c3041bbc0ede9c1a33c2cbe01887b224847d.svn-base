@@ -1,0 +1,11 @@
+define(function(require) {
+//	var Site = require('../comp/init.js');
+//	require('../lib/jquery.unslider.js');
+//	$('#idSlider').unslider({
+//		dots: true
+//	});
+//
+//	$('#uiTopNav').find('a[alias="index"]').addClass('active');
+
+
+});

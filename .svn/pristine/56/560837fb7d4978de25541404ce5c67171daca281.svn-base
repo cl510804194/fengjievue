@@ -1,0 +1,1137 @@
+package com.yjf.esupplier.service.bill.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.common.service.base.ProcessInvokeService;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.BusinessNumberUtil;
+import com.yjf.esupplier.common.util.ConfigParamProperty;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.dal.dataobject.TblDrawerAddressDO;
+import com.yjf.esupplier.domain.OrderDomain;
+import com.yjf.esupplier.domain.OrderItemDomain;
+import com.yjf.esupplier.domain.ProductDomain;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.service.bill.OrderBaseService;
+import com.yjf.esupplier.service.bill.OrderQueryService;
+import com.yjf.esupplier.service.bill.OrderRefundService;
+import com.yjf.esupplier.service.bill.OrderService;
+import com.yjf.esupplier.service.exception.CreditsysBizException;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyQueryService;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.service.user.DeliveryPersonService;
+import com.yjf.esupplier.service.user.info.DeliveryPersonInfo;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.ws.bill.enums.OrderFlowStatus;
+import com.yjf.esupplier.ws.bill.enums.OrderStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.PaymentMethodEnum;
+import com.yjf.esupplier.ws.bill.enums.TakeWaysEnum;
+import com.yjf.esupplier.ws.bill.info.OrderInfo;
+import com.yjf.esupplier.ws.bill.info.OrderItemInfo;
+import com.yjf.esupplier.ws.bill.order.BillBaseOrder;
+import com.yjf.esupplier.ws.bill.order.BillSaveOrder;
+import com.yjf.esupplier.ws.bill.order.CancelBillOrder;
+import com.yjf.esupplier.ws.bill.order.CancelMealOrder;
+import com.yjf.esupplier.ws.bill.order.DelBillOrder;
+import com.yjf.esupplier.ws.bill.order.DrawerAddressSaveOrder;
+import com.yjf.esupplier.ws.bill.order.MealOrder;
+import com.yjf.esupplier.ws.bill.order.PayToShopOrder;
+import com.yjf.esupplier.ws.bill.order.QueryOrderInfoSearchOrder;
+import com.yjf.esupplier.ws.bill.order.UpdateMealQuantityOrder;
+import com.yjf.esupplier.ws.bill.result.BillSaveResult;
+import com.yjf.esupplier.ws.common.enums.SeqNameEnum;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.UserBizTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyStatusEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTradeTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTypeEnum;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTradeInfo;
+import com.yjf.esupplier.ws.gifamount.order.GainMoneyUseOrder;
+import com.yjf.esupplier.ws.gifamount.order.UseGainMoneyOrder;
+import com.yjf.esupplier.ws.gifamount.query.order.GiftMoneyQueryOrder;
+import com.yjf.esupplier.ws.gifamount.result.UseGainMoneyResult;
+import com.yjf.esupplier.ws.info.CartItemInfo;
+import com.yjf.esupplier.ws.info.DrawerAddressInfo;
+import com.yjf.esupplier.ws.integral.UserPointsOrder;
+import com.yjf.esupplier.ws.integral.enums.PointsTypeEnum;
+import com.yjf.esupplier.ws.orderfood.info.DiningTableSituationInfo;
+import com.yjf.esupplier.ws.orderfood.order.QureyDiningTableOrder;
+import com.yjf.esupplier.ws.orderfood.order.UseingDiningOrder;
+import com.yjf.esupplier.ws.product.enums.ProductVaryEnum;
+import com.yjf.esupplier.ws.product.enums.RefundRuleEnum;
+import com.yjf.esupplier.ws.product.enums.SaleTypeEnum;
+import com.yjf.esupplier.ws.product.info.ProductInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.CheckBeforeProcessService;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.storage.enums.StorageBillTypeEnum;
+import com.yjf.esupplier.ws.storage.order.StorageUpdateOrder;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+
+public abstract class OrderBaseInfoProcessImpl extends OrderBaseService implements OrderService {
+	
+	@Autowired
+	protected OrderRefundService orderRefundService;
+	@Autowired
+	protected GiftMoneyQueryService giftMoneyQueryService;
+	
+	@Autowired
+	protected OrderQueryService orderQueryService;
+	@Autowired
+	protected DeliveryPersonService deliveryPesonService;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public BillSaveResult saveOrderInfo(final BillSaveOrder billSaveOrder) {
+		return (BillSaveResult) commonProcess(billSaveOrder, "保存订单",
+			new CheckBeforeProcessService() {
+				
+				@Override
+				public void check() {
+					if (!userPointsService.checkUserIntegral(createUserPointsOrder(billSaveOrder))) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "积分不足");
+					}
+					if (billSaveOrder.getUserPoint() > 0
+						&& billSaveOrder.getUserPoint() < ConfigParamProperty
+							.getIntegralDeductionCoefficient()) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+							"使用积分不能少于" + ConfigParamProperty.getIntegralDeductionCoefficient());
+					}
+				}
+			}, null, new ProcessInvokeService() {
+				
+				@Override
+				public void process(Domain domain) {
+					BillSaveResult baseResult = (BillSaveResult) EsupplierDomainHolder.get()
+						.getAttribute(CONTEXT_RESULT_KEY);
+					Map<Long, SupplierInfo> supplierInfoMap = (Map<Long, SupplierInfo>) EsupplierDomainHolder
+						.get().getAttribute("supplierMap");
+					if (supplierInfoMap == null) {
+						supplierInfoMap = new HashMap<Long, SupplierInfo>();
+						EsupplierDomainHolder.get().addAttribute("supplierMap", supplierInfoMap);
+					}
+					
+					SupplierInfo receiveMealsSupplierInfo = null;
+					if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.ORDER_MEAL) {
+						receiveMealsSupplierInfo = supplierService.getSupplier(billSaveOrder
+							.getReceiveMealsSupplierId());
+						if (receiveMealsSupplierInfo == null) {
+							throw ExceptionFactory.newYrdException(
+								EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "收餐商户不存在");
+						}
+						supplierInfoMap.put(receiveMealsSupplierInfo.getSupplierId(),
+							receiveMealsSupplierInfo);
+						
+					}
+					
+					List<OrderInfo> orderInfos = Lists.newArrayList();
+					Money totalAmont = billSaveOrder.getTotalAmount();
+					Money totalAmontIncludingfreight = Money.zero();
+					List<OrderDomain> orderDomains = Lists.newArrayList();
+					Map<Long, Money> supplierMap = new HashMap<Long, Money>();
+					/*批次号设置*/
+					Map<Long, Money> supplierBatch = new HashMap<Long, Money>();
+					/*批次号对应设置公共费用的订单*/
+					String batchNo = BusinessNumberUtil.gainOutBizNoNumber();
+					//	String batchNo = getOrderBatchNo();
+					totalAmontIncludingfreight.addTo(totalAmont);
+					OrderDomain postFeeOrder = new OrderDomain(); /*存运费的订单，第一单*/
+					for (CartItemInfo cartItemInfo : billSaveOrder.getList()) {
+						OrderDomain order = new OrderDomain();
+						SupplierInfo supplierInfo = null;
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.TICKET) {
+							ProductInfo productInfo = productService.findProductById(cartItemInfo.getProductId());
+							order.setSupplierId(productInfo.getResortsBusinessId());
+							order.setSupplierName(productInfo.getResortsBusinessName());
+						}else{
+							order.setSupplierId(cartItemInfo.getSupplierId());
+							supplierInfo = supplierService.getSupplier(cartItemInfo
+								.getSupplierId());
+							order.setSupplierName(supplierInfo.getRealName());
+						}
+						ProductDomain productDomain = productDomainRepository.active(
+							cartItemInfo.getProductId(), false);
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.B2C) {
+							if (productDomain.getSaleTypeB2c() == BooleanEnum.YES) {
+								order.setSaleTypeB2c(BooleanEnum.YES);
+							} else {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "商品不支持邮购");
+							}
+						}
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.O2O) {
+							if (productDomain.getSaleTypeO2o() == BooleanEnum.YES) {
+								order.setSaleTypeO2o(BooleanEnum.YES);
+							} else {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "非法服务");
+							}
+						}
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.HOTELS) {
+							order.setSaleTypeHotels(BooleanEnum.YES);
+						}
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.PAY_TO_SHOP) {
+							order.setPaymentFlowId(PaymentMethodEnum.PAY_TO_SHOP.getCode());
+							order.setPaymentMethod(PaymentMethodEnum.PAY_TO_SHOP);
+						}
+						/*现在只有门票，如果有线路请重新加上线路*/
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.TICKET) {
+							if (productDomain.getProductVary() == ProductVaryEnum.ticket) {
+								order.setProductVary(ProductVaryEnum.ticket);
+							} else {
+								throw ExceptionFactory.newYrdException(
+										EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "非法服务");
+							}
+						}else{
+							order.setProductVary(ProductVaryEnum.product);
+						}
+						order.setTuneMeal(billSaveOrder.getTuneMeal());
+						order.setDiningTime(billSaveOrder.getDiningTime());
+						order.setDiliverymanId(billSaveOrder.getDiliverymanId());
+						DeliveryPersonInfo deliveryPersonInfo = deliveryPesonService
+							.getPersonInfo(billSaveOrder.getDiliverymanId());
+						if (deliveryPersonInfo != null) {
+							order.setDiliverymanName(deliveryPersonInfo.getRealName());
+						}
+						order.setProductDomain(productDomain);
+						copyProductInfo(order, productDomain);
+						/*设置订单批次号*/
+						order.setBatchNo(batchNo);
+						//游客中心，或商户
+						/*计算运费，取同一商户中商品要求最大的运费*/
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.B2C) {
+							setPostFeeAndItem(productDomain, supplierMap,
+								totalAmontIncludingfreight, billSaveOrder.getProvince());
+							/*按景区设置运费-集中到一单*/
+							if (supplierBatch.containsKey(productDomain.getResortsBusinessId())) {
+								order.setPostFee(new Money(0));
+								if (supplierMap.get(productDomain.getResortsBusinessId())
+									.greaterThan(
+										supplierBatch.get(productDomain.getResortsBusinessId()))) {
+									postFeeOrder.setPostFee(supplierMap.get(productDomain
+										.getResortsBusinessId()));
+								}
+							} else {
+								order.setPostFee(supplierMap.get(productDomain
+									.getResortsBusinessId()));
+								supplierBatch.put(productDomain.getResortsBusinessId(),
+									supplierMap.get(productDomain.getResortsBusinessId()));
+								postFeeOrder = order;
+							}
+						}
+						/*创建订单明细*/
+						createOrderItem(cartItemInfo,
+							supplierMap.get(productDomain.getResortsBusinessId()), order);
+						
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.ORDER_MEAL) {
+							if (productDomain.getSaleTypeOrderMeal() != BooleanEnum.YES) {
+								throw ExceptionFactory.newYrdException(
+									EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "非法菜品");
+							} else {
+								order.setSaleTypeOrderMeal(BooleanEnum.YES);
+							}
+							if (billSaveOrder.getReceiveMealsSupplierId() == order.getSupplierId()) {
+								order.setTakeWays(TakeWaysEnum.FROM_THE_MENTION);
+							} else {
+								order.setTakeWays(TakeWaysEnum.DELIVERY);
+							}
+							order.setDetailAddress(receiveMealsSupplierInfo.getRealName() + "（"
+													+ receiveMealsSupplierInfo.getAddress() + "）");
+							order.setTuneMeal(BooleanEnum.YES);
+							order.setTakegoodsId(billSaveOrder.getReceiveMealsSupplierId());
+							order.setDiningTime(billSaveOrder.getForecastReceiveMealsDate());
+							order.setOrdersTime(getSysdate());
+							//点餐单独计算服务费
+							//服务费
+							Money postFee = Money.zero();
+							//配送费
+							Money diliveryFee = Money.zero();
+							//调餐
+							if (order.getSupplierId() != order.getTakegoodsId()) {
+								postFee = order.getOrderItemDomain().getTotalAmountNoShipment()
+									.multiply(supplierInfo.getServiceChargeRate()).divide(100);
+								diliveryFee = postFee.multiply(
+									AppConstantsUtil.getDiliveryFeeRate()).divide(100);
+							}
+							order.setPostFee(postFee);
+							order.setDiliveryFee(diliveryFee);
+							order.getOrderItemDomain().setPostFree(postFee);
+						}
+						orderDomains.add(order);
+					}
+					
+					int m = 0;
+					
+					GiftMoneyTradeInfo tradeInfo = getGiftMoneyTrade(billSaveOrder, totalAmont);
+					
+					//优惠红包金额
+					Money favourableGifMoney = Money.zero();
+					//优惠积分金额
+					Money favourableIntegralMoney = Money.zero();
+					for (OrderDomain order : orderDomains) {
+						Money supplierPriceTotal = Money.zero(); //单个订单总价
+						long id = getOrderNewId();
+						// 生成订单编号: 规则是时间格式(yyyyMMdd)+订单顺序号+验证码
+						order.setId(id);
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.B2C) {
+							makeDrawerInfo(billSaveOrder, billSaveOrder.getUserId(), order);
+						}
+						if (billSaveOrder.getSaleTypeEnum() == SaleTypeEnum.O2O
+							&& billSaveOrder.getTuneMeal() == BooleanEnum.YES) {
+							makeDrawerInfo(billSaveOrder, billSaveOrder.getUserId(), order);
+						}
+						OrderItemInfo orderItemInfo = new OrderItemInfo();
+						BeanCopier.staticCopy(order.getOrderItemDomain(), orderItemInfo);
+						supplierPriceTotal.addTo(order.getPostFee());
+						supplierPriceTotal.addTo(order.getOrderItemDomain()
+							.getTotalAmountNoShipment());
+						/**** 保存订单 *****/
+						order.setDrawerName(billSaveOrder.getDrawerName());
+						if (billSaveOrder.getSaleTypeEnum() != SaleTypeEnum.ORDER_MEAL) {
+							order.setDetailAddress(billSaveOrder.getDetailAddress());
+						}
+						order.setDrawerNumber(billSaveOrder.getMobileNumber());
+						//						order.setPaymentMethod(PaymentMethodEnum.ONLINE);
+						/*付款方式*/
+						order.setPaymentMethod(billSaveOrder.getPaymentMethod());
+						if (billSaveOrder.getSpecialExplain() != null
+							&& billSaveOrder.getSpecialExplain().length > m) {
+							if (order.getSaleTypeHotels() == BooleanEnum.YES) {
+								if (StringUtil.isNotBlank(billSaveOrder.getSpecialExplain()[m])) {
+									order.setSpecialExplain("计划"
+															+ billSaveOrder.getSpecialExplain()[m]
+															+ "点前到达");
+								}
+							} else {
+								order.setSpecialExplain(billSaveOrder.getSpecialExplain()[m]);
+							}
+						}
+						
+						order.setZipCode(billSaveOrder.getZipCode());
+						
+						/**
+						 * 计算折扣金额
+						 */
+						calculateDiscountedAmount(billSaveOrder, totalAmontIncludingfreight, m,
+							tradeInfo, favourableGifMoney, favourableIntegralMoney, order);
+						order.setCreateTime(EsupplierDomainHolder.get().getSysDate());
+						order.setUserId(billSaveOrder.getUserId());
+						order.setBuyerNickname(billSaveOrder.getNickname());
+						order.setTotalAmount(supplierPriceTotal);
+						//***********提货方式保存
+						
+						order.setRawAddTime(new Date());
+						//***********提货方式保存
+						orderDomainRepository.store(order); //保存订单操作
+						OrderInfo orderInfo = new OrderInfo();
+						BeanCopier.staticCopy(order, orderInfo);
+						orderInfo.setOrderItemInfo(orderItemInfo);
+						orderInfos.add(orderInfo);
+						saveStorage(order, order.getOrderItemDomain());
+						m++;
+					}
+					UseGainMoneyOrder gainMoneyOrder = new UseGainMoneyOrder();
+					gainMoneyOrder.setGainMoneyIds(new long[] { NumberUtil.parseLong(billSaveOrder
+						.getGainMoneyTradesId()) });
+					gainMoneyOrder.setOrderId(NumberUtil.parseLong(batchNo));
+					gainMoneyOrder.setUsedAmount(tradeInfo.getUsedAmount());
+					giftMoneyUseProcessService.saveGainMoney(gainMoneyOrder);
+					baseResult.setOrderInfos(orderInfos);
+					baseResult.setSuccess(true);
+					if (favourableIntegralMoney.equals(ZERO)) {
+						billSaveOrder.setUserPoint(0);
+					}
+					consumeIntegral(billSaveOrder);
+				}
+			}, null);
+	}
+	
+	/**
+	 * 点餐
+	 * @param
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public BillSaveResult mealOrder(final MealOrder mealOrder) {
+		return (BillSaveResult) commonProcess(mealOrder, "点餐", null, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				
+				BillSaveResult baseResult = (BillSaveResult) EsupplierDomainHolder.get()
+					.getAttribute(CONTEXT_RESULT_KEY);
+				QureyDiningTableOrder diningTableOrder = new QureyDiningTableOrder();
+				diningTableOrder.setSupplierId(mealOrder.getPadSupplierId());
+				diningTableOrder.setTableNumber(mealOrder.getTableNumber());
+				DiningTableSituationInfo tableSituationInfo = orderfoodService
+					.getUseingDiningTable(diningTableOrder);
+				if (tableSituationInfo == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"还未选择桌号");
+				}
+				Money totalMoney = new Money();
+				List<OrderInfo> orderInfos = Lists.newArrayList();
+				long totalQuantity = 0;
+				for (CartItemInfo cartItemInfo : mealOrder.getList()) {
+					totalQuantity = totalQuantity + cartItemInfo.getQuantity();
+					OrderDomain order = new OrderDomain();
+					SupplierInfo padSupplierInfo = supplierService.getSupplier(mealOrder
+						.getPadSupplierId());
+					Money postFee = Money.zero();
+					Money diliveryFee = Money.zero();
+					if (mealOrder.getPadSupplierId() == cartItemInfo.getSupplierId()) {
+						order.setSupplierId(padSupplierInfo.getSupplierId());
+						order.setSupplierName(padSupplierInfo.getRealName());
+						order.setSupplierNickname(padSupplierInfo.getStoreName());
+						order.setTuneMeal(BooleanEnum.NO);
+						order.setTakeWays(TakeWaysEnum.FROM_THE_MENTION);
+					} else {
+						SupplierInfo supplierInfo = supplierService.getSupplier(cartItemInfo
+							.getSupplierId());
+						order.setSupplierName(supplierInfo.getRealName());
+						order.setSupplierNickname(supplierInfo.getStoreName());
+						order.setTuneMeal(BooleanEnum.YES);
+						order.setTakeWays(TakeWaysEnum.DELIVERY);
+						order.setSupplierId(supplierInfo.getSupplierId());
+						postFee = cartItemInfo.getTotalAmount()
+							.multiply(supplierInfo.getServiceChargeRate()).divide(100);
+						diliveryFee = postFee.multiply(AppConstantsUtil.getDiliveryFeeRate())
+							.divide(100);
+						
+					}
+					order.setDetailAddress(padSupplierInfo.getRealName() + "（"
+											+ padSupplierInfo.getAddress() + "）");
+					order.setTableNumber(mealOrder.getTableNumber());
+					order.setTakegoodsId(mealOrder.getPadSupplierId());
+					ProductDomain productDomain = productDomainRepository.active(
+						cartItemInfo.getProductId(), false);
+					if (productDomain.getSaleTypeOrderMeal() == BooleanEnum.YES) {
+						order.setSaleTypeOrderMeal(BooleanEnum.YES);
+					} else {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "非法菜品");
+					}
+					long id = getOrderNewId();
+					order.setId(id);
+					order.setOrderStatus(OrderStatusEnum.PAD_ORDER);
+					order.setProductDomain(productDomain);
+					copyProductInfo(order, productDomain);
+					createOrderItem(cartItemInfo, Money.zero(), order);
+					//服务费
+					order.setPostFee(postFee);
+					order.setDiliveryFee(diliveryFee);
+					order.setTotalAmount(cartItemInfo.getTotalAmount().add(postFee));
+					order.setTableNumber(mealOrder.getTableNumber());
+					order.setTableNumberSeq(tableSituationInfo.getTableNumberSeq());
+					order.setRawAddTime(new Date());
+					//***********提货方式保存
+					orderDomainRepository.store(order); //保存订单操作
+					OrderInfo orderInfo = new OrderInfo();
+					BeanCopier.staticCopy(order, orderInfo);
+					OrderItemInfo orderItemInfo = new OrderItemInfo();
+					BeanCopier.staticCopy(order.getOrderItemDomain(), orderItemInfo);
+					orderInfo.setOrderItemInfo(orderItemInfo);
+					orderInfos.add(orderInfo);
+					totalMoney.addTo(order.getTotalAmount());
+				}
+				UseingDiningOrder useingDiningOrder = new UseingDiningOrder();
+				useingDiningOrder.setAddOrderCount(totalQuantity);
+				useingDiningOrder.setAddConsumeAmount(totalMoney);
+				useingDiningOrder.setTableNumberSeq(tableSituationInfo.getTableNumberSeq());
+				useingDiningOrder.setCanSettle(BooleanEnum.NO);
+				orderfoodService.updateUseingDiningTable(useingDiningOrder);
+				baseResult.setOrderInfos(orderInfos);
+				baseResult.setSuccess(true);
+			}
+		}, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public EsupplierBaseResult cancelMealOrder(final CancelMealOrder cancelMealOrder) {
+		return commonProcess(cancelMealOrder, "取消点餐", null, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				
+				QureyDiningTableOrder diningTableOrder = new QureyDiningTableOrder();
+				diningTableOrder.setSupplierId(cancelMealOrder.getPadSupplierId());
+				diningTableOrder.setTableNumber(cancelMealOrder.getTableNumber());
+				DiningTableSituationInfo tableSituationInfo = orderfoodService
+					.getUseingDiningTable(diningTableOrder);
+				if (tableSituationInfo == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"还未选择桌号");
+				}
+				OrderDomain orderDomain = orderDomainRepository.active(
+					cancelMealOrder.getOrderId(), true);
+				if (orderDomain.getOrderStatus() == OrderStatusEnum.JYC) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "菜品已经结算,不能取消");
+				}
+				OrderItemDomain itemDomain = orderDomainRepository.activeOrderItem(cancelMealOrder
+					.getOrderId());
+				orderDomainRepository.remove(orderDomain);
+				UseingDiningOrder useingDiningOrder = new UseingDiningOrder();
+				useingDiningOrder.setAddOrderCount(itemDomain.getQuantity());
+				useingDiningOrder.setAddConsumeAmount(orderDomain.getTotalAmount());
+				useingDiningOrder.setIsAddOrder(BooleanEnum.NO);
+				QueryOrderInfoSearchOrder orderInfoSearchOrder = new QueryOrderInfoSearchOrder();
+				//				orderInfoSearchOrder.setSupplierId(cancelMealOrder.getPadSupplierId());
+				orderInfoSearchOrder.setTableNumberSeq(tableSituationInfo.getTableNumberSeq());
+				orderInfoSearchOrder.setPageSize(10000);
+				QueryBaseBatchResult<OrderInfo> batchResult = orderQueryService
+					.findOrderList(orderInfoSearchOrder);
+				useingDiningOrder.setCanSettle(BooleanEnum.YES);
+				for (OrderInfo orderInfo : batchResult.getPageList()) {
+					if (orderInfo.getOrderStatus() == OrderStatusEnum.PAD_ORDER) {
+						useingDiningOrder.setCanSettle(BooleanEnum.NO);
+						break;
+					}
+				}
+				useingDiningOrder.setTableNumberSeq(orderDomain.getTableNumberSeq());
+				orderfoodService.updateUseingDiningTable(useingDiningOrder);
+			}
+		}, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public EsupplierBaseResult updateQuantityMealOrder(final UpdateMealQuantityOrder quantityOrder) {
+		if (quantityOrder.getQuantity() == 0) {
+			CancelMealOrder cancelMealOrder = new CancelMealOrder();
+			BeanCopier.staticCopy(quantityOrder, cancelMealOrder);
+			
+			return cancelMealOrder(cancelMealOrder);
+		}
+		
+		return commonProcess(quantityOrder, "修改点餐", null, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				QureyDiningTableOrder diningTableOrder = new QureyDiningTableOrder();
+				diningTableOrder.setSupplierId(quantityOrder.getPadSupplierId());
+				diningTableOrder.setTableNumber(quantityOrder.getTableNumber());
+				DiningTableSituationInfo tableSituationInfo = orderfoodService
+					.getUseingDiningTable(diningTableOrder);
+				if (tableSituationInfo == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"还未选择桌号");
+				}
+				OrderDomain orderDomain = orderDomainRepository.active(quantityOrder.getOrderId(),
+					true);
+				if (orderDomain.getOrderStatus() == OrderStatusEnum.JYC) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "菜品已经结算,不能取消");
+				}
+				
+				OrderItemDomain itemDomain = orderDomainRepository.activeOrderItem(orderDomain
+					.getId());
+				long quantity = itemDomain.getQuantity() - quantityOrder.getQuantity();
+				itemDomain.setQuantity(quantityOrder.getQuantity());
+				SupplierInfo supplierInfo = supplierService.getSupplier(orderDomain.getSupplierId());
+				Money postFee = Money.zero();
+				Money diliveryFee = Money.zero();
+				if (orderDomain.getSupplierId() != orderDomain.getTakegoodsId()) {
+					postFee = itemDomain.getTotalAmountNoShipment()
+						.multiply(supplierInfo.getServiceChargeRate()).divide(100);
+					diliveryFee = postFee.multiply(AppConstantsUtil.getDiliveryFeeRate()).divide(
+						100);
+				}
+				Money totalAmount = itemDomain.getTotalAmountNoShipment().add(postFee);
+				Money money = orderDomain.getTotalAmount().subtract(totalAmount);
+				orderDomain.setTotalAmount(totalAmount);
+				orderDomain.setPostFee(postFee);
+				orderDomain.setDiliveryFee(diliveryFee);
+				itemDomain.setPostFree(postFee);
+				UseingDiningOrder useingDiningOrder = new UseingDiningOrder();
+				useingDiningOrder.setTableNumberSeq(orderDomain.getTableNumberSeq());
+				useingDiningOrder.setCanSettle(BooleanEnum.NO);
+				if (money.greaterThan(Money.zero())) {
+					useingDiningOrder.setIsAddOrder(BooleanEnum.NO);
+					useingDiningOrder.setAddConsumeAmount(money);
+					useingDiningOrder.setAddOrderCount(quantity);
+				} else {
+					useingDiningOrder.setAddConsumeAmount(money.multiply(-1));
+					useingDiningOrder.setIsAddOrder(BooleanEnum.YES);
+					useingDiningOrder.setAddOrderCount(quantity * (-1));
+				}
+				
+				orderDomain.setOrderItemDomain(itemDomain);
+				orderDomainRepository.reStore(orderDomain);
+				orderfoodService.updateUseingDiningTable(useingDiningOrder);
+			}
+		}, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public BillSaveResult payToShop(final PayToShopOrder payToShopOrder) {
+		
+		return (BillSaveResult) commonProcess(payToShopOrder, "到店付款",
+			new CheckBeforeProcessService() {
+				
+				@Override
+				public void check() {
+					if (!userPointsService.checkUserIntegral(createUserPointsOrder(payToShopOrder))) {
+						throw new IllegalArgumentException("积分不足");
+					}
+				}
+			}, null, new ProcessInvokeService() {
+				
+				@Override
+				public void process(Domain domain) {
+					BillSaveResult baseResult = (BillSaveResult) EsupplierDomainHolder.get()
+						.getAttribute(CONTEXT_RESULT_KEY);
+					
+					OrderDomain order = new OrderDomain();
+					UserInfo buyer = userQueryService.queryByUserId(payToShopOrder.getUserId())
+						.getQueryUserInfo();
+					UserInfo seller = userQueryService.queryByUserId(
+						Long.parseLong(payToShopOrder.getSellerId())).getQueryUserInfo();
+					if (buyer == null || seller == null) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "找不到买家或者卖家");
+					}
+					long id = getOrderNewId();
+					Money totalMoney = payToShopOrder.getTotalAmount();
+					GiftMoneyTradeInfo tradeInfo = getGiftMoneyTrade(payToShopOrder, totalMoney);
+					order.setId(id);
+					order.setBuyerNickname(buyer.getNickname());
+					/*线下订单ID 存在备注字段中*/
+					order.setTotalAmount(payToShopOrder.getTotalAmount());
+					order.setGainMoney(payToShopOrder.getGainMoney());
+					order.setProductName(payToShopOrder.getGoodsMemo());
+					order.setPayedTime(payToShopOrder.getTradeTime());
+					order.setUserId(buyer.getUserId());
+					order.setCreateTime(EsupplierDomainHolder.get().getSysDate());
+					order.setFacade(RefundRuleEnum.CAN_NOT);
+					SupplierInfo supplierInfo = supplierService.getSupplier(seller.getUserId());
+					order.setSupplierId(seller.getUserId());
+					order.setSupplierName(supplierInfo.getRealName());
+					order.setSupplierNickname(supplierInfo.getStoreName());
+					if(supplierInfo.getO2o() == BooleanEnum.YES){
+						order.setSaleTypeO2o(BooleanEnum.YES);
+					}
+					if(supplierInfo.getHotels() == BooleanEnum.YES){
+						order.setSaleTypeHotels(BooleanEnum.YES);
+					}
+					
+					order.setPaymentMethod(PaymentMethodEnum.PAY_TO_SHOP);
+					/*批次号对应设置公共费用的订单*/
+					String batchNo = BusinessNumberUtil.gainOutBizNoNumber();
+					order.setBatchNo(batchNo);
+					OrderItemDomain itemDomain = new OrderItemDomain();
+					long itemId = dateSeqService.getNextSeqNumber(SeqNameEnum.ORDER_ITEM_SEQ);
+					itemDomain.setPicPath(supplierInfo.getMerchantPicPath1());
+					itemDomain.setId(itemId);			
+					itemDomain.setItemProductName(order.getProductName());
+					itemDomain.setOrderId(order.getId());
+					itemDomain.setProPrice(payToShopOrder.getTotalAmount());
+					itemDomain.setQuantity(1);
+					order.setOrderItemDomain(itemDomain);
+					if (seller.getBelongTo() == seller.getUserId() || seller.getBelongTo() == 0) {
+						order.setResortsBusinessId(seller.getUserId());
+						order.setResortsBusinessName(seller.getNickname());
+						order.setResortsBusinessRealName(seller.getRealName());
+					} else {
+						UserInfo resortsBusinessInfo = userQueryService.queryByUserId(
+							seller.getBelongTo()).getQueryUserInfo();
+						order.setResortsBusinessId(resortsBusinessInfo.getUserId());
+						order.setResortsBusinessName(resortsBusinessInfo.getNickname());
+						order.setResortsBusinessRealName(resortsBusinessInfo.getRealName());
+					}
+					calculateDiscountedAmount(payToShopOrder, totalMoney, 0, tradeInfo,
+						Money.zero(), Money.zero(), order);
+					order.setTotalAmount(payToShopOrder.getTotalAmount());
+					order.setRawAddTime(new Date());
+					order.setOrderStatus(OrderStatusEnum.WFK);
+					order.setWorkflowStatus(OrderFlowStatus.WAIT_BUYER_PAY);
+					//***********提货方式保存
+					orderDomainRepository.store(order); //保存订单操作
+					/*订单返回*/
+					List<OrderInfo> orderInfos = Lists.newArrayList();
+					OrderItemInfo orderItemInfo = new OrderItemInfo();
+					BeanCopier.staticCopy(order.getOrderItemDomain(), orderItemInfo);
+					OrderInfo orderInfo = new OrderInfo();
+					BeanCopier.staticCopy(order, orderInfo);
+					orderInfo.setOrderItemInfo(orderItemInfo);
+					orderInfos.add(orderInfo);
+					baseResult.setOrderInfos(orderInfos);
+					baseResult.setSuccess(true);
+					consumeIntegral(payToShopOrder);
+				}
+			}, null);
+	}
+	
+	/**
+	 * 计算红包抵扣金额
+	 * @param totalMoney
+	 * @return
+	 */
+	protected GiftMoneyTradeInfo getGiftMoneyTrade(final BillBaseOrder billBaseOrder,
+													Money totalMoney) {
+		GiftMoneyTradeInfo tradeInfo = new GiftMoneyTradeInfo();
+		if (StringUtil.isNotEmpty(billBaseOrder.getGainMoneyTradesId())) {
+			
+			GainMoneyUseOrder moneyUseOrder = new GainMoneyUseOrder();
+			moneyUseOrder.setGiftMoneyIds(new long[] { NumberUtil.parseLong(billBaseOrder
+				.getGainMoneyTradesId()) });
+			moneyUseOrder.setUserId(billBaseOrder.getUserId());
+			moneyUseOrder.setInvestAmount(totalMoney);
+			UseGainMoneyResult moneyResult = giftMoneyUseProcessService
+				.investUseGainMoney(moneyUseOrder);
+			tradeInfo = moneyResult.getGiftMoneyTradeInfo();
+			if (!moneyResult.isSuccess() || tradeInfo == null) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+					"使用的优惠券有错误");
+			}
+		}
+		return tradeInfo;
+	}
+	
+	protected void makeDrawerInfo(final BillSaveOrder billSaveOrder, long userId, OrderDomain order) {
+		order.setCity(billSaveOrder.getCity());
+		order.setCounty(billSaveOrder.getAreaInfo());
+		order.setProvince(billSaveOrder.getProvince());
+		order.setDetailAddress(billSaveOrder.getDetailAddress());
+		order.setDrawerName(billSaveOrder.getDrawerName());
+		order.setDrawerTel(billSaveOrder.getDrawerNumber());
+		order.setDrawerNumber(billSaveOrder.getMobileNumber());
+		
+		if (StringUtil.isEmpty(billSaveOrder.getAddressId())
+			|| "-1".equals(billSaveOrder.getAddressId())) { //添加联系人地址，必须是“送货上门方式”的才添加地址管理
+			DrawerAddressSaveOrder addressOrder = new DrawerAddressSaveOrder();
+			addressOrder.setDrawerName(billSaveOrder.getDrawerName());
+			addressOrder.setCity(billSaveOrder.getCity());
+			addressOrder.setProvince(billSaveOrder.getProvince());
+			addressOrder.setAreaCode(billSaveOrder.getAreaInfo());
+			addressOrder.setDetailAddress(billSaveOrder.getDetailAddress());
+			addressOrder.setZipCode(billSaveOrder.getZipCode());
+			addressOrder.setMobileNumber(billSaveOrder.getMobileNumber());
+			addressOrder.setUserId(userId);
+			saveDrawerAddress(addressOrder);
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult setDefaultAddress(String addID) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		TblDrawerAddressDO info = tblDrawerAddressDAO.findById(addID);
+		if (info != null) {
+			List<DrawerAddressInfo> addressesInfos = getAddresses(ShiroSessionUtils
+				.getSessionLocal().getUserId());
+			if (addressesInfos.size() > 0) {
+				for (DrawerAddressInfo addressInfo : addressesInfos) {
+					if (StringUtil.isNotEmpty(addressInfo.getDefaultAddress())
+						&& addressInfo.getDefaultAddress().equals("Y")) {
+						DrawerAddressSaveOrder orders = new DrawerAddressSaveOrder();
+						BeanCopier.staticCopy(addressInfo, orders);
+						orders.setIsDefault("N");
+						updateDrawerAddress(orders);
+						break;
+					}
+					
+				}
+			}
+			info.setIsDefault("Y");
+			DrawerAddressSaveOrder orders = new DrawerAddressSaveOrder();
+			BeanCopier.staticCopy(info, orders);
+			updateDrawerAddress(orders);
+			result.setSuccess(true);
+		} else {
+			result.setMessage("该地址可能已被删除！");
+		}
+		return result;
+	}
+	
+	/**
+	 * 根据会员的ID查询已经保存过的收货人的地址信息 2010-4-19
+	 * @author yuwenqiang
+	 * @param mId
+	 * @return
+	 */
+	@Override
+	public List<DrawerAddressInfo> getAddresses(Long mId) {
+		List<TblDrawerAddressDO> addresses = tblDrawerAddressDAO.findByUserId(mId);
+		return converDrawerAddressInfos(addresses);
+	}
+	
+	/**
+	 * 根据会员的ID查询已经保存过的收货人的地址信息 2010-4-19
+	 * @author yuwenqiang
+	 * @param mId
+	 * @return
+	 */
+	@Override
+	public List<DrawerAddressInfo> getAddressesAndDefault(Long mId, String isDefault) {
+		List<TblDrawerAddressDO> addresses = tblDrawerAddressDAO.findByUserIdAndDefault(mId,
+			isDefault);
+		return converDrawerAddressInfos(addresses);
+	}
+	
+	/**
+	 * 
+	 * 2010-4-22
+	 * @author yuwenqiang
+	 * @param addId
+	 * @return
+	 */
+	@Override
+	public DrawerAddressInfo findDrawerAddressById(String addId) {
+		TblDrawerAddressDO addressDO = tblDrawerAddressDAO.findById(addId);
+		DrawerAddressInfo info = new DrawerAddressInfo();
+		BeanCopier.staticCopy(addressDO, info);
+		return info;
+	}
+	
+	@Override
+	public void deleteAddressById(String addID) {
+		tblDrawerAddressDAO.deleteByIdAndUserId(addID, ShiroSessionUtils.getSessionLocal()
+			.getUserId());
+		
+	}
+	
+	/**
+	 * 保存货物收货人的地址 2010-4-21
+	 * @author yuwenqiang
+	 */
+	@Override
+	public EsupplierBaseResult saveDrawerAddress(final DrawerAddressSaveOrder addressOrder) {
+		return commonProcess(addressOrder, "新增地址", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				TblDrawerAddressDO addressDO = new TblDrawerAddressDO();
+				BeanCopier.staticCopy(addressOrder, addressDO);
+				addressDO.setRawAddTime(new Date());
+				if (StringUtil.isEmpty(addressOrder.getId())) {
+					addressDO.setId(String.valueOf(dateSeqService
+						.getNextSeqNumber(SeqNameEnum.ADDRESS_SEQ)));
+				} else {
+					addressDO.setId(addressOrder.getId());
+				}
+				tblDrawerAddressDAO.insert(addressDO);
+				return null;
+			}
+		}, null, null);
+		
+	}
+	
+	@Override
+	public EsupplierBaseResult updateDrawerAddress(final DrawerAddressSaveOrder addressOrder) {
+		return commonProcess(addressOrder, "新增地址", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				if (StringUtil.isBlank(addressOrder.getId())) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "地址id不能为空");
+				}
+				TblDrawerAddressDO addressDO = tblDrawerAddressDAO.findById(addressOrder.getId());
+				if (addressDO.getUserId() != addressOrder.getUserId()) {
+					throw ExceptionFactory
+						.newYrdException(EsupplierResultEnum.NO_ACCESS, "无修改数据权限");
+				}
+				BeanCopier.staticCopy(addressOrder, addressDO);
+				addressDO.setRawAddTime(new Date());
+				tblDrawerAddressDAO.update(addressDO);
+				return null;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult cancelOrder(final CancelBillOrder processOrder) {
+		String processName = processOrder.getBizTypeEnum().getMessage() + "取消订单";
+		return commonOrderProcess(processOrder, processName, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				OrderDomain orderDomain = (OrderDomain) domain;
+				if (OrderStatusEnum.WFK != orderDomain.getOrderStatus()) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "已经处理数据,不能对该订单进行取消");
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.BUYER) {
+					if (processOrder.getProcessorId() != orderDomain.getUserId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.SELLER) {
+					if (processOrder.getProcessorId() != orderDomain.getSupplierId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.SELLER
+					|| processOrder.getBizTypeEnum() == UserBizTypeEnum.VISITOR_OPERATOR) {
+					if (processOrder.getBelongTo() != orderDomain.getResortsBusinessId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				orderDomain.setOperatorId(processOrder.getProcessorId());
+				orderDomain.setOperatorTime(EsupplierDomainHolder.get().getSysDate());
+				orderDomain.setOrderStatus(OrderStatusEnum.YQX);
+				orderDomain.setWorkflowStatus(OrderFlowStatus.ORDER_COLSE);
+				orderDomainRepository.reStore(orderDomain);
+				/*返还积分*/
+				if (orderDomain.getUserPoint() > 0) {
+					UserPointsOrder userPointsOrder = new UserPointsOrder();
+					userPointsOrder.setUserId(processOrder.getProcessorId());
+					userPointsOrder.setPointsTypeEnum(PointsTypeEnum.ORDERCANCEL);
+					userPointsOrder.setPointValue(orderDomain.getUserPoint());
+					userPointsService.addUserPointsDetail(userPointsOrder);
+				}
+				/*退回优惠券*/
+				if (orderDomain.getGainMoney().getCent() > 0) {
+					/*是否还存在未退回的订单*/
+					QueryOrderInfoSearchOrder searchOrder = new QueryOrderInfoSearchOrder();
+					searchOrder.setPageNumber(1);
+					searchOrder.setPageSize(1);
+					searchOrder.setBatchNo(orderDomain.getBatchNo());
+					searchOrder.setDelStatus(BooleanEnum.NO.getCode());
+					searchOrder.setOrderStatus(OrderStatusEnum.WFK);
+					QueryBaseBatchResult<OrderInfo> searchOrderResult = findOrderList(searchOrder);
+					/*如果是最后一个订单取消，则退回优惠券*/
+					if (searchOrderResult.getPageList().size() == 1
+						&& searchOrderResult.getPageList().get(0).getId() == orderDomain.getId()) {
+						GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+						List<GiftMoneyTypeEnum> typeList = Lists.newArrayList();
+						typeList.add(GiftMoneyTypeEnum.GAIN_AMOUNT);
+						queryOrder.setStatus(GiftMoneyStatusEnum.FINISH.getCode());
+						queryOrder.setTradeDetailId(orderDomain.getId());
+						queryOrder.setTypeList(typeList);
+						List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+							.giveGainMoneyListByCondition(queryOrder);
+						if (giftMoneys.size() > 0) {
+							GiftMoneyInfo useInfo = giftMoneys.get(0);
+							List<GiftMoneyTradeInfo> giftMoneyTrades = Lists.newArrayList();
+							GiftMoneyTradeInfo createTradeInfo = new GiftMoneyTradeInfo();
+							BeanCopier.staticCopy(useInfo, createTradeInfo);
+							createTradeInfo.setTradeType(GiftMoneyTradeTypeEnum.BACK);
+							createTradeInfo.setStatus(GiftMoneyStatusEnum.NORMAL);
+							createTradeInfo.setGiftId(useInfo.getGiftId());
+							createTradeInfo.setAmount(orderDomain.getGainMoney());
+							giftMoneyTrades.add(createTradeInfo);
+							giftMoneyUseProcessService.createGiftMoneyTrades(giftMoneyTrades,
+								getSysdate());
+						}
+					}
+				}
+				OrderItemDomain orderItem = orderDomainRepository.activeOrderItem(processOrder
+					.getBizNo());
+				StorageUpdateOrder storageUpdateOrder = new StorageUpdateOrder();
+				storageUpdateOrder.setProductId(orderItem.getItemProductId());
+				storageUpdateOrder.setBillNo("qx" + String.valueOf(orderItem.getId()));
+				storageUpdateOrder.setStockAmount(orderItem.getQuantity());
+				storageUpdateOrder.setStorageBillTypeEnum(StorageBillTypeEnum.CANCEL_ORDER);
+				storageUpdateOrder.setSupplierId(orderDomain.getSupplierId());
+				storageService.saveStorageProductChange(storageUpdateOrder);
+			}
+		}, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult cancelBatchOrder(CancelBillOrder processOrder) {
+		EsupplierBaseResult baseResult = createResult();
+		try {
+			QueryOrderInfoSearchOrder searchOrder = new QueryOrderInfoSearchOrder();
+			searchOrder.setBatchNo(processOrder.getBatchNo());
+			QueryBaseBatchResult<OrderInfo> orderList = orderQueryService
+				.findOrderList(searchOrder);
+			if (orderList.getPageList() != null) {
+				for (OrderInfo orderInfo : orderList.getPageList()) {
+					CancelBillOrder billOrder = new CancelBillOrder();
+					BeanCopier.staticCopy(processOrder, billOrder);
+					billOrder.setBizTypeEnum(processOrder.getBizTypeEnum());
+					billOrder.setBizNo(orderInfo.getId());
+					EsupplierBaseResult result = cancelOrder(billOrder);
+					if (!result.isSuccess()) {
+						throw ExceptionFactory.newYrdException(result.getCreditsysResultEnum(),
+							result.getMessage());
+					}
+				}
+			}
+			baseResult.setSuccess(true);
+		} catch (CreditsysBizException eex) {
+			setYrdException(null, baseResult, eex, eex.getErrorMsg());
+		} catch (Exception e) {
+			setUnknownException(baseResult, e);
+		} catch (Throwable e) {
+			setUnknownException(baseResult, e);
+		}
+		return baseResult;
+	}
+	
+	public void initCreateGiftMoneyTradeInfo(GiftMoneyTradeInfo createTradeInfo,
+												GiftMoneyTradeInfo info, Money useAmount,
+												long detailDomainId) {
+		BeanCopier.staticCopy(info, createTradeInfo);
+		createTradeInfo.setUseType(info.getUseType());
+		createTradeInfo.setTradeType(GiftMoneyTradeTypeEnum.USED);
+		createTradeInfo.setStatus(GiftMoneyStatusEnum.USED);
+		createTradeInfo.setGiftId(info.getGiftTradeId());
+		createTradeInfo.setUsedAmount(useAmount);
+		createTradeInfo.setType(info.getType());
+		createTradeInfo.setAmount(info.getAmount());
+		createTradeInfo.setTradeDetailId(detailDomainId);
+	}
+	
+	@Override
+	public EsupplierBaseResult delOrder(final DelBillOrder processOrder) {
+		String processName = processOrder.getBizTypeEnum().getMessage() + "删除订单";
+		return commonOrderProcess(processOrder, processName, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				OrderDomain orderDomain = (OrderDomain) domain;
+				if (OrderStatusEnum.YGB != orderDomain.getOrderStatus()) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "已经处理数据,不能对该订单进行删除");
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.BUYER) {
+					if (processOrder.getProcessorId() != orderDomain.getUserId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.SELLER) {
+					if (processOrder.getProcessorId() != orderDomain.getSupplierId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				orderDomain.setOperatorId(processOrder.getProcessorId());
+				orderDomain.setOperatorTime(EsupplierDomainHolder.get().getSysDate());
+				orderDomain.setDelStatus(BooleanEnum.YES);
+				orderDomainRepository.reStore(orderDomain);
+			}
+		}, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult clearDelOrder(final DelBillOrder processOrder) {
+		String processName = processOrder.getBizTypeEnum().getMessage() + "永久删除订单";
+		return commonOrderProcess(processOrder, processName, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				OrderDomain orderDomain = (OrderDomain) domain;
+				if (OrderStatusEnum.YGB != orderDomain.getOrderStatus()) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "已经处理数据,不能对该订单进行永久删除");
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.BUYER) {
+					if (processOrder.getProcessorId() != orderDomain.getUserId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.SELLER) {
+					if (processOrder.getProcessorId() != orderDomain.getSupplierId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (orderDomain.getDelStatus() != BooleanEnum.YES) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "数据异常");
+				}
+				orderDomain.setOperatorId(processOrder.getProcessorId());
+				orderDomain.setOperatorTime(EsupplierDomainHolder.get().getSysDate());
+				orderDomain.setDelStatus(BooleanEnum.YES);
+				orderDomainRepository.remove(orderDomain);
+			}
+		}, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult recoverDelOrder(final DelBillOrder processOrder) {
+		String processName = processOrder.getBizTypeEnum().getMessage() + "恢复订单";
+		return commonOrderProcess(processOrder, processName, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				OrderDomain orderDomain = (OrderDomain) domain;
+				if (OrderStatusEnum.YGB != orderDomain.getOrderStatus()) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "已经处理数据,不能对该订单进行恢复");
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.BUYER) {
+					if (processOrder.getProcessorId() != orderDomain.getUserId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (processOrder.getBizTypeEnum() == UserBizTypeEnum.SELLER) {
+					if (processOrder.getProcessorId() != orderDomain.getSupplierId()) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS,
+							"无权限操作该数据");
+					}
+				}
+				if (orderDomain.getDelStatus() != BooleanEnum.YES) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "数据异常");
+				}
+				orderDomain.setOperatorId(processOrder.getProcessorId());
+				orderDomain.setOperatorTime(EsupplierDomainHolder.get().getSysDate());
+				orderDomain.setDelStatus(BooleanEnum.YES);
+				orderDomainRepository.reStore(orderDomain);
+			}
+		}, null);
+	}
+	
+	/*
+	* 计算每个商品的运费信息
+	* */
+	@Override
+	public void setPostFeeAndItem(ProductDomain productDomain, Map<Long, Money> supplierMap,
+									Money totalAmontIncludingfreight, String province) {
+		
+		Money itemPostFee = new Money();
+		//游客中心，取同一景区中商品要求最大的运费*/
+		Money supplierPostFee = supplierMap.get(productDomain.getResortsBusinessId());
+		if (supplierPostFee == null) {
+			itemPostFee = calculateShipment(province, productDomain);
+			totalAmontIncludingfreight.addTo(itemPostFee);
+			supplierMap.put(productDomain.getResortsBusinessId(), itemPostFee);
+		} else {
+			itemPostFee = calculateShipment(province, productDomain);
+			if (itemPostFee.greaterThan(supplierPostFee)) {
+				supplierMap.put(productDomain.getResortsBusinessId(), itemPostFee);
+				totalAmontIncludingfreight.subtractFrom(supplierPostFee).addTo(itemPostFee);
+			}
+		}
+		
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new BillSaveResult();
+	}
+	
+	protected String getOrderBatchNo() {
+		String id = dateSeqService.getNextDateSeq(SeqNameEnum.ORDER_BATCH_SEQ, "", 16);
+		return id;
+	}
+}

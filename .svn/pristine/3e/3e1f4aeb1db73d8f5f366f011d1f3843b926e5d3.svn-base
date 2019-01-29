@@ -1,0 +1,32 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB push_pro">
+            <p class="nav_title"><span class="DIB">提示信息</span><a onclick="javascript:window.history.back();"  class="DIB">返回</a></p>
+
+            <div class="left_content">
+                <p class="opt_tips"><i class="yes"></i>你的商户<em>$!{tip}</em></p>
+				<div class="opt_btn">
+                    <a class="hzx-btn2" href="/do/scenic/doCenter/mainHome.htm">
+                    <input type="button" class="return_list" value="返回首页"/>
+                    </a>
+           </div>
+            </div>
+			
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+
+</html>

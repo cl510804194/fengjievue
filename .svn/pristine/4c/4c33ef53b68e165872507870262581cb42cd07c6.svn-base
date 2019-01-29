@@ -1,0 +1,33 @@
+package com.yjf.esupplier.service.hotel.result;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class HotelRefundCheckResult extends EsupplierBaseResult {
+	
+	/**
+	 * 返回用户是否能退款的信息
+	 */
+	private static final long serialVersionUID = -2246315161418456369L;
+
+	/*是否可退*/
+	private BooleanEnum refund;
+
+	public BooleanEnum getRefund() {
+		return refund;
+	}
+
+	public void setRefund(BooleanEnum refund) {
+		this.refund = refund;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer("HotelRefundCheckResult{");
+		sb.append("refund=").append(refund);
+		sb.append('}');
+		return sb.toString();
+	}
+
+}

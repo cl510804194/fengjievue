@@ -1,0 +1,150 @@
+package com.yjf.esupplier.service.systemSet.order;
+
+import java.util.Date;
+
+import com.yjf.common.service.Order;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class ChargeTempleOrder extends ValidateOrderBase implements Order{
+	private static final long serialVersionUID = -1266791748982764114L;
+	private int chargeId;
+	
+	private String chargeName;
+
+	private double interestRate;
+
+	private double manageRate;
+
+	private double serviceCharge;
+
+	private String loanType;
+
+	private String commodityType;
+
+	private int stagesNum;
+
+	private Date rawAddTime;
+
+	private Date rawUpdateTime;
+
+	
+	public int getChargeId() {
+		return chargeId;
+	}
+
+	public void setChargeId(int chargeId) {
+		this.chargeId = chargeId;
+	}
+
+	public String getChargeName() {
+		return chargeName;
+	}
+
+	public void setChargeName(String chargeName) {
+		this.chargeName = chargeName;
+	}
+
+	public double getInterestRate() {
+		return interestRate;
+	}
+
+	public void setInterestRate(double interestRate) {
+		this.interestRate = interestRate;
+	}
+
+	public double getManageRate() {
+		return manageRate;
+	}
+
+	public void setManageRate(double manageRate) {
+		this.manageRate = manageRate;
+	}
+
+	public double getServiceCharge() {
+		return serviceCharge;
+	}
+
+	public void setServiceCharge(double serviceCharge) {
+		this.serviceCharge = serviceCharge;
+	}
+
+	public String getLoanType() {
+		return loanType;
+	}
+
+	public void setLoanType(String loanType) {
+		this.loanType = loanType;
+	}
+
+	public String getCommodityType() {
+		return commodityType;
+	}
+
+	public void setCommodityType(String commodityType) {
+		this.commodityType = commodityType;
+	}
+
+	public int getStagesNum() {
+		return stagesNum;
+	}
+
+	public void setStagesNum(int stagesNum) {
+		this.stagesNum = stagesNum;
+	}
+
+	public Date getRawAddTime() {
+		return rawAddTime;
+	}
+
+	public void setRawAddTime(Date rawAddTime) {
+		this.rawAddTime = rawAddTime;
+	}
+
+	public Date getRawUpdateTime() {
+		return rawUpdateTime;
+	}
+
+	public void setRawUpdateTime(Date rawUpdateTime) {
+		this.rawUpdateTime = rawUpdateTime;
+	}
+	
+	
+    @Override
+    public void check() {
+    	this.validateNotNull(this.getChargeName(), "模板名称");
+        this.validateGreaterThan(this.getInterestRate(), "月贷款利率");
+        this.validateGreaterThan(this.getManageRate(), "月贷款管理费率");
+        this.validateGreaterThan(this.getServiceCharge(), "月客服服务费率");
+        this.validateNotNull(this.getLoanType(), "适用的信贷品种");
+        this.validateNotNull(this.getCommodityType(), "适用的商品品类");
+        this.validateNotNull(this.getStagesNum(), "适用的分期期数");
+    }
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ChargeTempleOrder [chargeName=");
+		builder.append(chargeName);
+		builder.append(", interestRate=");
+		builder.append(interestRate);
+		builder.append(", manageRate=");
+		builder.append(manageRate);
+		builder.append(", serviceCharge=");
+		builder.append(serviceCharge);
+		builder.append(", loanType=");
+		builder.append(loanType);
+		builder.append(", commodityType=");
+		builder.append(commodityType);
+		builder.append(", stagesNum=");
+		builder.append(stagesNum);
+		builder.append(", rawAddTime=");
+		builder.append(rawAddTime);
+		builder.append(", rawUpdateTime=");
+		builder.append(rawUpdateTime);
+		builder.append("]");
+		return builder.toString();
+	}
+    
+    
+	
+}

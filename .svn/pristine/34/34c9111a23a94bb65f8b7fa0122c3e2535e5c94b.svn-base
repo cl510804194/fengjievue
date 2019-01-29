@@ -1,0 +1,140 @@
+<table sqlname="pop_info">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO pop_info(base_id,title,type,parent_id,is_parent,parent_name,content,status,add_time,modify_time,remark,rem1,sort_order,hits,ishot,public_date,public_status,belong_to) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+			]]>
+		</sql>
+		
+		<sqlmap>
+			<![CDATA[
+		    INSERT INTO pop_info(base_id,title,type,parent_id,is_parent,parent_name,content,status,add_time,modify_time,remark,rem1,sort_order,hits,ishot,public_date,public_status,belong_to) VALUES (#popId#,#title#,#type#,#parentId#,#isParent#,#parentName#,#content#,#status#,#addTime#,#modifyTime#,#remark#,#rem1#,#sortOrder#,#hits#,#ishot#,#publicDate#,#publicStatus#,#belong_to#)
+	        <selectKey  resultClass ="long"  keyProperty ="popId" >   
+	          		 SELECT LAST_INSERT_ID() AS ID 
+	      	</selectKey>
+			]]>
+		</sqlmap>
+		
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+			UPDATE pop_info SET title=?,type=?,parent_id=?,is_parent=?,parent_name=?,content=?,status=?,add_time=?,modify_time=?,remark=?,rem1=?,sort_order=?,hits=?,ishot=?,public_date=?,public_status=?,belong_to = ? WHERE base_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+			SELECT  base_id ,title ,type ,parent_id ,is_parent ,parent_name ,content ,status ,add_time ,modify_time ,remark ,rem1 ,sort_order ,hits ,ishot ,public_date ,public_status,belong_to  FROM pop_info WHERE base_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+			DELETE FROM pop_info WHERE base_id=?
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" >
+		<sql>
+			<![CDATA[
+			SELECT  count(*) FROM pop_info
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findByCondition" paramtype="object" multiplicity="many">
+		<extraparams>
+			<param name="limitStart" javatype="long" />
+			<param name="pageSize" javatype="long" />
+			
+			<param name="statusList" javatype="java.util.List" />
+		</extraparams>
+		<sql>
+			<![CDATA[
+			SELECT  base_id ,title ,type ,parent_id ,is_parent ,parent_name ,content ,status ,add_time ,modify_time ,remark ,rem1 ,sort_order ,hits ,ishot ,public_date ,public_status,belong_to  FROM pop_info WHERE base_id=?
+			]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+			SELECT  base_id ,title ,type ,parent_id ,is_parent ,parent_name ,content ,status ,add_time ,modify_time ,remark ,rem1 ,sort_order ,hits ,ishot ,public_date ,public_status,belong_to  FROM pop_info WHERE
+			WHERE 1=1
+			<dynamic>
+			<isGreaterThan property="popInfo.moduleId" compareValue="0" prepend=" and ">
+				base_id = #popInfo.popId#
+			</isGreaterThan>
+
+			<isGreaterThan property="popModule.type" compareValue="0" prepend=" and ">
+                   type = #popModule.type#
+            </isGreaterThan>
+			
+			<isNotEmpty property="popModule.showTop"     prepend=" and ">
+				show_top = #popModule.showTop#
+			</isNotEmpty>
+			
+			<isNotEmpty property="popModule.moduleName"  prepend=" and ">
+				module_name = #popModule.moduleName#
+			</isNotEmpty>
+			
+			<isNotEmpty property="statusList" prepend=" and ">
+				status in
+				<iterate property="statusList" open="(" close=")" conjunction=",">
+					#statusList[]#
+				</iterate>
+			</isNotEmpty>
+			</dynamic>
+			order by type,sort_order,module_id
+			<isGreaterThan property="pageSize" compareValue="0" prepend="">
+				LIMIT #limitStart#,#pageSize#
+			</isGreaterThan>
+			]]>	
+		</sqlmap>
+	</operation>
+	
+	<operation name="findByConditionCount" paramtype="object"  resultClass="long">
+		<extraparams>
+
+			<param name="statusList" javatype="java.util.List" />
+		</extraparams>
+		<sql>
+			<![CDATA[
+			SELECT  module_id ,module_name ,module_code,sort_order ,show_top ,hits ,vm_page ,status,type,belong_to  FROM pop_module where  module_id = ?
+			]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+			SELECT  count(*) totalCount  FROM pop_module 
+			WHERE 1=1
+			<dynamic>
+			<isGreaterThan property="popModule.moduleId" compareValue="0" prepend=" and ">
+				module_id = #popModule.moduleId#
+			</isGreaterThan>
+
+			<isGreaterThan property="popModule.type" compareValue="0" prepend=" and ">
+                   type = #popModule.type#
+            </isGreaterThan>
+			
+			<isNotEmpty property="popModule.showTop"     prepend=" and ">
+				show_top = #popModule.showTop#
+			</isNotEmpty>
+			
+			<isNotEmpty property="popModule.moduleName"  prepend=" and ">
+				module_name = #popModule.moduleName#
+			</isNotEmpty>
+			
+			<isNotEmpty property="statusList" prepend=" and ">
+				status in
+				<iterate property="statusList" open="(" close=")" conjunction=",">
+					#statusList[]#
+				</iterate>
+			</isNotEmpty>
+			order by type,sort_order,module_id
+			</dynamic>
+			]]>	
+		</sqlmap>
+	</operation>
+</table>

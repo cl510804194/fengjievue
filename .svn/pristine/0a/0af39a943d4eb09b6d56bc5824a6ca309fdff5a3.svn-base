@@ -1,0 +1,1000 @@
+package com.yjf.esupplier.service.user.impl;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.service.base.AfterProcessInvokeService;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.common.service.base.ProcessInvokeService;
+import com.yjf.esupplier.common.util.*;
+import com.yjf.esupplier.common.util.YrdConstants.CommonConfig;
+import com.yjf.esupplier.dal.dataobject.*;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.service.biz.util.SendInformation;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.security.AuthorityService;
+import com.yjf.esupplier.service.security.info.RoleInfo;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.service.user.RegisterBaseService;
+import com.yjf.esupplier.service.user.UserBaseInfoManager;
+import com.yjf.esupplier.service.user.enums.IOperatorTypeEnum;
+import com.yjf.esupplier.service.user.enums.IPasswordTypeEnum;
+import com.yjf.esupplier.service.user.enums.PasswordTypeEnum;
+import com.yjf.esupplier.service.user.info.LevelUserInfo;
+import com.yjf.esupplier.service.user.info.MemberNoInfo;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.order.*;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.service.user.result.UserRelationQueryResult;
+import com.yjf.esupplier.ws.enums.*;
+import com.yjf.esupplier.ws.integral.enums.PointsTypeEnum;
+import com.yjf.esupplier.ws.integral.order.AddPointsOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.userManage.enums.UserExtendEnum;
+
+@Service("userBaseInfoManager")
+public class UserBaseInfoManagerImpl extends RegisterBaseService implements UserBaseInfoManager {
+	
+	@Autowired
+	protected UserQueryService userQueryService;
+	
+	@Autowired
+	AuthorityService authorityService;
+	
+	@Override
+	public EsupplierBaseResult updateUserState(String userBaseId, UserStateEnum stateEnum) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		if (stateEnum == null || StringUtil.isEmpty(userBaseId)) {
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			baseResult.setSuccess(false);
+		}
+		
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (baseInfoDO == null) {
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			baseResult.setSuccess(false);
+		}
+		String oldState = baseInfoDO.getState();
+		baseInfoDO.setPwdErrorCount(0);
+		baseInfoDO.setChangeLockTime(new Date());
+		baseInfoDO.setState(stateEnum.code());
+		userBaseInfoDAO.update(baseInfoDO);
+		baseResult.setSuccess(true);
+		addOperationJournalInfo("更新用户状态", "更新用户状态",
+			"userId="								+ baseInfoDO.getUserId() + ",userName=" + baseInfoDO.getUserName()
+													+ ",oldState=" + oldState + ",stateEnum="
+													+ stateEnum.code());
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateUserGrantAndState(final UserGrantStateUpdateOrder order) {
+		return commonProcess(order, "更新角色和状态", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				EsupplierBaseResult baseResult = updateUserState(order.getUserBaseId(),
+					order.getUserStateEnum());
+				if (!baseResult.isSuccess())
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.DATABASE_EXCEPTION,
+						"更新状态出错");
+				UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(order.getUserBaseId());
+				List<RoleInfo> roleList = authorityService.getRolesByUserId(baseInfoDO.getUserId());
+				
+				if (ListUtil.isNotEmpty(roleList)) {
+					int[] roleIds = new int[roleList.size()];
+					int i = 0;
+					for (RoleInfo role : roleList) {
+						roleIds[i] = role.getRoleId();
+						i++;
+					}
+					authorityService.unbindRoles(baseInfoDO.getUserId(), roleIds);
+				}
+				
+				authorityService.grantRolesToUser(baseInfoDO.getUserId(), order.getRoleIds());
+				
+				return null;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult validationLogPassword(String userBaseId, String logPassword) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		UserBaseInfoDO baseInfoDO = new UserBaseInfoDO();
+		baseInfoDO.setUserBaseId(userBaseId);
+		baseInfoDO.setLogPassword(MD5Util.getMD5_32(logPassword));
+		long resultSet = userBaseInfoDAO.validationLogPassword(baseInfoDO);
+		if (resultSet > 0) {
+			result.setSuccess(true);
+		}
+		return result;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateUserPassword(final PwdInfoOrder pwdInfoOrder) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		pwdInfoOrder.check();
+		baseResult =commonProcess(pwdInfoOrder, "更新"+pwdInfoOrder.getPasswdType().message() ,
+					new BeforeProcessInvokeService() {
+						@Override
+						public Domain before() {
+							EsupplierBaseResult result = new EsupplierBaseResult();
+							UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO
+									.findByUserBaseId(pwdInfoOrder.getUserBaseId());
+							if (userBaseInfoDO == null) {
+								throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+										"用户信息不存在");
+							}
+							String oldPwd_jm = MD5Util.getMD5_32(pwdInfoOrder.getOldPwd());
+							String newPwd_jm = MD5Util.getMD5_32(pwdInfoOrder.getNewPwd());
+							if (pwdInfoOrder.getPasswdType() == PasswordTypeEnum.LOGIN_PASSWORD) {
+								if (!StringUtil.equalsIgnoreCase(userBaseInfoDO.getLogPassword(),
+										oldPwd_jm)) {
+									throw ExceptionFactory
+											.newYrdException(EsupplierResultEnum.PASSWORD_ERROR, "旧密码不正确");
+								}
+								userBaseInfoDO.setLogPassword(newPwd_jm);
+								userBaseInfoDAO.updateLogPassword(userBaseInfoDO);
+							} else if (pwdInfoOrder.getPasswdType() == PasswordTypeEnum.PAY_PASSWORD) {
+								if (!StringUtil.equalsIgnoreCase(userBaseInfoDO.getPayPassword(),
+										oldPwd_jm)) {
+									throw ExceptionFactory
+											.newYrdException(EsupplierResultEnum.PASSWORD_ERROR, "旧密码不正确");
+								}
+								userBaseInfoDO
+										.setPayPassword(newPwd_jm);
+								userBaseInfoDAO.updateCheckPassword(userBaseInfoDO);
+							}
+							addOperationJournalInfo("更新"+pwdInfoOrder.getPasswdType().message(), "更新"+pwdInfoOrder.getPasswdType().message(),
+									"userId=" + userBaseInfoDO.getUserId() + ",userName=" + userBaseInfoDO.getUserName());
+							return null;
+						}
+					}, null, null);
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult synPwdInfo(final SynPwdInfoOrder synPwdInfoOrder) {
+		return commonProcess(synPwdInfoOrder, "同步" + synPwdInfoOrder.getPasswdType().message(),
+			new BeforeProcessInvokeService() {
+				
+				@Override
+				public Domain before() {
+					UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO
+						.findByLinkCode(synPwdInfoOrder.getCustomerId());
+					if (userBaseInfoDO == null) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+							"用户信息不存在");
+					}
+					if (synPwdInfoOrder.getPasswdType() == PasswordTypeEnum.LOGIN_PASSWORD) {
+						if (!StringUtil.equalsIgnoreCase(userBaseInfoDO.getLogPassword(),
+							synPwdInfoOrder.getOldPwd())) {
+							throw ExceptionFactory
+								.newYrdException(EsupplierResultEnum.PASSWORD_ERROR, "密码信息不正确");
+						}
+						userBaseInfoDO.setLogPassword(synPwdInfoOrder.getNewPwd());
+						userBaseInfoDAO.updateLogPassword(userBaseInfoDO);
+					} else if (synPwdInfoOrder.getPasswdType() == PasswordTypeEnum.PAY_PASSWORD) {
+						if (!StringUtil.equalsIgnoreCase(userBaseInfoDO.getPayPassword(),
+							synPwdInfoOrder.getOldPwd())) {
+							throw ExceptionFactory
+								.newYrdException(EsupplierResultEnum.PASSWORD_ERROR, "密码信息不正确");
+						}
+						userBaseInfoDO
+							.setPayPassword(MD5Util.getMD5_32(synPwdInfoOrder.getNewPwd()));
+						userBaseInfoDAO.updateCheckPassword(userBaseInfoDO);
+					}
+					return null;
+				}
+			}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult synModifyMobile(SynModifyMobileOrder synModifyMobileOrder) {
+		return null;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateAccountId(String userBaseId, String accountId) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		baseInfoDO.setAccountId(accountId);
+		long resultSet = userBaseInfoDAO.update(baseInfoDO);
+		if (resultSet > 0) {
+			baseResult.setSuccess(true);
+		}
+		return baseResult;
+	}
+	
+    @Override
+    public EsupplierBaseResult updateAccountId(String userBaseId, String accountId,
+                                               String accountName) {
+        EsupplierBaseResult baseResult = new EsupplierBaseResult();
+        UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+        baseInfoDO.setAccountId(accountId);
+        baseInfoDO.setAccountName(accountName);
+        long resultSet = userBaseInfoDAO.update(baseInfoDO);
+        if (resultSet > 0) {
+            baseResult.setSuccess(true);
+        }
+        return baseResult;
+    }
+	
+	@Override
+	public EsupplierBaseResult updateLinkCode(String userBaseId, String linkCode) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		baseInfoDO.setLinkCode(linkCode);
+		long resultSet = userBaseInfoDAO.update(baseInfoDO);
+		if (resultSet > 0) {
+			baseResult.setSuccess(true);
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult validationUserName(String userName) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		if (StringUtil.isEmpty(userName)) {
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			return baseResult;
+		}
+		UserLoginDO userLoginDO = userLoginDAO.findByLoginName(userName);
+		//UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserName(userName);
+		if (userLoginDO == null) {
+			baseResult.setSuccess(true);
+			baseResult.setMessage("用户不存在");
+		} else {
+			baseResult.setSuccess(false);
+			baseResult.setMessage("用户存在");
+		}
+		return baseResult;
+	}
+	
+	/*********************************** 调用openapi接口 **************************************/
+	
+	@Override
+	public void executeUnlockUserJob() {
+		UserBaseInfoDO baseInfoDO = new UserBaseInfoDO();
+		baseInfoDO.setState(UserStateEnum.LOCKED.code());
+		List<UserBaseInfoDO> lockedUsers = userBaseInfoDAO.findByCondition(baseInfoDO, 0, 99999,
+			null);
+		for (UserBaseInfoDO user : lockedUsers) {
+			try {
+				user.setPwdErrorCount(0);
+				user.setState(UserStateEnum.NORMAL.code());
+				userBaseInfoDAO.update(user);
+				addOperationJournalInfo("用户解锁", "用户解锁",
+					"userId=" + user.getUserId() + ",userName=" + user.getUserName());
+			} catch (Exception e) {
+				logger.error("重置锁定用户信息失败", e);
+			}
+		}
+	}
+	
+	private void fullRefereesNo(UserBaseInfoDO jgBaseDO, String memo, long currentUserId) {
+		long countNew = NumberUtil.parseLong(jgBaseDO.getExIdentityNo(), 0);
+		jgBaseDO.setExIdentityNo(String.valueOf(countNew + 1));
+		userBaseInfoDAO.update(jgBaseDO);
+		UserBaseInfoDO thisUser = userBaseInfoDAO.findByUserId(currentUserId);
+		if (UserTypeEnum.GR.code().equals(thisUser.getType())) {
+			PersonalInfoDO person = personalInfoDAO.findByUserBaseId(thisUser.getUserBaseId());
+			person.setReferees(memo);
+			personalInfoDAO.update(person);
+		} else {
+			InstitutionsInfoDO institution = institutionsInfoDAO
+				.findByUserBaseId(thisUser.getUserBaseId());
+			institution.setReferees(memo);
+			institutionsInfoDAO.update(institution);
+		}
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+	
+	@Override
+	public EsupplierBaseResult updateRealNameStatus(final UpdateRealNameStatusOrder order) {
+		return commonProcess(order, "易极付实名认证通知或同步", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				updateRealStatusProcess(order);
+				return null;
+			}
+			
+		}, null, new AfterProcessInvokeService() {
+			
+			@SuppressWarnings("unchecked")
+			@Override
+			public Domain after(Domain domain) {
+				if (order.getIsSendMessage() == BooleanEnum.YES) {
+					List<UserInfo> queryList = (List<UserInfo>) EsupplierDomainHolder.get()
+						.getAttribute("queryList");
+					String sendMsg = (String) EsupplierDomainHolder.get().getAttribute("sendMsg");
+					if (("success".equals(order.getYjfReturnStatus())
+							|| "fail".equals(order.getYjfReturnStatus())
+							|| "expire".equals(order.getYjfReturnStatus()))) {
+						if (StringUtil.isBlank(order.getRealName())) {
+							if (ListUtil.isNotEmpty(queryList)) {
+								for (UserInfo userInfo : queryList) {
+									StringBuilder toMessage = new StringBuilder();
+									String content = YrdConstants.MessageNotifyConstants.REAL_NAME_AUTH_NOTIFY;
+									content = content.replace("var1", userInfo.getUserName());
+									content = content.replace("var2", sendMsg);
+									toMessage.append(content);
+									String notifyType = CommonConfig.REAL_NAME_NOTIFY_TYPE;
+									yrdMessageService.notifyUserByType(userInfo,
+										toMessage.toString(), notifyType);
+								}
+							}
+						}
+					}
+				}
+				if (StringUtil.equalsIgnoreCase(order.getYjfReturnStatus(), "success")) {
+					List<UserInfo> queryList = userQueryService
+						.queryListByAccountId(order.getAccountId()).getQueryUserList();
+						
+				}
+				return null;
+			}
+		});
+	}
+	
+	@Override
+	public EsupplierBaseResult mobileBinding(MobileBindingOrder mobileBindingOrder) {
+		mobileBindingOrder.check();
+		final String userBaseId= mobileBindingOrder.getUserBaseId();
+		final String mobile= mobileBindingOrder.getMobile();
+		final boolean isSync = mobileBindingOrder.isSync();
+		String paramNames = "userBaseId=" + userBaseId + ",mobile=" + mobile;
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserLoginDO userLogin = userLoginDAO.findByLoginName(mobile);
+		if (userLogin != null) {
+			baseResult.setSuccess(false);
+			baseResult.setMessage("手机号已存在");
+			return baseResult;
+		}
+		return simpleSaveTemplate("绑定/修改手机", paramNames, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				if (StringUtil.isEmpty(userBaseId) || StringUtil.isEmpty(mobile)) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+						"请求参数不完整");
+				}
+				UserBaseInfoDO thisUser = userBaseInfoDAO.findByUserBaseId(userBaseId);
+				String oldMobile = thisUser.getMobile();
+				boolean isUpdateLoginName = false;
+				if (StringUtil.isNotBlank(thisUser.getMobile())
+					&& !StringUtil.equals(thisUser.getMobile(), mobile)) {
+					isUpdateLoginName = true;
+				}
+				thisUser.setMobile(mobile);
+				thisUser.setMobileBinding(BooleanEnum.IS.code());
+				userBaseInfoDAO.update(thisUser);
+				if (isUpdateLoginName) {
+					updateUserLogin(oldMobile, mobile, thisUser);
+				} else {
+					insertUserLogin(mobile, false, thisUser);
+				}
+			}
+		});
+	}
+
+	@Override
+	public EsupplierBaseResult mailBinding(final String userBaseId, final String mail) {
+		String paramNames = "userBaseId=" + userBaseId + ",mobile=" + mail;
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserLoginDO userLogin = userLoginDAO.findByLoginName(mail);
+		if (userLogin != null) {
+			baseResult.setSuccess(false);
+			baseResult.setMessage("邮箱已存在");
+			return baseResult;
+		}
+		final UserBaseInfoDO thisUser = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		baseResult = simpleSaveTemplate("绑定/修改邮箱", paramNames, new ProcessInvokeService() {
+			
+			@Override
+			public void process(Domain domain) {
+				if (StringUtil.isEmpty(userBaseId) || StringUtil.isEmpty(mail)) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+						"请求参数不完整");
+				}
+				
+				String oldMail = thisUser.getMail();
+				boolean isUpdateLoginName = false;
+				if (StringUtil.isNotBlank(thisUser.getMail())
+					&& !StringUtil.equals(thisUser.getMail(), mail)) {
+					isUpdateLoginName = true;
+				}
+				thisUser.setMail(mail);
+				thisUser.setMailBinding(BooleanEnum.IS.code());
+				userBaseInfoDAO.update(thisUser);
+				
+				if (isUpdateLoginName) {
+					updateUserLogin(oldMail, mail, thisUser);
+				} else {
+					insertUserLogin(mail, false, thisUser);
+				}
+				
+			}
+		});
+		AddPointsOrder addPointsOrder = new AddPointsOrder();
+		addPointsOrder.setPointsTypeEnum(PointsTypeEnum.BINDING_MAILBOX);
+		addPointsOrder.setUserId(thisUser.getUserId());
+		integralService.paidUserIntegralByRule(addPointsOrder);
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult setUserName(final AddUserNameLoginOrder nameLoginOrder) {
+		return commonProcess(nameLoginOrder, "设置用户登录名", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserBaseInfoDO thisUser = userBaseInfoDAO
+					.findByUserBaseId(nameLoginOrder.getUserBaseId());
+				if (thisUser == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"无用户数据");
+				}
+				if (StringUtil.isNotBlank(thisUser.getUserName())) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.USER_EXIST,
+						"该用户已经设置用户名");
+				}
+				if(CommonUtil.checkMobile(nameLoginOrder.getUserName())){
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.EXECUTE_FAILURE,
+							"不能用手机号作为用户名！");
+				}
+				if(CommonUtil.checkEmail(nameLoginOrder.getUserName())){
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.EXECUTE_FAILURE,
+							"不能用邮箱作为用户名！");
+				}
+				UserLoginDO userLoginDO = userLoginDAO
+					.findByLoginName(nameLoginOrder.getUserName());
+				if (userLoginDO != null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.USER_EXIST,
+						"该用户名已经存在");
+				}
+				thisUser.setUserName(nameLoginOrder.getUserName());
+				userBaseInfoDAO.update(thisUser);
+				insertUserLogin(nameLoginOrder.getUserName(), true, thisUser);
+				return null;
+			}
+		}, null, null);
+		
+	}
+	
+	@Override
+	public EsupplierBaseResult sendForgetPassword(String userName) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserInfo userBaseInfo = userQueryService.queryByUserName(userName).getQueryUserInfo();
+		
+		String mail = userBaseInfo.getMail();
+		long sendTime = System.currentTimeMillis();
+		
+		String encriptData = String.valueOf(sendTime);
+		// 发送邮件
+		boolean isSend = mailService
+			.sendMail(
+				SendInformation.sendMail(mail, userBaseInfo.getRealName(), userBaseInfo
+					.getUserName(), "/PasswordManage/ForgetLogPassword/"
+									+ MD5Util.getMD5_32(userBaseInfo.getUserBaseId()+ encriptData
+														+ ApplicationConstant.CQP2PMD5KEY)
+									+ "," + encriptData + "," + userBaseInfo.getUserBaseId(),
+					20L),
+				"HTML");
+		if (isSend) {
+			baseResult.setSuccess(true);
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult validForgetPasswordUrl(ValidForgetPasswordUrlOrder passwordUrlOrder) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		try {
+			passwordUrlOrder.check();
+			String md5Key = MD5Util
+				.getMD5_32(passwordUrlOrder.getUserBaseId()+ passwordUrlOrder.getSendTime()
+							+ ApplicationConstant.CQP2PMD5KEY);
+			if (StringUtil.equalsIgnoreCase(md5Key, passwordUrlOrder.getMd5Url())) {
+				long sendMailtime = NumberUtil.parseLong(passwordUrlOrder.getSendTime());
+				long currentTime = System.currentTimeMillis();
+				long daySecods = 86400000;
+				if (currentTime - sendMailtime > daySecods) {
+					baseResult.setSuccess(false);
+					baseResult.setMessage("邮件链接已失效!有效时间为24小时。");
+					return baseResult;
+				} else {
+					baseResult.setSuccess(true);
+				}
+			} else {
+				baseResult.setSuccess(false);
+				baseResult.setMessage("无效的地址");
+			}
+			
+		} catch (IllegalArgumentException e) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			baseResult.setMessage(e.getMessage());
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult forgetPassword(String userBaseId, String logPassword) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (UserStateEnum.LOCKED.code().equals(userBaseInfoDO.getState())) {
+			userBaseInfoDO.setState(UserStateEnum.NORMAL.code());
+			userBaseInfoDO.setPwdErrorCount(0);
+			userBaseInfoDO.setChangeLockTime(new Date());
+			userBaseInfoDAO.update(userBaseInfoDO);
+		}
+		userBaseInfoDO.setLogPassword(MD5Util.getMD5_32(logPassword));
+		
+		int count = userBaseInfoDAO.updateLogPassword(userBaseInfoDO);
+		if (count > 0) {
+			baseResult.setSuccess(true);
+			addOperationJournalInfo("忘记密码", "忘记密码", "userId="+ userBaseInfoDO.getUserId()
+													+ ",userName=" + userBaseInfoDO.getUserName());
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult forgetPayPassword(String userBaseId, String payPassword) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		userBaseInfoDO.setPayPassword(MD5Util.getMD5_32(payPassword));
+		
+		int count = userBaseInfoDAO.updateCheckPassword(userBaseInfoDO);
+		return baseResult;
+	}
+	
+	private void updateRealStatusProcess(final UpdateRealNameStatusOrder order) {
+		List<UserInfo> queryList = userQueryService.queryListByAccountId(order.getAccountId())
+			.getQueryUserList();
+		String sendMsg = "";
+		if (ListUtil.isNotEmpty(queryList)) {
+			for (UserInfo userInfo : queryList) {
+				UserBaseInfoDO userBaseInfo = userBaseInfoDAO.findByUserId(userInfo.getUserId());
+				if ("success".equals(order.getYjfReturnStatus())) {
+					userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IS.code());
+					if (UserTypeEnum.GR.code().equals(userBaseInfo.getType())) {
+						if (StringUtil.isNotBlank(order.getRealName())
+							|| StringUtil.isNotBlank(order.getCertNo())) {
+							PersonalInfoDO infoDO = personalInfoDAO
+								.findByUserBaseId(userBaseInfo.getUserBaseId());
+							if (StringUtil.isNotBlank(order.getRealName())) {
+								userBaseInfo.setRealName(order.getRealName());
+								infoDO.setRealName(userBaseInfo.getRealName());
+							}
+							if (StringUtil.isNotBlank(order.getCertNo())) {
+								infoDO.setCertNo(order.getCertNo());
+							}
+							personalInfoDAO.update(infoDO);
+						}
+					} else if (UserTypeEnum.JG.code().equals(userBaseInfo.getType())) {
+						if (StringUtil.isNotBlank(order.getRealName())) {
+							userBaseInfo.setRealName(order.getRealName());
+							InstitutionsInfoDO institutionsInfoDO = institutionsInfoDAO
+								.findByUserBaseId(userBaseInfo.getUserBaseId());
+							institutionsInfoDO.setEnterpriseName(order.getRealName());
+							institutionsInfoDAO.update(institutionsInfoDO);
+						}
+					}
+					
+					sendMsg = "认证成功";
+					
+				} else if ("fail".equals(order.getYjfReturnStatus())) {
+					userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO.code());
+					sendMsg = "认证失败,原因：" + order.getMessage();
+				} else if ("expire".equals(order.getYjfReturnStatus())) {
+					userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.NO.code());
+					sendMsg = "身份证已过期,需求重新认证";
+				} else if ("precess".equals(order.getYjfReturnStatus())) {
+					// userBaseInfo.setRealNameAuthentication(RealNameAuthStatusEnum.IN.code());
+					sendMsg = "认证中";
+				} else {
+					sendMsg = "认证已申请";
+				}
+				userBaseInfoDAO.update(userBaseInfo);
+				addOperationJournalInfo("更新实名认证", "更新实名认证",
+					"userId="								+ userBaseInfo.getUserId() + ",userName=" + userBaseInfo.getUserName()
+															+ ",order=" + order.toString());
+			}
+			EsupplierDomainHolder.get().addAttribute("queryList", queryList);
+			EsupplierDomainHolder.get().addAttribute("sendMsg", sendMsg);
+		} else {
+			logger.error("实名认证 order={},无此用户", order);
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult updateCheckPassword(	String userBaseId, String oldCheckPassword,
+													String newCheckPassword) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		if (StringUtil.isBlank(userBaseId) || StringUtil.isBlank(newCheckPassword)) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			return baseResult;
+		}
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (baseInfoDO == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		if (StringUtil.isEmpty(oldCheckPassword) || StringUtil
+			.equalsIgnoreCase(baseInfoDO.getPayPassword(), MD5Util.getMD5_32(oldCheckPassword))) {
+			
+			baseInfoDO.setPayPassword(MD5Util.getMD5_32(newCheckPassword));
+			long resultSet = userBaseInfoDAO.updateCheckPassword(baseInfoDO);
+			if (resultSet > 0) {
+				baseResult.setSuccess(true);
+				addOperationJournalInfo("更新用户密码", "更新用户密码",
+					"userId=" + baseInfoDO.getUserId() + ",userName=" + baseInfoDO.getUserName());
+			}
+		} else {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.PASSWORD_ERROR);
+			return baseResult;
+		}
+		return baseResult;
+	}
+
+	
+	@Override
+	public EsupplierBaseResult resetCheckPassword(String userBaseId, String newCheckPassword) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		if (StringUtil.isBlank(userBaseId) || StringUtil.isBlank(newCheckPassword)) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			return baseResult;
+		}
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (baseInfoDO == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		
+		baseInfoDO.setPayPassword(MD5Util.getMD5_32(newCheckPassword));
+		long resultSet = userBaseInfoDAO.updateCheckPassword(baseInfoDO);
+		if (resultSet > 0) {
+			baseResult.setSuccess(true);
+			addOperationJournalInfo("重置用户密码", "重置用户密码",
+				"userId=" + baseInfoDO.getUserId() + ",userName=" + baseInfoDO.getUserName());
+		}
+		
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateUserLevel(UpdateUserLevelOrder levelOrder) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		try {
+			levelOrder.check();
+		} catch (IllegalArgumentException e) {
+			baseResult.setMessage(e.getMessage());
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			return baseResult;
+		}
+		
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserId(levelOrder.getUserId());
+		if (baseInfoDO == null) {
+			baseResult.setSuccess(false);
+			baseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return baseResult;
+		}
+		baseInfoDO.setUserLevel(levelOrder.getLevelEnum().code());
+		long resultSet = userBaseInfoDAO.update(baseInfoDO);
+		if (resultSet > 0) {
+			baseResult.setSuccess(true);
+			addOperationJournalInfo("更新用户等级", "更新用户等级", levelOrder.toString());
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateUserBaseInfo(final UpdateUserBaseInfoOrder order) {
+		return commonProcess(order, "更新用户信息",
+				new BeforeProcessInvokeService() {
+					@Override
+					public Domain before() {
+						EsupplierBaseResult baseResult = (EsupplierBaseResult) EsupplierDomainHolder.get()
+								.getAttribute("result");
+						try {
+							order.check();
+						} catch (IllegalArgumentException e) {
+							baseResult.setMessage(e.getMessage());
+							baseResult.setSuccess(false);
+							baseResult
+									.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+//							return baseResult;
+						}
+						if (StringUtil.isNotEmpty(order.getUserName())) {
+							AddUserNameLoginOrder nameLoginOrder = new AddUserNameLoginOrder();
+							nameLoginOrder.setUserName(order.getUserName());
+							nameLoginOrder.setUserBaseId(ShiroSessionUtils
+									.getSessionLocal().getUserBaseId());
+							EsupplierBaseResult result = setUserName(nameLoginOrder);
+							if (result.isSuccess()) {
+								if (StringUtil.isBlank(ShiroSessionUtils
+										.getSessionLocal().getNickname())) {
+									ShiroSessionUtils.getSessionLocal()
+											.setNickname(order.getUserName());
+								}
+							}
+						}
+						UserBaseInfoDO baseInfoDO = userBaseInfoDAO
+								.findByUserBaseId(order.getUserBaseId());						
+						if (!(RealNameAuthStatusEnum.IN.code().equals(
+								baseInfoDO.getRealNameAuthentication()) || RealNameAuthStatusEnum.IS
+								.code().equals(
+										baseInfoDO.getRealNameAuthentication()))) {
+							boolean isTypeChange = false;
+							if (order.getType() != null) {
+								if (!order.getType().code()
+										.equals(baseInfoDO.getType())) {
+									isTypeChange = true;
+								}
+							}
+						}
+						if(StringUtil.isNotBlank(baseInfoDO.getUserName())){
+							order.setUserName(baseInfoDO.getUserName());
+						}
+						BeanCopier.staticCopy(order, baseInfoDO);
+						if (order.getType() != null) {
+							baseInfoDO.setType(order.getType().code());
+						}
+						long result = userBaseInfoDAO.update(baseInfoDO);
+						if (StringUtil.isNotEmpty(baseInfoDO
+								.getUserCustomType2())) {
+							AddPointsOrder addPointsOrder = new AddPointsOrder();
+							addPointsOrder
+									.setPointsTypeEnum(PointsTypeEnum.UPLOAD_AVATAR);
+							addPointsOrder.setUserId(baseInfoDO.getUserId());
+							integralService
+									.paidUserIntegralByRule(addPointsOrder);
+						}
+						if (result > 0) {
+							//baseResult.setSuccess(true);
+							addOperationJournalInfo("修改会员资料", "修改会员资料",
+									order.toString());
+						}
+						return null;
+					}
+					
+				}, null, new AfterProcessInvokeService() {
+
+					@Override
+					public Domain after(Domain domain) {
+
+						return null;
+					}
+				});
+		// return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult updateUserName(String userId, String userType2) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserId(NumberUtil.parseLong(userId));
+		if (StringUtil.isNotEmpty(userType2)) {
+			baseInfoDO.setUserCustomType2(userType2);
+			long result = userBaseInfoDAO.update(baseInfoDO);
+			if (result > 0) {
+				baseResult.setSuccess(true);
+				addOperationJournalInfo("修改会员资料", "修改会员资料",
+					"userId|userType2:" + userId + "|" + userType2);
+				/*传头像送积分*/
+				AddPointsOrder addPointsOrder = new AddPointsOrder();
+				addPointsOrder.setPointsTypeEnum(PointsTypeEnum.UPLOAD_AVATAR);
+				addPointsOrder.setUserId(baseInfoDO.getUserId());
+				integralService.paidUserIntegralByRule(addPointsOrder);
+			}
+			return baseResult;
+		} else {
+			baseResult.setSuccess(false);
+			baseResult.setMessage("头像传递不能为空");
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult addBrokerToOrg(final AddBrokerToOrgOrder order) {
+		return commonProcess(order, "经纪人加入营销机构", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				return addBrokerToMarketting(order);
+			}
+			
+		}, null, new AfterProcessInvokeService() {
+			
+			@Override
+			public Domain after(Domain domain) {
+				
+				return null;
+			}
+		});
+		
+	}
+	
+	private Domain addBrokerToMarketting(AddBrokerToOrgOrder order) {
+		UserInfo userInfo = userQueryService.queryByUserName(order.getMemberUserName(), -1)
+			.getQueryUserInfo();
+		if (userInfo == null) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+				"该成员不是经纪人 或该成员不存在");
+		}
+		String memberNo = addBrokerRelation(order.getParentId(), userInfo.getUserId(), true);
+		if (StringUtil.isNotEmpty(memberNo)) {
+			UserBaseInfoDO parentJG = userBaseInfoDAO.findByUserId(order.getParentId());
+			fullRefereesNo(parentJG, null, userInfo.getUserId());
+		}
+		
+		EsupplierDomainHolder.get().addAttribute("memberNo", memberNo);
+		EsupplierDomainHolder.get().addAttribute("brokerUser", userInfo);
+		return null;
+	}
+	
+	protected String addBrokerRelation(long parentId, long userId, boolean isOrg) {
+		UserInfo parentJG = userQueryService.queryByUserId(parentId).getQueryUserInfo();
+		UserRelationDO relationDO = new UserRelationDO();
+		if (isOrg) {
+			if (parentJG == null) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+					"未找到该机构");
+			}
+			UserRelationQueryResult queryResult = userRelationQueryService
+				.findUserRelationByChildId(userId);
+			if (queryResult.getQueryUserRelationInfo() != null) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+					"该用户已经在机构中,不能添加成员");
+			}
+			relationDO.setLevel(1);
+		} else {
+			LevelUserInfo parentLevelJG = userQueryService.getOrgUserBaseInfo(parentId);
+			relationDO.setLevel(parentLevelJG.getLevel() + 1);
+			parentJG = parentLevelJG;
+		}
+		MemberNoInfo memberNo = getJJRMemberNo(parentJG.getUserId());
+		EsupplierDomainHolder.get().addAttribute("memberNo", memberNo);
+		relationDO.setChildId(userId);
+		relationDO.setMemberNo(memberNo.getUserMember());
+		relationDO.setOrgCode(memberNo.getOrgCode());
+		relationDO.setUserNumber(memberNo.getUserNumber());
+		relationDO.setParentId(parentJG.getUserId());
+		relationDO.setRelationStatus(UserRelationStatusEnum.NORMAL.code());
+		
+		relationDO.setRawAddTime(new Date());
+		relationDO.setRawUpdateTime(new Date());
+		userRelationDAO.insert(relationDO);
+		return relationDO.getMemberNo();
+	}
+	
+	@Override
+	public EsupplierBaseResult adminResetLogPwd(String userBaseId, String newPassword) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		UserBaseInfoDO baseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+		if (StringUtil.isNotEmpty(baseInfoDO.getAccountName())) {
+			baseResult.setMessage("只能重管理员密码");
+			return baseResult;
+		}
+		baseInfoDO.setLogPassword(MD5Util.getMD5_32(newPassword));
+		long resultSet = userBaseInfoDAO.updateLogPassword(baseInfoDO);
+		if (resultSet > 0) {
+			baseResult.setSuccess(true);
+			baseResult.setMessage("重置管理员登陆密码成功");
+			addOperationJournalInfo("超级管理员重置管理员登录密码", "超级管理员重置管理员登录密码",
+				"userId=" + baseInfoDO.getUserId() + ",userName=" + baseInfoDO.getUserName());
+		} else {
+			baseResult.setMessage("重置管理员登陆密码失败");
+		}
+		
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult saveOrUpdateUserExtendInfo(final UserExtendOrder extendOrder) {
+		return commonProcess(extendOrder, "用户扩展数据", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				UserExtendDO extendDO = userExtendDAO.findByPropertyNameUserId(
+					extendOrder.getUserId(), extendOrder.getUserExtendEnum().code());
+				if (extendDO == null) {
+					extendDO = new UserExtendDO();
+					extendDO.setUserId(extendOrder.getUserId());
+				}
+				extendDO.setPropertyKey(extendOrder.getUserExtendEnum().code());
+				if (StringUtil.isEmpty(extendOrder.getValue())) {
+					extendDO.setUserId(extendOrder.getUserId());
+					userExtendDAO.deletePropertyName(extendDO);
+				} else {
+					extendDO.setPropertyValue(extendOrder.getValue());
+					if (extendDO.getId() == 0) {
+						userExtendDAO.insert(extendDO);
+					} else {
+						userExtendDAO.update(extendDO);
+					}
+				}
+				return null;
+			}
+		}, null, new AfterProcessInvokeService() {
+			
+			@Override
+			public Domain after(Domain domain) {
+				if (extendOrder.getUserExtendEnum() == UserExtendEnum.USER_HEADER_IMG) {
+					AddPointsOrder addPointsOrder = new AddPointsOrder();
+					addPointsOrder.setPointsTypeEnum(PointsTypeEnum.UPLOAD_AVATAR);
+					addPointsOrder.setUserId(extendOrder.getUserId());
+					integralService.paidUserIntegralByRule(addPointsOrder);
+					
+				}
+				return domain;
+			}
+		});
+		
+	}
+
+	
+	@Override
+	public EsupplierBaseResult setOperatePassword(String userBaseId, String operatePassword) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		try {
+			UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+			userBaseInfoDO.setOperatePassword(MD5Util.getMD5_32(operatePassword));
+			int count = userBaseInfoDAO.updateOperatePassword(userBaseInfoDO);
+			if (count > 0) {
+				baseResult.setSuccess(true);
+				addOperationJournalInfo(
+					"设置操作密码",
+					"设置操作密码",
+					"userId=" + userBaseInfoDO.getUserId() + ",userName="
+							+ userBaseInfoDO.getUserName());
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return baseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult validationOperatePassword(String userBaseId, String operatePassword) {
+
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		try {
+			UserBaseInfoDO userBaseInfoDO = userBaseInfoDAO.findByUserBaseId(userBaseId);
+			if (StringUtil.isBlank(userBaseInfoDO.getOperatePassword())) {
+				//设置默认密码
+				userBaseInfoDO.setOperatePassword(MD5Util.getMD5_32("0000"));
+				userBaseInfoDAO.updateOperatePassword(userBaseInfoDO);
+			}
+			userBaseInfoDO.setOperatePassword(MD5Util.getMD5_32(operatePassword));
+			long count = userBaseInfoDAO.validationOperatePassword(userBaseInfoDO);
+			if (count > 0) {
+				baseResult.setSuccess(true);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return baseResult;
+	}
+}

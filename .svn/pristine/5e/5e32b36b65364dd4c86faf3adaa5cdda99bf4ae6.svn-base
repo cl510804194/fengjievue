@@ -1,0 +1,49 @@
+#parse("/front/platform/layout/header-title.vm")
+
+  <body>
+  <div class="lgn_reg MO" id="setHeight">
+      #parse("/front/platform/layout/header-lg.vm")
+      <!--centerContent start-->
+        <div class="content MO regist-bg">
+          <div class="reg_bg MI fn-container">
+            <div class="reg_area regist-content clearfix">
+              <p class="reg_top clearfix">
+                <span class="reg_title">激活成功</span>               
+              </p>
+              <ul class="activ_bar">
+                        <li class="first DIB">1、注册账户</li>
+                        <li class="mid DIB">2、发送激活邮件成功</li>
+                        <li class="mid mid_cur DIB">3、用户激活</li>
+                        ##<li class="mid DIB">4、开通第三方支付</li>
+              ##<li class="last DIB">5、完成</li>
+              </ul>
+              <p class="err_msg active_area">
+                <span><i class="yes"></i>激活成功！</span><br/>
+                <span class="DIB user_active"><em>请牢记您的用户名！</em></span>
+              </p>
+              <p class="err_opt_btn active_s">
+                <input type="button" class="return_pre" value="马上登录"/>
+                <a href="/"><input type="button" class="return_index"  value="返回首页"/></a>
+              </p>
+            </div>
+          </div>
+        </div><!--centerContent end-->
+  
+      <!-- footer begin -->
+      #parse("/front/platform/layout/footer-lg.vm")
+      <!-- footer end -->
+    </div>
+  </body>
+  <script type="text/javascript">
+      var $_GLOBAL = {};
+    </script>
+  <script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+  <script type="text/javascript">
+   seajs.use($_GLOBAL.mode + 'activationUser');
+   $(".return_pre").click(function() {	
+	location.href = "/login/logoutlogin.htm"; 
+   })
+    </script>
+</body>
+</html>

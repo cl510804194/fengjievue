@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntryDailyListReport>
+	<PageList><!-- 报表主体  //-->
+		<ReportBody><!-- 报表数据,表格形式,可以定义多个表格 //-->
+			<Blank />
+			<Blank />
+	
+			<TableBegin>
+				<LETTERNO>00000048703258</LETTERNO> <!-- 编号 -->
+			</TableBegin>	
+			
+			
+			<TableContract> 
+				
+			   <!-- 投资人流水号 -->	
+			   <InvestorTable>
+		           <InvestorRow>
+		           		<serialNO>0004870</serialNO> <amout>50000.00</amout>
+		           </InvestorRow>
+		            <InvestorRow>		
+		           		<serialNO>0004871</serialNO> <amout>50100.00</amout>
+		           	</InvestorRow>	
+		           	 <InvestorRow>	
+		           		<serialNO>0004872</serialNO> <amout>50300.00</amout>
+		           	</InvestorRow>	
+		           	 <InvestorRow>	
+		           		<serialNO>0004873</serialNO> <amout>60000.00</amout>
+		           	</InvestorRow>	
+		           	 <InvestorRow>	
+		           		<serialNO>0004874</serialNO> <amout>80000.00</amout>
+		           	</InvestorRow>	
+		           	 <InvestorRow>	
+		           		<serialNO>0004875</serialNO> <amout>90000.00</amout>
+		           </InvestorRow>
+	           </InvestorTable>
+	           
+	           <!-- 投资接受人流水编号 -->
+	           <financier>
+	                <serialNO>1004800</serialNO>
+	           </financier>
+	           
+	           
+	           <!-- 担保承诺函编号 -->
+	           <guaranteeLetter>
+	                <serialNO>渝01414451004800</serialNO>
+	           </guaranteeLetter>
+	           
+	           <investTable>
+		           <!-- 投资权益本金合计 -->
+					<DMONEY>5000000.00</DMONEY>
+					<!-- 投资权益年化收益率 -->
+					<PER>20</PER>
+					
+					<!-- 投资期间 -->
+					<SYYYY>2014</SYYYY> 
+					<SMM>01</SMM>
+					<SDD>31</SDD>
+					<!-- 回购到期日 -->
+					<EYYYY>2015</EYYYY> 
+					<EMM>12</EMM>
+					<EDD>31</EDD>
+			  </investTable>
+	
+			</TableContract>
+		
+			<TableEnd>
+				<ENTERPRISE>
+				   <![CDATA[重庆三峡担保]]>
+				</ENTERPRISE>
+				<PYYYY>2014</PYYYY><!-- 打印日期 -->
+				<PMM>05</PMM>
+				<PDD>20</PDD>
+			</TableEnd>	
+		
+		
+		</ReportBody><!-- 报表尾 //-->
+		<ReportFooter></ReportFooter>
+	</PageList>
+	
+	
+	
+	
+</EntryDailyListReport>

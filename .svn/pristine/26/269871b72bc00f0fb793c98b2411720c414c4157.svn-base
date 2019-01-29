@@ -1,0 +1,86 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * Administrator 下午7:03:58 创建
+ */
+package com.yjf.esupplier.service.user.order;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yjf.esupplier.ws.enums.SysUserRoleEnum;
+
+/**
+ * 
+ * 
+ * @author Administrator
+ * 
+ */
+public class BrokerOpenInvestorOrder extends RegisterBaseOrder {
+	
+	private static final long serialVersionUID = -5780381821061081537L;
+	String mail;
+	String realName;
+	/**
+	 * 上级用户（经纪机构或经纪人）
+	 */
+	long brokerUserId;
+	
+	public BrokerOpenInvestorOrder() {
+		List<SysUserRoleEnum> roles = new ArrayList<SysUserRoleEnum>();
+		roles.add(SysUserRoleEnum.BUYER);
+		this.setRole(roles);
+	}
+	
+	@Override
+	public void check() {
+		super.check();
+		validateHasText(mail, "电子邮箱");
+		validateHasText(realName, "真实姓名");
+		validateHasZore(brokerUserId, "经纪人UserId");
+	}
+	
+	public String getMail() {
+		return this.mail;
+	}
+	
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+	
+	public String getRealName() {
+		return this.realName;
+	}
+	
+	public void setRealName(String realName) {
+		this.realName = realName;
+	}
+	
+	public long getBrokerUserId() {
+		return this.brokerUserId;
+	}
+	
+	public void setBrokerUserId(long brokerUserId) {
+		this.brokerUserId = brokerUserId;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("BrokerOpenInvestorOrder [mail=");
+		builder.append(mail);
+		builder.append(", realName=");
+		builder.append(realName);
+		builder.append(", brokerUserId=");
+		builder.append(brokerUserId);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

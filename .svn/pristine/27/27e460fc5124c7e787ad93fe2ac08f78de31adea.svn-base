@@ -1,0 +1,63 @@
+<table sqlname="user_login">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO user_login(login_id,login_name,user_id,login_type,raw_add_time) VALUES (?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+				<![CDATA[
+				UPDATE user_login SET login_name=?,user_id=?,login_type=? WHERE login_id=?
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByUserId" paramtype="string" multiplicity="many">
+		<sql>
+			<![CDATA[
+			SELECT  * FROM user_login WHERE user_id=?
+			
+		]]>
+		</sql>
+	</operation>
+	<operation name="findByLoginName" paramtype="string">
+		<sql>
+			<![CDATA[
+		select  distinct l.* from user_base_info u, user_login l where ((u.user_id = l.user_id) AND (login_name = ?))
+		]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+				<![CDATA[
+			SELECT  * FROM user_login WHERE login_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+				<![CDATA[
+				
+			DELETE FROM user_login WHERE login_id=?
+				]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" >
+		<sql>
+				<![CDATA[
+				SELECT  count(*) FROM user_login
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteByLoginNameAutoTest" paramtype="string">
+		<sql>
+				<![CDATA[
+				
+			DELETE FROM user_login WHERE login_name=?
+				]]>
+		</sql>
+	</operation>
+</table>

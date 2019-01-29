@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>投资首页</title>
+	<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+<!--content begin----------------->	
+	
+	
+<div class="container">
+
+
+<!--本版本暂时屏蔽筛选功能
+		<div class="filter">
+		
+			<dl class="fn-clear">
+				<dt>还款时间：</dt>
+				<dd>
+					<a href="javascript:void(0);" unit="" start="" end="" name="time">全部</a>
+					<a href="javascript:void(0);" unit="D" start="" end="30" name="time">30天内</a>
+					<a href="javascript:void(0);" unit="M" start="1" end="3" name="time">1个月-3个月</a>
+					<a href="javascript:void(0);" unit="M" start="3" end="6" name="time">3个月~6个月</a>
+					<a href="javascript:void(0);" unit="M" start="6" end="9" name="time">6个月~9个月</a>
+					<a href="javascript:void(0);" unit="M" start="9" end="12" name="time">9个月~12个月</a>
+				</dd>
+			</dl>
+			<dl class="fn-clear">
+				<dt>金额范围：</dt>
+				<dd>
+					<a href="javascript:void(0);" start="" end="" name="amount">全部</a>
+					<a href="javascript:void(0);" start="10" end="50" name="amount">10万-50万</a>
+					<a href="javascript:void(0);" start="50" end="100" name="amount">50万-100万</a>
+					<a href="javascript:void(0);" start="100" end="500" name="amount">100万-500万</a>
+					<a href="javascript:void(0);" start="500" end="1000" name="amount">500万-1000万</a>
+					<a href="javascript:void(0);" start="1000" end="5000" name="amount">1000万-5000万</a>
+					<a href="javascript:void(0);" start="5000" end="" name="amount">5000万以上</a>
+				</dd>
+			</dl>
+			<dl class="fn-clear">
+				<dt>筹资进度：</dt>
+				<dd>
+					<a href="javascript:void(0);" start="" end="" name="rate">全部</a>
+					<a href="javascript:void(0);" start="" end="10" name="rate">10%以内</a>
+					<a href="javascript:void(0);" start="10" end="20" name="rate">10%-20%</a>
+					<a href="javascript:void(0);" start="20" end="50" name="rate">20%-50%</a>
+					<a href="javascript:void(0);" start="50" end="80" name="rate">50%-80%</a>
+					<a href="javascript:void(0);" start="80" end="90" name="rate">80%-90%</a>
+					<a href="javascript:void(0);" start="90" end="100" name="rate">90%-100%</a>
+				</dd>
+			</dl>
+			<dl class="fn-clear">
+				<dt>担保公司：</dt>
+				<dd>
+					<a href="javascript:void(0);" guarantee="" name="guarantee">全部</a>
+					<a href="javascript:void(0);" guarantee="YT" name="guarantee">渝台担保</a>
+					<a href="javascript:void(0);" guarantee="EDU" name="guarantee">教育担保</a>
+				</dd>
+			</dl>
+		</div>	
+	
+-->	
+	
+		<div class="home-section_bd pt20">
+			<div class="blank20"></div>
+		    <div class="bd-box db-p14 container">
+		    	<h2 class="title2 mt10"><span class="tit-name">项目列表</span><a class="return" href="javascript:history.go(-1);">《 返回</a><span class="balance" href="#">可用余额<span class="ml5">￥$!{yjfAccountInfo.availableBalance.toStandardString()}</span><a href="/userManage/topUp/withholdingIndex"></a></span></h2>
+		        
+		        	
+		         #parse("/front/index/common/entries-hard.vm")   
+		         
+  
+                <!--分页-->
+				<div class="pages account-page mt20">
+					<div class="fn-right">
+	    				#parse("/backstage/page/page.vm")
+	    			</div>	
+				</div>
+		         
+		          <div class="blank30"></div>
+         
+		    </div>
+		    <div class="blank50"></div>
+		</div>
+
+   
+
+
+
+
+   <form action="$!{rc.contextPath}/boot/invest/$!{page.pageSize}/$!{page.nexPagetNo}" method="get" name="frm">
+		<input type="hidden" name="timeUnit" value="$!stringUtil.filterXSS($!{request.getParameter('timeUnit')})"/>
+		<input type="hidden" name="startTime" value="$!stringUtil.filterXSS($!{request.getParameter('startTime')})"/>
+		<input type="hidden" name="endTime" value="$!stringUtil.filterXSS($!{request.getParameter('endTime')})"/>
+		<input type="hidden" name="startAmount" value="$!stringUtil.filterXSS($!{request.getParameter('startAmount')})"/>
+		<input type="hidden" name="endAmount" value="$!stringUtil.filterXSS($!{request.getParameter('endAmount')})"/>
+		<input type="hidden" name="startRate" value="$!stringUtil.filterXSS($!{request.getParameter('startRate')})"/>
+		<input type="hidden" name="endRate" value="$!stringUtil.filterXSS($!{request.getParameter('endRate')})"/>
+		<input type="hidden" name="guarantee" value="$!stringUtil.filterXSS($!{request.getParameter('guarantee')})"/>
+	</form>
+
+
+</div>	
+
+	#parse("/front/index/common/js.vm")
+    
+    <script type="text/javascript">
+    	$(function(){
+    	  var timeUnit = $('input[name=timeUnit]').val();
+    	  var startTime = $('input[name=startTime]').val();
+    	  var endTime = $('input[name=endTime]').val();
+		  var guarantee = $('input[name=guarantee]').val();
+    	  $('[guarantee=' + guarantee + ']').addClass('cur');
+    	  $('[name=time][unit=' + timeUnit + '][start=' + startTime + '][end=' + endTime + ']').addClass('cur');
+    	  var startAmount = $('input[name=startAmount]').val();
+    	  if(startAmount != ''){
+    	  	startAmount = parseInt(startAmount) / 1000000;
+    	  }
+    	  var endAmount = $('input[name=endAmount]').val();
+    	  if(endAmount != ''){
+    	  	endAmount = parseInt(endAmount) / 1000000;
+    	  }
+    	  $('[name=amount][start=' + startAmount + '][end=' + endAmount + ']').addClass('cur');
+    	  var startRate = $('input[name=startRate]').val();
+    	  if(startRate != ''){
+    	  	startRate = parseFloat(startRate) * 100;
+    	  }
+    	  var endRate = $('input[name=endRate]').val();
+    	  if(endRate != ''){
+    	  	endRate = parseFloat(endRate) * 100;
+    	  }
+    	  $('[name=rate][start=' + startRate + '][end=' + endRate + ']').addClass('cur');
+    	});
+    	
+	    $('a[name=time]').click(function (){
+	        var t = $(this);
+	        $('input[name=timeUnit]').val(t.attr('unit'));
+	        $('input[name=startTime]').val(t.attr('start'));
+	        $('input[name=endTime]').val(t.attr('end'));
+	        go(1);
+			return false;
+	    });
+	    
+	    $('a[name=amount]').click(function (){
+	    	var t = $(this);
+	    	var start = t.attr('start');
+	    	if(start != ''){
+	    		start = parseInt(start) * 1000000;
+	    	}
+	    	var end = t.attr('end');
+	    	if(end != ''){
+	    		end = parseInt(end) * 1000000;
+	    	}
+	    	$('input[name=startAmount]').val(start);
+	    	$('input[name=endAmount]').val(end);
+	    	go(1);
+			return false;
+	    });
+	    
+	    $('a[name=rate]').click(function (){
+	    	var t = $(this);
+	    	$('form[name=frm]').attr('action', '$!{rc.contextPath}/boot/invest/$!{page.pageSize}/1');
+	    	var start = t. attr('start');
+	    	if(start != ''){
+	    		start = parseFloat(start) / 100;
+	    	}
+	    	var end = t.attr('end');
+	    	if(end != ''){
+	    		end = parseFloat(end) / 100;
+	    	}
+	    	$('input[name=startRate]').val(start);
+	    	$('input[name=endRate]').val(end);
+	    	go(1);
+			return false;
+	    });
+		$('a[name=guarantee]').click(function (){
+	    	var t = $(this);
+	    	$('form[name=frm]').attr('action', '$!{rc.contextPath}/boot/invest/$!{page.pageSize}/1');
+	    	var guarantee = t. attr('guarantee');
+	    	$('input[name=guarantee]').val(guarantee);
+	    	go(1);
+			return false;
+	    });
+	
+	 
+        <!--分页跳转-->
+		function toPage(totalPage, pageNo){
+				if(totalPage<pageNo){
+					return false;
+				}
+				var url = "$!{rc.contextPath}/boot/invest/$!{page.pageSize}/"+pageNo;
+				window.location.href=url;
+		}
+  
+	 
+	 
+	 
+	    
+   </script>
+
+
+
+
+
+<!--content end----------------->	
+	#parse("/front/index/common/footer-yrd.vm")
+</body>
+</html>

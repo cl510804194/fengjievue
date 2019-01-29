@@ -1,0 +1,127 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content med_hlth private_med MO">
+    <div class="med_banner MO"></div>
+    <div class="med_nav MO">
+        <!--nav-->
+        <div class="MI">
+            <div class="l_line line"></div>
+            <div class="r_line line"></div>
+            <div class="nav_container">
+                <span class="DIB nav_i_img_1"><img src="/styles/images/comp/private_icon1.png"/></span>
+                #foreach(${styleItem} in ${styleList})
+                    <a href="#mod$!{velocityCount}" class="nav_icon DIB"><span
+                            class="DIB first">$!{stringUtil.subString($!styleItem.propertyName,0,2,"")}</span><span
+                            class="DIB">$!{stringUtil.subString($!styleItem.propertyName,2,-1,"")}</span></a>
+                #end
+                <span class="DIB nav_i_img_2"><img src="/styles/images/comp/private_icon2.png"/></span>
+            </div>
+            <!--<a href="#mod5" class="nav_icon DIB"><span class="DIB second">综合套餐</span></a>-->
+        </div>
+    </div>
+    <div class="med_list MO">
+        <div class="MI">
+            <div class="hot_banner">
+                #if($listUtil.isNotEmpty($bannerNews))
+                    #foreach($banner in $bannerNews)
+                        <a href="$!{banner.remark}" class="hot1 DIB"><img src="$!{banner.rem1}"/></a>
+                    #end
+                #else
+                    <a href="#" class="hot1 DIB"><img src="/styles/images/temp/hot2.png"/></a>
+                #end
+            </div>
+            #foreach(${styleItem} in ${styleList})
+                <div class="mod" id="mod$!{velocityCount}">
+                    <p class="m_tl m_tl_${numberUtil.modNumber($!velocityCount,5)}">$!{styleItem.propertyName}<a href="/front/platform/mall/mallList.htm?productType=$!{productType}&productStyle=$!{styleItem.propertyCode}" class="more">更多</a></p>
+
+                    <div class="lt_ctr">
+                        #if($!{styleMap.get($!{styleItem.propertyCode}).size()}>0)
+                            #set($productList=${styleMap.get($!{styleItem.propertyCode})})
+                            #foreach(${productItem} in ${productList})
+                                <div class="list_item DIB">
+                                    <a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!productItem.productId">
+                                        #if($stringUtil.isEmpty($!productItem.bigPicPath))
+                                            <img src='/resources/images/photo_not_exits_small.gif'>
+                                        #else
+                                            <img src='$!productItem.bigPicPath'>
+                                        #end
+                                    </a>
+
+                                    <p class="title">$stringUtil.subString($!{productItem.productName},12, "..")</p>
+
+                                    <p class="intro">$stringUtil.subString($!{productItem.productCusAdd1},15, "..")</p>
+
+                                    <p class="price clearfix">
+                                        <span class="sl_price">￥<em>$!{productItem.price1}</em></span>
+                                    ##                                        <span class="or_price">门市价￥<em>$!{productItem.price1}</em></span>
+                                    </p>
+                                    <p class="add_cart">
+                                        <a class="DIB btn"
+                                           onClick="javascript:immIntoShopCart('$!productItem.productId','$!productItem.startOrderCount','$!productItem.productName','$!productItem.smallPicPath','$!productItem.price1','$!member.userId','$!member.realName')"
+                                                ><i class="l_cart"></i>加入购物车</a>
+                                    </p>
+                                </div>
+                            #end
+                        #end
+                    </div>
+                </div>
+            #end
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'mallMainSe');
+</script>
+<script>
+    //收藏
+    var memberLogin =$!webSessionUtil.isLogin();
+    $(".fnCollection").click(function () {
+        var _this = this;
+        if (!checkLogin()) {
+            alert("收藏商品，需要您进行登录");
+            return;
+        } else {
+            $.ajax({
+                url: '/do/productCollect/collectProduct.json',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    productId: $(_this).attr("data")
+                },
+                success: function (result) {
+                    alert(result.message);
+                    $(_this).removeClass("zaned");
+                    $(_this).addClass("zan");
+
+                }
+            })
+        }
+    });
+
+    function checkLogin() {
+        var ret = true;
+        if (!memberLogin) {
+            ret = false;
+        }
+        return ret;
+    }
+    //加入购物车
+    function immIntoShopCart(product, quantity, proname, imgurl, _price, supplierId) {
+        var v = 1;
+        bcart.addItem(product, v, supplierId, '$!template');
+        //购物车数量更新
+        var leix = $('.cartItem').length;
+        $('#shul').text(leix);
+    }
+</script>
+</html>

@@ -1,0 +1,29 @@
+package com.yjf.esupplier.service.systemSet.query.order;
+
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class CommodityLimitQueryOrder extends QueryPageBase{
+
+	private static final long serialVersionUID = 6172386232300388634L;
+	
+	private String category;
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CommodityLimitQueryOrder [category=");
+		builder.append(category);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+	
+}

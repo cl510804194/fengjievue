@@ -1,0 +1,58 @@
+package com.yjf.esupplier.common.util.json;
+
+import java.io.IOException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import com.yjf.common.lang.util.money.Money;
+
+/**
+  * @Description: Json工具类,Gson版 
+  * @author taibai@yiji.com 
+  * @date  2016-8-22 下午3:48:13
+  * @version V1.0
+ */
+public class GsonUtil {
+
+	public static  GsonBuilder builder = new GsonBuilder();
+
+	static{
+		builder.registerTypeAdapter(Money.class, new TypeAdapter<Money>(){
+
+			@Override
+			public Money read(JsonReader reader) throws IOException {
+				if (reader.peek() == JsonToken.NULL) {
+					reader.nextNull();
+					return null;
+				}else{
+					return Money.amout(reader.nextString());
+				}
+			}
+
+			@Override
+			public void write(JsonWriter writer, Money value) throws IOException {
+				if (value == null) {
+					writer.nullValue();
+					return;
+				}else{
+					writer.value(value.toString());
+				}
+			}
+		});
+	}
+	
+	
+	public static void main(String[] args) {
+		create().toJson(Money.amout("100"));
+	}
+	public static Gson create(){
+		return builder.create();
+	}
+	private GsonUtil() {
+		throw new AssertionError("静态类不能实例化");
+	}
+}

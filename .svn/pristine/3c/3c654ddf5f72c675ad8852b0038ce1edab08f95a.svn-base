@@ -1,0 +1,141 @@
+﻿<%-- <%@ page language="java" contentType="text/html; charset=UTF-8" --%>
+<%--     pageEncoding="UTF-8"%> --%>
+<%-- <%@ page import="com.bornsoft.asn.service.member.MemberService,com.bornsoft.asn.bean.member.Member"%> --%>
+<%-- <% --%>
+// 	String topCp=request.getContextPath();
+// 	String memberName=MemberService.getMemberShortName(session);
+<%-- %> --%>
+<%-- <link href="<%=topCp%>/top_files/inside.css" rel="stylesheet" type="text/css"> --%>
+
+<!-- <style type="text/css"> -->
+/* 	.searchType{ */
+/* 		font-size:12px;width:80px; */
+<%-- 		background:url("<%=topCp%>/image/top/nnav_bg01.gif") repeat-x;text-align:center; --%>
+/* 		cursor: pointer; */
+/* 	} */
+/* 	.typeSelected{ */
+/* 		width:62px; */
+/* 		color:#FFFFFF; font-size:14px; font-weight:bold; */
+<%-- 		background:url("<%=topCp%>/image/top/nnav01.jpg") repeat-x;text-align:center; --%>
+/* 		cursor:pointer; */
+/* 	} */
+/* 	.inputsearch{ */
+/* 		border:1px solid #339223;color:#CCCCCC;  */
+<%-- 		background:url(<%=topCp%>/image/top/dhk_bg.gif) repeat-x;  --%>
+/* 		width:510px;padding:6px 0; */
+/* 	} */
+<!-- </style> -->
+<!-- <script type="text/javascript"> -->
+// 	function delaySubSearch(val){		
+// 	 	var arrayType = new Array('gy','qg','sp','qy','hq');		
+// 		for(var i=0; i<arrayType.length; i++){			
+// 			if(arrayType[i] == val){				
+// 				document.getElementById("wlm"+arrayType[i]).className = "typeSelected";
+// 				document.getElementById("searchTypeID").value = arrayType[i];
+// 			}else{
+// 				document.getElementById("wlm"+arrayType[i]).className = "searchType";
+// 			}
+// 		}		
+// 	}
+// 	function searchSub(elem){
+// 		var searchType = document.getElementById("searchTypeID").value;
+// 		var searchkey =  document.getElementById("searchkey").value;
+// 		//if(searchkey == ""){
+// 		//	alert("查询关键字不能为空！");
+// 		//	return false;
+// 		//}
+// 		var url="";
+// 		if(searchType == "qy"){
+// 			url = "/asn/front/supplier/searchSupplier";
+// 		}
+// 		else if(searchType == "gy"){
+// 			url="/asn/front/info/showSupplyInfoList";
+// 		}
+// 		else if(searchType == "qg"){
+// 			url="/asn/front/info/showPurchaseInfoList";
+// 		}
+// 		else if(searchType == "sp"){					
+// 			url="/asn/front/prodcut/searchProduct";
+// 		}
+// 		else if(searchType == "hq"){
+// 			url="/asn/front/quotation/QuotationList";
+// 		}
+// 		elem.form.action=url;
+// 		elem.form.method="GET";
+// 		elem.form.submit();
+// 		return true;
+// 	}
+<!-- </script> -->
+<!-- <table width="974" align="center" bgcolor="#ffffff" cellpadding="0" cellspacing="0" border="0"> -->
+<!-- <tr> -->
+<!-- 	<td> -->
+<!-- 		<table width="950" align="center" bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0" height="31"> -->
+<!--        		<tbody><tr> -->
+	       
+<%-- 		    <td colspan="2" class="tex12_huise" valign="top" background="<%=topCp%>/top_files/line_31.jpg" height="31"> --%>
+<!-- 				<a href="http://www.aiecp.com/aiecp/72057594037927936/index.html">首页</a> |  -->
+<%-- 				<a href="<%=topCp%>/front/cate0">产品</a>|  --%>
+<%-- 		        <a href="<%=topCp%>/front/supplier/searchSupplier">供应商</a> |  --%>
+<%-- 		        <a href="<%=topCp%>/front/info/showSupplyInfoList">供应信息</a> | --%>
+<%-- 		        <a href="<%=topCp%>/front/info/showPurchaseInfoList">求购信息</a> | --%>
+<%-- 		        <a href="<%=topCp%>/front/quotation/QuotationList">行情</a> --%>
+		  
+<%-- 			<%if(memberName.equals("")){%> --%>
+<%-- 				<a href="<%=topCp%>/do">会员中心(登录)</a>  --%>
+<%-- 			<%} else{ --%>
+// 				if(MemberService.isRole(request, "AsnSystemAdmin")){
+<%-- 			%> | <a href="<%=topCp%>/admin">管理中心</a><% --%>
+// 				}else{
+<%-- 			%> | <a href="<%=topCp%>/do">会员中心(<%=memberName%>)</a><% --%>
+// 				}
+<%-- 			%> | <a href="<%=topCp%>/logout">注销</a> --%>
+<%-- 			<%}%> | <a href="javascript:void(bcart.showCart());">查看购物车</a> --%>
+<!-- 			| <a href="#anchorHelp">使用帮助</a> -->
+<!-- 			</td> -->
+<!-- 			</tr>	    -->
+	   
+<!--   </tbody></table> -->
+          
+  
+<!--   <table width="950" border="0" cellspacing="0" cellpadding="0" align="center"> -->
+<!-- 	  <!--<tr> -->
+<%-- 	    <td height="60" colspan="2"><img src="<%=topCp%>/image/top/gg_60.gif" width="950" height="60" /></td> --%>
+<!-- 	  </tr>--> -->
+<!--   </table> -->
+<!--   <form action="" name="searchform" method="post"> -->
+<!--   <input type="hidden" name="searchTypeID" id="searchTypeID" value="gy"> -->
+<!--   <table width="950" border="0" cellspacing="0" cellpadding="0" align="center" style="padding:10px 0; "> -->
+<!-- 	  <tr> -->
+<%-- 	    <td width="256"><img src="<%=topCp%>/image/top/logo_76.gif" width="256" height="76" /></td> --%>
+<!-- 	    <td width="630"><table width="100%" height="28" border="0" cellpadding="0" cellspacing="0"> -->
+<!-- 	      <tr> -->
+<!-- 	        <td align="center" class="typeSelected" id="wlmgy" onmousedown="delaySubSearch('gy')">供应</td> -->
+<!-- 	        <td align="center" class="searchType" id="wlmqg" onmousedown="delaySubSearch('qg')">求购</td> -->
+<!-- 	        <td align="center" class="searchType" id="wlmsp" onmousedown="delaySubSearch('sp')">商品</td> -->
+<!-- 	        <td align="center" class="searchType" id="wlmqy" onmousedown="delaySubSearch('qy')">企业</td> -->
+<!-- 	        <td align="center" class="searchType" id="wlmhq"  onmousedown="delaySubSearch('hq')">行情</td> -->
+<%-- 	        <td background="<%=topCp%>/image/top/nnav_bg01.gif" width="225">&nbsp;</td> --%>
+<%-- 	        <td width="24"><img src="<%=topCp%>/image/top/nnav02.jpg" width="24" height="34" /></td> --%>
+<!-- 	      </tr> -->
+<!-- 	      <tr> -->
+<%-- 	        <td height="42" colspan="10" background="<%=topCp%>/image/top/nnav_bg02.gif">	 --%>
+<!-- 	         	<table width="630" border="0" cellspacing="0" cellpadding="0"> -->
+<!-- 				  <tr>             -->
+<!-- 					<td width="520" style=" padding-left:20px;">              -->
+<!-- 					   <input name="searchkey" id="searchkey" type="text" class="inputsearch" onfocus="this.value='',this.style.color='#000000'" value="请输入关键字" /> -->
+<!-- 					 </td> -->
+<%-- 					<td width="90" valign="top"><input type="image" src="<%=topCp%>/image/top/sousuo28.gif" style="height:28px; width:87px;" onclick="return searchSub(this)" /></td>				 --%>
+<!-- 				  </tr> -->
+<!-- 	        	</table> 		 -->
+<!-- 			</td> -->
+<!-- 	       </tr> -->
+<!-- 	    </table> -->
+<!-- 		</td> -->
+<!-- 		<td width="63" align="right"><br><a href="#">搜索帮助</a></td> -->
+<!-- 	  </tr> -->
+<!-- 	</table> -->
+<!-- 	</form> -->
+  
+<!-- </td></tr></table>   -->
+<%-- <script type="text/javascript" src="<%=topCp%>/js/jquery-ui-1.8rc3.custom.min.js"></script> --%>
+<%-- <script type="text/javascript" src="<%=topCp%>/js/bcart/bcart.js"></script> --%>

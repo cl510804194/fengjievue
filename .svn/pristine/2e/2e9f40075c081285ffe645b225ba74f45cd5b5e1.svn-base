@@ -1,0 +1,57 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header_member2.vm")
+
+	<!--centerContent start-->
+	    <div class="content person_cntr MO" nav="modifyPassword">
+	    	<div class="MI">
+		    	#parse("/front/platform/member/layout/person_member_left2.vm")
+		    	<div class="left_cnt DIB push_pro ">
+					<p class="nav_title"><span class="DIB" >修改支付密码</span><a onclick="javascript:window.history.back();" class="fn-right">返回 </a></p>
+					#if($!state != "1")
+						<div class="push_content left_content">
+							
+							<p class="err_msg"><i class="warn"></i>$!{message}</p>
+						
+						</div>
+					#else
+					<form action="/PasswordManage/modifyPayPasswordSubmit.json" method="post" class="mt20" id="password_form">
+						<div class="push_content left_content">
+							<div class="inpt">
+								<span class="inpt_txt DIB"><em>*</em>原始支付密码：</span>
+								<input type="password" class="fn-text fn-t-disable w230 inpt_val" name="oldPassword" id="oldPassword"/>
+							</div>
+							<div class="inpt pwd">
+								<span class="inpt_txt DIB"><em>*</em>设置新支付密码：</span>
+								<input type="password" class="fn-text fn-t-disable w230 inpt_val" name="newPassword" id="newPassword"  checkStrong="true"/>
+								<!-- <em class="DIB pwdStrongBar">
+									    						<i class="DIB level1">不安全</i>
+									    						<i class="DIB level2">一般</i>
+									    						<i class="DIB level3">安全</i>
+									    						<i class="DIB level4">非常安全</i>
+									    					</em> -->
+							</div>
+							<div class="inpt">
+								<span class="inpt_txt DIB"><em>*</em>设置新支付密码：</span>
+								<input type="password" class="fn-text fn-t-disable w230 inpt_val" name="newPasswordTo" id="newPasswordTo"/>
+							</div>
+							<input value="$!{randomMD5}" name="randomMD5" id="randomMD5" type="hidden"/>
+							<input type="hidden" value="$!{md5UserBaseId}" name="md5UserBaseId" id="md5UserBaseId"/>
+							<input type="hidden" value="$!{userBaseId}" name="userBaseId" id="userBaseId"/>
+							<div class="inpt">
+								<input type="button" value="保存" class="submit"  id="bt_password_form"/>
+							</div>
+						</div>
+					</form>
+					#end
+		    	</div>
+	    	</div>
+	    </div><!--centerContent end-->
+
+	<!-- footer begin -->
+    #parse("/front/platform/layout/footer-lg.vm")
+	<!-- footer end -->
+</body>
+<script type="text/javascript">	seajs.use($_GLOBAL.mode + 'modifyPayword');</script>
+</html>

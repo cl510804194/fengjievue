@@ -1,0 +1,977 @@
+package com.yjf.esupplier.service.giftMoney.impl;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.DateUtil;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.common.service.base.AfterProcessInvokeService;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.esupplier.common.util.BusinessNumberUtil;
+import com.yjf.esupplier.domain.GiftMoneyTradeDomain;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.domain.service.GiftMoneyDomainService;
+import com.yjf.esupplier.domain.service.GiftMoneyTradeDomainService;
+import com.yjf.esupplier.integration.openapi.order.FreezeOrder;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.common.services.SystemMessageService;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyQueryService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyRuleQueryService;
+import com.yjf.esupplier.service.giftMoney.query.GiftMoneyTradeQueryService;
+import com.yjf.esupplier.service.recharge.RechargeFlowService;
+import com.yjf.esupplier.service.security.AuthorityService;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.ws.enums.PayTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyGiveTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyStatusEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTradeTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTypeEnum;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyRuleInfo;
+import com.yjf.esupplier.ws.gifamount.info.GiftMoneyTradeInfo;
+import com.yjf.esupplier.ws.gifamount.order.CreateGiftMoneyOrder;
+import com.yjf.esupplier.ws.gifamount.order.GiftMoneyAssignOrder;
+import com.yjf.esupplier.ws.gifamount.order.GiftMoneyCancelAssignOrder;
+import com.yjf.esupplier.ws.gifamount.order.GiftMoneyCancelPersonalOrder;
+import com.yjf.esupplier.ws.gifamount.order.HandGiftMoneyOrder;
+import com.yjf.esupplier.ws.gifamount.query.order.GiftMoneyQueryOrder;
+import com.yjf.esupplier.ws.gifamount.query.order.GiftMoneyTradeQueryOrder;
+import com.yjf.esupplier.ws.gifamount.result.GiftMoneyAssignResult;
+import com.yjf.esupplier.ws.gifamount.result.GiftMoneyResult;
+import com.yjf.esupplier.ws.gifamount.services.GiftMoneyAssignProcessService;
+import com.yjf.esupplier.ws.gifamount.services.GiftMoneyService;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.order.RechargeFlowOrder;
+
+/**
+ * Created by min on 2014/11/21.
+ */
+@Service("giftMoneyAssignProcessService")
+public class GiftMoneyAssignProcessServiceImpl extends BaseBizService implements
+																		GiftMoneyAssignProcessService {
+	
+	@Autowired
+	private GiftMoneyQueryService giftMoneyQueryService;
+	
+	@Autowired
+	GiftMoneyService giftMoneyService;
+	
+	@Autowired
+	GiftMoneyTradeQueryService giftMoneyTradeQueryService;
+	
+	@Autowired
+	GiftMoneyRuleQueryService giftMoneyRuleQueryService;
+	
+	@Autowired
+	AuthorityService authorityService;
+	
+	@Autowired
+	SystemMessageService systemMessageService;
+	
+	@Autowired
+	RechargeFlowService rechargeFlowService;
+	
+	@Autowired
+	GiftMoneyTradeDomainService giftMoneyTradeDomainService;
+	
+	@Autowired
+	GiftMoneyDomainService giftMoneyDomainService;
+	
+	@Override
+	public GiftMoneyAssignResult giftMoneyAssign(final GiftMoneyAssignOrder giftMoneyAssignOrder) {
+		GiftMoneyAssignResult result = new GiftMoneyAssignResult();
+		try {
+			
+			GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+			queryOrder.setGiveType(giftMoneyAssignOrder.getGiveType());
+			queryOrder.setCurrentDate(getSysdate());
+			List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+				.giveGainMoneyListByCondition(queryOrder);
+			if (ListUtil.isEmpty(giftMoneys)) {
+				result.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+				result.setSuccess(true);
+				result.setMessage("没有可发放的活动");
+			}
+			boolean isALlSuccess = false;
+			for (GiftMoneyInfo giftMoneyInfo : giftMoneys) {
+				giftMoneyAssignOrder.setType(giftMoneyInfo.getType());
+				EsupplierBaseResult giftMoneyResult = giftMoneyAmountAssign(giftMoneyAssignOrder);
+				isALlSuccess = isALlSuccess && giftMoneyResult.isSuccess();
+			}
+			//			
+			//			giftMoneyAssignOrder.setType(GiftMoneyTypeEnum.EXPERIENCE_AMOUNT);
+			//			EsupplierBaseResult experienceAmountResult = giftMoneyAmountAssign(giftMoneyAssignOrder);
+			//			
+			//			giftMoneyAssignOrder.setType(GiftMoneyTypeEnum.GIFT_MONEY_CASH);
+			//			EsupplierBaseResult giftAmountCashResult = giftMoneyAmountAssign(giftMoneyAssignOrder);
+			//			giftMoneyAssignOrder.setType(GiftMoneyTypeEnum.GAIN_AMOUNT);
+			//			EsupplierBaseResult giftGainAmountResult = giftMoneyAmountAssign(giftMoneyAssignOrder);
+			//			
+			//			giftMoneyAssignOrder.setType(GiftMoneyTypeEnum.VIRTUAL_EXPERIENCE_AMOUNT);
+			//			EsupplierBaseResult giftVirtualAmountResult = giftMoneyAmountAssign(giftMoneyAssignOrder);
+			//			
+			if (isALlSuccess) {
+				result.setSuccess(true);
+				result.setUrl("/userGiftMoney/pageQuery");
+			}
+			
+		} catch (Exception e) {
+			logger.error("发优惠券错误", e);
+		}
+		return result;
+	}
+	
+	@Override
+	public EsupplierBaseResult giftMoneyAmountAssign(final GiftMoneyAssignOrder giftMoneyAssignOrder) {
+		return commonProcess(giftMoneyAssignOrder, "领取"
+													+ giftMoneyAssignOrder.getType().getMessage(),
+			new BeforeProcessInvokeService() {
+				@Override
+				public Domain before() {
+					if (giftMoneyAssignOrder.getType() == GiftMoneyTypeEnum.GAIN_AMOUNT) {
+						assignGainAmount(giftMoneyAssignOrder);
+					} else {
+						assign(giftMoneyAssignOrder);
+					}
+					return null;
+				}
+			}, null, new AfterProcessInvokeService() {
+				@Override
+				public Domain after(Domain domain) {
+					
+					return null;
+				}
+			});
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+	
+	private GiftMoneyResult assignCondition(GiftMoneyAssignOrder giftMoneyAssignOrder,
+											GiftMoneyInfo giftMoney) {
+		GiftMoneyResult result = new GiftMoneyResult();
+		GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+		queryOrder.setGiveType(giftMoneyAssignOrder.getGiveType());
+		Money investAmount = giftMoneyAssignOrder.getInvestAmount();
+		String giveType = giftMoney.getGiveType().code();
+		
+		if (validateAssignNumCondition(giftMoneyAssignOrder, giftMoney, result, giveType))
+			return result;
+		
+		List<GiftMoneyRuleInfo> giftMoneyRuleInfos = giftMoneyRuleQueryService
+			.queryGiftMoneyRuleByGiftId(giftMoney.getGiftId());
+		if (ListUtil.isEmpty(giftMoneyRuleInfos) || null == giftMoneyRuleInfos.get(0)) {
+			throw ExceptionFactory
+				.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "优惠券没有发放的规则!");
+		}
+		if (StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.REGISTER.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.AUTHENTICATION.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.BIND_CARD.code())) {
+			result.setGiftMoneyAmount(Money.amout(giftMoneyRuleInfos.get(0).getAmount()));
+			result.setSuccess(true);
+			return result;
+		}
+		
+		long giftMoneyRuleId = 0;
+		Money amount = new Money(0, 0);
+		if (giftMoneyRuleInfos.size() == 1) {
+			GiftMoneyRuleInfo giftMoneyRuleInfo = giftMoneyRuleInfos.get(0);
+			Money ruleAmount = Money.amout(giftMoneyRuleInfo.getRuleAmount());
+			if (investAmount.compareTo(ruleAmount) == -1) {
+				result.setSuccess(false);
+				return result;
+			}
+			if (StringUtil.equalsIgnoreCase("Y", giftMoney.getIncrease())) {
+				long n = giftMoneyAssignOrder.getInvestAmount().getCent() / ruleAmount.getCent();
+				if (n != 0) {
+					Money giveAmount = Money.amout(giftMoneyRuleInfo.getAmount());
+					amount = giveAmount.multiply(n);
+				}
+			} else {
+				amount = Money.amout(giftMoneyRuleInfo.getAmount());
+			}
+			giftMoneyRuleId = giftMoneyRuleInfo.getGiftRuleId();
+			
+		} else {
+			Collections.sort(giftMoneyRuleInfos, new Comparator<GiftMoneyRuleInfo>() {
+				@Override
+				public int compare(GiftMoneyRuleInfo o1, GiftMoneyRuleInfo o2) {
+					return Money.amout(o1.getRuleAmount()).compareTo(
+						Money.amout(o2.getRuleAmount()));
+					
+				}
+			});
+			int len = giftMoneyRuleInfos.size();
+			GiftMoneyRuleInfo condition = null;
+			for (int i = len - 1; i >= 0; i--) {
+				GiftMoneyRuleInfo info = giftMoneyRuleInfos.get(i);
+				Money ruleAmount = Money.amout(info.getRuleAmount());
+				if (investAmount.compareTo(ruleAmount) == 1
+					|| investAmount.compareTo(ruleAmount) == 0) {
+					condition = info;
+					break;
+				}
+			}
+			if (condition == null) {
+				result.setSuccess(false);
+				return result;
+			} else {
+				giftMoneyRuleId = condition.getGiftRuleId();
+				amount = Money.amout(condition.getAmount());
+			}
+		}
+		if (StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.ONLY_TRADE.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.DEDUCT_DEPOSIT.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.WITHDRAW.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.ALL_TRADE.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.FIRST_DEDUCT_DEPOSIT.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.REGISTER_24_TRADE.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.FIRST_TRADE.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.FIRST_TRADE_TOTAL.code())) {
+			result.setGiftMoneyAmount(amount);
+			result.setSuccess(true);
+			result.setGiftMoneyRuleId(giftMoneyRuleId);
+			return result;
+		}
+		return result;
+	}
+	
+	private GiftMoneyResult assignGainAmountCondition(GiftMoneyAssignOrder giftMoneyAssignOrder,
+														GiftMoneyInfo giftMoney) {
+		GiftMoneyResult result = new GiftMoneyResult();
+		GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+		queryOrder.setGiveType(giftMoneyAssignOrder.getGiveType());
+		Money investAmount = giftMoneyAssignOrder.getInvestAmount();
+		String giveType = giftMoney.getGiveType().code();
+		
+		if (validateAssignNumCondition(giftMoneyAssignOrder, giftMoney, result, giveType))
+			return result;
+		
+		List<GiftMoneyRuleInfo> giftMoneyRuleInfos = giftMoneyRuleQueryService
+			.queryGiftMoneyRuleByGiftId(giftMoney.getGiftId());
+		if (ListUtil.isEmpty(giftMoneyRuleInfos) || null == giftMoneyRuleInfos.get(0)) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+				giftMoneyAssignOrder.getType().getMessage() + "没有发放的规则!");
+		}
+		if (StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.REGISTER.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.AUTHENTICATION.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.BIND_CARD.code())) {
+			result.setNum(1);
+			result.setGiftMoneyAmount(new Money(giftMoneyRuleInfos.get(0).getAmount()));
+			result.setSuccess(true);
+			return result;
+		}
+		long num = 0;
+		Money gainAmount = new Money(0, 0);
+		if (giftMoneyRuleInfos.size() == 1) {
+			GiftMoneyRuleInfo giftMoneyRuleInfo = giftMoneyRuleInfos.get(0);
+			Money ruleAmount = Money.amout(giftMoneyRuleInfo.getRuleAmount());
+			if (investAmount.compareTo(ruleAmount) == -1) {
+				result.setSuccess(false);
+				return result;
+			}
+			if (StringUtil.equalsIgnoreCase("Y", giftMoney.getIncrease())) {
+				long n = giftMoneyAssignOrder.getInvestAmount().getCent() / ruleAmount.getCent();
+				if (n != 0) {
+					gainAmount = new Money(giftMoneyRuleInfo.getAmount());
+					num = n;
+				}
+			} else {
+				gainAmount = new Money(giftMoneyRuleInfo.getAmount());
+				num = 1;
+			}
+			
+		} else {
+			Collections.sort(giftMoneyRuleInfos, new Comparator<GiftMoneyRuleInfo>() {
+				@Override
+				public int compare(GiftMoneyRuleInfo o1, GiftMoneyRuleInfo o2) {
+					return Money.amout(o1.getRuleAmount()).compareTo(
+						Money.amout(o2.getRuleAmount()));
+					
+				}
+			});
+			int len = giftMoneyRuleInfos.size();
+			GiftMoneyRuleInfo condition = null;
+			for (int i = len - 1; i >= 0; i--) {
+				GiftMoneyRuleInfo info = giftMoneyRuleInfos.get(i);
+				Money ruleAmount = Money.amout(info.getRuleAmount());
+				if (investAmount.compareTo(ruleAmount) == 1
+					|| investAmount.compareTo(ruleAmount) == 0) {
+					condition = info;
+					break;
+				}
+			}
+			if (condition == null) {
+				result.setSuccess(false);
+				return result;
+			} else {
+				gainAmount = new Money(condition.getAmount());
+				num = 1;
+			}
+		}
+		if (StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.ONLY_TRADE.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.DEDUCT_DEPOSIT.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.WITHDRAW.code())
+			|| StringUtil.equals(giveType, GiftMoneyGiveTypeEnum.ALL_TRADE.code())) {
+			result.setGainAmount(gainAmount);
+			result.setNum(num);
+			result.setSuccess(true);
+			return result;
+		}
+		return result;
+	}
+	
+	private boolean validateAssignNumCondition(GiftMoneyAssignOrder giftMoneyAssignOrder,
+												GiftMoneyInfo giftMoney, GiftMoneyResult result,
+												String giveType) {
+		long userId = giftMoneyAssignOrder.getUserId();
+		
+		if (StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.REGISTER.code())
+			|| StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.DEDUCT_DEPOSIT.code())
+			|| StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.AUTHENTICATION.code())
+			|| StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.WITHDRAW.code())
+			|| StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.ALL_TRADE.code())
+			|| StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.BIND_CARD.code())
+			|| StringUtil.equalsIgnoreCase(giveType,
+				GiftMoneyGiveTypeEnum.FIRST_DEDUCT_DEPOSIT.code())
+			|| StringUtil
+				.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.REGISTER_24_TRADE.code())) {
+			GiftMoneyTradeQueryOrder giftMoneyTradeQueryOrder = new GiftMoneyTradeQueryOrder();
+			giftMoneyTradeQueryOrder.setGiftId(giftMoney.getGiftId());
+			giftMoneyTradeQueryOrder.setUserid(userId);
+			long count = giftMoneyTradeQueryService
+				.giftMoneyCountByGiftIdAndUserId(giftMoneyTradeQueryOrder);
+			if (count >= 1) {
+				result.setSuccess(false);
+				return true;
+			}
+			if (StringUtil.equalsIgnoreCase(giveType, GiftMoneyGiveTypeEnum.REGISTER.code())) {
+				giftMoneyAssignOrder.setOutBizNo(String.valueOf(userId) + giveType
+													+ giftMoney.getType().getCode());
+			} else if (StringUtil.equalsIgnoreCase(giveType,
+				GiftMoneyGiveTypeEnum.AUTHENTICATION.code())) {
+				giftMoneyAssignOrder.setOutBizNo(String.valueOf(userId)
+													+ giftMoney.getType().getCode());
+			} else if (StringUtil
+				.equalsIgnoreCase(GiftMoneyGiveTypeEnum.BIND_CARD.code(), giveType)) {
+				giftMoneyAssignOrder.setOutBizNo(String.valueOf(userId) + giveType
+													+ giftMoney.getType().getCode());
+			} else {
+				giftMoneyAssignOrder.setOutBizNo(userId + "_" + giftMoney.getGiftId());
+			}
+		} else {
+			giftMoneyAssignOrder.setOutBizNo(BusinessNumberUtil.gainOutBizNoNumber());
+		}
+		return false;
+	}
+	
+	/**
+	 * 送优惠券
+	 * 
+	 * @param giftMoneyAssignOrder
+	 */
+	private void assignGainAmount(final GiftMoneyAssignOrder giftMoneyAssignOrder) {
+		if (giftMoneyAssignOrder.getType() != GiftMoneyTypeEnum.GAIN_AMOUNT) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.NO_ACCESS, "方法调用错误");
+		}
+		
+		long giftId = giftMoneyAssignOrder.getGiftId();
+		if (giftId == 0) {
+			GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+			queryOrder.setGiveType(giftMoneyAssignOrder.getGiveType());
+			queryOrder.setType(giftMoneyAssignOrder.getType());
+			queryOrder.setCurrentDate(getSysdate());
+			List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+				.giveGainMoneyListByCondition(queryOrder);
+			if (ListUtil.isEmpty(giftMoneys)) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"没有符合条件的优惠券");
+			}
+			giftId = giftMoneys.get(0).getGiftId();
+		}
+		
+		GiftMoneyInfo giftMoney = giftMoneyQueryService.active(giftId);
+		GiftMoneyResult result = null;
+		result = assignGainAmountCondition(giftMoneyAssignOrder, giftMoney);
+		if (!result.isSuccess()) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "没有符合条件的优惠券");
+		}
+		
+		long num = result.getNum();
+		Money giftRuleMoney = result.getGiftMoneyAmount();
+		if (num >= 0) {
+			giftMoney.setAmount(giftRuleMoney);
+			giftMoney.setUsedGiftNum(giftMoney.getUsedGiftNum() + num);
+			if (giftMoney.getUsedGiftNum() > giftMoney.getGiftNum() && giftMoney.getGiftNum() > 0) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"优惠券的总张数，不够发放本次优惠券!");
+			}
+			CreateGiftMoneyOrder moneyOrder = new CreateGiftMoneyOrder();
+			BeanCopier.staticCopy(giftMoney, moneyOrder);
+			moneyOrder.setGiveType(giftMoney.getGiveType());
+			moneyOrder.setUseType(giftMoney.getUseType());
+			moneyOrder.setType(giftMoney.getType());
+			moneyOrder.setGiveRuleType(giftMoney.getGiveType());
+			
+			if (giftMoney.getGiftNum() == giftMoney.getUsedGiftNum()) {
+				moneyOrder.setStatus(GiftMoneyStatusEnum.FINISH);
+			}
+			
+			for (long i = 0; i < num; i++) {
+
+				GiftMoneyTradeDomain giftMoneyTradeDomain = new GiftMoneyTradeDomain();
+				BeanCopier.staticCopy(giftMoney, giftMoneyTradeDomain);
+				giftMoneyTradeDomain.setType(giftMoney.getType());
+				giftMoneyTradeDomain.setUseType(giftMoney.getUseType());
+				giftMoneyTradeDomain.setUserid(giftMoneyAssignOrder.getUserId());
+				giftMoneyTradeDomain.setUsername(giftMoneyAssignOrder.getUsername());
+				giftMoneyTradeDomain.setStatus(GiftMoneyStatusEnum.NORMAL);
+				if (StringUtil.isEmpty(giftMoney.getTimeLimit())) {
+					giftMoneyTradeDomain.setStartDate(giftMoney.getUseStartDate());
+					giftMoneyTradeDomain.setEndDate(giftMoney.getUseEndDate());
+				} else {
+					giftMoneyTradeDomain.setStartDate(getSysdate());
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(getSysdate());
+					calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(giftMoney.getTimeLimit()));
+					giftMoneyTradeDomain.setEndDate(calendar.getTime());
+				}
+				
+				giftMoneyTradeDomain.setUsedAmount(new Money());
+				giftMoneyTradeDomain.setOutBizNo(giftMoneyAssignOrder.getOutBizNo() + "X" + i);
+				giftMoneyTradeDomain.setTradeType(GiftMoneyTradeTypeEnum.ORIGINAL);
+				giftMoneyTradeDomainService.createDomain(giftMoneyTradeDomain);
+			}
+			giftMoneyDomainService.updateBalance(moneyOrder);
+			EsupplierDomainHolder.get().addAttribute("num", num);
+			EsupplierBaseResult res = (EsupplierBaseResult) EsupplierDomainHolder.get()
+				.getAttribute("result");
+			res.setMessage(num + "张，金额" + result.getGainAmount());
+		}
+	}
+	
+	private void assign(final GiftMoneyAssignOrder giftMoneyAssignOrder) {
+		
+		long giftId = giftMoneyAssignOrder.getGiftId();
+		if (giftId == 0) {
+			GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+			queryOrder.setGiveType(giftMoneyAssignOrder.getGiveType());
+			queryOrder.setType(giftMoneyAssignOrder.getType());
+			queryOrder.setCurrentDate(getSysdate());
+			List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+				.giveGiftMoneyListByCondition(queryOrder);
+			if (ListUtil.isEmpty(giftMoneys)) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"没有符合条件的" + giftMoneyAssignOrder.getType().getMessage());
+			}
+			giftId = giftMoneys.get(0).getGiftId();
+		}
+		
+		GiftMoneyInfo giftMoney = giftMoneyQueryService.active(giftId);
+		if (giftMoney == null) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "活动不存在");
+		}
+		//-------------------------end---------------------------------------------------------------------------
+		if (giftMoneyAssignOrder.getGiveType() == GiftMoneyGiveTypeEnum.FIRST_DEDUCT_DEPOSIT) {
+			UserInfo userInfo = userQueryService.queryByUserId(giftMoneyAssignOrder.getUserId())
+				.getQueryUserInfo();
+			if (userInfo != null) {
+				RechargeFlowOrder rechargeFlowOrder = new RechargeFlowOrder();
+				rechargeFlowOrder.setPayType(PayTypeEnum.DEDUCT);
+				rechargeFlowOrder.setAccountId(userInfo.getAccountId());
+				rechargeFlowOrder.setStatus("1");
+				long totalCount = rechargeFlowService.getFlow(rechargeFlowOrder).getTotalCount();
+				rechargeFlowOrder.setPayType(PayTypeEnum.EBANK);
+				totalCount = totalCount
+								+ rechargeFlowService.getFlow(rechargeFlowOrder).getTotalCount();
+				if (totalCount > 1) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"该用户不符合首次充值发" + giftMoneyAssignOrder.getType().getMessage() + "的条件");
+				}
+			}
+		}
+		
+		GiftMoneyResult result = null;
+		result = assignCondition(giftMoneyAssignOrder, giftMoney);
+		if (!result.isSuccess()) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+				"没有符合条件的" + giftMoneyAssignOrder.getType().getMessage());
+		}
+		
+		Money amount = result.getGiftMoneyAmount();
+		if (amount.greaterThan(Money.zero())) {
+			giftMoney.setUsedAmount(giftMoney.getUsedAmount().add(amount));
+			if (giftMoney.getTotalAmount().compareTo(giftMoney.getUsedAmount()) == -1) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"优惠券的余额，不够发放本次优惠券!");
+			}
+			CreateGiftMoneyOrder moneyOrder = new CreateGiftMoneyOrder();
+			BeanCopier.staticCopy(giftMoney, moneyOrder);
+			moneyOrder.setGiveType(giftMoney.getGiveType());
+			moneyOrder.setUseType(giftMoney.getUseType());
+			moneyOrder.setType(giftMoney.getType());
+			moneyOrder.setGiveRuleType(giftMoney.getGiveType());
+			
+			if (giftMoney.getTotalAmount().compareTo(giftMoney.getUsedAmount()) == 0) {
+				moneyOrder.setStatus(GiftMoneyStatusEnum.FINISH);
+			}
+			
+			GiftMoneyTradeDomain giftMoneyTradeDomain = new GiftMoneyTradeDomain();
+			BeanCopier.staticCopy(giftMoney, giftMoneyTradeDomain);
+			giftMoneyTradeDomain.setType(giftMoney.getType());
+			giftMoneyTradeDomain.setUseType(giftMoney.getUseType());
+			giftMoneyTradeDomain.setUserid(giftMoneyAssignOrder.getUserId());
+			giftMoneyTradeDomain.setUsername(giftMoneyAssignOrder.getUsername());
+			giftMoneyTradeDomain.setStatus(GiftMoneyStatusEnum.NORMAL);
+			if (StringUtil.isEmpty(giftMoney.getTimeLimit())) {
+				giftMoneyTradeDomain.setStartDate(giftMoney.getUseStartDate());
+				giftMoneyTradeDomain.setEndDate(giftMoney.getUseEndDate());
+			} else {
+				giftMoneyTradeDomain.setStartDate(getSysdate());
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(getSysdate());
+				calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(giftMoney.getTimeLimit()));
+				giftMoneyTradeDomain.setEndDate(calendar.getTime());
+			}
+			
+			giftMoneyTradeDomain.setAmount(amount);
+			giftMoneyTradeDomain.setUsedAmount(new Money());
+			giftMoneyTradeDomain.setOutBizNo(giftMoneyAssignOrder.getOutBizNo());
+			if (giftMoneyAssignOrder.getGiveType() == GiftMoneyGiveTypeEnum.ALL_TRADE) {
+				giftMoneyTradeDomain.setOutBizNo(giftMoneyAssignOrder.getUserId() + "U"
+													+ result.getGiftMoneyRuleId());
+			}
+			
+			giftMoneyTradeDomain.setTradeType(GiftMoneyTradeTypeEnum.ORIGINAL);
+			giftMoneyTradeDomainService.createDomain(giftMoneyTradeDomain);
+			giftMoneyDomainService.updateBalance(moneyOrder);
+			
+			EsupplierDomainHolder.get().addAttribute("amount", amount);
+			
+			EsupplierBaseResult res = (EsupplierBaseResult) EsupplierDomainHolder.get()
+				.getAttribute("result");
+			res.setMessage(amount.toStandardString());
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult handGiftMoney(final HandGiftMoneyOrder handGiftMoneyOrder) {
+		logger.info("-进入{} " + this.getClass().getName()
+					+ "  commonProcess processBizName={} order={} ", "手动领取", handGiftMoneyOrder);
+		EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+		if (handGiftMoneyOrder.getType() == GiftMoneyTypeEnum.GAIN_AMOUNT) {
+			handGainAmount(handGiftMoneyOrder);
+		} else {
+			handGiftMoneyAssign(handGiftMoneyOrder);
+		}
+		
+		yrdBaseResult.setSuccess(true);
+		return yrdBaseResult;
+		
+	}
+	
+	/**
+	 * 送优惠券
+	 * 
+	 * @param handGiftMoneyOrder
+	 */
+	private void handGainAmount(final HandGiftMoneyOrder handGiftMoneyOrder) {
+		UserInfo userInfo = userQueryService.queryByUserId(handGiftMoneyOrder.getUserId())
+			.getQueryUserInfo();
+		if (userInfo == null) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "没有符合条件的用户");
+		}
+		
+		GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+		queryOrder.setGiveType(handGiftMoneyOrder.getGiveType());
+		queryOrder.setType(handGiftMoneyOrder.getType());
+		Date now = getSysdate();
+		queryOrder.setCurrentDate(now);
+		
+		GiftMoneyInfo giftMoney = null;
+		if (handGiftMoneyOrder.getGiftId() > 0) {
+			//从指定的优惠券/优惠券发放
+			giftMoney = giftMoneyQueryService.active(handGiftMoneyOrder.getGiftId());
+			if (null == giftMoney || giftMoney.getType() != handGiftMoneyOrder.getType()
+				|| giftMoney.getGiveType() != handGiftMoneyOrder.getGiveType()
+				|| now.before(giftMoney.getStartDate()) || now.after(giftMoney.getEndDate())) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"没有符合条件的优惠券");
+			}
+		} else {
+			List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+				.giveGainMoneyListByCondition(queryOrder);
+			if (ListUtil.isEmpty(giftMoneys)) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"没有符合条件的优惠券");
+			}
+			
+			giftMoney = giftMoneyQueryService.active(giftMoneys.get(0).getGiftId());
+		}
+		
+		/* del 6-22
+		long num = 1;
+		giftMoney.setUsedGiftNum(giftMoney.getUsedGiftNum() + num);
+		if (giftMoney.getUsedGiftNum() > giftMoney.getGiftNum() && giftMoney.getGiftNum() > 0) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+				"优惠券的总张数，不够发放本次优惠券!");
+		}
+		*/
+		Money balance = giftMoney.getTotalAmount().subtract(giftMoney.getUsedAmount());
+		giftMoney.setUsedAmount(giftMoney.getUsedAmount().add(handGiftMoneyOrder.getAmount()));
+		if (giftMoney.getUsedAmount().greaterThan(giftMoney.getTotalAmount())
+			&& giftMoney.getTotalAmount().greaterThan(Money.zero())) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+				"优惠券的总金额余额为" + balance + "，不够发放本次优惠券!");
+		}
+		CreateGiftMoneyOrder moneyOrder = new CreateGiftMoneyOrder();
+		BeanCopier.staticCopy(giftMoney, moneyOrder);
+		moneyOrder.setGiveType(giftMoney.getGiveType());
+		moneyOrder.setUseType(giftMoney.getUseType());
+		moneyOrder.setType(giftMoney.getType());
+		moneyOrder.setGiveRuleType(giftMoney.getGiveType());
+		if (giftMoney.getGiftNum() == giftMoney.getUsedGiftNum()) {
+			moneyOrder.setStatus(GiftMoneyStatusEnum.FINISH);
+		}
+		GiftMoneyTradeDomain giftMoneyTradeDomain = new GiftMoneyTradeDomain();
+		BeanCopier.staticCopy(giftMoney, giftMoneyTradeDomain);
+		giftMoneyTradeDomain.setType(giftMoney.getType());
+		giftMoneyTradeDomain.setUseType(giftMoney.getUseType());
+		giftMoneyTradeDomain.setUserid(userInfo.getUserId());
+		giftMoneyTradeDomain.setUsername(userInfo.getUserName());
+		giftMoneyTradeDomain.setStatus(GiftMoneyStatusEnum.NORMAL);
+		if (StringUtil.isEmpty(giftMoney.getTimeLimit())) {
+			giftMoneyTradeDomain.setStartDate(giftMoney.getUseStartDate());
+			giftMoneyTradeDomain.setEndDate(giftMoney.getUseEndDate());
+		} else {
+			giftMoneyTradeDomain.setStartDate(getSysdate());
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(getSysdate());
+			calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(giftMoney.getTimeLimit()));
+			giftMoneyTradeDomain.setEndDate(calendar.getTime());
+		}
+		giftMoneyTradeDomain.setAmount(handGiftMoneyOrder.getAmount());
+		giftMoneyTradeDomain.setUsedAmount(new Money());
+		giftMoneyTradeDomain.setOutBizNo(handGiftMoneyOrder.getOutBizNo());
+		giftMoneyTradeDomain.setTradeType(GiftMoneyTradeTypeEnum.ORIGINAL);
+		giftMoneyTradeDomain.setSendAccountCode(handGiftMoneyOrder.getSendAccountCode());
+		giftMoneyTradeDomain.setSendAccountName(handGiftMoneyOrder.getSendAccountName());
+		giftMoneyTradeDomain.setSendReason(handGiftMoneyOrder.getSendReason());
+		giftMoneyTradeDomainService.createDomain(giftMoneyTradeDomain);
+		
+		giftMoneyDomainService.updateBalance(moneyOrder);
+		//EsupplierDomainHolder.get().addAttribute("num", num);
+		EsupplierBaseResult res = (EsupplierBaseResult) EsupplierDomainHolder.get().getAttribute(
+			"result");
+		//	res.setMessage(num + "张，金额" + handGiftMoneyOrder.getAmount());
+		
+	}
+	
+	@Override
+	public EsupplierBaseResult backstageHandGiftMoney(final HandGiftMoneyOrder handGiftMoneyOrder) {
+		return commonProcess(handGiftMoneyOrder, null, new BeforeProcessInvokeService() {
+			@Override
+			public Domain before() {
+				handGiftMoney(handGiftMoneyOrder);
+				return null;
+			}
+		}, null, new AfterProcessInvokeService() {
+			@Override
+			public Domain after(Domain domain) {
+				return null;
+			}
+		});
+	}
+	
+	private void handGiftMoneyAssign(final HandGiftMoneyOrder handGiftMoneyOrder) {
+		GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+		queryOrder.setGiveType(handGiftMoneyOrder.getGiveType());
+		queryOrder.setType(handGiftMoneyOrder.getType());
+		Date now = getSysdate();
+		queryOrder.setCurrentDate(now);
+		UserInfo userInfo = userQueryService.queryByUserId(handGiftMoneyOrder.getUserId())
+			.getQueryUserInfo();
+		if (userInfo == null) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA, "没有符合条件的用户");
+		}
+		GiftMoneyInfo giftMoney = null;
+		if (handGiftMoneyOrder.getGiftId() > 0) {
+			//从指定的优惠券发放
+			giftMoney = giftMoneyQueryService.active(handGiftMoneyOrder.getGiftId());
+			if (null == giftMoney || giftMoney.getType() != handGiftMoneyOrder.getType()
+				|| giftMoney.getGiveType() != handGiftMoneyOrder.getGiveType()
+				|| now.before(giftMoney.getStartDate()) || now.after(giftMoney.getEndDate())) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"没有符合条件的" + handGiftMoneyOrder.getType().getMessage());
+			}
+		} else {
+			List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+				.giveGiftMoneyListByCondition(queryOrder);
+			if (ListUtil.isEmpty(giftMoneys)) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"没有符合条件的" + handGiftMoneyOrder.getType().getMessage());
+			}
+			
+			giftMoney = giftMoneyQueryService.active(giftMoneys.get(0).getGiftId());
+		}
+		
+		Money amount = handGiftMoneyOrder.getAmount();
+		if (amount.greaterThan(Money.zero())) {
+			logger.info("" + giftMoney.getTotalAmount() + "  " + giftMoney.getUsedAmount());
+			Money balance = giftMoney.getTotalAmount().subtract(giftMoney.getUsedAmount());
+			giftMoney.setUsedAmount(giftMoney.getUsedAmount().add(amount));
+			if (giftMoney.getTotalAmount().compareTo(giftMoney.getUsedAmount()) == -1) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					handGiftMoneyOrder.getType().getMessage() + "的余额还剩" + balance + "，不够发放本次优惠券!");
+			}
+			CreateGiftMoneyOrder moneyOrder = new CreateGiftMoneyOrder();
+			BeanCopier.staticCopy(giftMoney, moneyOrder);
+			moneyOrder.setGiveType(giftMoney.getGiveType());
+			moneyOrder.setUseType(giftMoney.getUseType());
+			moneyOrder.setType(giftMoney.getType());
+			moneyOrder.setGiveRuleType(giftMoney.getGiveType());
+			
+			if (giftMoney.getTotalAmount().compareTo(giftMoney.getUsedAmount()) == 0) {
+				moneyOrder.setStatus(GiftMoneyStatusEnum.FINISH);
+			}
+			
+			GiftMoneyTradeDomain giftMoneyTradeDomain = new GiftMoneyTradeDomain();
+			BeanCopier.staticCopy(giftMoney, giftMoneyTradeDomain);
+			giftMoneyTradeDomain.setType(giftMoney.getType());
+			giftMoneyTradeDomain.setUseType(giftMoney.getUseType());
+			giftMoneyTradeDomain.setUserid(userInfo.getUserId());
+			giftMoneyTradeDomain.setUsername(userInfo.getUserName());
+			giftMoneyTradeDomain.setStatus(GiftMoneyStatusEnum.NORMAL);
+			if (StringUtil.isEmpty(giftMoney.getTimeLimit())) {
+				giftMoneyTradeDomain.setStartDate(giftMoney.getUseStartDate());
+				giftMoneyTradeDomain.setEndDate(giftMoney.getUseEndDate());
+				
+			} else {
+				giftMoneyTradeDomain.setStartDate(getSysdate());
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(getSysdate());
+				calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(giftMoney.getTimeLimit()));
+				giftMoneyTradeDomain.setEndDate(calendar.getTime());
+			}
+			
+			giftMoneyTradeDomain.setAmount(amount);
+			giftMoneyTradeDomain.setUsedAmount(new Money());
+			giftMoneyTradeDomain.setOutBizNo(handGiftMoneyOrder.getOutBizNo());
+			giftMoneyTradeDomain.setTradeType(GiftMoneyTradeTypeEnum.ORIGINAL);
+			giftMoneyTradeDomain.setTradeName(handGiftMoneyOrder.getDescription());
+			giftMoneyTradeDomain.setSendAccountName(handGiftMoneyOrder.getSendAccountName());
+			giftMoneyTradeDomain.setSendAccountCode(handGiftMoneyOrder.getSendAccountCode());
+			giftMoneyTradeDomain.setSendReason(handGiftMoneyOrder.getSendReason());
+			giftMoneyTradeDomainService.createDomain(giftMoneyTradeDomain);
+			giftMoneyDomainService.updateBalance(moneyOrder);
+			
+			EsupplierBaseResult yrdBaseResult = (EsupplierBaseResult) EsupplierDomainHolder.get()
+				.getAttribute("result");
+			yrdBaseResult.setMessage(amount.toStandardString());
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult giftMoneyCancelAssign(	final GiftMoneyCancelAssignOrder giftMoneyUnAssignOrder) {
+		return commonProcess(giftMoneyUnAssignOrder, null, new BeforeProcessInvokeService() {
+			@Override
+			public Domain before() {
+				
+				List<GiftMoneyTradeInfo> assignGiftMoneyList = giftMoneyTradeQueryService
+					.findAssignByTradeDetailId(giftMoneyUnAssignOrder.getTradeDetailId());
+				if (ListUtil.isNotEmpty(assignGiftMoneyList)) {
+					for (GiftMoneyTradeInfo info : assignGiftMoneyList) {
+						if (info.getType() == GiftMoneyTypeEnum.GIFT_MONEY_CASH
+							|| info.getStatus() == GiftMoneyStatusEnum.EXPIRE) {
+							continue;
+						}
+						if (info.getType() == GiftMoneyTypeEnum.GAIN_AMOUNT
+							&& info.getStatus() == GiftMoneyStatusEnum.USED) {
+							continue;
+						}
+						if (info.getType() != GiftMoneyTypeEnum.GAIN_AMOUNT) {
+							if (info.getAmount().greaterThan(info.getUsedAmount())) {
+								Money balance = info.getAmount().subtract(info.getUsedAmount());
+								GiftMoneyInfo giftMoneyInfo = giftMoneyQueryService.active(info
+									.getGiftId());
+								if (StringUtil.equalsIgnoreCase(giftMoneyInfo.getStatus(),
+									GiftMoneyStatusEnum.EXPIRE.code())) {
+									info.setStatus(GiftMoneyStatusEnum.FAILED);
+									giftMoneyTradeDomainService.updateDomain(info);
+									giftMoneyInfo.setUsedAmount(giftMoneyInfo.getUsedAmount()
+										.subtract(balance));
+									giftMoneyDomainService.updateDomain(giftMoneyInfo);
+									FreezeOrder freezeOrder = getAssignCancelFreezeOrder(balance,
+										giftMoneyInfo);
+									EsupplierBaseResult baseResult = accountFreezeService.unfreeze(
+										freezeOrder, getOpenApiContext());
+									
+									if (!baseResult.isSuccess()) {
+										throw ExceptionFactory.newYrdException(
+											EsupplierResultEnum.OPENAPI_ACCESS_FAILURE,
+											baseResult.getMessage());
+									}
+									
+								} else {
+									giftMoneyInfo.setUsedAmount(giftMoneyInfo.getUsedAmount()
+										.subtract(balance));
+									giftMoneyDomainService.updateDomain(giftMoneyInfo);
+									info.setStatus(GiftMoneyStatusEnum.FAILED);
+									giftMoneyTradeDomainService.updateDomain(info);
+								}
+								
+							}
+						} else {
+							GiftMoneyInfo giftMoneyInfo = giftMoneyQueryService.active(info
+								.getGiftId());
+							giftMoneyInfo.setUsedGiftNum(giftMoneyInfo.getUsedGiftNum() - 1);
+							giftMoneyDomainService.updateDomain(giftMoneyInfo);
+							info.setStatus(GiftMoneyStatusEnum.FAILED);
+							giftMoneyTradeDomainService.updateDomain(info);
+						}
+						
+					}
+				}
+				
+				return null;
+			}
+		}, null, null);
+	}
+	
+	private FreezeOrder getAssignCancelFreezeOrder(Money balance, GiftMoneyInfo giftMoneyInfo) {
+		FreezeOrder freezeOrder = new FreezeOrder();
+		
+		return freezeOrder;
+	}
+	
+	@Override
+	public EsupplierBaseResult checkHandGiftMoney(HandGiftMoneyOrder handGiftMoneyOrder) {
+		EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+		GiftMoneyQueryOrder queryOrder = new GiftMoneyQueryOrder();
+		queryOrder.setGiveType(handGiftMoneyOrder.getGiveType());
+		queryOrder.setType(handGiftMoneyOrder.getType());
+		queryOrder.setCurrentDate(getSysdate());
+		List<GiftMoneyInfo> giftMoneys = giftMoneyQueryService
+			.giveGiftMoneyListByCondition(queryOrder);
+		if (handGiftMoneyOrder.getType() == GiftMoneyTypeEnum.GAIN_AMOUNT) {
+			giftMoneys = giftMoneyQueryService.giveGainMoneyListByCondition(queryOrder);
+			
+		}
+		if (ListUtil.isEmpty(giftMoneys)) {
+			yrdBaseResult.setSuccess(false);
+			yrdBaseResult.setMessage("没有符合条件" + handGiftMoneyOrder.getType().getMessage());
+			yrdBaseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+			return yrdBaseResult;
+		}
+		
+		GiftMoneyInfo giftMoney = giftMoneyQueryService.active(giftMoneys.get(0).getGiftId());
+		if (handGiftMoneyOrder.getType() == GiftMoneyTypeEnum.GAIN_AMOUNT) {
+			long num = handGiftMoneyOrder.getGainMoneyNum();
+			giftMoney.setUsedGiftNum(giftMoney.getUsedGiftNum() + num);
+			if (giftMoney.getUsedGiftNum() > giftMoney.getGiftNum() && giftMoney.getGiftNum() > 0) {
+				throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+					"优惠券的总张数:" + giftMoney.getGiftNum() + "，不够发放" + num + "张优惠券!");
+			}
+		} else {
+			Money amount = handGiftMoneyOrder.getAmount();
+			if (amount.greaterThan(Money.zero())) {
+				giftMoney.setUsedAmount(giftMoney.getUsedAmount().add(amount));
+				if (giftMoney.getTotalAmount().compareTo(giftMoney.getUsedAmount()) == -1) {
+					yrdBaseResult.setSuccess(false);
+					yrdBaseResult.setMessage("优惠券的余额不够发放本次优惠券!");
+					yrdBaseResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+					return yrdBaseResult;
+				}
+			}
+		}
+		
+		yrdBaseResult.setSuccess(true);
+		return yrdBaseResult;
+	}
+	
+	@Override
+	public EsupplierBaseResult giftMoneyCancelPersonalAssign(	final GiftMoneyCancelPersonalOrder cancelPersonalOrder) {
+		return commonProcess(cancelPersonalOrder, null, new BeforeProcessInvokeService() {
+			@Override
+			public Domain before() {
+				GiftMoneyTradeQueryOrder tradeQueryOrder = new GiftMoneyTradeQueryOrder();
+				tradeQueryOrder.setUserid(cancelPersonalOrder.getUserId());
+				tradeQueryOrder.setType(GiftMoneyTypeEnum.VIRTUAL_EXPERIENCE_AMOUNT.getCode());
+				List<GiftMoneyTradeInfo> giftMoneyTrades = giftMoneyTradeQueryService
+					.queryGiftMoneyTradeUserCanUseHasNotDate(tradeQueryOrder);
+				if (ListUtil.isNotEmpty(giftMoneyTrades)) {
+					Money money = Money.cent(cancelPersonalOrder.getMoney().getCent());
+					if (money.greaterThan(Money.zero())) {
+						for (GiftMoneyTradeInfo giftMoneyTradeInfo : giftMoneyTrades) {
+							Money balance = giftMoneyTradeInfo.getAmount().subtract(
+								giftMoneyTradeInfo.getUsedAmount());
+							if (money.greaterThan(Money.zero())) {
+								if (balance.greaterThan(money)) {
+									giftMoneyTradeInfo.setUsedAmount(giftMoneyTradeInfo
+										.getUsedAmount().add(money));
+									giftMoneyTradeDomainService.updateDomain(giftMoneyTradeInfo);
+									break;
+								} else {
+									giftMoneyTradeInfo.setStatus(GiftMoneyStatusEnum.CANCEL);
+									giftMoneyTradeDomainService.updateDomain(giftMoneyTradeInfo);
+									money.subtractFrom(balance);
+								}
+							}
+							
+						}
+					} else {
+						for (GiftMoneyTradeInfo giftMoneyTradeInfo : giftMoneyTrades) {
+							giftMoneyTradeInfo.setStatus(GiftMoneyStatusEnum.CANCEL);
+							giftMoneyTradeDomainService.updateDomain(giftMoneyTradeInfo);
+						}
+					}
+					
+				}
+				
+				return null;
+			}
+		}, null, null);
+	}
+	
+	EsupplierBaseResult giftMoneyAssignLimitUserRegisterDate(	GiftMoneyAssignOrder giftMoneyAssignOrder,
+																GiftMoneyInfo giftMoney) {
+		EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+		try {
+			List<GiftMoneyRuleInfo> giftMoneyRuleInfos = giftMoneyRuleQueryService
+				.queryGiftMoneyRuleRegisterByGiftId(giftMoney.getGiftId());
+			if (ListUtil.isEmpty(giftMoneyRuleInfos)) {
+				yrdBaseResult.setSuccess(true);
+				return yrdBaseResult;
+			}
+			GiftMoneyRuleInfo giftMoneyRuleInfo = giftMoneyRuleInfos.get(0);
+			Date startDate = DateUtil.string2DateTimeByAutoZero(giftMoneyRuleInfo.getRuleAmount());
+			Date endDate = DateUtil.string2DateTimeBy23(giftMoneyRuleInfo.getAmount());
+			UserInfo userInfo = userQueryService.queryByUserId(giftMoneyAssignOrder.getUserId())
+				.getQueryUserInfo();
+			if (userInfo.getRowAddTime().after(startDate)
+				&& userInfo.getRowAddTime().before(endDate)) {
+				yrdBaseResult.setSuccess(true);
+			}
+		} catch (Exception e) {
+			logger.error("用户注册时间", e);
+		}
+		logger.info("用户优惠券注册时间，yrdBaseResult={}", yrdBaseResult);
+		return yrdBaseResult;
+		
+	}
+	
+}

@@ -1,0 +1,389 @@
+#parse("/front/platform/layout/header-title.vm")
+<body style="background: #fdfaf1;">
+ #parse("/front/platform/layout/headLog2.vm")  
+<div class="warp">
+
+    <!-- content begin -->
+    <div class="fn-container">
+        <div class="route fn-999 fn-fs14 lh30 fn-clear">
+            <p class="fn-left" style="color: #859361">
+                <a href="/">$!appConstantsUtil.getProductName() </a>  &gt;
+              #if($!productTypeInfo1.ptTypeName)  <a href="/front/platform/mall/mallList.htm?productType=$!{productTypeInfo1.ptCode}">$!productTypeInfo1.ptTypeName</a>
+              #else <a href="/front/platform/mall/mallList.htm?saleType=B2C">寄回家 </a>#end
+              #if($!productTypeInfo2.ptTypeName)  &gt;#end
+                <a href="/front/platform/mall/mallList.htm?productType=$!{productTypeInfo2.ptCode}">$!productTypeInfo2.ptTypeName</a>
+                <span class="smallMenus"></span>
+            </p>
+
+            ##<p class="fn-left fn-clear smallMenus"></p>
+        </div>
+    </div>
+    <div class="fn-container">
+        <div class="condition-dl fn-pr">
+        #*	#if($!ptTags != "")
+            <dl class="fn-clear" dataName="ptTag" allDataName="$!ptTag" style="border-bottom: 0px;">
+                <dt>分类标签：</dt>
+                <dd>               
+                    #foreach($!tag in $!ptTags)
+                        <a href="javascript:void(0)" ptTag="$!tag"
+                           dataName="ptTag">$!tag</a>
+                    #end
+                </dd>
+            </dl>
+            #end
+        *#
+           <!--- <dl class="fn-clear tc" dataName="productTheme" allDataName="$!productTheme">
+                <dt>价格：</dt>
+                <dd>
+                    #foreach($!theme in $!themeList)
+                        <a href="javascript:void(0)" productTheme="$!{theme.propertyName}"
+                           dataName="productTheme">$!{theme.propertyName}</a>
+                    #end
+                </dd>
+            </dl>
+            -->
+            <dl class="fn-clear" dataName="beginPrice,endPrice" allDataName="$!beginPrice,$!endPrice">
+                    <dt>价格</dt>
+                    <dd>
+                        <a href="javascript:void(0)" beginPrice="0" endPrice="399" dataName="beginPrice,endPrice">0-399</a>
+                        <a href="javascript:void(0)" beginPrice="400" endPrice="899" dataName="beginPrice,endPrice">400-899</a>
+                        <a href="javascript:void(0)" beginPrice="900" endPrice="1799" dataName="beginPrice,endPrice">900-1799</a>
+                        <a href="javascript:void(0)" beginPrice="1800" endPrice="3499" dataName="beginPrice,endPrice">1800-3499</a>
+                        <a href="javascript:void(0)" beginPrice="6700" endPrice="33599" dataName="beginPrice,endPrice">6700-33599</a>
+                        <a href="javascript:void(0)" beginPrice="33600" endPrice="" dataName="beginPrice,endPrice">33600以上</a>
+                    </dd>
+                </dl>
+        </div>
+    </div>
+    <div class="fn-container fn-mt15">
+        <div class="product-list fn-clear">
+            <div class="product-list-right fn-mt10 fn-right">
+                <div class="righ-top fn-clear">
+                    <dl class="fn-clear fn-left sort">
+                        <dt class="fn-left">排序</dt>
+                        <dd class="fn-left dd"><a href="javascript:void(0)" allDataName="$!saleCountSort" saleCountSort="asc,desc" dataName="saleCountSort">销量</a></dd>
+                        <dd class="fn-left dd" style="border-left:0px; "><a href="javascript:void(0)" allDataName="$!priceSort" priceSort="asc,desc" dataName="priceSort">价格</a></dd>
+                        <dd class="fn-left fn-ml20 price" style="border:0px; ">
+                            <input type="text" class="price-input upper" name="upper"
+                                   onkeyup="javascript:CheckInputIntFloat(this);"
+                                
+                                   value="$!{beginPrice}"/></input> - <input type="text" class="price-input floor"
+                                                                             name="floor"
+                                                                              onkeyup="javascript:CheckInputIntFloat(this);"
+                                              
+                                                                             value="$!{endPrice}"/></input>
+                            <button type="submit" class="green-btn fn-ml5">确定</button>
+                        </dd>
+                   
+                    </dl>
+                    <div class="fn-right fn-clear fn-mr30 fn-fs16">
+                        <p class="fn-left">
+                            #if($page.hasPreviousPage())
+                                <a href="javaScript:toPage($!{page.totalPageCount},$!{page.previosPageNo})"
+                                   class="fn-999">&lt;</a>
+                            #else
+                                <span>&lt;</span>
+                            #end
+                            <p class="fn-left fn-mr10 fn-ml10  green"><span
+                            class="orange">$!page.currentPageNo</span>/$!page.totalPageCount
+                        </p>
+                            #if($page.hasNextPage())
+                                <a href="javaScript:toPage($!{page.totalPageCount},$!{page.nexPagetNo})" class="green">
+                                    &gt;</a>
+                            #else
+                                <span>&gt;</span>
+                            #end
+                        </p>
+                    </div>
+                </div>
+                <div class="righ-middle fn-clear">
+					<div class="productli">
+					    #if($!listUtil.isEmpty($!page.result))
+					    	##<ul class="list-ul fn-clear">
+                            ##    <li class="list-ul-li">
+                            ##        <div class="list-ul-li-box">
+                                    	<img src="/styles/images/temp/not-found.png" class="fn-left">
+							  			<div class="fn-left fn-ml30" style="margin-top: 40px;">
+							  				<p class="fn-fs20">抱歉，没有找到相关的酒店</p>
+							  				
+							  			</div>
+                            ##        </div>
+                            ##    </li>
+							##</ul>
+					    #else
+                        #foreach($!item in $!page.result)
+							<ul class="list-ul fn-clear">
+                                <li class="list-ul-li">
+                                    <div class="list-ul-li-box">
+                                    
+                                        <a href="/front/platform/hotel/displayDetailHotel.htm?supplierId=$!item.supplierId&saleType=HOTELS&beginDate=$!beginDate&endDate=$!endDate" target="_blank">
+                                 
+                                            #if($stringUtil.isEmpty($!item.merchantPicPath1))
+                                                <img src='/resources/images/photo_not_exits_small.gif'>
+                                            #else
+                                                <img src='$!item.merchantPicPath1'>
+                                            #end
+                                        </a>
+                                        <p class="fn-clear fn-tac fn-mt10 fn-mb10">
+		                                    
+	                                          <a href="/front/platform/hotel/displayDetailHotel.htm?supplierId=$!item.supplierId&saleType=HOTELS&beginDate=$!beginDate&endDate=$!endDate" target="_blank" class="fn-fs16 lh24 orange fn-left ">￥$!item.roomLowestPrice起</a>
+                                        ##      <span class="fn-right fn-999">已售$!item.payedCount</span>
+                                        </p>
+                                        <p class="list_tags">
+                                            #if($!item.recommend == "YES")
+                                                <em class="tag_jing">精</em>
+                                            #end
+                                            #if($!item.specialRoom =="YES")
+                                                <em class="tag_te">特</em>
+                                            #end
+                                            #if($!item.morningRoom =="YES")
+                                                <em class="tag_ling">凌</em>
+                                            #end
+                                            #if($!item.longRentRoom =="YES")
+                                                <em class="tag_bao">包</em>
+                                            #end
+                                        </p>
+                                 
+                                        <p class="w190 fn-text-overflow"> <a href="/front/platform/hotel/displayDetailHotel.htm?supplierId=$!item.supplierId&saleType=HOTELS&beginDate=$!beginDate&endDate=$!endDate" target="_blank" class=" lh24 fn-333 fn-pl5">$stringUtil.subString($!{item.storeName},12, "..")</a></p>
+
+                                    </div>
+                                </li>
+							</ul>
+                        #end
+                        #end
+                    </div>
+                </div>
+                    <!--分页-->
+                    <div class="page fn-tac fn-mt30 fn-mb30">
+                        <div class="page-border fn-left">
+                            <p class="left fn-fs0">
+                                #if(1== $!{page.currentPageNo})
+                                	 <span class="hui">首页</span>
+                                #else
+                                     <a href="javaScript:toPage($!{page.totalPageCount},1)">首页</a>
+                                #end
+                                #if(1== $!{page.currentPageNo})
+                                	<a href="javascript:void(0);">上一页</a>
+                                #else
+                                	<a href="javaScript:toPage($!{page.totalPageCount},$!{page.currentPageNo}-1)">上一页</a>
+                                #end
+                          #*      #if(1== $!{page.currentPageNo})
+                                    <a href="javaScript:toPage($!{page.totalPageCount},1)" class="active">1</a>
+                                #else
+                                    <a href="javaScript:toPage($!{page.totalPageCount},1)">1</a>
+                                #end
+                                #if($page.totalPageCount >1)
+                                    #if(2== $!{page.currentPageNo})
+                                        <a href="javaScript:toPage($!{page.totalPageCount},2)" class="active">2</a>
+                                    #else
+                                        <a href="javaScript:toPage($!{page.totalPageCount},2)">2</a>
+                                    #end
+                                #end
+                                <a href="javaScript:toPage($!{page.totalPageCount},1)">...</a>
+                            *#	
+                            	#if($!{page.hasPreviousPage()})
+                            		<a href="javaScript:toPage($!{page.totalPageCount},$!{page.previosPageNo})">$!{page.previosPageNo}</a>
+                            	#end
+                            	<a href="javaScript:toPage($!{page.totalPageCount},$!{page.currentPageNo})" class="active">$!{page.currentPageNo}</a>
+                            	#if($!{page.hasNextPage()})
+                            		<a href="javaScript:toPage($!{page.totalPageCount},$!{page.nexPagetNo})">$!{page.nexPagetNo}</a>
+                            	#end
+
+                                #if($page.totalPageCount == $!{page.currentPageNo})
+                               	 	<a href="javascript:void(0);" style="border-right: 0px; padding-right: 0px;">下一页</a>
+                                #else
+                                	<a href="javaScript:toPage($!{page.totalPageCount},$!{page.currentPageNo}+1)" style="border-right: 0px; ">下一页</a>
+                                #end
+                            </p>
+                        </div>
+                        <div class="fn-left fn-ml20" style="height: 35px;">
+                            <p>
+                                <span class="fn-mr5">共$!page.totalPageCount页</span>
+                                <span>到第<input type="text" class="page-input page_input_num">页</span>
+                                <button class="jump-btn"
+                                        onclick="var pageNum = jQuery(this).parent().parent().find('.page_input_num').val();if(!(/^[1-9]\d*$/).test(pageNum)) return;toPage($!{page.totalPageCount},pageNum)">
+                                 	确定
+                                </button>
+                            </p>
+                        </div>    
+                    </div>
+                    <!--推荐-->
+                     <div class="fn-mt40 fn-mb30">
+                                               
+                        <ul class="list-ul fn-clear h250" style="margin-left: 15px;">                                                    
+                            #set($ii=0)              
+                            #foreach($!item in $!recommendProductList)
+                            #set($ii=$ii+1)
+                            #if($ii<=5) 
+                                               
+                            <li class="list-ul-li fn-ml5" style="height:243px;">
+                                <div class="list-ul-li-box">
+                                    <a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!item.productId" target="_blank">
+                                        #if($stringUtil.isEmpty($!item.bigPicPath))
+                                            <img src='/resources/images/photo_not_exits_small.gif' style="height:135px;">
+                                        #else
+                                            <img src='$!item.bigPicPath' style="height:135px;">
+                                        #end
+                                    </a>
+                                    <p class="fn-clear fn-tac fn-mt10 fn-mb10">
+                                        <a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!item.productId" target="_blank" class="fn-fs16 lh24 orange fn-left ">￥$!item.price1 <b style="font-weight: normal;color: #999;text-decoration: line-through;font-size: 16px;">￥<em>$!item.marketPrice</em></b></a>
+                                        <span class="fn-right fn-clear">
+                                            <i class="zaned fnCollection fn-mr10" data="$!item.productId"></i>
+                                             
+                                      ##      <i class="gwc" onClick="javascript:immIntoShopCart('$!item.productId','$!item.startOrderCount','$!item.productName','$!item.smallPicPath','$!item.price1','$!member.userId','$!member.realName')"></i>
+                                        </span>
+                                    </p>
+                                    <p class="w190 fn-text-overflow"><a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!item.productId" target="_blank" class=" lh24 fn-333 fn-pl5">$stringUtil.subString($!{item.productName},12, "..")</a></p>
+                              ##      <p class="w190 fn-text-overflow"><a href="/front/platform/mall/product/displayDetailProduct.htm?productId=$!item.productId" target="_blank" class=" lh24 fn-666 fn-pl5">$stringUtil.subString($!{item.productDetail},12, "..")</a></p>
+                                    
+                                </div>
+                            </li>
+                            #end
+                            #end 
+                        </ul>
+                        
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- content end -->
+
+    <!-- footer begin -->
+    #parse("/front/platform/layout/footer-lg.vm")
+    <!-- footer end -->
+</div>
+<!-- fixed begin -->
+
+<script>
+    seajs.use($_GLOBAL.mode +'malllist');
+    function toPage(totalPage, page) {
+        if (totalPage < page) {
+            return false;
+        }
+        var url = "/front/platform/hotel/supplierHotelList.htm?"
+                + "productType=$!{productType}"
+                + "&productStyle=$!{productStyle}"
+                + "&productTheme=$!{productTheme}"
+                + "&beginPrice=$!{beginPrice}"
+                + "&endPrice=$!{endPrice}"
+                + "&saleCountSort=$!{saleCountSort}"
+                + "&priceSort=$!{priceSort}"
+                + "&pageSize=$!{page.pageSize}&page=" + page
+                + "&saleType=$!{saleType}"
+                + "&recommend=$!{recommend}"
+                + "&scenicId=$!{scenicId}"
+                + "&roomType=$!{roomType}"
+                + "&saleCountSort=$!{saleCountSort}"
+                + "&lowestPriceSort=$!{lowestPriceSort}";
+        window.location.href = url;
+       //同步商品类型数量
+        var leix = $('.cartItem').length;
+        $('#shul').text(leix);
+    }
+    $(function () {
+        if(!checkLogin())
+            return;
+        var productIds="";
+        $(".fnCollection").each(function(index,element){
+            productIds += $(this).attr("data")+",";
+        })
+        $.ajax({
+            url: '/do/productCollect/checkCollectState.json',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                productIds: productIds
+            },
+            success: function (json) {
+                productIds =  json.productIdsRe;
+                if(productIds!=""){
+                    $(".fnCollection").each(function(index,element){
+                        if( productIds.indexOf(","+$(this).attr("data")+",")>=0){
+                            $(this).removeClass("zaned");
+                            $(this).addClass("zan");
+
+                        };
+                    })
+                }
+            }
+        })
+    })
+
+    function getUrlParam(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        if (r != null) return unescape(r[2]); return null; //返回参数值
+    }
+
+     var productType = getUrlParam('productType');
+    $('.productTypeul2 li ').each(function(index, el) {
+        var $this = $(this).find('a');
+##        console.log(productType)
+##        console.log($this.attr('type'))
+        if ($this.attr('type') == productType) {
+            $this.addClass('active2').parent('li').siblings().find('a').removeClass('active2');
+        }
+    });
+    
+</script>
+<!-- fixed end -->
+<script>
+    //收藏
+    var memberLogin =$!webSessionUtil.isLogin();
+    $(".fnCollection").click(function () {
+        var _this = this;
+        if (!checkLogin()) {
+            alert("收藏商品，需要您进行登录");
+            return;
+        } else {
+            $.ajax({
+                url: '/do/productCollect/collectProduct.json',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    productId: $(_this).attr("data")
+                },
+                success: function (result) {
+                    alert(result.message);
+                    $(_this).removeClass("zaned");
+                    $(_this).addClass("zan");
+
+                }
+            })
+        }
+    });
+
+    function checkLogin() {
+        var ret = true;
+        if (!memberLogin) {
+            ret = false;
+        }
+        return ret;
+    }
+    //加入购物车
+    function immIntoShopCart(product, quantity, proname, imgurl, _price, supplierId) {
+        var v = 1;
+        bcart.addItem(product, v, supplierId, '$!template');
+        //同步商品类型数量
+        var leix = $('.cartItem').length;
+        $('#shul').text(leix);
+    }
+    
+    function notIntoShopCart() {
+    
+        alert('商品的供应商不能购买自己发布的商品');
+    }
+    
+   function CheckInputIntFloat(oInput) 
+	{ 
+		if('' != oInput.value.replace(/\d{1,}\.{0,1}\d{0,}/,'')) 
+		{ 
+			oInput.value = oInput.value.match(/\d{1,}\.{0,1}\d{0,}/) == null ? '' :oInput.value.match(/\d{1,}\.{0,1}\d{0,}/); 
+		} 
+	}
+    $('.lista').removeClass('m-hd-log2');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+package com.yjf.esupplier.dal.custom.daointerface;
+
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.esupplier.dal.custom.dataobject.StorageInOutDO;
+
+public interface StorageInOutDAO {
+	
+	void insertStorageInOut(StorageInOutDO sio);
+	
+	List<StorageInOutDO> getStorageInOutByProductId(Map m);
+	
+	long getStorageInOutByProductIdCount(Map m);
+	
+	StorageInOutDO getStorageInOutById(long id);
+	
+}

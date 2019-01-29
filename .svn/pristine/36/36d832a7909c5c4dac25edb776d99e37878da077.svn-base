@@ -1,0 +1,152 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="toYlLineList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB pro_list">
+            <p class="nav_title"><span class="DIB">旅游线路列表</span><a onclick="javascript:window.history.back();"
+                                                                 class="fn-right">返回</a></p>
+
+            <div class="left_content ">
+                <form action="toYlLineList.htm" method="post">
+                    <input type="hidden" name="productStatus" value="$!productStatus"></input>
+
+                    <div class="search_list">
+							<span class="inpt">
+								<label class="inpt_txt">线路编号：</label>
+								<input type="text" name="searchNumber" size="20" value="$!searchNumber"/>
+							</span>
+							<span class="inpt">
+								<label class="inpt_txt">线路名称：</label>
+								<input type="text" name="searchName" size="20" value="$!searchName"/>
+							</span>
+
+                        ##<div>
+								<span class="inpt">
+									<input type="submit" class="button5" value="查询"/>
+									<input type="button" value="发布线路" class="button5"
+                                           onclick="javascript:publishProduct();"/>
+								</span>
+                       ## </div>
+                    </div>
+                    <div class="pro_lst_nav" id="nav">
+                        #if($!productStatus=='ON')
+                            <span class="DIB on " nav="pushPro">已上架线路</span>
+                        #else
+                            <span class="DIB" nav="pushPro"
+                                  onclick="window.location.href='toYlLineList.htm?itemType=ylLineList&productStatus=ON'">已上架线路</span>
+                        #end
+
+                        #if($!productStatus=='OFF')
+                            <span class="DIB on " nav="noPushPro">未上架线路</span>
+                        #else
+                            <span class="DIB" nav="noPushPro"
+                                  onclick="window.location.href='toYlLineList.htm?itemType=ylLineList&productStatus=OFF'">未上架线路</span>
+                        #end
+                        
+                    </div>
+                    <div class="">
+                        <div class="pushPro on">
+                            <div class="com_list push_pro">
+                                <p class="order_tl">
+                                    <span class="DIB pp_name">线路编号</span>
+                                    <span class="DIB pp_name">线路名称</span>
+                                    <span class="DIB pp_name">发布状态</span>##pp_stt
+                                    <span class="DIB pp_opt">操作</span>##pp_opt
+                                </p>
+
+                                <div class="order_list">
+                                    #foreach($!item in $!listP)
+                                        <div class="list_i">
+                                            <div class="list_cnt">
+					    						<span class="DIB pp_name">
+					    							#if($!productStatus=='COT')
+                                                    #else
+                                                        <input type="checkbox" name="checkBoxProductId"
+                                                               value="$!item.productId"/>
+                                                    #end
+                                                    $!item.productNumber
+					    						</span>
+                                                <span class="DIB pp_name">$!item.productName</span>
+                                                <span class="DIB pp_name">$!item.productStatus.message</span>
+                                                <span class="DIB pp_opt">
+                                                	<a onclick="doRedirect('toUpdateYlLine.htm?productId=$!item.productId')">修改</a>
+                                                </span>
+
+                                            </div>
+                                        </div>
+                                    #end
+                                    #if($!productStatus=='ON')
+                                        <div class="total">
+                                            <input type="checkbox" id="allSelect" class="frmrd" value="selectAllD"
+                                                   onclick="checkAll();"/>
+                                            <label  for="allSelect">全选</label>
+                                            <input type="button" value="下架" class="button5"
+                                                   onclick="submitSelectBox('setYlLineOff.htm?productIds=')"></input>
+                                        </div>
+                                    #elseif($!productStatus=='OFF')
+                                        <div class="total">
+                                            <input type="checkbox" id="allSelect" class="frmrd" value="selectAllD"
+                                                   onclick="checkAll();"/>
+                                            <label  for="allSelect">全选</label>
+                                            <input type="button" value="上架"
+                                                   onclick="submitSelectBox('setYlLineOn.htm?productIds=')"/>
+                                            <input type="button" value="永久删除"
+                                                   onclick="submitSelectBoxDel('setYlLineDel.htm?productIds=')"/>
+                                        </div>
+                                    #end
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="center_page">
+                        <table width="100%" height="40" cellpadding="0" cellspacing="0" style="text-align: right;">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <input type="hidden" name="pages" id=""/>
+                                    $!{pageBar}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+<!-- 推荐弹窗 -->
+<script type="text/html" id="recommedBussiness">
+    <div class="m-modal set-level">
+        <div class="apply-org-hd">
+            <span id="boxTitle">线路推荐</span>
+            <span class="closeBtn" href="javascript:void(0);">×</span>
+        </div>
+        <div class="apply-org-body search_list">
+            <input type="hidden" id="recommendProductId" value=""/>
+
+            <div class="inpt">
+                <label class="inpt_text">推荐分类：</label>
+                <select id="recommendType" name="recommendType" class="recommendType" style="width: 180px;">
+                    #enumCodeIterator("ProductRecommendTypeEnum","")
+                </select>
+            </div>
+            <div class="button">
+                <a class="btnOk DIB" id="recommendSubmit">确定</a>
+                <a class="closeBtn DIB" href="javascript:void(0);">关闭</a>
+            </div>
+        </div>
+    </div>
+</script>
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+<script type="text/javascript">seajs.use($_GLOBAL.mode +'ylLineList');</script>
+</html>

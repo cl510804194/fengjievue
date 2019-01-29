@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<HTML><HEAD><TITLE>yav - Javascript form validation tool</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
+<META name="Author" content="f.crivellaro" />
+<META name="Keywords" content="javascript, form, forms, validation, validator, form validation, form validator, javascript validation, web design" />
+<META name="Description" content="yav is a SIMPLE, POWERFUL and CUSTOMIZABLE javascript-based form validation tool" />
+<META content="MSHTML 6.00.2600.0" name=GENERATOR>
+<LINK href="../styles/yav-style.css" type=text/css rel=stylesheet>
+<SCRIPT>
+function show(div) {
+    document.getElementById(div).style.display = 'block';
+}
+function hide(div) {
+    document.getElementById(div).style.display = 'none';
+}
+</SCRIPT>
+</HEAD>
+<BODY>
+<TABLE id=layout style="PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px" cellSpacing=0 cellPadding=0 width="100%">
+  <TBODY>
+
+<!-- HEADER -->
+  <TR>
+    <TD 
+    style="PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 6px; PADDING-TOP: 6px" 
+    colSpan=3>
+      <TABLE id=banner 
+      style="PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-TOP: 0px" 
+      width="100%">
+        <TBODY>
+        <TR>
+          <TD vAlign=center align=left width=90><img src="../img/yav-logo.gif" width="80" height="50" alt="Yav Logo" border="0"></TD>
+          <TD><FONT size=5>yav - javascript validation tool</FONT></TD>
+          <TD 
+          style="PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-TOP: 0px" 
+          vAlign=center align=right>
+          <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=133036&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
+        </TD></TR></TBODY></TABLE></TD></TR>
+  <TR>
+
+<!-- TOP BAR -->
+    <TD id=bar colSpan=3>
+      <TABLE 
+      style="PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 0px; PADDING-TOP: 0px" 
+      width="100%">
+        <TBODY>
+        <TR>
+          <TD align=left>
+          <a href="../en/index.html"><img src="../img/flag.en.png" width="20" height="14" border="0" alt="english" /></a>
+          <a href="../it/index.html"><img src="../img/flag.it.png" width="20" height="14" border="0" alt="italiano" /></a>
+          &nbsp;&nbsp;<A href="index.html">Home</A> </TD>
+          <TD align=right><SPAN id=Content> 
+            <A href="download.html">Download</A></SPAN> | <a href="http://groups.google.com/group/yav-en/">Support</a> 
+        </TD></TR></TBODY></TABLE></TD></TR>
+  <TR>
+
+<!-- LEFT COLUMN -->
+    <TD id=leftColumn style="PADDING-TOP: 0px" vAlign=top><SPAN id=Content>
+      <br>
+      
+        <table class="htmlBox" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+        <th class="L"><br></th>
+        <th class="C">Documentation</th>
+        <th class="R"><br></th>
+        </tr>
+        <tr>
+            <td colspan="3" class="B"><ul class="htmlBoxUl">
+            <li><A title="Getting started" href="gettingstarted.html">Getting started</A></li>
+            <li><A title="Validation rules" href="validationrules.html">Validation rules</A></li>
+            <li><A title="Multi-language support" href="languages.html">Multi-language support</A></li></ul></td>
+        </tr>
+        </tbody>
+        </table>
+
+        <table class="htmlBox" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+        <th class="L"><br></th>
+        <th class="C">Learn by example</th>
+        <th class="R"><br></th>
+        </tr>
+        <tr>
+            <td colspan="3" class="B"><ul class="htmlBoxUl">
+            <li><A title="Simple registration form" href="example_1.html">Simple registration form</A></li>
+            <li><A title="Notification of changes" href="example_2.html">Notification of changes</A></li>
+            <li><A title="Newsletter Sign-up" href="example_3.html">Newsletter Sign-up</A></li>
+            <li><A title="Captcha" href="example_4.php">Captcha</A></li>
+            <li><A title="The andor-operator" href="example_5.html">The andor-operator</A></li>
+            <li><A title="Pre/Post/Implies rules" href="example_6.html">Pre/Post/Implies rules</A></li>
+            <li><A title="Working with the masks" href="example_7.html">Working with the masks</A></li></ul></td>
+        </tr>
+        </tbody>
+        </table>
+
+        <table class="htmlBox" border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+        <tr>
+        <th class="L"><br></th>
+        <th class="C">Support</th>
+        <th class="R"><br></th>
+        </tr>
+        <tr>
+            <td colspan="3" class="B"><ul class="htmlBoxUl">
+            <li><A title="Discussion group" href="http://groups.google.com/group/yav-en/">Discussion group</A></li>
+            <li><A title="Mailing list" href="mailto:f.crivellaro@gmail.com?subject=[Yav]subscribe_mailing_list">Mailing list</A></li>
+            <li><A title="E-mail contact" href="mailto:f.crivellaro@gmail.com?subject=[Yav]contact">E-mail contact</A></li></ul></td>
+        </tr>
+        </tbody>
+        </table>
+
+    </TD>
+
+<!-- RIGHT COLUMN -->
+    <TD id=rightColumn vAlign=top>
+      <DIV>
+      <DIV id=Content>
+
+      <H1 class=heading1>Yav 2.0: preview examples on the Yav discussion group (24 February 2008)</H1>
+      <P class=paragraph>Yav 2.0 will be available very soon. Some new features: <br><br>
+      <em>new</em>: <em>onblur</em> notification of errors.<br>
+
+      <em>new</em>: <em>onfocus</em> auto-help, you can tell the user what's expected of him for each field.<br>
+	  <em>new</em>: you can define your input masks (check the maximum field length and the characters allowed, and separators are automatically added).<br>
+      <em>new</em>: pre-validation and post-validation (ajax support).<br>
+      <em>new</em>: <em>custom</em> rules have a new syntax, so inline notifications and highlight work fine (back compatibility maintained).<br>
+
+	  <em>new</em>: yav now uses two namespaces, <em>yav</em> and <em>yav_config</em> (keeping down potential naming collisions).<br>
+      <em>new</em>: unobtrusive javascript: yav separates javascript from html. For example, yav adds events for you (no more inline event registration model into the html elements).<br><br>
+      You can find some preview examples in the <a href="http://groups.google.com/group/yav-en/">Yav discussion group</a> (and more examples will be available in the next days). 
+      Yes, finally we have our <a href="http://groups.google.com/group/yav-en/">discussion group</a>, we hope you join it!
+      <br><br>
+
+      </P>
+      <H1 class=heading1>Yav 1.4.1 available (31 January 2008)</H1>
+      <P class=paragraph>We think this is the last 1.x release; we are working hard on getting Yav 2.0 on the road in a few weeks. Stay tuned!<br><br>
+      <em>new</em>: some rules are configurable with a regular expression in your <em>yav-config.js</em> file<br>
+      <em>new</em>: error messages are displayed in span tags, so you could have the messages appear at the side of the field (thank's to Peter)<br>
+
+      <em>bug fix</em>: some rules don't work with radio button (big thank's to Ritesh Trivedi, and Derek Lin too)<br>
+      <em>bug fix</em>: 'notequal' doesn't work with checkbox (thank's to Davide Fedrigo)<br>
+      <em>bug fix</em>: 'highlight' doesn't work with multiple class names (thank's to Jos&eacute; Francisco Rives Lirola)<br><br>
+      </P>
+      <H1 class=heading1>Yav 1.4.0 available (21 October 2007)</H1>
+
+      <P class=paragraph>In this release we have enhanced some stuff!<br><br>
+      <em>new</em>: <A title="Learn by example" href="../en/learnbyexample.html">Inline notification</A> of errors<br>
+      <em>new</em>: chinese translation, <A title="yav-config-zh-TW" href="../zh/yav-config-zh-TW.txt">traditional</A> and <A title="yav-config-zh-TW" href="../zh/yav-config-zh-CN.txt">simplified</A> (thank's to Cloudream and Chen Ming)<br>
+
+      <em>new</em>: <A title="Learn by example" href="../se/learnbyexample.html">swedish</A> translation (thank's to Lars)<br>
+      <em>new</em>: <A title="Learn by example" href="../en/learnbyexample.html">multiples values</A> of 'class', setting 'multipleclassname' in your <em>yav-config.js</em> file (thank's to Jos&eacute; Francisco Rives Lirola)<br>
+
+      <em>new</em>: the rule separator '|' is customizable, setting 'RULE_SEP' in your <em>yav-config.js</em> file (thank's to Pascal)<br>
+      <em>new</em>: <A title="Learn by example" href="../en/learnbyexample.html">More examples</A> available (thank's to Lars)<br>
+      <em>new</em>: an <A title="Validation rules" href="../en/validationrules.html">enhanced syntax</A> for and/or operators (thank's to Lars)<br>
+
+      <em>new</em>: focus on the first field that doesn't validate (thank's to Chris Riley)<br>
+      <em>bug fix</em>: 'date' accepts values like 00-00-0000 (thank's to Thiago dos Santos Prado)<br>
+      <em>bug fix</em>: 'highlight' sometimes doesn't work with 'and/or' (thank's to Lars)<br><br>
+      A low traffic mailing list is now available, it notifies of Yav releases and updates. You can expect a few e-mails per year.
+      If you'd like you can <A href="mailto:f.crivellaro@gmail.com?subject=Yav - subscribe mailing list">subscribe</a>.
+      </P>
+
+      <H1 class=heading1>jQuery.YAV plugin</H1>
+      <P class=paragraph>Jos&eacute; Francisco Rives Lirola has developed a plugin for integrating Yav with jQuery.
+      You can find <a href="http://jquery.com/plugins/project/jquery_yav">jQuery.YAV</a> in the jQuery plugins repository.<br>
+      Read documentation <a href="http://letmehaveblog.blogspot.com/2007/08/easy-client-side-web-forms-validations.html">here</a>.</P>
+      <P>&nbsp;</P>
+
+      <DIV id='div_show'>
+      
+      </DIV>
+      <DIV id='div_old' style="">
+      <H1 class=heading1>Release 1.3.7 available (18 July 2007)</H1>
+      <P class=paragraph>Czech translation is <A title="yav-config-cz" href="../cz/yav-config-cz.txt">available</A>
+
+      (thank's to Michal Jursa).</P>
+      <H1 class=heading1>Release 1.3.6 available (26 June 2007)</H1>
+      <P class=paragraph>Fixed a bug with recursive calls of <EM class=emphasis>'checkRule'</EM> in <EM class=emphasis>'and|or'</EM> rules with more of two elements
+      (big thank's to Jos&eacute; Francisco Rives Lirola).</P>
+
+      <H1 class=heading1>Release 1.3.5 available (22 June 2007)</H1>
+      <P class=paragraph>Bug fix: <EM class=emphasis>'keypress'</EM> doesn't work in Firefox (thank's to Bill Alexy and Vincenzo Morgante).</P>
+      <H1 class=heading1>Release 1.3.4 available (23 February 2007)</H1>
+      <P class=paragraph>Danish translation is <A title="yav-config-da" href="../da/yav-config-da.txt">available</A> (thank's to Hans Staugaard). </P>
+
+      <H1 class=heading1>Release 1.3.3 available (24 November 2006)</H1>
+      <P class=paragraph>Dutch translation is <A title="yav-config-nl" href="../nl/yav-config-nl.txt">available</A> (thank's to B. ter Vrugt). </P>
+      <H1 class=heading1>Release 1.3.2 available (7 November 2006)</H1>
+      <P class=paragraph>Slovak translation is <A title="Nauc sa podla pr&iacute;kladu" href="../sk/learnbyexample.html">available</A> (big thank's to J&aacute;n Hovanc&iacute;k). </P>
+
+      <H1 class=heading1>Release 1.3.1 available (29 September 2006)</H1>
+      <P class=paragraph>German translation is <A title="yav-config-de" href="../de/yav-config-de.txt">available</A>.
+      </P>
+      <H1 class=heading1>Release 1.3.0 available (21 September 2006)</H1>
+      <P class=paragraph>Added these useful rules: <EM class=emphasis>and</EM>, <EM class=emphasis>or</EM> and <EM class=emphasis>empty</EM>. You can use the <EM class=emphasis>and/or</EM> rules as a pre-condition combining them in complex expressions! See <A title="Validation rules" href="validationrules.html">validation rules</A> for details.<BR>Upgrades: The <EM class=emphasis>id</EM> attribute is now recognized (you can use it instead of <EM class=emphasis>name</EM> attribute); <EM class=emphasis>numrange</EM> now accepts decimal values (thank's to Massimiliano Consigli).<BR> 
+      Fixed dirty (and possibly buggy) code (thank's to David Contini).<BR>
+
+      </P>
+      <H1 class=heading1>Release 1.2.3 available (28 May 2006)</H1>
+      <P class=paragraph>Portuguese-Brazilian translation is <A title="yav-config-pt-br" href="../pt-br/yav-config-pt-br.txt">available</A>. (thank's to Esdras Beleza).
+      </P>
+      <H1 class=heading1>Release 1.2.2 available (25 April 2006)</H1>
+      <P class=paragraph>French translation is <A title="yav-config-fr" href="../fr/yav-config-fr.txt">available</A>. (thank's to Fran&ccedil;ois).
+      </P>
+
+      <H1 class=heading1>Release 1.2.1 available (26 February 2006)</H1>
+      <P class=paragraph>A new rule added: <EM class=emphasis>notequal</EM>. Now <EM class=emphasis>equal</EM> accepts meta-values (thank's to Christopher Vrooman).<BR>
+      See <A title="Validation rules" href="validationrules.html">validation rules</A> for details. 
+      </P>
+
+      <H1 class=heading1>Release 1.2 available (20 January 2006)</H1>
+      <P class=paragraph>
+      We have enhanced the syntax so you can customize the field name in the error messages. In any case you can continue to use the old syntax. (thank's to Wolfgang Klinger)<BR>
+      Old syntax: &nbsp;<SPAN class=syntaxreq>fieldName|<B>rule</B></SPAN><SPAN class=syntaxopt>|msg</SPAN><BR>
+      New syntax: <SPAN class=syntaxreq>fieldName<SPAN class=syntaxopt>:nameDisplayed</SPAN>|<B>rule</B></SPAN><SPAN class=syntaxopt>|msg</SPAN>
+
+      </P>
+      <H1 class=heading1>Release 1.1.4 available (11 January 2006)</H1>
+      <P class=paragraph>Bug fix: <EM class=emphasis>'numrange'</EM> doesn't work. (thank's to Matteo Minnozzi)</P>
+      <H1 class=heading1>Release 1.1.3 available (21 October 2005)</H1>
+      <P class=paragraph>A new rule added: <EM class=emphasis>email</EM>, See <A title="Validation rules" href="validationrules.html">validation rules</A> for details.<BR>Spanish translation is <A title="Aprendes por ejemplos" href="../es/learnbyexample.html">available</A>. </P> 
+      <H1 class=heading1>Release 1.1.2 available (11 October 2005)</H1>
+
+      <P class=paragraph>Bug fix: <EM class=emphasis>'Undefined is Undefined'</EM> in  IE 5.0. (thank's to Alexis Fillonneau)<BR>A new rule added: <EM class=emphasis>date_le</EM>, See <A title="Validation rules" href="validationrules.html">validation rules</A> for details.<BR>Italian localization is available. </P> 
+      <H1 class=heading1>Fix Release 1.1.1 available (27 September 2005)</H1>
+      <P class=paragraph>Bug fix: <EM class=emphasis>'check date'</EM> doesn't work in some particular cases, download <A href="download.html">here</A> the fixed release. (thank's to Dante Di Domenico)</P> 
+      <H1 class=heading1>Release 1.1 available (19 July 2005)</H1>
+
+      <P class=paragraph>Added these useful rules: <EM class=emphasis>numrange</EM> and <EM class=emphasis>keypress</EM>, See <A title="Validation rules" href="validationrules.html">validation rules</A> for details.</P> 
+      <H1 class=heading1>Release 1.0b available (12 April 2005)</H1>
+      <P class=paragraph>The first stable release is available. We have updated all the documentation so yav is (hopefully) even more simple to use.</P> 
+      <H1 class=heading1>yav 1.0b nearly ready (25 March 2005)</H1>
+
+      <P class=paragraph>We are working hard on getting yav 1.0b on the road, the first stable release of yav is nearly ready. Stay tuned!</P> 
+      </DIV></DIV>&nbsp;
+      <DIV>
+      </TD>
+    <TD></TD></TR>
+
+<!-- FOOTER -->
+  <TR>
+    <TD id=footer colSpan=3>
+      <TABLE width="100%">
+
+        <TBODY>
+        <TR>
+          <TD vAlign=top align=right>
+            Copyright 2005-2008. All rights reserved.</TD></TR></TBODY>
+      </TABLE>
+  </TD></TR></TABLE>
+</TR></TBODY></TABLE></BODY></HTML>

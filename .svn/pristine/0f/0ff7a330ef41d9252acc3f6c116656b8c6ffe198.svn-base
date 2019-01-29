@@ -1,0 +1,47 @@
+package com.yjf.esupplier.service.user.query;
+
+import com.yjf.esupplier.service.user.result.UserRelationQueryResult;
+
+public interface UserRelationQueryService {
+	
+	/**
+	 * 查询userId的关系对象
+	 * 
+	 * @param childId
+	 * @return
+	 */
+	UserRelationQueryResult findUserRelationByChildId(long childId);
+	
+	/**
+	 * 查询memberNo的关系对象
+	 * 
+	 * @param memberNo
+	 * @return
+	 */
+	UserRelationQueryResult findUserRelationByMemberNo(String memberNo);
+	
+	/**
+	 * 查询下级数量
+	 * 
+	 * @param parentId
+	 * @return
+	 */
+	UserRelationQueryResult findUserRelationCountByParentId(long parentId);
+	
+	/**
+	 * 查询下级结果集
+	 * 
+	 * @param parentId
+	 * @return
+	 */
+	UserRelationQueryResult findUserRelationByParentId(long parentId);
+	
+	/**
+	 * 查询最大号
+	 * @param orgCode
+	 * @param brokerAffix
+	 * @return
+	 */
+	long getUserRelationMaxMemberNo(String orgCode, String brokerAffix);
+	
+}

@@ -1,0 +1,118 @@
+#parse("/backstage/layout/logo.vm")
+<body class="m-content">
+
+  <!--toolbar-->
+  <div class="m-toolbar">
+    <!--form-->
+    <form class="m-form horizontal" action="/admin/storesManage/storesInfo.htm"  method="post" id="storesInfo_form">
+      <!--row-->
+      <div class="row">
+        <!--group-->
+        <div class="group">
+          <label class="label">门店编号：</label>
+          <input type="text" class="input" name="storeCode" value="$!{queryConditions.storeCode}"/>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <label class="label">常用名称：</label>
+		  <input type="text" class="input" name="oftenName" value="$!{queryConditions.oftenName}"/>
+        </div>
+        <!--group End-->
+
+        <!--group-->
+        <div class="group">
+          <a class="u-btn white fn-submit" title="查询" href="javascript:;">查询</a>
+          <a class="u-btn white" title="新增门店" href="addStore.htm">新增</a>
+        </div>
+        <!--group End-->
+		
+      </div>
+      <!--row End-->
+
+    </form>
+    <!--form End-->
+  </div>
+  <!--toolbar End-->
+
+  <!--grid-->
+  <div class="m-grid f-mt20">
+    <table class="table">
+      <tbody>
+        <!--head-->
+        <tr class="hd">
+          <th><div>序号</div></th>
+          <th><div>门店编号</div></th>
+          <th><div>常用名称</div></th>
+          <th><div>门店地址</div></th>
+          <th><div>所属区域</div></th>
+          <th><div>法人姓名</div></th>
+          <th><div>手机号码</div></th>
+          <th><div>累计贷款笔数</div></th>
+          <th><div>累计贷款金额</div></th>
+          <th><div>操作</div></th>
+        </tr>
+        <!--head End-->
+        <!--row-->
+		#if($page.result.size()==0)
+			<tr class="even">
+				<td colspan=10 align=center>暂时没有门店信息</td>
+			</tr>
+		#end
+		#set ($i= ($page.currentPageNo - 1)*$page.pageSize + 1 )
+		#set ($odd= true )
+		#foreach($info in $page.result)
+			<tr #if($odd) class="odd" #end>
+				<td>$i</td>
+                <td>$!{info.storeCode}</a></td>
+                <td>$!{info.oftenName}</td>
+                <td>$!{info.address}</td>
+				<td>$!{info.contry}</td>
+				<td>$!{info.legalPerson}</td>
+				<td>$!{info.mobile}</td>
+                <td>$!{info.totalNum}</td>
+				<td>$!{info.totalAmount}</td>
+				<td>
+					<a class="u-link blue" href="updateStore.htm?storeId=$!{info.storeId}">详情</a>
+                    #if($!{info.status.code} =='NORMAL')
+						<a class="u-link blue" href="updateStore.htm?storeId=$!{info.storeId}">编辑</a>
+                        ##<a href="#" proType="stop" pointsRuleId="$!{info.pointsRuleId}"  class="proRule">停用</a>
+                    #else
+						##<a href="#" proType="stop" pointsRuleId="$!{info.pointsRuleId}"  class="proRule">启用</a>
+                    #end
+				</td>
+			</tr>
+			#if($odd) #set($odd=false) #end
+			#set($i=$i+1)
+		#end
+        <!--row End-->
+		
+      </tbody>
+	  
+    </table>
+	#parse("/backstage/page/page.vm")
+  </div>
+  <!--grid End-->
+
+
+  <script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+  <script type="text/javascript" src="/resources/js/global.js"></script>
+  <script type="text/javascript">
+       seajs.use('content/storesInfo');
+	   
+	   function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			var url = "/admin/storesManage/storesInfo.htm"
+			+"?storeCode=$!{queryConditions.storeCode}"
+			+"&ruleName=$!{queryConditions.oftenName}"
+			+"&payNo=$!{order.payNo}"
+			+"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+			window.location.href=url;
+		}
+  </script>
+</body>
+</html>

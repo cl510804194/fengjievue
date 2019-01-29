@@ -1,0 +1,76 @@
+package com.yjf.esupplier.service.user.result;
+
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+/**
+ * 
+ * 
+ * 
+ * @author zhouwei
+ * 
+ */
+public class UserSettleInfoQueryResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = 5939944906816423124L;
+	
+	/** 当前页 **/
+	private String pageNo;
+	/** 页大小 **/
+	private String pageSize;
+	/** 总记录数 **/
+	private String totalCount;
+	/** 总页数 **/
+	private String totalPage;
+
+	
+	public String getPageNo() {
+		return pageNo;
+	}
+	
+	public void setPageNo(String pageNo) {
+		this.pageNo = pageNo;
+	}
+	
+	public String getPageSize() {
+		return pageSize;
+	}
+	
+	public void setPageSize(String pageSize) {
+		this.pageSize = pageSize;
+	}
+	
+	public String getTotalCount() {
+		return totalCount;
+	}
+	
+	public void setTotalCount(String totalCount) {
+		this.totalCount = totalCount;
+	}
+	
+	public String getTotalPage() {
+		return totalPage;
+	}
+	
+	public void setTotalPage(String totalPage) {
+		this.totalPage = totalPage;
+	}
+
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserSettleInfoQueryResult [pageNo=");
+		builder.append(pageNo);
+		builder.append(", pageSize=");
+		builder.append(pageSize);
+		builder.append(", totalCount=");
+		builder.append(totalCount);
+		builder.append(", totalPage=");
+		builder.append(totalPage);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+
+}

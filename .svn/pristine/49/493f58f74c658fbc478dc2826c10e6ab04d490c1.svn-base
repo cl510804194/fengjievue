@@ -1,0 +1,318 @@
+package com.yjf.esupplier.service.pop.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yjf.esupplier.ws.enums.PopTypeEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.common.page.Page;
+import com.yjf.esupplier.common.page.PageParam;
+import com.yjf.esupplier.common.page.PageParamUtil;
+import com.yjf.esupplier.dal.daointerface.PopModuleDAO;
+import com.yjf.esupplier.dal.dataobject.PopModuleDO;
+import com.yjf.esupplier.service.pop.IPopModuleService;
+import com.yjf.esupplier.ws.info.PopModuleVOInfo;
+import com.yjf.esupplier.ws.order.PopModuleOrder;
+
+@Service
+public class PopModuleServiceImpl implements IPopModuleService {
+	
+	private static List<PopModuleVOInfo> onlineModuleList;
+	
+	private static List<PopModuleVOInfo> allModuleList;
+	
+	@Autowired
+	PopModuleDAO popModuleDAO;
+	
+	@Override
+	public Page<PopModuleVOInfo> getPageByConditions(	PageParam pageParam, List<Integer> statusList,
+														PopModuleOrder popModuleOrder) {
+		long limitStart = (pageParam.getPageNo() - 1) * pageParam.getPageSize();
+		long pageSize = pageParam.getPageSize();
+		
+		PopModuleDO popModule = initPopModuleDO(popModuleOrder);
+		
+		long totalSize = popModuleDAO.findByConditionCount(popModule, statusList);
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, limitStart, pageSize,
+			statusList);
+			
+		List<PopModuleVOInfo> pageList = new ArrayList<PopModuleVOInfo>();
+		
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			PopModuleDO parentModule = popModuleDAO.findById(item.getParentId());
+			if (parentModule == null) {
+				info.setParentName("-");
+			} else {
+				info.setParentName(parentModule.getModuleName());
+			}
+			convertPopModuleVOInfo(info, item);
+			pageList.add(info);
+		}
+		
+		int start = PageParamUtil.startValue((int) totalSize, pageParam.getPageSize(),
+			pageParam.getPageNo());
+		return new Page<PopModuleVOInfo>(start, totalSize, pageParam.getPageSize(), pageList);
+	}
+	
+	@Override
+	public List<PopModuleVOInfo> getOnlineModulesFromCache() {
+		if (onlineModuleList == null) {
+			reloadModuleList();
+		}
+		return onlineModuleList;
+	}
+	
+	@Override
+	public void reloadModuleList() {
+		onlineModuleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		statusList.add(1);
+		PopModuleDO popModule = new PopModuleDO();
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			convertPopModuleVOInfo(info, item);
+			onlineModuleList.add(info);
+		}
+	}
+
+	@Override
+	public QueryBaseBatchResult<PopModuleVOInfo> getOnlineModulesForGl() {
+		List<PopModuleVOInfo> list = getOnlineModules(PopTypeEnum.TIPS.getDbValue());
+		QueryBaseBatchResult<PopModuleVOInfo>  result = new  QueryBaseBatchResult<PopModuleVOInfo>();
+		result.setPageList(list);
+		return  result;
+	}
+
+	@Override
+	public QueryBaseBatchResult<PopModuleVOInfo> getOnlineModulesForHelp() {
+		List<PopModuleVOInfo> list = getOnlineModules(PopTypeEnum.HELP.getDbValue());
+		QueryBaseBatchResult<PopModuleVOInfo>  result = new  QueryBaseBatchResult<PopModuleVOInfo>();
+		result.setPageList(list);
+		return  result;
+	}
+
+	@Override
+	public List<PopModuleVOInfo> getOnlineModules() {
+		ArrayList<PopModuleVOInfo> moduleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		statusList.add(1);
+		PopModuleDO popModule = new PopModuleDO();
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			convertPopModuleVOInfo(info, item);
+			moduleList.add(info);
+		}
+		return moduleList;
+	}
+	
+	@Override
+	public List<PopModuleVOInfo> getOnlineModules(int type) {
+		ArrayList<PopModuleVOInfo> moduleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		statusList.add(1);
+		PopModuleDO popModule = new PopModuleDO();
+		popModule.setType(type);
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			convertPopModuleVOInfo(info, item);
+			moduleList.add(info);
+		}
+		return moduleList;
+	}
+	
+	/**
+	 * 获取所有信息模块（自定义条件）
+	 * @return
+	 */
+	public List<PopModuleVOInfo> getModules(PopModuleOrder popModuleOrder) {
+		List<PopModuleVOInfo> moduleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		if (popModuleOrder.getStatus() == 0) {  /*包含上下线的*/
+			statusList.add(1);
+			statusList.add(2);
+		} else {
+			statusList.add(1);
+		}
+		PopModuleDO popModule = new PopModuleDO();
+		/*查询等级*/
+		if (popModuleOrder.getLevel() > 0) {
+			popModule.setLevel(popModuleOrder.getLevel());
+		}
+		popModule.setType(popModuleOrder.getType());
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			convertPopModuleVOInfo(info, item);
+			moduleList.add(info);
+		}
+		return moduleList;
+	}
+	
+	@Override
+	public List<PopModuleVOInfo> getOfflineModules() {
+		ArrayList<PopModuleVOInfo> moduleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		statusList.add(2);
+		PopModuleDO popModule = new PopModuleDO();
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			convertPopModuleVOInfo(info, item);
+			moduleList.add(info);
+		}
+		return moduleList;
+	}
+	
+	@Override
+	public PopModuleVOInfo getPopModule(long moduleId) {
+		PopModuleVOInfo popModuleVOInfo = new PopModuleVOInfo();
+		PopModuleDO popModuleDO = popModuleDAO.findById(moduleId);
+		if (popModuleDO != null) {
+			convertPopModuleVOInfo(popModuleVOInfo, popModuleDO);
+		}
+		return popModuleVOInfo;
+	}
+	
+	@Override
+	public PopModuleVOInfo getPopModule(String moduleCode) {
+		PopModuleVOInfo popModuleVOInfo = new PopModuleVOInfo();
+		PopModuleDO popModuleDO = popModuleDAO.findByCode(moduleCode);
+		if (popModuleDO != null) {
+			convertPopModuleVOInfo(popModuleVOInfo, popModuleDO);
+		}
+		return popModuleVOInfo;
+	}
+	
+	@Override
+	public long addPopModule(PopModuleOrder popModuleOrder) {
+		popModuleOrder.check();
+		PopModuleDO popModule = initPopModuleDO(popModuleOrder);
+		long rs = popModuleDAO.insert(popModule);
+		reloadModuleList();
+		return rs;
+	}
+	
+	@Override
+	public long updatePopModule(PopModuleOrder popModuleOrder) {
+		popModuleOrder.check();
+		PopModuleDO popModuleDO = popModuleDAO.findById(popModuleOrder.getModuleId());
+		popModuleDO.setModuleName(popModuleOrder.getModuleName());
+		popModuleDO.setShowTop(popModuleOrder.getShowTop());
+		popModuleDO.setVmPage(popModuleOrder.getVmPage());
+		popModuleDO.setSortOrder(popModuleOrder.getSortOrder());
+		popModuleDO.setModuleCode(popModuleOrder.getModuleCode());
+		popModuleDO.setType(popModuleOrder.getType());
+		popModuleDO.setStatus(popModuleOrder.getStatus());
+		popModuleDO.setLevel(popModuleOrder.getLevel());
+		popModuleDO.setParentId(popModuleOrder.getParentId());
+		long rs = popModuleDAO.update(popModuleDO);
+		reloadModuleList();
+		return rs;
+	}
+	
+	@Override
+	public long offlinePopModule(long moduleId) {
+		PopModuleDO popModuleDO = popModuleDAO.findById(moduleId);
+		popModuleDO.setStatus(2);
+		return popModuleDAO.update(popModuleDO);
+	}
+	
+	@Override
+	public long onlinePopModule(long moduleId) {
+		PopModuleDO popModuleDO = popModuleDAO.findById(moduleId);
+		popModuleDO.setStatus(1);
+		return popModuleDAO.update(popModuleDO);
+	}
+	
+	@Override
+	public int deletePopModule(long moduleId) {
+		
+		popModuleDAO.deleteById(moduleId);
+		
+		return popModuleDAO.deleteById(moduleId);
+	}
+	
+	@Override
+	public long increaseHit(long moduleId) {
+		PopModuleDO popModuleDO = popModuleDAO.findById(moduleId);
+		popModuleDO.setHits(popModuleDO.getHits() + 1);
+		return popModuleDAO.update(popModuleDO);
+	}
+	
+	private void convertPopModuleVOInfo(PopModuleVOInfo info, PopModuleDO item) {
+		BeanCopier.staticCopy(item, info);
+	}
+	
+	private PopModuleDO initPopModuleDO(PopModuleOrder popModuleOrder) {
+		PopModuleDO popModule = new PopModuleDO();
+		BeanCopier.staticCopy(popModuleOrder, popModule);
+		return popModule;
+	}
+	
+	@Override
+	public List<PopModuleVOInfo> getAllModules() {
+		ArrayList<PopModuleVOInfo> moduleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		statusList.add(1);
+		statusList.add(2);
+		PopModuleDO popModule = new PopModuleDO();
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			convertPopModuleVOInfo(info, item);
+			moduleList.add(info);
+		}
+		return moduleList;
+	}
+
+	@Override
+	public List<PopModuleVOInfo> getLevelModules() {
+		// TODO Auto-generated method stub
+		ArrayList<PopModuleVOInfo> moduleList = new ArrayList<PopModuleVOInfo>();
+		List<Integer> statusList = new ArrayList<Integer>();
+		statusList.add(1);
+		statusList.add(2);
+		PopModuleDO popModule = new PopModuleDO();
+		List<PopModuleDO> recordList = popModuleDAO.findByCondition(popModule, 0, 9999999,
+			statusList);
+		for (PopModuleDO item : recordList) {
+			PopModuleVOInfo info = new PopModuleVOInfo();
+			if (item.getLevel() == 1) {
+				convertPopModuleVOInfo(info, item);
+				moduleList.add(info);
+			}
+		}
+		return moduleList;
+	}
+	
+	//	@Override
+	//	public void reloadModuleAllList() {
+	//		allModuleList = new ArrayList<PopModuleVOInfo>();
+	//		List<Integer> statusList = new ArrayList<Integer>();
+	//		statusList.add(1);
+	//		statusList.add(2);
+	//		PopModuleDO popModule = new PopModuleDO();
+	//		List<PopModuleDO> recordList = popModuleDAO.findByCondition( popModule,  0,  9999999,  statusList);
+	//		for (PopModuleDO item : recordList) {
+	//			PopModuleVOInfo info = new PopModuleVOInfo();
+	//		    convertPopModuleVOInfo(info, item);
+	//		    allModuleList.add(info);
+	//		}
+	//		
+	//	}
+	
+}

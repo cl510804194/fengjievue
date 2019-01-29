@@ -1,0 +1,478 @@
+package yrd.app;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import testbase.ServiceAutoTestBase;
+
+import com.alibaba.fastjson.JSONObject;
+import com.autotest.annotation.AutoTestCase;
+import com.autotest.runner.AutoTestJUnit4ClassRunner;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.dal.dataobject.DeliveryPersonDO;
+import com.yjf.esupplier.dal.dataobject.TblOrderInfoDO;
+import com.yjf.esupplier.dal.dataobject.TblProductDO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.dal.dataobject.UserLoginLogDO;
+import com.yjf.esupplier.web.util.AESUtil;
+import com.yjf.esupplier.ws.bill.enums.OrderFlowStatus;
+import com.yjf.esupplier.ws.bill.enums.OrderStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.PrintReceiptStatusEnum;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.UserBizTypeEnum;
+import com.yjf.esupplier.ws.userManage.enums.DeliveryPersonStatusEnum;
+@RunWith(AutoTestJUnit4ClassRunner.class)
+public class AppCompleteDeliveryTest extends ServiceAutoTestBase {
+
+	/*
+	 * 测试方向：(pad点餐)
+	 * 1001 未登录
+	 * 1002 完成派送，失败
+	 * 1003 完成派送，成功
+	 */
+	@Test
+	@AutoTestCase(file = "yrd/app/appCompleteDeliveryTestSuccess.csv", 
+			description = "配送完成,成功用例")
+	public void appCompleteDeliveryTestSuccess(int testId,
+										   	   String userName,
+											   String mobile,
+											   String logPassword,
+											   String tableNumber,
+											   long productId,
+											   long counts,
+											   String productName,
+											   String productNumber,
+											   String productStatus,
+											   String productUnit,
+											   long reservedCount,
+											   long saleCount,
+											   long viewCount, 
+											   Money price1, 
+											   String smallPicPath, 
+											   String realName,
+											   String address, 
+											   String storeName, 
+											   long id,
+											   Money consumeAmount,
+											   long orderCount,
+											   Money settleAccountsAmount,
+											   long peopleNo,
+											   String status, 
+											   String canSettle,
+											   String tableNumberSeq,
+											   double serviceChargeRate,
+											   long supplierId,
+											   String userBaseId1,
+											   String realName1,
+											   String storeName1,
+											   String isComplete,
+											   String userBaseIdPad,
+											   long userIdPad,
+											   String userNamePad,
+											   String logPasswordPad,
+											   String mobilePad,
+											   long loginId,
+											   long resortsBusinessId,
+											   long userIdDeli,
+											   String userNameDeli,
+											   String realNameDeli,
+											   String nickNameDeli){
+		long userId=0;
+		String userBaseId="";
+		TblProductDO tblProductDOex=null;
+		TblSupplierDO tblSupplierDOex=null;
+		TblOrderInfoDO tblOrderInfoDOex=null;
+		TblSupplierDO tblSupplierDOex1=null;
+		DeliveryPersonDO deliveryPersonDOex=null;
+		//清除数据
+		clearnPointsRuleByRuleType("REGISTER");
+		clearnPointsRuleByRuleType("LOGIN");
+		UserBaseInfoDO userBaseInfoDO=findUserBaseInfoByUserName(userName);
+		if (userBaseInfoDO!=null) {
+			userId=userBaseInfoDO.getUserId();
+			userBaseId=userBaseInfoDO.getUserBaseId();
+		}
+		clearnUserRoleByUserId(userId);
+		clearnUserByUserName(userName);
+		clearnPersonaInfoByUserBaseId(userBaseId);
+		clearnUserBaseInfoByUserName(userName);
+		clearnUserAccountDataByUserId(userId);
+		clearnUserExtendByUserId(userId);
+		clearnUserLogin(userName);
+		
+		clearnTblProductByProductId(productId);
+		clearnTblSupplierById(supplierId);
+		clearnTblDiningTableSituationById(id);
+		clearnTblSupplierById(userIdPad);
+		
+		clearnDeliveryPersonByUserId(userIdDeli);
+		//点餐用户信息
+		clearnUserBaseInfoByUserId(userIdPad);
+		clearnUserLogin(userNamePad);
+		// 准备数据
+		logger.info("更新系统参数");
+		updateSysParamInfoDOByParamName("SYS_PARAM_HUA_HONG_IS_USE","Y");
+		sysParameterService.clearCache();
+		
+		// 测试过程
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response =null;
+		String conResult =null;
+		JSONObject jobj =null;
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("msg", getStringFromJson(new JSONObject())));
+			HttpEntity httpEntity=new UrlEncodedFormEntity(nameValuePairs, "UTF-8");
+
+			if (testId!=1001) {
+				/*
+				 * 点餐用户操作
+				 */
+				insertUserBaseInfo(userBaseIdPad,userIdPad,userNamePad,"pad点餐用户",MD5Util.getMD5_32(logPasswordPad),"888888",
+						"JG","normal","IS",0, "25475", "0", mobilePad, "PAD",0);
+				UserBaseInfoDO userBaseInfoDOPadex=findUserBaseInfoByUserId(userIdPad);
+				userBaseInfoDOPadex.setUserCustomType(UserBizTypeEnum.BUYER.code());
+				userBaseInfoDAO.update(userBaseInfoDOPadex);
+				insertUserLogin(loginId, userNamePad, "USER_NAME", userIdPad);
+				//登录
+				String loginUrl="http://127.0.0.1:8085/app/login.htm?userName="+userNamePad+"&passWord="+AESUtil.encode(logPasswordPad);
+				HttpPost loginHP = new HttpPost(loginUrl);
+				loginHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				loginHP.setEntity(httpEntity);
+				response = httpclient.execute(loginHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				loginHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("登录成功", jobj.get("message"));
+				
+				
+				//pad点餐
+				insertTblProductIncomplete(productId, supplierId, productName, productNumber, productStatus, productUnit,
+						reservedCount, saleCount, viewCount, "0");
+				tblProductDOex=findTblProductByProductId(productId);
+				tblProductDOex.setPrice1(price1);
+				tblProductDOex.setSmallPicPath(smallPicPath);
+				tblProductDOex.setSaleTypeOrderMeal(BooleanEnum.YES.code());
+				tblProductDOex.setResortsBusinessId(resortsBusinessId);
+				tblProductDAO.update(tblProductDOex);//商品
+				insertTblSupplierIncomplete(userIdPad, userBaseId, "0");
+				tblSupplierDOex=findTblSupplierById(userIdPad);
+				tblSupplierDOex.setRealName(realName);
+				tblSupplierDOex.setAddress(address);
+				tblSupplierDOex.setStoreName(storeName);
+				tblSupplierDAO.update(tblSupplierDOex);//调餐目标商户
+				insertTblSupplierIncomplete(supplierId,userBaseId1, "0");
+				tblSupplierDOex1=findTblSupplierById(supplierId);
+				tblSupplierDOex1.setServiceChargeRate(serviceChargeRate);
+				tblSupplierDOex1.setRealName(realName1);
+				tblSupplierDOex1.setStoreName(storeName1);
+				tblSupplierDAO.update(tblSupplierDOex1);//调餐供应商户
+				insertTblDiningTableSituationAll(id, tableNumber, userIdPad, consumeAmount, orderCount, settleAccountsAmount,
+						peopleNo, status, canSettle, tableNumberSeq, new Date());//餐桌
+				String padMealOrderUrl="http://127.0.0.1:8085/app/padMealOrder.htm?tableNumber="+tableNumber+"&productId="
+						+productId+"&counts="+counts;
+				HttpPost padMealOrderHP = new HttpPost(padMealOrderUrl);
+				padMealOrderHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				padMealOrderHP.setEntity(httpEntity);
+				response = httpclient.execute(padMealOrderHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				padMealOrderHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				tblOrderInfoDOex=findTblOrderInfoBySupplierId(supplierId);
+				assertEquals(1, jobj.get("code"));
+				assertEquals("点餐成功", jobj.get("message"));
+				Map<String, String> map=(Map<String, String>) jobj.get("info");
+				assertEquals(String.valueOf(tblOrderInfoDOex.getId()), map.get("id"));
+				
+				
+				//pad确认点餐
+				String padConfirmMealOrderUrl="http://127.0.0.1:8085/app/padConfirmMealOrder.htm?tableNumber="+tableNumber;
+				HttpPost padConfirmMealOrderHP = new HttpPost(padConfirmMealOrderUrl);
+				padConfirmMealOrderHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				padConfirmMealOrderHP.setEntity(httpEntity);
+				response = httpclient.execute(padConfirmMealOrderHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				padConfirmMealOrderHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				tblOrderInfoDOex=findTblOrderInfoBySupplierId(supplierId);
+				assertEquals(1, jobj.get("code"));
+				assertEquals("确认点餐成功", jobj.get("message"));
+				assertEquals(DateUtil.simpleDate(tblOrderInfoDOex.getDiningTime()),jobj.get("ordersTime"));
+				assertEquals(String.valueOf(tblOrderInfoDOex.getBatchNo()),jobj.get("batchNo"));
+				
+				
+				/*
+				 * 商户用户操作
+				 */
+				//获取图片验证码
+				String getImgCodeUrl="http://127.0.0.1:8085/app/getImgCode.htm";
+				HttpPost getImgCodeHP = new HttpPost(getImgCodeUrl);
+				getImgCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				getImgCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(getImgCodeHP);
+				getImgCodeHP.releaseConnection();
+				
+				
+				//发送短信验证码(register注册)
+				String sendSmsCodeUrl="http://127.0.0.1:8085/app/sendSmsCode.htm?mobile="+mobile+"&business=register";
+				HttpPost sendSmsCodeHP = new HttpPost(sendSmsCodeUrl);
+				sendSmsCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				sendSmsCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(sendSmsCodeHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				sendSmsCodeHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				assertEquals(1, jobj.get("code"));
+				assertEquals("发送手机验证码成功", jobj.get("message"));	
+				
+				
+				//提交注册信息
+				String registerSubmitUrl="http://127.0.0.1:8085/app/registerSubmit.htm?userName="+userName+
+						"&mobile="+mobile+"&logPassword="+AESUtil.encode(logPassword)+"&code=888888&imgCode=8888";
+				HttpPost registerSubmitHP = new HttpPost(registerSubmitUrl);
+				registerSubmitHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				registerSubmitHP.setEntity(httpEntity);
+				response = httpclient.execute(registerSubmitHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				registerSubmitHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("注册成功", jobj.get("message"));
+				assertEquals(0, jobj.get("giftMoney"));
+				assertEquals("无优惠券信息", jobj.get("giftMoneyMessage"));
+				//数据校验
+				userBaseInfoDO=findUserBaseInfoByUserName(userName);
+				userId=userBaseInfoDO.getUserId();
+				userBaseId=userBaseInfoDO.getUserBaseId();
+				assertEquals(mobile, userBaseInfoDO.getMobile());
+				assertEquals(userName, userBaseInfoDO.getUserName());
+				assertEquals(MD5Util.getMD5_32(logPassword), userBaseInfoDO.getLogPassword());
+				
+				
+				//把刚注册用户设置为商户用户
+				tblProductDOex=findTblProductByProductId(productId);
+				tblProductDOex.setSupplierId(userId);
+				tblProductDAO.update(tblProductDOex);//商品
+				tblSupplierDOex1=findTblSupplierById(supplierId);
+				tblSupplierDAO.deleteById(supplierId);
+				tblSupplierDOex1.setSupplierId(userId);
+				tblSupplierDOex1.setUserBaseId(userBaseId);
+				tblSupplierDAO.insert(tblSupplierDOex1);//供应商户
+				tblOrderInfoDOex=findTblOrderInfoBySupplierId(supplierId);
+				tblOrderInfoDOex.setSupplierId(userId);
+				tblOrderInfoDAO.update(tblOrderInfoDOex);//订单
+				
+				
+				//商户接单
+				String orderTakingMealOrderUrl="http://127.0.0.1:8085/app/orderTakingMealOrder.htm?batchNo="
+						+(tblOrderInfoDOex==null?0:tblOrderInfoDOex.getBatchNo())+"&isPrintTicket=YES";
+				HttpPost orderTakingMealOrderHP = new HttpPost(orderTakingMealOrderUrl);
+				orderTakingMealOrderHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				orderTakingMealOrderHP.setEntity(httpEntity);
+				response = httpclient.execute(orderTakingMealOrderHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				orderTakingMealOrderHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("接单成功", jobj.get("message"));
+				tblOrderInfoDOex=findTblOrderInfoBySupplierId(userId);
+				assertEquals(OrderStatusEnum.MERCHANT_ORDERS.code(), tblOrderInfoDOex.getOrderStatus());
+				assertEquals(PrintReceiptStatusEnum.TO_BE_PRINTED.code(), tblOrderInfoDOex.getPrintReceipt());
+				
+				
+				//商户确认派单
+				insertDeliveryPersonAll(userIdDeli, userNameDeli, realNameDeli, nickNameDeli, resortsBusinessId,
+						DeliveryPersonStatusEnum.UNWANTED.code(), new Date());
+				String confirmDeliveryMealOrderUrl="http://127.0.0.1:8085/app/confirmDeliveryMealOrder.htm?batchNo="
+						+(tblOrderInfoDOex==null?0:tblOrderInfoDOex.getBatchNo())+"&isComplete=NO";
+				HttpPost confirmDeliveryMealOrderHP = new HttpPost(confirmDeliveryMealOrderUrl);
+				confirmDeliveryMealOrderHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				confirmDeliveryMealOrderHP.setEntity(httpEntity);
+				response = httpclient.execute(confirmDeliveryMealOrderHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				confirmDeliveryMealOrderHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				tblOrderInfoDOex=findTblOrderInfoBySupplierId(userId);
+				deliveryPersonDOex=findDeliveryPersonByUserId(userIdDeli);
+				assertEquals(1, jobj.get("code"));
+				assertEquals("确认派单成功", jobj.get("message"));
+				assertEquals(OrderStatusEnum.YFH.code(), tblOrderInfoDOex.getOrderStatus());
+				assertEquals(OrderFlowStatus.HAVE_BEEN_ISSUED.code(), tblOrderInfoDOex.getWorkflowStatus());
+				assertEquals(DeliveryPersonStatusEnum.BUSY.code(), deliveryPersonDOex.getStatus());
+				
+				
+				/*
+				 * 点餐用户操作
+				 */
+				//登录
+				loginUrl="http://127.0.0.1:8085/app/login.htm?userName="+userNamePad+"&passWord="+AESUtil.encode(logPasswordPad);
+				loginHP = new HttpPost(loginUrl);
+				loginHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				loginHP.setEntity(httpEntity);
+				response = httpclient.execute(loginHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				loginHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("登录成功", jobj.get("message"));
+			}
+			
+			
+			//配送完成
+			if (testId==1002) {
+				deliveryPersonDOex=findDeliveryPersonByUserId(userIdDeli);
+				deliveryPersonDOex.setStatus(DeliveryPersonStatusEnum.REST.code());
+				deliveryPersonDAO.update(deliveryPersonDOex);//模拟送餐员未完成送餐跑路了
+			}
+			String completeDeliveryUrl="http://127.0.0.1:8085/app/completeDelivery.htm?batchNo="
+					+(tblOrderInfoDOex==null?0:tblOrderInfoDOex.getBatchNo())+"&supplierId="+userId;
+			HttpPost completeDeliveryHP = new HttpPost(completeDeliveryUrl);
+			completeDeliveryHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+			completeDeliveryHP.setEntity(httpEntity);
+			response = httpclient.execute(completeDeliveryHP);
+			/*读返回数据*/
+			conResult = EntityUtils.toString(response.getEntity());
+			jobj = JSONObject.parseObject(conResult);
+			completeDeliveryHP.releaseConnection();
+			System.out.println(jobj.get("code"));
+			System.out.println(jobj.get("message"));
+			//验证结果
+			TblOrderInfoDO tblOrderInfoDO=findTblOrderInfoBySupplierId(userId);
+			DeliveryPersonDO deliveryPersonDO=findDeliveryPersonByUserId(userIdDeli);
+			TblSupplierDO tblSupplierDO=findTblSupplierById(userId);
+			if (testId==1001) {
+				assertEquals(-1, jobj.get("code"));
+				assertEquals("未登录或登录失效", jobj.get("message"));
+			}else if (testId==1002) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("配送员释放失败", jobj.get("message"));
+			}else if (testId==1003) {
+				assertEquals(1, jobj.get("code"));
+				assertEquals("配送完成操作成功", jobj.get("message"));
+				//tbl_order_info表
+				assertNotNull(tblOrderInfoDO.getOperatorTime());
+				assertEquals(userIdPad,tblOrderInfoDO.getOperatorId());
+				assertNotNull(tblOrderInfoDO.getConfirmReceiptTime());
+				assertEquals(OrderStatusEnum.JYC.code(), tblOrderInfoDO.getOrderStatus());
+				assertEquals(OrderFlowStatus.CONFIRMATION_OF_RECEIPT.code(), tblOrderInfoDO.getWorkflowStatus());
+				//tbl_supplier供应商户
+				assertEquals(tblSupplierDOex1.getTotalSale().add(tblOrderInfoDO.getTotalAmount()),
+						tblSupplierDO.getTotalSale());
+				assertEquals(tblSupplierDOex1.getProductSum()+counts,tblSupplierDO.getProductSum());
+				//delivery_person表
+				assertEquals(DeliveryPersonStatusEnum.UNWANTED.code(), deliveryPersonDO.getStatus());
+			}
+			
+			//清除数据
+			clearnUserRoleByUserId(userId);
+			clearnUserByUserName(userName);
+			clearnPersonaInfoByUserBaseId(userBaseId);
+			clearnUserBaseInfoByUserName(userName);
+			clearnUserAccountDataByUserId(userId);
+			clearnUserExtendByUserId(userId);
+			clearnUserLogin(userName);
+			
+			//清除登录日志
+			List<UserLoginLogDO> userLoginLogDOlist=findUserLoginLogByUserId(userId);
+			if (!userLoginLogDOlist.isEmpty()) {
+				for (int i = 0; i < userLoginLogDOlist.size(); i++) {
+					UserLoginLogDO userLoginLogDO=userLoginLogDOlist.get(i);
+					if (userLoginLogDO!=null) {
+						clearnUserLoginLogById(userLoginLogDO.getTblBaseId());
+					}
+				}
+			}
+			
+			clearnTblProductByProductId(productId);
+			clearnTblSupplierById(supplierId);
+			clearnTblDiningTableSituationById(id);
+			clearnTblOrderInfoBySupplierId(userId);
+			clearnTblOrderItemByOrderId(tblOrderInfoDOex==null?0:tblOrderInfoDOex.getId());
+			clearnTblSupplierById(userIdPad);
+			clearnTblSupplierById(userId);
+			
+			clearnDeliveryPersonByUserId(userIdDeli);
+			//点餐用户信息
+			clearnUserBaseInfoByUserId(userIdPad);
+			clearnUserLogin(userNamePad);
+			List<UserLoginLogDO> userLoginLogDOPadlist=findUserLoginLogByUserId(userIdPad);
+			if (!userLoginLogDOPadlist.isEmpty()) {
+				for (int i = 0; i < userLoginLogDOPadlist.size(); i++) {
+					UserLoginLogDO userLoginLogDOPad=userLoginLogDOPadlist.get(i);
+					if (userLoginLogDOPad!=null) {
+						clearnUserLoginLogById(userLoginLogDOPad.getTblBaseId());
+					}
+				}
+			}
+			clearnUserAccountDataByUserId(tblOrderInfoDOex==null?0:tblOrderInfoDOex.getUserId());
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static String getStringFromJson(JSONObject adata) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		for (Object key : adata.keySet()) {
+			sb.append("\"" + key + "\":\"" + adata.get(key) + "\",");
+		}
+		String rtn = sb.toString().substring(0, sb.toString().length() - 1)
+				+ "}";
+		return rtn;
+	}
+}

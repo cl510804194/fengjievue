@@ -1,0 +1,156 @@
+#parse("/front/platform/layout/header-title.vm")
+<title>我的消息</title>
+<meta name="description" content="优品地"/>
+<meta name="keywords" content="优品地"/>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+<body style="background: #fdfaf1;">
+#parse("/front/platform/layout/header_member2.vm")
+<div class="warp fn-mt40">
+  
+    <div class="fn-container fn-mt20 fn-clear">
+    	#parse("/front/platform/member/layout/person_member_left2.vm")
+        <div class="member-right DIB pro_list">
+        <p class="fn-mt20" style="width: 980px; float: right;">&nbsp;&nbsp;&nbsp;我的优品地>我的积分</p>
+			
+            <div>
+                <!--header-->
+                
+                <!--header End-->
+                <!--content-->
+                <form action="/do/userPoints/pageQueryUserPoints.htm" method="post" id="dataForm" class="ui-form" id="guaranteeOpenOperator_form">
+                <table align="center" width="98%" height="40" cellpadding="0" cellspacing="0" class="fn-mt20" style="border-bottom: 1px solid #ccc;">
+                    <tr>
+                        <td width="70" class="sm-title fn-tac fn-fs16 active"><a class="jbxx-tab" href="javascript:void(0);">积分明细</a></td>
+                        <td width="40"></td>
+                        <td width="90" class="sm-title fn-tac fn-fs16 "><a class="gysxx-tab" href="javascript:void(0);">积分规则</a></td>
+                        <td width="750"></td>           
+                    </tr>
+                </table>
+                <p class="fn-lh45">可用积分：<span class="fn-dc0">$!{userIntegral}</span></p>
+                <div class="content">
+                    <table class="m-table2 jifen-tab">
+                        <tbody>
+                        <!--head-->
+                        <tr>
+                            <th width="20%">时间</th>
+                            <th width="20%" class="f-tac">获取/使用</th>
+                            <th width="20%" class="f-tac">积分详情</th>
+                        </tr>
+                        <!--head End-->
+
+                        <!--row-->
+                            #foreach($info in $userPointsList)
+                            <tr class="row">
+                                <td>$!dateUtil.simpleFormat($!{info.rawAddTime})
+                                </td>
+                                <td class="f-tac">
+                                #if($!{info.pointsType}=='USE')
+                                	-$!{info.pointValue}  
+                                #else
+                                	+$!{info.pointValue}
+                                #end
+                                </td>
+                                <td class="f-tac">
+                                $!{info.pointsType.message}
+                                #if($!{info.pointsType.code} == 'SINGLE_CONSUME_PAY')
+                           		     商品:$!{info.productName}
+                                #elseif($!{info.pointsType.code} == 'EVALUATION')
+                                                                                                                     订单号:$!{info.orderId}
+                                #end
+                                </td>
+                            </tr>
+                            <!--row End-->
+                            #end
+
+                        </tbody>
+                    </table>
+                
+                </div>
+
+
+                <div class="content2 fn-hide">
+                    <table class="m-table2 jifen-tab2">
+                        <tbody>
+                        	#foreach($info in $userPointsRuleList)
+                            <tr>
+                                <td>$info.ruleName</td>
+                                <td>
+                              
+                                #if($info.ruleType == 'REGISTER')
+                                		送$numberUtil.formateDouble($info.pointValue)积分
+                        		#elseif($info.ruleType == 'LOGIN')
+                        				送$numberUtil.formateDouble($info.pointValue)积分
+                        		#elseif($info.ruleType == 'UPLOAD_AVATAR')
+                        				送$numberUtil.formateDouble($info.pointValue)积分
+                        		#elseif($info.ruleType == 'EVALUATION')
+                        				送$numberUtil.formateDouble($info.pointValue)积分
+                            	#elseif($info.ruleType == 'SINGLE_CONSUME_PAY')
+                                		根据该商品的积分规则赠送
+                                #elseif($info.ruleType == 'SINGLE_CONSUME_COMPLETE')
+                                		根据用户单笔消费完成规则赠送
+                                #end
+                            	</td>
+                            </tr>
+                            #end
+                        </tbody>
+                    </table>
+                    <div class="jfsm">
+                        <p class="fn-mt25">积分说明：</p>
+                        <p>1、积分有效期：从获得积分开始至次年年底，逾期自动作废；</p>
+                        <p>2、 在“优品地”平台购物时可抵现，积分与人民币兑换比例为100：1，即100积分可抵1元现金；</p>
+                        <p>3、积分支持全额抵扣，即：买家在付款时，每笔订单可使用的积分额度不限；</p>
+                        <p>4、 积分抵现支付成功后退款不退还。</p>
+                    </div>
+                </div>
+                <!--分页-->
+               <div>
+			    	<table width="100%" height="40" cellpadding="0" cellspacing="0" class="content" style="text-align: right;">
+			    		<tr>
+			    			<td style="vertical-align: middle;"> 
+			    				<input type="hidden" name="pages" id=""/>
+			    				$!{pageBar}
+			    			</td>
+			    		</tr>
+			    	</table>
+			    </div>
+                </form>
+                <!--content End-->
+            </div>
+            <!---->
+
+        </div>
+
+    </div>
+    <div class="blank50"></div>
+</div>
+    #parse("/front/platform/layout/footer-lg.vm")
+<script type="text/javascript">
+     seajs.use($_GLOBAL.mode + 'messageInfoList');
+    function toPage(totalPage, pageNo){
+        if(totalPage<pageNo){
+            return false;
+        }
+        var url = "/do/userPoints/pageQueryGainMoney.htm"
+                +"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+        window.location.href=url;
+    }
+    
+    //菜单切换
+    $('.jbxx-tab').on('click',function(){
+        $(this).parent('td').addClass('active').siblings('td').removeClass('active');
+        $('.content').show();
+        $('.content2').hide();
+    })
+     $('.gysxx-tab').on('click',function(){
+        $(this).parent('td').addClass('active').siblings('td').removeClass('active');
+        $('.content').hide();
+        $('.content2').show();
+    }) 
+
+    $('.left-jf').addClass('fn-dc0');
+    $('#a004').css('color', 'red');
+</script>
+</body>
+</html>

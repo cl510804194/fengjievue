@@ -1,0 +1,486 @@
+package com.yjf.esupplier.service.pdf;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.LoanUtil;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.common.util.MoneyUtil;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.service.biz.util.RateCalculateUtil;
+import com.yjf.esupplier.ws.enums.DivisionWayEnum;
+import com.yjf.esupplier.ws.enums.LoanPeriodUnitEnum;
+import com.yjf.esupplier.ws.enums.PDFTypeEnum;
+import com.yjf.esupplier.ws.info.TradeInfo;
+
+public class DBXMLDataCreatorImpl extends BaseXmlDataCreator {
+	
+	public DBXMLDataCreatorImpl(ContractData contractData, String pdfFileCode, String serverRealPath) {
+		super(contractData);
+	}
+	
+	@Override
+	public byte[] getXMLData() {
+		Map<String, String> dataMap = creatDataMap();
+		return this.getXMLData(this.pdfTypeEnum, dataMap, this.investFlowCodes);
+	}
+	
+	private Map<String, String> creatDataMap() {
+		
+		String platformName = AppConstantsUtil.getPlatformName();
+		String productName = AppConstantsUtil.getProductName();
+		String platformAddress = AppConstantsUtil.getPlatformAddress();
+		String loanerName = StringUtil.subString(loanDemand.getLoanerName(), 1, "***");
+		String userName = loanDemand.getUserName();
+		String enterprise_name = institutionsInfo.getEnterpriseName(); //担保公司名称
+		String timeLimit = loanDemand.getTimeLimit() + loanDemand.getTimeLimitUnit().getViewName();
+		
+		String loaned_amount = MoneyUtil.getFormatAmount(trade.getLoanedAmount().getCent() / 10000);//实际借款金额
+		double interest_rate = MoneyUtil.getPercentage(loanDemand.getInterestRate());
+		String moneyTal = MoneyUtil.digitUppercase(trade.getLoanedAmount().getCent());//大写金额
+		Date trade_effective_date = trade.getTradeEffectiveDate();//成立日期
+		Date trade_expire_date = trade.getTradeExpireDate();//到期日期
+		String limit = LoanUtil.getLoanTime(trade.getTimeLimit(), trade.getTimeLimitUnit()
+			.getCode());//期限
+		String loanPurpose = loanDemand.getLoanPurpose();//借款用途
+		String[] arrDate = {};//存放到期日期
+		String[] effDate = {};//存放成立日期
+		String effectiveDate = "";
+		String expireDate = "";
+		if (trade_expire_date != null) {
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			expireDate = format.format(trade_expire_date);
+			arrDate = expireDate.split("-");
+		}
+		if (trade_effective_date != null) {
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			effectiveDate = format.format(trade_effective_date);
+			effDate = effectiveDate.split("-");
+		}
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("platformName", StringUtil.nullToEmpty(platformName));
+		map.put("platformAddress", StringUtil.nullToEmpty(platformAddress));
+		map.put("productName", StringUtil.nullToEmpty(productName));
+		map.put("loanerName", StringUtil.nullToEmpty(loanerName));
+		map.put("userName", StringUtil.nullToEmpty(userName));
+		map.put("loanerRealName", loaner.getRealName());
+		map.put("loanerUserName", loaner.getUserName());
+		map.put("loanerAddress", loannerInstitutions.getCommonlyUsedAddress());
+		map.put("loanerLegalPerson",
+			StringUtil.nullToEmpty(loannerInstitutions.getLegalRepresentativeName()));
+		map.put("loanerLinkman", StringUtil.nullToEmpty(loannerInstitutions.getContactName()));
+		map.put("loanerPhone", StringUtil.nullToEmpty(loannerInstitutions.getCompanyPhone()));
+		map.put("loanerAccountId", loaner.getAccountId());
+		map.put("loanerMail", loaner.getMail());
+		map.put("loanerCertiNO", loanerCertiNO);
+		if (StringUtil.isNotEmpty(loanerCertiNO)) {
+			map.put("loanerCertiNO2", StringUtil.subString(loanerCertiNO, 5, "********"));
+		}
+		map.put("loanerNo", loanerCertiNO);//借款人身份证
+		map.put("profitUserName", profitUser.getUserName());//平台账户用户名
+		map.put("loanerEmail", loaner.getMail());//借款人邮箱
+		map.put("loanerMobile", loaner.getMobile());//借款人电话
+		
+		map.put("guaranteer", StringUtil.nullToEmpty(enterprise_name));
+		map.put("DMONEY", loaned_amount != null ? String.valueOf(loaned_amount) : "0");
+		map.put("moneyTal", moneyTal);
+		map.put("limit", limit);
+		map.put("timeLimit", String.valueOf(timeLimit));
+		map.put("loanPurpose", loanPurpose);
+		map.put("repayWay", loanDemand.getRepayDivisionWay().getMessage());
+		if (loanDemand.getRepayDivisionWay().code() == "sit") {
+			map.put("repayWayCheak", "D");
+		} else if (loanDemand.getRepayDivisionWay().code() == "month") {
+			map.put("repayWayCheak", "A");
+		}
+		
+		map.put("effectiveDate", effectiveDate);
+		map.put("expireDate", expireDate);
+		map.put("loanName", loanDemand.getLoanName());
+		
+		Money interest = new Money(0);
+		//Money interestAll = new Money(0);
+		if (investor != null && detailInfo != null) {
+			map.put("investUserName", investor.getUserName());
+			map.put("investName", investor.getRealName());
+			map.put("investCertiNO", this.investCertiNO);
+			map.put("investFlowCode", this.investFlowCode);
+			
+			// 计算应收利息dd
+			if (loanDemand.getRepayDivisionWay() != DivisionWayEnum.MONTH_PRINCIPAL_INTEREST) {
+				interest = caculateInterest(detailInfo.getAmount(), loanDemand.getInterestRate(),
+					loanDemand.getTimeLimit(), loanDemand.getTimeLimitUnit());
+			} else {
+				int periodCount = loanDemand.getTimeLimit();
+				if (loanDemand.getTimeLimitUnit() == LoanPeriodUnitEnum.LOAN_BY_YEAR) {
+					periodCount = periodCount * 12;
+				}
+				
+				interest = RateCalculateUtil
+					.calMonthPrincipalInterest(loanDemand.getInterestRate(), periodCount,
+						detailInfo.getAmount()).multiply(periodCount)
+					.subtract(detailInfo.getAmount());
+			}
+			String totalAmountStr = detailInfo.getAmount().add(interest).toStandardString();
+			map.put("interest", interest.toStandardString());
+			map.put("receivableAmount", totalAmountStr);
+			String investAmount = detailInfo.getAmount().toStandardString();
+			map.put("investAmount", investAmount);
+		}
+		
+		//担保合同 
+		String guaranteeLicenseNo = loanDemand.getGuaranteeLicenceNo();
+		String content = guaranteeLicenseNo;
+		map.put("LETTERNO", StringUtil.nullToEmpty(content));
+		map.put("CONTRACTNO", StringUtil.nullToEmpty(guaranteeContractCode));
+		
+		map.put("RFLOWNO", StringUtil.nullToEmpty(loanFlowCode));
+		map.put("DBHNO",
+			loanFlowCode != null ? loanFlowCode.substring(0, loanFlowCode.length() - 1) : "");
+		map.put("ENTERPRISE", StringUtil.nullToEmpty(enterprise_name));
+		
+		map.put("PER", String.valueOf(interest_rate));
+		if (effDate.length == 3) {
+			map.put("SYYYY", StringUtil.nullToEmpty(effDate[0]));
+			map.put("SMM", StringUtil.nullToEmpty(effDate[1]));
+			map.put("SDD", StringUtil.nullToEmpty(effDate[2]));
+		}
+		if (arrDate.length == 3) {
+			map.put("EYYYY", StringUtil.nullToEmpty(arrDate[0]));
+			map.put("EMM", StringUtil.nullToEmpty(arrDate[1]));
+			map.put("EDD", StringUtil.nullToEmpty(arrDate[2]));
+		}
+		
+		String address = "";//地址
+		String legal_name = "";//法人姓名
+		String province = "";//省份
+		String city = "";// 城市
+		String zipCode = "";//邮编
+		String comPhone = "";//电     话
+		String bankOpenName = "";//开户银行
+		String bankCardNo = "";//账    号
+		
+		province = institutionsInfo.getBusinessLicenseProvince();
+		city = institutionsInfo.getBusinessLicenseCity();
+		address = institutionsInfo.getCommonlyUsedAddress();
+		legal_name = institutionsInfo.getLegalRepresentativeName();
+		
+		zipCode = institutionsInfo.getZipCode();
+		//			comPhone=institutionsInfo.getComPhone();
+		bankOpenName = institutionsInfo.getBankOpenName();
+		bankCardNo = institutionsInfo.getBankCardNo();
+		map.put("guaranteAddress", address);
+		
+		Date date = new Date();
+		SimpleDateFormat simpl = new SimpleDateFormat("yyyy-MM-dd");
+		String strDate = simpl.format(date);
+		String[] aDate = strDate.split("-");
+		if (aDate.length == 3) {
+			map.put("PYYYY", aDate[0]);
+			map.put("PMM", aDate[1]);
+			map.put("PDD", aDate[2]);
+		}
+		return map;
+	}
+	
+	private byte[] getXMLData(PDFTypeEnum pdfTypeEnum, Map<String, String> dataMap,
+								List<Map<String, Text>> investFlowCodes) {
+		StringBuffer xml = new StringBuffer();
+		xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>     \n\r");
+		xml.append(" <EntryDailyListReport>             \r\n");
+		
+		//担保合同  
+		xml.append(getContractXMLData(dataMap, investFlowCodes));
+		xml.append(getReceiptXMLData(dataMap));
+		
+		xml.append(" </EntryDailyListReport>            \r\n");
+		
+		byte[] bytes = null;
+		
+		try {
+			bytes = xml.toString().getBytes("utf-8");
+			logger.debug("XMLData:" + xml.toString());
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return bytes;
+	}
+	
+	/**
+	 * 担保合同
+	 * @param dataMap
+	 * @param investFlowCodes
+	 * @return
+	 */
+	private StringBuffer getContractXMLData(Map<String, String> dataMap,
+											List<Map<String, Text>> investFlowCodes) {
+		
+		StringBuffer xml = new StringBuffer();
+		
+		xml.append(" 	<PageList><!-- 报表主体  //-->        \r\n");
+		xml.append(" 		<ReportBody><!-- 报表数据,表格形式,可以定义多个表格 //-->      \r\n");
+		xml.append(" 			<Blank />                     \r\n");
+		xml.append(" 			<Blank />                     \r\n");
+		xml.append(" 			<TableBegin>                  \r\n");
+		xml.append(" 				<LETTERNO>" + dataMap.get("CONTRACTNO")
+					+ "</LETTERNO> <!-- 编号 -->        \r\n");
+		xml.append(" 			</TableBegin>	                \r\n");
+		xml.append(" 			<TableContract>               \r\n");
+		xml.append(" 					<!-- 投资期间 -->        \r\n");
+		xml.append(" 					<SYYYY>" + dataMap.get("SYYYY") + "</SYYYY>       \r\n");
+		xml.append(" 					<SMM>" + dataMap.get("SMM") + "</SMM>             \r\n");
+		xml.append(" 					<SDD>" + dataMap.get("SDD") + "</SDD>             \r\n");
+		xml.append(" 					<!-- 回购到期日 -->            \r\n");
+		xml.append(" 					<EYYYY>" + dataMap.get("EYYYY") + "</EYYYY>       \r\n");
+		xml.append(" 					<EMM>" + dataMap.get("EMM") + "</EMM>             \r\n");
+		xml.append(" 					<EDD>" + dataMap.get("EDD") + "</EDD>             \r\n");
+		xml.append(" 					<DMONEY>" + dataMap.get("DMONEY") + "</DMONEY>     \r\n");
+		xml.append(" 					<moneyTal>" + dataMap.get("moneyTal") + "</moneyTal>     \r\n");
+		
+		xml.append(" 					<!-- 投资权益年化收益率 -->  \r\n");
+		xml.append(" 					<PER>" + dataMap.get("PER") + "</PER>   \r\n");
+		xml.append(" 					<!-- 期限 -->  \r\n");
+		xml.append(" 					<limit>" + dataMap.get("limit") + "</limit>   \r\n");
+		xml.append(" 					<!-- 借款用途 -->  \r\n");
+		xml.append(" 					<loanPurpose>" + dataMap.get("loanPurpose") + "</loanPurpose>   \r\n");
+		xml.append(" 					<!-- 担保人地址 -->  \r\n");
+		xml.append(" 					<guaranteAddress>" + dataMap.get("guaranteAddress")
+					+ "</guaranteAddress>   \r\n");
+		xml.append("					<PlatFormAddress>" + dataMap.get("platformAddress")
+					+ "</PlatFormAddress>  \r\n");
+		xml.append(" 					<!-- 还款方式选择 -->  \r\n");
+		xml.append("					<repayWayCheak>" + dataMap.get("repayWayCheak") + "</repayWayCheak>  \r\n");
+		
+		xml.append(" 			   <platformName>" + dataMap.get("platformName") + "</platformName>\r\n");
+		
+		xml.append(" 					<!-- 平台账户信息 -->        \r\n");
+		xml.append(" 	    	<profitUserName>" + dataMap.get("profitUserName")
+					+ "</profitUserName> \r\n");
+		
+		xml.append(" 		   <productName>" + dataMap.get("productName") + "</productName> \r\n");
+		xml.append(" 	    	<loanerName>" + dataMap.get("loanerName") + "</loanerName> \r\n");
+		xml.append("			<loanerRealName>" + dataMap.get("loanerRealName")
+					+ "</loanerRealName>        \r\n");
+		
+		xml.append(" 		   <guaranteer>                \r\n");
+		xml.append(" 				   <![CDATA[ " + dataMap.get("guaranteer") + " ]]>       \r\n");
+		xml.append(" 			</guaranteer>               \r\n");
+		
+		xml.append(" 		   <guaranteer_url>                \r\n");
+		xml.append(" 				   <![CDATA[丁方：" + dataMap.get("guaranteer") + " ]]>       \r\n");
+		xml.append(" 			</guaranteer_url>               \r\n");
+		
+		xml.append(" 			   <!-- 投资人流水号 -->	          \r\n");
+		xml.append("			<ENTERPRISE>        \n\r");
+		xml.append("			   <![CDATA[" + dataMap.get("ENTERPRISE") + "]]>            \n\r");
+		xml.append("			</ENTERPRISE>       \n\r");
+		
+		xml.append(" 			   <InvestorTable>            \r\n");
+		
+		for (Map<String, Text> map : investFlowCodes) {
+			xml.append(" 		           <InvestorRow>        \r\n");
+			xml.append(" 		           		<serialNO>" + map.get("TRLOWNO").getText() + "</serialNO>");
+			
+			xml.append("<investorName>" + map.get("investorName").getText() + "</investorName>\r\n");
+			
+			xml.append("<investorAccount>"
+						+ StringUtil.subString(map.get("investorAccount").getText(), 1, "****")
+						+ "</investorAccount><amout>" + map.get("TMONEY").getText()
+						+ "</amout> \r\n");
+			xml.append(" 		           </InvestorRow>       \r\n");
+		}
+		xml.append(" 	           </InvestorTable>       \r\n");
+		xml.append(" 			   <InvestorTable2>            \r\n");
+		
+		for (Map<String, Text> map : investFlowCodes) {
+			xml.append(" 		           <InvestorRow2>        \r\n");
+			xml.append(" 		           		<serialNO>" + map.get("TRLOWNO").getText() + "</serialNO>");
+			
+			xml.append("<investorName>" + map.get("investorName").getText() + "</investorName>\r\n");
+			
+			xml.append("<investorAccount>"
+						+ StringUtil.subString(map.get("investorAccount").getText(), 1, "****")
+						+ "</investorAccount><amout>" + map.get("TMONEY").getText()
+						+ "</amout> \r\n");
+			xml.append(" 		           </InvestorRow2>       \r\n");
+		}
+		xml.append(" 	           </InvestorTable2>       \r\n");
+		xml.append(" 	           <!-- 投资接受人流水编号 -->     \r\n");
+		xml.append(" 	   <financier>            \r\n");
+		xml.append(" 	       <serialNO>" + dataMap.get("RFLOWNO")
+					+ "</serialNO>                \r\n");
+		xml.append(" 	    	<loanerName>" + dataMap.get("loanerName") + "</loanerName> \r\n");
+		xml.append("			<loanerRealName>" + dataMap.get("loanerRealName")
+					+ "</loanerRealName>        \r\n");
+		xml.append(" 	    	<userName>" + dataMap.get("userName") + "</userName> \r\n");
+		xml.append(" 	    	<loanerNo>"
+					+ StringUtil.subString(dataMap.get("loanerNo"), 3, "********")
+					+ "</loanerNo> \r\n");
+		xml.append(" 	    	<loanerEmail>" + dataMap.get("loanerEmail") + "</loanerEmail> \r\n");
+		xml.append(" 	    	<loanerMobile>" + dataMap.get("loanerMobile") + "</loanerMobile> \r\n");
+		xml.append(" 	     </financier>           \r\n");
+		xml.append(" 	           <!-- 担保承诺函编号 -->       \r\n");
+		xml.append(" 	           <guaranteeLetter>      \r\n");
+		xml.append(" 	<serialNO>" + dataMap.get("DBHNO") + "</serialNO>               \r\n");
+		xml.append(" 	           </guaranteeLetter>     \r\n");
+		xml.append(" 	           <investTable>          \r\n");
+		xml.append(" 		           <!-- 还款方式 -->    \r\n");
+		xml.append("					<RepayWay>" + dataMap.get("repayWay") + "</RepayWay>        \r\n");
+		xml.append(" 		           <!-- 项目名称 -->    \r\n");
+		xml.append("					<loanName>" + dataMap.get("loanName") + "</loanName>        \r\n");
+		xml.append(" 		           <!-- 投资权益本金合计 -->    \r\n");
+		xml.append(" 					<DMONEY>" + dataMap.get("DMONEY") + "</DMONEY>     \r\n");
+		xml.append(" 					<!-- 投资权益年化收益率 -->  \r\n");
+		xml.append(" 					<PER>" + dataMap.get("PER") + "</PER>   \r\n");
+		xml.append(" 					<!-- 投资期间 -->        \r\n");
+		xml.append(" 					<SYYYY>" + dataMap.get("SYYYY") + "</SYYYY>       \r\n");
+		xml.append(" 					<SMM>" + dataMap.get("SMM") + "</SMM>             \r\n");
+		xml.append(" 					<SDD>" + dataMap.get("SDD") + "</SDD>             \r\n");
+		xml.append(" 					<!-- 回购到期日 -->            \r\n");
+		xml.append(" 					<EYYYY>" + dataMap.get("EYYYY") + "</EYYYY>       \r\n");
+		xml.append(" 					<EMM>" + dataMap.get("EMM") + "</EMM>             \r\n");
+		xml.append(" 					<EDD>" + dataMap.get("EDD") + "</EDD>             \r\n");
+		xml.append(" 					<!-- 借款用途 -->  \r\n");
+		xml.append(" 					<loanPurpose>" + dataMap.get("loanPurpose") + "</loanPurpose>   \r\n");
+		xml.append(" 			  </investTable>              \r\n");
+		xml.append(" 			</TableContract>              \r\n");
+		xml.append(" 			<TableEnd>                    \r\n");
+		xml.append(" 				<guaranteer>                \r\n");
+		xml.append(" 				   <![CDATA[ " + dataMap.get("guaranteer") + " ]]>       \r\n");
+		xml.append(" 				</guaranteer>               \r\n");
+		xml.append(" 				<PYYYY>" + dataMap.get("PYYYY") + "</PYYYY><!-- 打印日期 -->           \r\n");
+		xml.append(" 				<PMM>" + dataMap.get("PMM") + "</PMM>               \r\n");
+		xml.append(" 				<PDD>" + dataMap.get("PDD") + "</PDD>               \r\n");
+		
+		xml.append(" 	    	   <platformName>" + dataMap.get("platformName") + "</platformName>\r\n");
+		xml.append(" 		       <productName>" + dataMap.get("productName") + "</productName> \r\n");
+		xml.append(" 	    	   <loanerName>" + dataMap.get("loanerName") + "</loanerName> \r\n");
+		xml.append("			   <loanerRealName>" + dataMap.get("loanerRealName")
+					+ "</loanerRealName>  \r\n");
+		
+		xml.append(" 			</TableEnd>	                  \r\n");
+		xml.append(" 		</ReportBody><!-- 报表尾 //-->     \r\n");
+		xml.append(" 		<ReportFooter></ReportFooter>   \r\n");
+		xml.append(" 	</PageList>                       \r\n");
+		
+		return xml;
+	}
+	
+	/**
+	 * 投资凭证
+	 * @param dataMap
+	 * @return
+	 */
+	private StringBuffer getReceiptXMLData(Map<String, String> dataMap) {
+		StringBuffer xml = new StringBuffer();
+		xml.append("	<PageList3>                                                 \r\n");
+		xml.append("		<ReportBody3>                                             \r\n");
+		xml.append("			<TableBegin3> 										\r\n");
+		xml.append(" 		            <ProductName>" + dataMap.get("productName")
+					+ "</ProductName> \r\n");
+		xml.append("			</TableBegin3>                             			\r\n");
+		xml.append("			<TableContract3>                                        \r\n");
+		xml.append("				<ReceiptTable3>                                       \r\n");
+		xml.append(" 		            <ProductName>" + dataMap.get("productName")
+					+ "</ProductName> \r\n");
+		xml.append("					<PlatForm>" + dataMap.get("platformName") + "</PlatForm>     \r\n");
+		xml.append("					<PlatFormAddress>" + dataMap.get("platformAddress")
+					+ "</PlatFormAddress>  \r\n");
+		xml.append("					<GuaranteeC>" + dataMap.get("guaranteer") + "</GuaranteeC>        \r\n");
+		xml.append("					<GuaranteeNO>" + dataMap.get("CONTRACTNO") + "</GuaranteeNO>        \r\n");
+		xml.append("					<RepayWay>" + dataMap.get("repayWay") + "</RepayWay>        \r\n");
+		xml.append("				    <InterestRate>" + dataMap.get("PER") + "</InterestRate>  \r\n");
+		xml.append("				    <Period>" + dataMap.get("timeLimit") + "</Period>        \r\n");
+		xml.append("				    <ValidDate>" + dataMap.get("effectiveDate") + "</ValidDate>      \r\n");
+		xml.append("				    <ExpireDate>" + dataMap.get("expireDate") + "</ExpireDate>        \r\n");
+		xml.append("				    <InvestNO>" + dataMap.get("investFlowCode")
+					+ "</InvestNO>         \r\n");
+		xml.append("				    <InvestUserName>" + dataMap.get("investUserName")
+					+ "</InvestUserName>    \r\n");
+		xml.append("				    <InvestName>" + dataMap.get("investName")
+					+ "</InvestName>            \r\n");
+		xml.append("				    <InvestCertiNO>" + dataMap.get("investCertiNO")
+					+ "</InvestCertiNO> \r\n");
+		xml.append("				    <InvestAmount>" + dataMap.get("investAmount")
+					+ "</InvestAmount>       \r\n");
+		xml.append("				    <Interest>" + dataMap.get("interest") + "</Interest>  \r\n");
+		xml.append("				    <ReceivableAmount>" + dataMap.get("receivableAmount")
+					+ "</ReceivableAmount>    \r\n");
+		xml.append("				    <LoanerUserName>" + dataMap.get("loanerUserName")
+					+ "</LoanerUserName>        \r\n");
+		xml.append("				    <LoanerName>" + dataMap.get("loanerRealName")
+					+ "</LoanerName>            \r\n");
+		xml.append("				    <loanerRealName>" + dataMap.get("loanerRealName")
+					+ "</loanerRealName>        \r\n");
+		xml.append("				    <LoanePurpose>" + dataMap.get("loanPurpose")
+					+ "</LoanePurpose>         \r\n");
+		xml.append("				    <LoanerCertiNO>" + dataMap.get("loanerCertiNO")
+					+ "</LoanerCertiNO> \r\n");
+		xml.append("				    <LoanerCertiNO2>" + dataMap.get("loanerCertiNO2")
+					+ "</LoanerCertiNO2> \r\n");
+		xml.append("				    <PayableAmount>" + dataMap.get("receivableAmount")
+					+ "</PayableAmount>   \r\n");
+		xml.append("				</ReceiptTable3>                                      \r\n");
+		xml.append(" 		        <ProductName>" + dataMap.get("productName") + "</ProductName> \r\n");
+		xml.append("				<PlatForm>" + dataMap.get("platformName") + "</PlatForm>     \r\n");
+		xml.append("				<PlatFormAddress>" + dataMap.get("platformAddress")
+					+ "</PlatFormAddress>  \r\n");
+		
+		xml.append("			</TableContract3>                                       \r\n");
+		xml.append("			<TableEnd></TableEnd>                                   \r\n");
+		xml.append("		</ReportBody3>                                            \r\n");
+		xml.append("		<ReportFooter3></ReportFooter3>                           \r\n");
+		xml.append("	</PageList3>                                                \r\n");
+		return xml;
+	}
+	
+	@Override
+	public byte[] getXslData() throws IOException {
+		Map<String, String> replacer = creatReplacerMap();
+		String rs = this.pdfTemplateInfo.getXslContent();
+		if (replacer != null) {
+			for (String key : replacer.keySet()) { //替换关键字
+				rs = rs.replace(key, replacer.get(key));
+			}
+		}
+		logger.debug(rs);
+		return rs.getBytes("utf-8");
+	}
+	
+	@Override
+	public String getExtName() {
+		long detailId = 0;
+		if (detailInfo != null) {
+			detailId = detailInfo.getTradeDetailId();
+		}
+		TradeInfo tradeInfo = this.loanDemand.getTradeInfo();
+		String encryptStr = MD5Util.getMD5_16(tradeInfo.getTradeId() + "").substring(0, 6);
+		String loanName = "[" + tradeInfo.getTradeId() + "_" + detailId + "_" + encryptStr + "]";
+		String extName = loanName + this.pdfTemplateInfo.getPdfName() + ".pdf";
+		return extName;
+	}
+	
+	@Override
+	public Map<String, String> creatReplacerMap() {
+		
+		//http://127.0.0.1:8085   AppConstantsUtil.getHostHttpUrl()
+		String stamp_url = AppConstantsUtil.getHostHttpUrl() + "/styles/images/home/stamp_"
+							+ this.institutionsInfo.getOrganizationCode() + ".jpg";
+		
+		boolean exists = isImgExists(stamp_url);
+		logger.info("stamp_url:" + stamp_url + " exists:" + exists);
+		Map<String, String> replacer = new HashMap<String, String>();
+		
+		replacer.put("stamp_url", stamp_url);
+		return replacer;
+	}
+	
+}

@@ -1,0 +1,39 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	//点击重置密码
+	$('.resetPassword').click(function() {
+		var userId = $("#userId").val();
+		$.ajax({  
+		    type: 'post',  
+		    url: '/admin/systemUserManage/resetLogPassword.json',  
+		    dataType: 'json',  
+		    data: "userId="+userId,  
+		    success: function(jsonStr){ 
+		    	alert(jsonStr.message);
+		    },  
+		    error: function(text) {}  
+		});  
+		return false;
+	})
+	
+	
+	
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

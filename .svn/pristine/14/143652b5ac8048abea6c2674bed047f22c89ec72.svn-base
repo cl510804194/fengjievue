@@ -1,0 +1,10 @@
+package com.yjf.esupplier.dal.custom.dataobject;
+
+import com.yjf.esupplier.dal.dataobject.TblProductDO;
+
+import java.io.Serializable;
+
+public class ProductDO extends TblProductDO implements Serializable {
+	private static final long serialVersionUID = 1093806792538193786L;
+	
+}

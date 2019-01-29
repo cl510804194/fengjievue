@@ -1,0 +1,81 @@
+package com.yjf.esupplier.service.user.info;
+
+import java.util.Date;
+
+import com.yjf.esupplier.service.user.order.RegisterBaseOrder;
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class FeebackOptionInfo  extends QueryPageBase{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private long id;
+
+	private String options;
+
+	private String phoneEmail;
+
+	private Date rawAddTime;
+
+	private Date rawUpdateTime;
+
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getOptions() {
+		return options;
+	}
+
+	public void setOptions(String options) {
+		this.options = options;
+	}
+
+	public String getPhoneEmail() {
+		return phoneEmail;
+	}
+
+	public void setPhoneEmail(String phoneEmail) {
+		this.phoneEmail = phoneEmail;
+	}
+
+	public Date getRawAddTime() {
+		return rawAddTime;
+	}
+
+	public void setRawAddTime(Date rawAddTime) {
+		this.rawAddTime = rawAddTime;
+	}
+
+	public Date getRawUpdateTime() {
+		return rawUpdateTime;
+	}
+
+	public void setRawUpdateTime(Date rawUpdateTime) {
+		this.rawUpdateTime = rawUpdateTime;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("FeebackOption [id=");
+		builder.append(id);
+		builder.append(",options =");
+		builder.append(options);
+		builder.append(",phoneEmail =");
+		builder.append(phoneEmail);
+		builder.append(",rawAddTime =");
+		builder.append(rawAddTime);
+		builder.append(",rawUpdateTime =");
+		builder.append(rawUpdateTime);
+		builder.append("]");
+		return builder.toString();
+	}
+}

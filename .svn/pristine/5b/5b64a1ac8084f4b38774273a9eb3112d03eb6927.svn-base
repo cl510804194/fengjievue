@@ -1,0 +1,19 @@
+@CHARSET "UTF-8";
+	div.col {float: left;}
+	div.colFix {float: left; width: 100%; overflow: hidden; text-overflow:ellipsis;}
+	div.colRight {float: right;}
+	div.row {clear: both;}
+	div.roc {clear: both; float: left;} 
+	div.rocFix {clear: both; float: left; width: 100%; overflow: hidden; text-overflow:ellipsis;}
+	div.grid0 {padding-bottom: 1px; border-bottom-style: none}
+	div.grid1 {padding-bottom: 1px; border-bottom-style: solid; border-bottom-color: #CCCCCC; border-bottom-width: 1px;}
+	div.nowrap{white-space: nowrap;}
+	div.cartItem{margin: 6px; text-align: left;}
+	div.cartImage{margin-left: 0px; margin-top: 0px; margin-right: 4px; margin-bottom: 0px; }
+	span.cartPrice{font-size: 12pt; font-family: 'Arial';}
+	span.cartPriceOriginal{font-size: 12pt; font-family: 'Arial'; color: red; text-decoration: line-through;}
+	span.cartName{font-size: 12pt;}
+	span.cartSupplier{font-size: 10pt;}
+	input.cartQuantity{font-size: 10pt; width: 23px; text-align: center; border-left: none; border-top: none; border-right: none; border-bottom: solid 1px;}
+	button.cartQuantity{font-family: 'Arial Black'; padding-left: 4px; padding-top: 0px; padding-right: 4px; padding-botton: 0px; }
+	button.cartButton{padding: 0px; margin: 0px; cursor: hand;}

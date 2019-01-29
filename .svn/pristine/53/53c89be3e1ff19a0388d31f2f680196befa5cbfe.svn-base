@@ -1,0 +1,26 @@
+package com.yjf.esupplier.service.contract.order;
+
+import com.yjf.esupplier.ws.order.ProcessOrder;
+
+public class RefundOrder extends ProcessOrder {
+	private static final long serialVersionUID = 9002440359241638552L;
+	long refundItemId;
+	
+	public long getRefundItemId() {
+		return this.refundItemId;
+	}
+	
+	public void setRefundItemId(long refundItemId) {
+		this.refundItemId = refundItemId;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("RefundOrder [refundItemId=");
+		builder.append(refundItemId);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

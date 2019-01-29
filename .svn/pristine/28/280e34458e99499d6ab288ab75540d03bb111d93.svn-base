@@ -1,0 +1,21 @@
+yrd.task.timer.runIp=192.168.45.212
+# 系统缓存webService服务
+yrd.webService.runIpOne = http://192.168.49.26:8080/services
+yrd.webService.runIpTwo = http://192.168.49.26:8080/services
+sys.function.trade.ischarge=Y
+sys.function.trade.accountid=20140726020000047189
+sys.function.alleconomicman=N
+sys.function.sendMesToBroker=N
+
+#按月还款模式（allRole所有角色的分润都按月付，investor仅投资人）
+sys.function.monthMode=investor  
+#支持数据库pdf合同未上线前，平台用的PDFTypeCode 
+sys.function.historyPDFTypeCode=contract_e8
+
+
+#短信群发专用通道
+sys.sms.serviceurl=http://postman.yiji.com/services
+sys.sms.appkey=yiba
+sys.sms.appsecret=a835ff7864be43e4ba97bd346131a733
+sys.sms.env=test
+sys.sms.subcode_name=touziwuyou_broadcast

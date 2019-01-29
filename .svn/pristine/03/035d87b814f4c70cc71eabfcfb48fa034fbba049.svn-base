@@ -1,0 +1,17 @@
+package com.yjf.esupplier.service.product;
+
+import java.util.List;
+
+import com.yjf.esupplier.ws.bill.info.LogisticInfo;
+import com.yjf.esupplier.ws.product.info.DeliveryInfo;
+
+public interface DeliveryService {
+	
+	List<DeliveryInfo> getDelivery(long productId);
+
+	DeliveryInfo getDeliveryByArea(long productId,String area);
+	
+	List<LogisticInfo> loadAllEnableLogisticsList();
+	
+	LogisticInfo loadLogisticsById(long logisticInfoId);
+}

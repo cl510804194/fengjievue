@@ -1,0 +1,18 @@
+﻿#-- \u4f1a\u5458\u5ba1\u6838\u72b6\u6001 --
+MemberApproveState.None=\u672a\u77e5 
+MemberApproveState.MailVerify=<font color=green>\u90ae\u4ef6\u9a8c\u8bc1</font>
+MemberApproveState.ManualVerify=<font color=blue>\u4eba\u5de5\u5ba1\u6838
+MemberApproveState.Rejected=\u5df2\u88ab\u62d2\u7edd
+MemberApproveState.Completed=<font color=red>\u5df2\u7ecf\u5b8c\u6210</font>
+# \u4f9b\u5e94\u5546\u7ecf\u8425\u72b6\u6001
+SupplierRunState.Opening=\u6b63\u5728\u8425\u4e1a
+SupplierRunState.Suspend=\u6682\u505c\u8425\u4e1a
+SupplierRunState.Closed=\u6e05\u7b97\u9000\u51fa
+# \u4f1a\u5458\u9501\u5b9a\u72b6\u6001
+MemberLockState.Unlocked=<font color=blue>\u81ea\u7531</font>
+MemberLockState.Locked=<font color=red>\u51bb\u7ed3</font>
+MemberLockState.None=\u672a\u77e5
+
+# \u8ba2\u5355-\u5bf9\u4f9b\u5e94\u5546\u7684\u8bc4\u4ef7
+supplierMessage=\u9009\u586b\uff0c\u53ef\u544a\u8bc9\u5356\u5bb6\u4f60\u5bf9\u5546\u54c1\u7684\u7279\u6b8a\u8981\u6c42\uff0c\u5982\u989c\u8272\u3001\u5c3a\u7801
+###############

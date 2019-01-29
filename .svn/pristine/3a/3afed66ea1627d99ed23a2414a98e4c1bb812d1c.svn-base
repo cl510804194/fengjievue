@@ -1,0 +1,458 @@
+package yrd.app;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import testbase.ServiceAutoTestBase;
+
+import com.alibaba.fastjson.JSONObject;
+import com.autotest.annotation.AutoTestCase;
+import com.autotest.runner.AutoTestJUnit4ClassRunner;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.dal.dataobject.PaymentFlowDO;
+import com.yjf.esupplier.dal.dataobject.TblOrderInfoDO;
+import com.yjf.esupplier.dal.dataobject.TblOrderItemDO;
+import com.yjf.esupplier.dal.dataobject.TblProductDO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.dal.dataobject.UserLoginLogDO;
+import com.yjf.esupplier.web.util.AESUtil;
+import com.yjf.esupplier.ws.bill.enums.OrderFlowStatus;
+import com.yjf.esupplier.ws.bill.enums.OrderStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.PaymentMethodEnum;
+import com.yjf.esupplier.ws.bill.enums.PrintReceiptStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.TakeWaysEnum;
+import com.yjf.esupplier.ws.common.enums.PaymentTypeEnum;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.pay.enums.PaymentFlowMode;
+import com.yjf.esupplier.ws.pay.enums.PaymentFlowStatus;
+import com.yjf.esupplier.ws.product.enums.RefundRuleEnum;
+@RunWith(AutoTestJUnit4ClassRunner.class)
+public class AppShopOrScanPayTest extends ServiceAutoTestBase {
+
+	/*
+	 * 测试方向：(均未使用积分和优惠券)
+	 * 1001 未登录
+	 * 1002 订单类型有误，不是团购或者到店付类型(订单类型为空)
+	 * 1003 团购扫码付款，没有查到该商品信息
+	 * 1004 团购扫码付款，易首付支付成功(获取支付链接成功)
+	 * 1005 到店付，生成订单失败(没有查到卖家信息)
+	 * 1006 到店付，余额支付失败(支付密码错误)
+	 * 1007 到店付，余额支付成功
+	 */
+	@Test
+	@AutoTestCase(file = "yrd/app/appShopOrScanPayTestSuccess.csv", 
+			description = "到店或者扫码付款,成功用例")
+	public void appShopOrScanPayTestSuccess(int testId,
+											 String userName,
+											 String mobile,
+											 String logPassword,
+											 long productId,
+											 String payType,
+											 long supplierId,
+											 String amount,
+											 String payWay,
+											 String payPwd,
+											 String productName,
+											 String productNumber,
+											 String productStatus,
+											 String productUnit,
+											 long reservedCount,
+											 long saleCount,
+											 long viewCount,
+											 String postType,
+											 Money price1,
+											 String supplierName,
+											 String smallPicPath,
+											 String userBaseId1,
+											 long userId1,
+											 String realName1,
+											 String accountId1,
+											 String linkCode1,
+											 String mobile1,
+											 String nickname1,
+											 long belongTo1,
+											 String scenicId){
+		long userId=0;
+		String userBaseId="";
+		TblProductDO tblProductDOex=null;
+		TblSupplierDO tblSupplierDOex=null;
+		TblOrderInfoDO tblOrderInfoDO=null;
+		//清除数据
+		clearnPointsRuleByRuleType("REGISTER");
+		clearnPointsRuleByRuleType("LOGIN");
+		UserBaseInfoDO userBaseInfoDO=findUserBaseInfoByUserName(userName);
+		if (userBaseInfoDO!=null) {
+			userId=userBaseInfoDO.getUserId();
+			userBaseId=userBaseInfoDO.getUserBaseId();
+		}
+		clearnUserRoleByUserId(userId);
+		clearnUserByUserName(userName);
+		clearnPersonaInfoByUserBaseId(userBaseId);
+		clearnUserBaseInfoByUserName(userName);
+		clearnUserAccountDataByUserId(userId);
+		clearnUserExtendByUserId(userId);
+		clearnUserLogin(userName);
+		
+		clearnTblProductByProductId(productId);
+		clearnUserBaseInfoByUserId(supplierId);
+		clearnTblSupplierById(supplierId);
+		
+		// 准备数据
+		logger.info("更新系统参数");
+		updateSysParamInfoDOByParamName("SYS_PARAM_HUA_HONG_IS_USE","Y");
+		updateSysParamInfoDOByParamName("SYS_PARAM_OPEN_API_URL_KEY",
+				"http://127.0.0.1:5555/gateway.html");
+		updateSysParamInfoDOByParamName("SYS_PARAM_YJF_OPEN_API_URL",
+				"http://127.0.0.1:5555/gateway.html");
+		sysParameterService.clearCache();
+		
+		// 测试过程
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response =null;
+		String conResult =null;
+		JSONObject jobj =null;
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("msg", getStringFromJson(new JSONObject())));
+			HttpEntity httpEntity=new UrlEncodedFormEntity(nameValuePairs, "UTF-8");
+
+			if (testId!=1001) {
+				//获取图片验证码
+				String getImgCodeUrl="http://127.0.0.1:8085/app/getImgCode.htm";
+				HttpPost getImgCodeHP = new HttpPost(getImgCodeUrl);
+				getImgCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				getImgCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(getImgCodeHP);
+				getImgCodeHP.releaseConnection();
+				
+				
+				//发送短信验证码(register注册)
+				String sendSmsCodeUrl="http://127.0.0.1:8085/app/sendSmsCode.htm?mobile="+mobile+"&business=register";
+				HttpPost sendSmsCodeHP = new HttpPost(sendSmsCodeUrl);
+				sendSmsCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				sendSmsCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(sendSmsCodeHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				sendSmsCodeHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				assertEquals(1, jobj.get("code"));
+				assertEquals("发送手机验证码成功", jobj.get("message"));	
+				
+				
+				//提交注册信息
+				String registerSubmitUrl="http://127.0.0.1:8085/app/registerSubmit.htm?userName="+userName+
+						"&mobile="+mobile+"&logPassword="+AESUtil.encode(logPassword)+"&code=888888&imgCode=8888";
+				HttpPost registerSubmitHP = new HttpPost(registerSubmitUrl);
+				registerSubmitHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				registerSubmitHP.setEntity(httpEntity);
+				response = httpclient.execute(registerSubmitHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				registerSubmitHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("注册成功", jobj.get("message"));
+				assertEquals(0, jobj.get("giftMoney"));
+				assertEquals("无优惠券信息", jobj.get("giftMoneyMessage"));
+				//数据校验
+				userBaseInfoDO=findUserBaseInfoByUserName(userName);
+				userId=userBaseInfoDO.getUserId();
+				userBaseId=userBaseInfoDO.getUserBaseId();
+				assertEquals(mobile, userBaseInfoDO.getMobile());
+				assertEquals(userName, userBaseInfoDO.getUserName());
+				assertEquals(MD5Util.getMD5_32(logPassword), userBaseInfoDO.getLogPassword());
+			}
+			
+			
+			//到店或者扫码付款
+			if (testId==1002) {
+				payType="";
+			}else if (testId==1003||testId==1004) {
+				payType="O2O";
+				payWay="YI_SHOU_FU";
+			}else if (testId==1005||testId==1006||testId==1007) {
+				payType="PAY_TO_SHOP";
+				payWay="BALANCE_PAYMENT";
+				if (testId==1007) {
+					payPwd="888888";//注册时默认
+				}
+			}
+			if (testId!=1003) {
+				insertTblProductIncomplete(productId, supplierId, productName, productNumber, productStatus,
+						productUnit, reservedCount, saleCount, viewCount, postType);
+				tblProductDOex=findTblProductByProductId(productId);
+				tblProductDOex.setPrice1(price1);
+				tblProductDOex.setSupplierName(supplierName);
+				tblProductDOex.setSmallPicPath(smallPicPath);
+				tblProductDOex.setSaleTypeO2o(BooleanEnum.YES.code());
+				tblProductDAO.update(tblProductDOex);//产品信息
+			}
+			if (testId!=1005) {
+				insertUserBaseInfo(userBaseId1, supplierId, supplierName, realName1,"888","587","JG","NORMAL","YES",0,
+						accountId1,linkCode1, mobile1, nickname1, 0);//商户基本用户信息
+			}
+			insertTblSupplierIncomplete(supplierId, userBaseId1, scenicId);
+			tblSupplierDOex=findTblSupplierById(supplierId);
+			tblSupplierDOex.setRealName(realName1);
+			tblSupplierDAO.update(tblSupplierDOex);//商户信息
+			
+			String shopOrScanPayUrl="http://127.0.0.1:8085/app/shopOrScanPay.htm?productId="+productId+"&payType="
+					+payType+"&supplierId="+supplierId+"&amount="+amount+"&payWay="+payWay+"&payPwd="+payPwd;
+			HttpPost shopOrScanPayHP = new HttpPost(shopOrScanPayUrl);
+			shopOrScanPayHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+			shopOrScanPayHP.setEntity(httpEntity);
+			response = httpclient.execute(shopOrScanPayHP);
+			/*读返回数据*/
+			conResult = EntityUtils.toString(response.getEntity());
+			jobj = JSONObject.parseObject(conResult);
+			shopOrScanPayHP.releaseConnection();
+			System.out.println(jobj.get("code"));
+			System.out.println(jobj.get("message"));
+			//验证结果
+			tblOrderInfoDO=findTblOrderInfoByUserId(userId);
+			List<TblOrderItemDO> tblOrderItemDOlist=findTblOrderItemByOrderId(tblOrderInfoDO==null?0:tblOrderInfoDO.getId());
+			TblOrderItemDO tblOrderItemDO=null;
+			if (!tblOrderItemDOlist.isEmpty()) {
+				tblOrderItemDO=tblOrderItemDOlist.get(0);
+			}
+			PaymentFlowDO paymentFlowDO=findPaymentFlowByUserId(userId);
+			UserBaseInfoDO userBaseInfoDO1ex=findUserBaseInfoByUserId(supplierId);
+			
+			if (testId==1001) {
+				assertEquals(-1, jobj.get("code"));
+				assertEquals("未登录或登录失效", jobj.get("message"));
+			}else if (testId==1002) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("订单类型有误", jobj.get("message"));
+			}else if (testId==1003) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("未找到该商品", jobj.get("message"));
+			}else if (testId==1004) {
+				assertEquals(1, jobj.get("code"));
+				assertEquals("获取支付链接成功", jobj.get("message"));
+				assertEquals(AppConstantsUtil.getYiShouHuUrl()+"?tradeNo=88888888",jobj.get("url"));
+			}else if (testId==1005) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("找不到买家或者卖家", jobj.get("message"));
+			}else if (testId==1006) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("余额支付密码错误！", jobj.get("message"));
+			}else if (testId==1007) {
+				assertEquals(1, jobj.get("code"));
+				assertEquals("支付成功", jobj.get("message"));
+			}
+			
+			if (testId==1004||testId==1007) {
+				//tbl_order_info表
+				if (testId==1004) {
+					assertEquals(TEST_LONG, tblOrderInfoDO.getOperatorId());
+					assertNull(tblOrderInfoDO.getOperatorTime());
+					assertNull(tblOrderInfoDO.getConfirmReceiptTime());
+					assertEquals(OrderFlowStatus.WAIT_BUYER_PAY.code(), tblOrderInfoDO.getWorkflowStatus());
+					assertEquals(OrderStatusEnum.WFK.code(), tblOrderInfoDO.getOrderStatus());
+					assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getIsPayed());
+					assertNull(tblOrderInfoDO.getPayedTime());
+					assertNull(tblOrderInfoDO.getRawUpdateTime());
+					assertNull(tblOrderInfoDO.getPaymentFlowId());
+					assertEquals(tblProductDOex.getResortsBusinessId(), tblOrderInfoDO.getResortsBusinessId());
+					assertEquals(tblProductDOex.getResortsBusinessName(), tblOrderInfoDO.getResortsBusinessName());
+					assertEquals(tblProductDOex.getResortsBusinessRealName(), tblOrderInfoDO.getResortsBusinessRealName());
+					assertEquals(tblProductDOex.getFacade(), tblOrderInfoDO.getFacade());
+					assertEquals(price1, tblOrderInfoDO.getTotalAmount());
+					assertEquals(tblProductDOex.getGroupPurchaseBeginTime(),tblOrderInfoDO.getGroupPurchaseBeginTime());
+					assertEquals(tblProductDOex.getGroupPurchaseEndTime(),tblOrderInfoDO.getGroupPurchaseEndTime());
+					assertEquals(tblProductDOex.getPostType(),tblOrderInfoDO.getPostType());
+					assertEquals(PaymentMethodEnum.ONLINE.code(), tblOrderInfoDO.getPaymentMethod());
+					assertEquals(userBaseInfoDO.getUserId(), tblOrderInfoDO.getUserId());
+					assertEquals(mobile,tblOrderInfoDO.getDrawerNumber());
+				}else if (testId==1007) {
+					assertEquals(-1l, tblOrderInfoDO.getOperatorId());
+					assertNotNull(tblOrderInfoDO.getOperatorTime());
+					assertNotNull(tblOrderInfoDO.getConfirmReceiptTime());
+					assertEquals(OrderFlowStatus.CONFIRMATION_OF_RECEIPT.code(), tblOrderInfoDO.getWorkflowStatus());
+					assertEquals(OrderStatusEnum.JYC.code(), tblOrderInfoDO.getOrderStatus());
+					assertEquals(BooleanEnum.YES.code(), tblOrderInfoDO.getIsPayed());
+					assertNotNull(tblOrderInfoDO.getPayedTime());
+					assertNotNull(tblOrderInfoDO.getRawUpdateTime());
+					assertEquals(paymentFlowDO.getPaymentFlowId(),tblOrderInfoDO.getPaymentFlowId());
+					assertEquals(userBaseInfoDO1ex.getUserId(), tblOrderInfoDO.getResortsBusinessId());
+					assertEquals(userBaseInfoDO1ex.getNickname(), tblOrderInfoDO.getResortsBusinessName());
+					assertEquals(userBaseInfoDO1ex.getRealName(), tblOrderInfoDO.getResortsBusinessRealName());
+					assertEquals(RefundRuleEnum.CAN_NOT.code(), tblOrderInfoDO.getFacade());
+					assertEquals(new Money(NumberUtil.parseDouble(amount)), tblOrderInfoDO.getTotalAmount());
+					assertNull(tblOrderInfoDO.getGroupPurchaseBeginTime());
+					assertNull(tblOrderInfoDO.getGroupPurchaseEndTime());
+					assertEquals("0",tblOrderInfoDO.getPostType());
+					assertEquals(PaymentMethodEnum.PAY_TO_SHOP.code(), tblOrderInfoDO.getPaymentMethod());
+					assertEquals(userId, tblOrderInfoDO.getUserId());
+					assertNull(tblOrderInfoDO.getDrawerNumber());
+				}
+				assertEquals(supplierId, tblOrderInfoDO.getSupplierId());
+				assertEquals(realName1, tblOrderInfoDO.getSupplierName());
+				assertEquals(BooleanEnum.YES.code(),tblOrderInfoDO.getSaleTypeO2o());
+				assertEquals(userName, tblOrderInfoDO.getBuyerNickname());
+				assertNotNull(tblOrderInfoDO.getBatchNo());
+				assertNotNull(tblOrderInfoDO.getId());
+				assertNotNull(tblOrderInfoDO.getCreateTime());
+				assertNotNull(tblOrderInfoDO.getRawAddTime());
+				assertEquals(TEST_MONEY_YC,tblOrderInfoDO.getGainMoney());
+				assertEquals(TEST_MONEY_YC,tblOrderInfoDO.getUserPointAmount());
+				assertEquals(TEST_LONG, tblOrderInfoDO.getUserPoint());
+				assertEquals(TEST_MONEY_YC, tblOrderInfoDO.getPostFee());
+				assertNull(tblOrderInfoDO.getSpecialExplain());
+				assertNull(tblOrderInfoDO.getCity());
+				assertNull(tblOrderInfoDO.getCounty());
+				assertNull(tblOrderInfoDO.getProvince());
+				assertNull(tblOrderInfoDO.getDetailAddress());
+				assertNull(tblOrderInfoDO.getDrawerName());
+				assertNull(tblOrderInfoDO.getDrawerTel());
+				assertNull(tblOrderInfoDO.getZipCode());
+				assertEquals(TEST_LONG, tblOrderInfoDO.getTakegoodsId());
+				assertEquals(TEST_MONEY_YC,tblOrderInfoDO.getGiftMoney());
+				assertEquals(BooleanEnum.NO.code(), tblOrderInfoDO.getSaleTypeHotels());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getSaleTypeB2c());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getValidationStatus());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getDelStatus());
+				assertEquals(TakeWaysEnum.DELIVERY.code(),tblOrderInfoDO.getTakeWays());
+				assertNull(tblOrderInfoDO.getSellerDelete());
+				assertNull(tblOrderInfoDO.getBuyerDelete());
+				assertNull(tblOrderInfoDO.getAreaCode());
+				assertNull(tblOrderInfoDO.getRefundStatus());
+				assertNull(tblOrderInfoDO.getSellerMemo());
+				assertNull(tblOrderInfoDO.getQrCode());
+				assertNull(tblOrderInfoDO.getSendStatus());
+				assertNull(tblOrderInfoDO.getSendTime());
+				assertNull(tblOrderInfoDO.getValidationTime());
+				assertEquals(PrintReceiptStatusEnum.NOT_PRINT.code(),tblOrderInfoDO.getPrintReceipt());
+				assertNull(tblOrderInfoDO.getDeliverTime());
+				assertEquals(TEST_LONG, tblOrderInfoDO.getDiliverymanId());
+				assertNull(tblOrderInfoDO.getDiliverymanName());
+				
+				//tbl_order_items表
+				if (testId==1004) {
+					assertEquals(productName, tblOrderItemDO.getItemProductName());
+					assertEquals(productId, tblOrderItemDO.getItemProductId());
+					assertEquals(smallPicPath,tblOrderItemDO.getPicPath());
+					assertEquals(price1, tblOrderItemDO.getProPrice());
+					assertNotNull(tblOrderItemDO.getRawAddTime());
+				}else if (testId==1007) {
+					assertEquals("到店付", tblOrderItemDO.getItemProductName());
+					assertEquals(TEST_LONG, tblOrderItemDO.getItemProductId());
+					assertNull(tblOrderItemDO.getPicPath());
+					assertEquals(new Money(NumberUtil.parseDouble(amount)), tblOrderItemDO.getProPrice());
+					assertNull(tblOrderItemDO.getRawAddTime());
+				}
+				assertNotNull(tblOrderItemDO.getId());
+				assertEquals(tblOrderInfoDO.getId(), tblOrderItemDO.getOrderId());
+				assertEquals(1l, tblOrderItemDO.getQuantity());
+				assertEquals(TEST_MONEY_YC, tblOrderItemDO.getPostFree());
+				assertNull(tblOrderItemDO.getBeginTime());
+				assertNull(tblOrderItemDO.getEndTime());
+				assertNull(tblOrderItemDO.getRoomType());
+				assertNull(tblOrderItemDO.getRawUpdateTime());
+				
+				//payment_flow表
+				Money payMoney=tblOrderInfoDO.getTotalAmount().subtract(tblOrderInfoDO.getGainMoney())
+						.subtract(tblOrderInfoDO.getGiftMoney()).subtract(tblOrderInfoDO.getUserPointAmount());
+				if (testId==1004) {
+					assertEquals(PaymentTypeEnum.YI_SHOU_FU.code(),paymentFlowDO.getPaymentType());
+					assertEquals("88888888",paymentFlowDO.getTradeNo());//MOCK返回的tradeNo
+					assertNull(paymentFlowDO.getRawUpdateTime());
+					assertEquals(PaymentFlowStatus.INIT.code(),paymentFlowDO.getStatus());
+					assertNull(paymentFlowDO.getPaymentSuccessDate());
+				}else if (testId==1007) {//余额支付不需要再调用结果处理
+					assertEquals(PaymentTypeEnum.BALANCE_PAYMENT.code(),paymentFlowDO.getPaymentType());
+					assertNull(paymentFlowDO.getTradeNo());
+					assertNotNull(paymentFlowDO.getRawUpdateTime());
+					assertEquals(PaymentFlowStatus.SUCCESS.code(),paymentFlowDO.getStatus());
+					assertNotNull(paymentFlowDO.getPaymentSuccessDate());
+				}
+				assertNotNull(paymentFlowDO.getPaymentFlowId());
+				assertNotNull(paymentFlowDO.getOrderNo());
+				assertEquals(String.valueOf(tblOrderInfoDO.getId()),paymentFlowDO.getOrderIds());
+				assertEquals(PaymentFlowMode.TRADE_PAY.getCode(),paymentFlowDO.getPaymentMode());
+				assertEquals(payMoney,paymentFlowDO.getPaymentAmount());
+				assertNotNull(paymentFlowDO.getRawAddTime());
+				assertEquals(userId,paymentFlowDO.getUserId());
+				assertEquals(userBaseInfoDO.getUserName(),paymentFlowDO.getUserName());
+				assertEquals(userBaseInfoDO.getRealName(),paymentFlowDO.getRealName());
+				assertNotNull(paymentFlowDO.getPaymentDate());
+				assertNull(paymentFlowDO.getBankCode());
+				assertEquals(TEST_MONEY_YC,paymentFlowDO.getRedPay());
+				assertEquals(TEST_LONG,paymentFlowDO.getIntegralPay());
+				assertEquals(TEST_MONEY_YC,paymentFlowDO.getTicketAmount());
+				assertNull(paymentFlowDO.getRefundStatus());
+				assertEquals(TEST_MONEY_YC,paymentFlowDO.getRefundAmount());
+				assertEquals(TEST_LONG,paymentFlowDO.getTicketId());
+				assertNull(paymentFlowDO.getExtOrder());
+				assertNull(paymentFlowDO.getExtOrder1());
+			}
+			//清除数据
+			clearnUserRoleByUserId(userId);
+			clearnUserByUserName(userName);
+			clearnPersonaInfoByUserBaseId(userBaseId);
+			clearnUserBaseInfoByUserName(userName);
+			clearnUserAccountDataByUserId(userId);
+			clearnUserExtendByUserId(userId);
+			clearnUserLogin(userName);
+			//清除登录日志
+			List<UserLoginLogDO> userLoginLogDOlist=findUserLoginLogByUserId(userId);
+			if (!userLoginLogDOlist.isEmpty()) {
+				for (int i = 0; i < userLoginLogDOlist.size(); i++) {
+					UserLoginLogDO userLoginLogDO=userLoginLogDOlist.get(i);
+					if (userLoginLogDO!=null) {
+						clearnUserLoginLogById(userLoginLogDO.getTblBaseId());
+					}
+				}
+			}
+			
+			clearnTblProductByProductId(productId);
+			clearnUserBaseInfoByUserId(supplierId);
+			clearnTblSupplierById(supplierId);
+			clearnTblOrderInfoByUserId(userId);
+			clearnTblOrderItemByOrderId(tblOrderInfoDO==null?0:tblOrderInfoDO.getId());
+			clearnPaymentFlowByUserId(userId);
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static String getStringFromJson(JSONObject adata) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		for (Object key : adata.keySet()) {
+			sb.append("\"" + key + "\":\"" + adata.get(key) + "\",");
+		}
+		String rtn = sb.toString().substring(0, sb.toString().length() - 1)
+				+ "}";
+		return rtn;
+	}
+}

@@ -1,0 +1,12 @@
+# To change this template, choose Tools | Templates
+# and open the template in the editor.
+
+#\u7cfb\u7edf\u8def\u5f84\u914d\u7f6e\u6587\u4ef6
+#
+asn.tradeReview.action.path = /do/tRview
+asn.order.toConfirmInfoPage.action.path = /front/toConfirmInfoPage
+asn.order.saveOrderInfo.action.path = /front/saveOrderInfo
+asn.order.infoConfirm.action.path = /front/infoConfirm
+asn.order.findOrderById.action.path = /front/findOrderById
+##
+##

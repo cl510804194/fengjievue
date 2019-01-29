@@ -1,0 +1,49 @@
+package com.yjf.esupplier.service.user.order;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yjf.esupplier.ws.enums.SysUserRoleEnum;
+
+public class MarketingOpenBrokerOrder extends BrokerOpenInvestorOrder {
+	
+	private static final long serialVersionUID = -633356321536160391L;
+	String servletPath;
+	
+	public MarketingOpenBrokerOrder() {
+		super();
+		List<SysUserRoleEnum> roles = new ArrayList<SysUserRoleEnum>();
+		roles.add(SysUserRoleEnum.BUYER);
+		this.setRole(roles);
+	}
+	
+	public String getServletPath() {
+		return this.servletPath;
+	}
+	
+	public void setServletPath(String servletPath) {
+		this.servletPath = servletPath;
+	}
+	
+	@Override
+	public void check() {
+		super.check();
+		validateHasText(mail, "电子邮箱");
+		validateHasText(realName, "真实姓名");
+		validateHasZore(brokerUserId, "经纪机构UserId");
+		validateHasText(servletPath, "服务器路径");
+		
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MarketingOpenBrokerOrder [servletPath=");
+		builder.append(servletPath);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

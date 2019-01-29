@@ -1,0 +1,36 @@
+DELETE FROM app_equipment_login;
+DELETE FROM user_account_data WHERE user_id NOT IN (45572,1);
+DELETE FROM USER WHERE user_id NOT IN (45572,1);
+DELETE FROM tbl_supplier WHERE supplier_id NOT IN (45572,1);
+DELETE FROM user_base_info WHERE user_id NOT IN (45572,1);
+DELETE FROM user_role WHERE user_id NOT IN (45572,1);
+DELETE FROM user_login WHERE  user_id NOT IN (45572,1);
+DELETE FROM personal_info WHERE user_id NOT IN (45572,1);
+delete from gift_info;
+delete from gift_money;
+delete from gift_money_rule;
+delete from gift_money_template;
+delete from gift_money_template_rule;
+delete from gift_money_trade;
+delete from gift_use_record;
+delete from tbl_storage;
+delete from tbl_storage_inout;
+delete from tbl_storage_inout_detail;
+delete from tbl_scenic_info;
+delete from tbl_order_info;
+delete from tbl_order_items;
+delete from tbl_product;
+delete from tbl_product_custom;
+delete from tbl_pop_user;
+delete from tbl_product_delivery;
+delete from tbl_product_recommend;
+delete from tbl_product_score;
+delete from tbl_product_user;
+delete from tbl_shop_cart;
+delete from payment_flow;
+delete from refund_order_info;
+delete from tbl_deliver;
+delete from pop_info WHERE TYPE=2;
+
+
+15023306501 s11111

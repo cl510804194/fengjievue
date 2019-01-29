@@ -1,0 +1,68 @@
+package com.yjf.esupplier.service.user.query.order;
+
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.ws.enums.SysUserRoleEnum;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+/**
+ * 
+ * @author qichunhai
+ * 
+ */
+public class MailOrMobileOrder extends ValidateOrderBase {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3208379247669458321L;
+	
+	String mail;
+	String mobile;
+	SysUserRoleEnum role;
+	
+	@Override
+	public void check() {
+		// TODO Auto-generated method stub
+		if (StringUtil.isEmpty(mail) && StringUtil.isEmpty(mobile))
+			throw new IllegalArgumentException("mail 和 mobile 不能都为空");
+		
+	}
+	
+	public String getMail() {
+		return mail;
+	}
+	
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+	
+	public String getMobile() {
+		return mobile;
+	}
+	
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+	
+	public SysUserRoleEnum getRole() {
+		return this.role;
+	}
+	
+	public void setRole(SysUserRoleEnum role) {
+		this.role = role;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("MailOrMobileOrder [mail=");
+		builder.append(mail);
+		builder.append(", mobile=");
+		builder.append(mobile);
+		builder.append(", role=");
+		builder.append(role);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

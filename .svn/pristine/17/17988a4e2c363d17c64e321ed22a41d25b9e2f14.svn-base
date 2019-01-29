@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/geoloc/geoloc.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--广告列表</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<form action="/admin/advert/listAdvert.htm" name="myform" id="myform" method="post">
+    	<table align="center" width="792" height="51" cellpadding="0" cellspacing="0">
+       	<tr>
+             <td height="39" class="title">广告列表</td>
+       	</tr>  
+    	<tr>
+    		<td height="51" class="boder_y">
+    	 	 <table width="70%" border="0" cellspacing="0" cellpadding="0">
+              <tr>	  	
+                <td width="17%" class="color_h">
+                	<input type="text" name="advert.advName" id="advert.advName" value="$!advert.advName" />
+                </td>           		  
+                <td width="10%" align="center"><img src="../../image/comdo/button_qd.gif" width="50" height="25" onClick="myform.action='/admin/advert/listAdvert.htm?pageType=sub';myform.submit();" style="cursor:pointer;" /></td>
+              </tr>
+            </table>
+    		</td>
+    	</tr>
+    	<tr>
+    	    <td>
+    		    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:20px;" class="table_border">
+                   <tr>
+                   	  	<td height="28" align="center" bgcolor="#e8f5fb" width="60"><label><input type="checkbox" name="allSelect" id="allSelect" class="cbborder" onClick="checkAll(this)"></input>序号</label></td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="200">广告名称</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="80">广告类型</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="60">所需价格</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="100">开始时间</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="100">结束时间</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="60">广告状态</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="60">办理状态</td>      
+						<td height="28" align="center" bgcolor="#e8f5fb" width="50">操作</td>
+                  </tr>	
+                      
+				  #foreach($adv in $listAdvert)
+			  	  <tr>
+					<td height="40"><label><input type="checkbox" name="tblistbox" id="tblistbox" class="cbborder" value="$!adv.advertId">$!adv.advertId</label></td>
+					<td class="advertpadd"><a href="$!{rc.contextPath}/admin/advert/infoAdvert.htm?advertId=$!adv.advertId">$!adv.advName</a>[详情]</td>
+					<td align="center">$!adv.advType</td>	
+					<td align="center">$!adv.quote</td>
+					<td align="center">$!adv.startTime</td>
+					<td align="center">$!adv.endTime</td>
+					<td align="center">$!adv.status</td>
+					<td align="center">$!adv.handleStatus</td>
+					<td align="center">
+						<a href="$!{rc.contextPath}/admin/advert/toUpdateAdvert?advertId=$!adv.advertId" target="_blank">修改</a>
+					</td>
+				  </tr>				  
+				  #end
+    		  </table>
+    		  
+    		  <table width="790" border="0" align="center" cellspacing="1" cellpadding="2" style="border-top:1px #6cbc48 solid;">
+    			<tr>
+    				<td align="left" height="40">
+    					<input type="button" value="新增" onClick="javascript:location.href='/admin/advert/toInsertAdvert.htm'" class="sm-buttom2-2" >
+    					<input type="button" value="发布" onClick="optAdvert('publish')" class="sm-buttom2-2" >
+    					<input type="button" value="撤销" onClick="optAdvert('cancel')" class="sm-buttom2-2" >
+    					<input type="button" value="关闭" onClick="optAdvert('close')" class="sm-buttom2-2" >
+    				</td>		
+    			</tr>
+    		</table>
+    		<table width="790" border="0" cellspacing="1" cellpadding="2">
+    			$!pageBar
+    		</table>
+    		</td>
+    	</tr>
+    </table>
+    </form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+	function checkAll(obj){
+    	var checkbox=document.getElementsByName("tblistbox");
+    	for(var i = 0;i < checkbox.length; i++){
+    		if(checkbox[i].type == "checkbox")
+            {
+    			checkbox[i].checked = obj.checked;
+            }
+    	}
+    }
+    function optAdvert(val){
+    	var checkboxArray = document.getElementsByName("tblistbox");
+    	var value = "";
+    	for(var i = 0;i < checkboxArray.length; i++){
+    		if(checkboxArray[i].checked)
+            {
+    			if(value == ""){
+    				value += checkboxArray[i].value;
+    			}else{
+    				value += ","+checkboxArray[i].value;
+    			} 
+            }
+    	}
+    	if(value == ""){
+    		alert("请选择用户！");
+    	}else{
+    		if(confirm("你确定要执行该操作！")){
+    			location.href="<%=cp%>/admin/advert/updAdvertStatus?idset="+value+"&type="+val;
+    		}
+    	}
+    	
+    }
+</script>
+</body>
+</html>

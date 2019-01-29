@@ -1,0 +1,190 @@
+package com.yjf.esupplier.service.common.services.impl;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.esupplier.common.util.AnnotationUtil;
+import com.yjf.esupplier.service.base.OpenApiBaseContextServiceBase;
+import com.yjf.esupplier.service.common.services.LoadUserByNotifyTypeService;
+import com.yjf.esupplier.service.common.services.annotation.SearchUserMethod;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.service.user.query.order.UserQueryOrder;
+import com.yjf.esupplier.service.user.query.order.UserRoleQueryOrder;
+import com.yjf.esupplier.ws.enums.SysUserRoleEnum;
+import com.yjf.esupplier.ws.enums.UserStateEnum;
+import com.yjf.esupplier.ws.enums.UserTypeEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelEnum;
+
+@Service("loadUserByNotifyTypeService")
+public class LoadUserByNotifyTypeServiceImpl extends OpenApiBaseContextServiceBase
+																					implements
+																					LoadUserByNotifyTypeService,
+																					InitializingBean {
+	
+	private static Map<String, Method> searchMethodMap = new HashMap<String, Method>();
+	@Autowired
+	UserQueryService userQueryService;
+	
+	@SearchUserMethod(name = "loadAllUser")
+	@Override
+	public QueryBaseBatchResult<UserInfo> loadAllUser(int pageSize, int pageNumber) {
+		UserQueryOrder commonQueryOrder = new UserQueryOrder();
+		commonQueryOrder.setPageNumber(pageNumber);
+		commonQueryOrder.setPageSize(pageSize);
+		commonQueryOrder.setType(UserTypeEnum.GR);
+		commonQueryOrder.setState(UserStateEnum.NORMAL);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.commonQueryUserInfo(commonQueryOrder);
+		return batchResult;
+	}
+	
+	@SearchUserMethod(name = "loadVIPUser")
+	@Override
+	public QueryBaseBatchResult<UserInfo> loadVIPUser(int pageSize, int pageNumber) {
+		UserQueryOrder commonQueryOrder = new UserQueryOrder();
+		commonQueryOrder.setPageNumber(pageNumber);
+		commonQueryOrder.setPageSize(pageSize);
+		commonQueryOrder.setType(UserTypeEnum.GR);
+		commonQueryOrder.setState(UserStateEnum.NORMAL);
+		commonQueryOrder.setUserLevelEnum(UserLevelEnum.VIP);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.commonQueryUserInfo(commonQueryOrder);
+		return batchResult;
+	}
+	
+	@SearchUserMethod(name = "loadGoldUser")
+	public QueryBaseBatchResult<UserInfo> loadGoldUser(int pageSize, int pageNumber) {
+		UserQueryOrder commonQueryOrder = new UserQueryOrder();
+		commonQueryOrder.setPageNumber(pageNumber);
+		commonQueryOrder.setPageSize(pageSize);
+		commonQueryOrder.setType(UserTypeEnum.GR);
+		commonQueryOrder.setState(UserStateEnum.NORMAL);
+		commonQueryOrder.setUserLevelEnum(UserLevelEnum.GOLD);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.commonQueryUserInfo(commonQueryOrder);
+		return batchResult;
+	}
+	
+	@SearchUserMethod(name = "loadDiamondUser")
+	@Override
+	public QueryBaseBatchResult<UserInfo> loadDiamondUser(int pageSize, int pageNumber) {
+		UserQueryOrder commonQueryOrder = new UserQueryOrder();
+		commonQueryOrder.setPageNumber(pageNumber);
+		commonQueryOrder.setPageSize(pageSize);
+		commonQueryOrder.setType(UserTypeEnum.GR);
+		commonQueryOrder.setState(UserStateEnum.NORMAL);
+		commonQueryOrder.setUserLevelEnum(UserLevelEnum.DIAMOND);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.commonQueryUserInfo(commonQueryOrder);
+		return batchResult;
+	}
+	
+	@SearchUserMethod(name = "loadPlatinumUser")
+	@Override
+	public QueryBaseBatchResult<UserInfo> loadPlatinumUser(int pageSize, int pageNumber) {
+		UserQueryOrder commonQueryOrder = new UserQueryOrder();
+		commonQueryOrder.setPageNumber(pageNumber);
+		commonQueryOrder.setPageSize(pageSize);
+		commonQueryOrder.setType(UserTypeEnum.GR);
+		commonQueryOrder.setState(UserStateEnum.NORMAL);
+		commonQueryOrder.setUserLevelEnum(UserLevelEnum.PLATINUM);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.commonQueryUserInfo(commonQueryOrder);
+		return batchResult;
+	}
+	
+	@SearchUserMethod(name = "loadInvestorUser")
+	public QueryBaseBatchResult<UserInfo> loadInvestorUser(int pageSize, int pageNumber) {
+		return loadUserRoleInfo(pageSize, pageNumber, SysUserRoleEnum.BUYER);
+	}
+	
+	protected QueryBaseBatchResult<UserInfo> loadUserRoleInfo(int pageSize, int pageNumber,
+																SysUserRoleEnum roleEnum) {
+		UserRoleQueryOrder roleQueryOrder = new UserRoleQueryOrder();
+		roleQueryOrder.setPageNumber(pageNumber);
+		roleQueryOrder.setPageSize(pageSize);
+		roleQueryOrder.setRoleEnum(roleEnum);
+		roleQueryOrder.setType(UserTypeEnum.GR);
+		roleQueryOrder.setUserStateEnum(UserStateEnum.NORMAL);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.queryRoleUserInfo(roleQueryOrder);
+		return batchResult;
+	}
+	
+	@SearchUserMethod(name = "loadBrokerUser")
+	public QueryBaseBatchResult<UserInfo> loadBrokerUser(int pageSize, int pageNumber) {
+		return loadUserRoleInfo(pageSize, pageNumber, SysUserRoleEnum.SELLER);
+	}
+	
+	@SearchUserMethod(name = "loadLoanerUser")
+	public QueryBaseBatchResult<UserInfo> loadLoanerUser(int pageSize, int pageNumber) {
+		return loadUserRoleInfo(pageSize, pageNumber, SysUserRoleEnum.SELLER);
+	}
+	
+	@SearchUserMethod(name = "loadGeneralUser")
+	@Override
+	public QueryBaseBatchResult<UserInfo> loadGeneralUser(int pageSize, int pageNumber) {
+		// TODO Auto-generated method stub
+		UserQueryOrder commonQueryOrder = new UserQueryOrder();
+		commonQueryOrder.setPageNumber(pageNumber);
+		commonQueryOrder.setPageSize(pageSize);
+		commonQueryOrder.setType(UserTypeEnum.GR);
+		commonQueryOrder.setState(UserStateEnum.NORMAL);
+		commonQueryOrder.setUserLevelEnum(UserLevelEnum.GENERAL);
+		QueryBaseBatchResult<UserInfo> batchResult = userQueryService
+			.commonQueryUserInfoAll(commonQueryOrder);
+		return batchResult;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public QueryBaseBatchResult<UserInfo> loadUserData(long pageSize, long pageNumber,
+														String searchUserMethodName) {
+		QueryBaseBatchResult<UserInfo> batchResult = new QueryBaseBatchResult<UserInfo>();
+		Method method = searchMethodMap.get(searchUserMethodName);
+		if (method == null)
+			return batchResult;
+		
+		try {
+			batchResult = (QueryBaseBatchResult<UserInfo>) method.invoke(this,
+				new Object[] { (int)pageSize, (int)pageNumber });
+		} catch (IllegalAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return batchResult;
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		Method[] methods = this.getClass().getDeclaredMethods();
+		
+		for (int i = 0, j = methods.length; i < j; i++) {
+			//获取全部注解
+			Method method = methods[i];
+			Annotation[] annotations = AnnotationUtil.getAnnotationsWithMethod(method);
+			if (annotations != null && annotations.length > 0) {
+				for (Annotation annotation : annotations) {
+					if (annotation.annotationType() == SearchUserMethod.class) {
+						String name = ((SearchUserMethod) annotation).name();
+						searchMethodMap.put(name, method);
+						
+					}
+				}
+			}
+		}
+	}
+
+
+}

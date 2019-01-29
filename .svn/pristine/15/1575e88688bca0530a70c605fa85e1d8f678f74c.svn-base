@@ -1,0 +1,226 @@
+package com.yjf.esupplier.service.user.query.impl;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.dal.daointerface.TblScenicInfoDAO;
+import com.yjf.esupplier.dal.dataobject.TblScenicInfoDO;
+import com.yjf.esupplier.service.base.OpenApiBaseContextServiceBase;
+import com.yjf.esupplier.service.user.query.ScenicService;
+import com.yjf.esupplier.service.user.query.order.ScenicQueryOrder;
+import com.yjf.esupplier.service.user.result.ScenicQueryResult;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.info.ScenicInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+/**
+ * Created by huangxl on 2016/5/27.
+ */
+@Service("scenicService")
+public class ScenicServiceImpl extends OpenApiBaseContextServiceBase
+									implements ScenicService , InitializingBean {
+	@Autowired
+	TblScenicInfoDAO scenicInfoDAO;
+	private static Map<String, ScenicInfo> scenicMap = null;
+	@Override
+	public ScenicQueryResult queryById(long id) {
+		TblScenicInfoDO scenicInfoDOCondition = new TblScenicInfoDO();
+		scenicInfoDOCondition.setId(id);
+		return queryResult(scenicInfoDOCondition, false);
+	}
+
+	@Override
+	public ScenicQueryResult queryByUserBaseId(String userBaseId) {
+		TblScenicInfoDO scenicInfoDOCondition = new TblScenicInfoDO();
+		scenicInfoDOCondition.setUserBaseId(userBaseId);
+		return queryResult(scenicInfoDOCondition, false);
+	}
+	
+	@Override
+	public ScenicQueryResult queryByCode(String code) {
+		TblScenicInfoDO scenicInfoDOCondition = new TblScenicInfoDO();
+		scenicInfoDOCondition.setCode(code);
+		return queryResult(scenicInfoDOCondition, false);
+	}
+	
+	@Override
+	public ScenicQueryResult queryByName(String name) {
+		TblScenicInfoDO scenicInfoDOCondition = new TblScenicInfoDO();
+		scenicInfoDOCondition.setName(name);
+		return queryResult(scenicInfoDOCondition, false);
+	}
+	
+	@Override
+	public ScenicQueryResult queryByShortName(String shortName) {
+		TblScenicInfoDO scenicInfoDOCondition = new TblScenicInfoDO();
+		scenicInfoDOCondition.setShortName(shortName);
+		return queryResult(scenicInfoDOCondition, false);
+	}
+
+	@Override
+	public EsupplierBaseResult update(ScenicInfo scenicInfo) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		TblScenicInfoDO infoDO = new TblScenicInfoDO();
+		BeanCopier.staticCopy(scenicInfo, infoDO);
+		infoDO.setInTime(DateUtil.string2Date(scenicInfo.getInTime(),"YYYY-MM-DD"));
+		try {
+			if (StringUtil.isBlank(infoDO.getStatus())) {
+				infoDO.setStatus(null);
+			}
+			scenicInfoDAO.update(infoDO);
+//			initParamMap();
+			result.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		return result;
+	}
+
+	@Override
+	public EsupplierBaseResult insert(ScenicInfo scenicInfo) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		TblScenicInfoDO infoDO = new TblScenicInfoDO();
+		BeanCopier.staticCopy(scenicInfo, infoDO);
+		if (StringUtil.isNotEmpty(scenicInfo.getInTime())) {
+			infoDO.setInTime(DateUtil.string2Date(scenicInfo.getInTime(), "YYYY-MM-DD"));
+		}
+		try {
+			scenicInfoDAO.insert(infoDO);
+//			initParamMap();
+			result.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		return result;
+	}
+
+	/*统一查询方法*/
+	public ScenicQueryResult queryResult(TblScenicInfoDO scenicInfoDOCondition, boolean isList) {
+		ScenicQueryResult queryResult = new ScenicQueryResult();
+		List<TblScenicInfoDO> scenicInfoDOList = scenicInfoDAO
+			.findByCondition(scenicInfoDOCondition, 0, 999999);
+		if (!isList && scenicInfoDOList.size() > 0) {
+			TblScenicInfoDO scenicInfoDO = scenicInfoDOList.get(0);
+			ScenicInfo info = new ScenicInfo();
+			BeanCopier.staticCopy(scenicInfoDO, info);
+			info.setInTime(DateUtil.formatDay(scenicInfoDO.getInTime()));
+			queryResult.setQueryScenicInfo(info);
+			queryResult.setSuccess(true);
+		} else if(scenicInfoDOList.size() > 0){
+			List<ScenicInfo> resultList = new ArrayList<ScenicInfo>(scenicInfoDOList.size());
+			convertScenicList(scenicInfoDOList, resultList);
+			queryResult.setQueryUserList(resultList);
+			queryResult.setQueryCount(resultList.size());
+			queryResult.setSuccess(true);
+		}
+		return queryResult;
+	}
+	
+	/*list转换方法*/
+	private void convertScenicList(List<TblScenicInfoDO> users, List<ScenicInfo> resultList) {
+		for (TblScenicInfoDO scenicInfoDO : users) {
+			ScenicInfo info = getUserInfo(scenicInfoDO);
+			resultList.add(info);
+		}
+	}
+	
+	private ScenicInfo getUserInfo(TblScenicInfoDO scenicInfoDO) {
+		if (scenicInfoDO == null)
+			return null;
+		ScenicInfo info = new ScenicInfo();
+		BeanCopier.staticCopy(scenicInfoDO, info);
+		info.setInTime(DateUtil.formatDay(scenicInfoDO.getInTime()));
+		return info;
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ScenicInfo> getScenicInfo(ScenicQueryOrder scenicQueryOrder) {
+		QueryBaseBatchResult<ScenicInfo> baseBatchResult = new QueryBaseBatchResult<ScenicInfo>();
+		try {
+			TblScenicInfoDO searchDo = new TblScenicInfoDO();
+			BeanCopier.staticCopy(scenicQueryOrder, searchDo);
+			if(scenicQueryOrder.getStatus()!=null) {
+				searchDo.setStatus(scenicQueryOrder.getStatus().code());
+			}
+			/*查询总数据*/
+			long count = scenicInfoDAO.findByConditionCount(searchDo,
+				scenicQueryOrder.getLimitStart(), scenicQueryOrder.getPageSize());
+			PageComponent component = new PageComponent(scenicQueryOrder, count);
+			if (component.getPageSize() > 0) {
+				/*查询结果*/
+				List<TblScenicInfoDO> scenicInfoDOList = scenicInfoDAO.findByCondition(searchDo,
+					scenicQueryOrder.getLimitStart(), scenicQueryOrder.getPageSize());
+				/*返回info类型的list*/
+				List<ScenicInfo> resultList = new ArrayList<ScenicInfo>(scenicInfoDOList.size());
+				/*转换*/
+				convertScenicList(scenicInfoDOList, resultList);
+				/*设置baseBatchResult值*/
+				baseBatchResult.setPageList(resultList);
+			}
+			baseBatchResult.initPageParam(component);
+			baseBatchResult.setSuccess(true);
+		} catch (IllegalArgumentException e) {
+			logger.error(e.getMessage(), e);
+		} catch (DataAccessException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+		}
+		return baseBatchResult;
+	}
+
+
+	public ScenicInfo getScenicValue(String scenicUserId) {
+		if (scenicMap == null) {
+			initParamMap();
+		}
+		return scenicMap.get(scenicUserId);
+	}
+	/*景区map初始化*/
+	public synchronized void initParamMap() {
+		scenicMap = new HashMap<String, ScenicInfo>();
+		synchronized (scenicMap) {
+			TblScenicInfoDO tblScenicInfoDO = new TblScenicInfoDO();
+			List<TblScenicInfoDO> paramDOs = scenicInfoDAO.findByCondition(tblScenicInfoDO,1,999);
+							/*返回info类型的list*/
+			List<ScenicInfo> resultList = new ArrayList<ScenicInfo>(paramDOs.size());
+				/*转换*/
+			convertScenicList(paramDOs, resultList);
+			if (paramDOs != null) {
+				for (ScenicInfo item : resultList) {
+					scenicMap.put(item.getUserBaseId(),item);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			if (scenicMap == null) {
+				initParamMap();
+			}
+		} catch (Exception e) {
+			logger.info("init complete Exception", e);
+		}
+	}
+}

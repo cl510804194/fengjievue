@@ -1,0 +1,32 @@
+package com.yjf.esupplier.service.pay.order;
+
+import com.yjf.esupplier.dal.dataobject.PaymentFlowDO;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class MoneyOrderNotifyOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = -6585262459890738629L;
+	PaymentFlowDO flowDO;
+
+	@Override
+	public void check() {
+		validateNotNull(flowDO, "outOrderNo");
+	}
+
+	public PaymentFlowDO getFlowDO() {
+		return flowDO;
+	}
+
+	public void setFlowDO(PaymentFlowDO flowDO) {
+		this.flowDO = flowDO;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("OrderNotifyOrder [flowDO=");
+		builder.append(flowDO.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

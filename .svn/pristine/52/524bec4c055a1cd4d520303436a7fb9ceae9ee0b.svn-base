@@ -1,0 +1,460 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.common.services.impl;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.log.Logger;
+import com.yjf.common.log.LoggerFactory;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.ApplicationConstant;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.common.util.PropertyFactory;
+import com.yjf.esupplier.common.util.SystemConfig;
+import com.yjf.esupplier.dal.daointerface.SysParamDAO;
+import com.yjf.esupplier.dal.dataobject.SysParamDO;
+import com.yjf.esupplier.integration.localService.SysClearCacheServiceClient;
+import com.yjf.esupplier.service.common.services.SysParameterService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.order.SysParamOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.SysClearCacheWebService;
+import com.yjf.esupplier.ws.service.query.order.SysParamQueryOrder;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+/**
+ * 
+ * @Filename SysParameterServiceImp.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History
+ * <li>Author: qichunhai1</li>
+ * <li>Date: 2013-2-22</li>
+ * <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ * 
+ */
+@Service("sysParameterService")
+public class SysParameterServiceImpl implements SysParameterService, InitializingBean {
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	@Autowired
+	SysParamDAO sysParamDAO;
+	@Autowired
+	SysClearCacheServiceClient sysClearCacheServiceClient;
+	@Autowired
+	protected SysClearCacheWebService sysClearCacheWebService;
+	
+	private static Map<String, String> paramMap = null;
+	
+	@Override
+	public String getSysParameterValue(String paramName) {
+		if (paramMap == null) {
+			initParamMap();
+		}
+		return paramMap.get(paramName);
+	}
+	
+	private SysParamDO getDbValue(String paramName) {
+		SysParamDO sysParamDO = sysParamDAO.findById(paramName);
+		return sysParamDO;
+	}
+	
+	/**
+	 * 
+	 */
+	private synchronized void initParamMap() {
+		paramMap = new HashMap<String, String>();
+		synchronized (paramMap) {
+			List<SysParamDO> paramDOs = sysParamDAO.findAll();
+			if (paramDOs != null) {
+				for (SysParamDO item : paramDOs) {
+					paramMap.put(item.getParamName(), item.getParamValue());
+				}
+			}
+		}
+	}
+	
+	@Override
+	public List<SysParamDO> getSysParameterValueList(String paramName) {
+		return sysParamDAO.findByLike(paramName + "%");
+	}
+	
+	@Override
+	public void clearCache() {
+		synchronized (SysParameterServiceImpl.class) {
+			if (paramMap != null) {
+				paramMap.clear();
+				paramMap = null;
+				AppConstantsUtil.clear();
+				try {
+					afterPropertiesSet();
+				} catch (Exception e) {
+					logger.error("afterPropertiesSet is error", e);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public SysParamDO getSysParameterValueDO(String paramName) {
+		return getDbValue(paramName);
+	}
+	
+	@Override
+	public EsupplierBaseResult updateSysParameterValueDO(SysParamOrder sysParamOrder) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		logger.info("sysParamOrder，sysParamOrder={}", sysParamOrder);
+		try {
+			if ("".equalsIgnoreCase(sysParamOrder.getParamName())
+				|| sysParamOrder.getParamName() == null) {
+				result.setSuccess(false);
+				result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+				return result;
+			}
+			SysParamDO sysParamDO = new SysParamDO();
+			BeanCopier.staticCopy(sysParamOrder, sysParamDO);
+			sysParamDAO.update(sysParamDO);
+			result.setSuccess(true);
+			sysClearCacheWebService.clearCache();
+		} catch (IllegalArgumentException e) {
+			result.setSuccess(false);
+			result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			result.setMessage(
+				EsupplierResultEnum.INCOMPLETE_REQ_PARAM.getMessage() + "[" + e.getMessage() + "]");
+		} catch (DataAccessException e) {
+			logger.error("数据库异常:e={}", e.getMessage(), e);
+			result.setSuccess(false);
+			result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			result.setMessage(EsupplierResultEnum.DATABASE_EXCEPTION.getMessage());
+		} catch (Exception e) {
+			logger.error("未知异常:e={}", e.getMessage(), e);
+			result.setSuccess(false);
+		}
+		return result;
+	}
+	
+	@Override
+	public EsupplierBaseResult insertSysParameterValueDO(SysParamOrder sysParamOrder) {
+		EsupplierBaseResult result = new EsupplierBaseResult();
+		logger.info("sysParamOrder，sysParamOrder={}", sysParamOrder);
+		try {
+			sysParamOrder.check();
+			SysParamDO sysParamDO = new SysParamDO();
+			BeanCopier.staticCopy(sysParamOrder, sysParamDO);
+			sysParamDAO.insert(sysParamDO);
+			result.setSuccess(true);
+			sysClearCacheWebService.clearCache();
+		} catch (IllegalArgumentException e) {
+			result.setSuccess(false);
+			result.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			result.setMessage(
+				EsupplierResultEnum.INCOMPLETE_REQ_PARAM.getMessage() + "[" + e.getMessage() + "]");
+		} catch (DataAccessException e) {
+			logger.error("数据库异常:e={}", e.getMessage(), e);
+			result.setSuccess(false);
+			result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			result.setMessage(EsupplierResultEnum.DATABASE_EXCEPTION.getMessage());
+		} catch (Exception e) {
+			logger.error("未知异常:e={}", e.getMessage(), e);
+			result.setSuccess(false);
+		}
+		return result;
+	}
+	
+	@Override
+	public void deleteSysParameterValue(String paramName) {
+		sysParamDAO.deleteByParamName(paramName);
+	}
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		try {
+			SystemConfig config = new SystemConfig();
+			String code = this.getSysParameterValue(ApplicationConstant.SYS_PARAM_PRODUCT_KEY);
+			String platformName = this
+				.getSysParameterValue(ApplicationConstant.SYS_PARAM_PLATFORM_NAME);
+			String productName = this
+				.getSysParameterValue(ApplicationConstant.SYS_PARAM_PRODUCT_NAME);
+			if (StringUtil.equals(code, makeProductKey(platformName, productName))) {
+				logger.info("init sucess");
+			} else {
+				logger.info("error sucess");
+			}
+			
+			config.setPlatformName(platformName);
+			config.setProductName(productName);
+			initConfigValue(config);
+			//			config
+			//				.setYrdUploadFolder("E:\\mywork\\yjfproject\\91\\electricitySupplier\\trunk\\esupplier-assemble\\src\\main\\webapp\\resources");
+			//			config.setImageServerUrl("http://127.0.0.1:8084/resources");
+			AppConstantsUtil.init(config);
+			initProperty();
+		} catch (Exception e) {
+			logger.info("init complete Exception", e);
+		}
+		
+	}
+	
+	public void initProperty() {
+		logger.info("<inti begin......>");
+		
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		try {
+			//default_property.properties
+			loadProperty("default_property.properties", cl, PropertyFactory.defaultPropertyMap);
+			
+			//error_property.properties
+			//			loadProperty("error_property.properties", cl, PropertyFactory.errorPropertyMap);
+			
+			//exceptmsg.properties
+			loadProperty("exceptmsg.properties", cl, PropertyFactory.excepMsgPropertyMap);
+			
+			//member.permission.properties
+			loadProperty("member.permission.properties", cl,
+				PropertyFactory.memberPermissionPropertyMap);
+			
+			//member.properties
+			loadProperty("member.properties", cl, PropertyFactory.memberPropertyMap);
+			
+			//security.properties
+			loadProperty("security.properties", cl, PropertyFactory.securityPropertyMap);
+			
+			//tiles.map.properties
+			//			loadProperty("tiles.map.properties", cl, PropertyFactory.tilesMapPropertyMap);
+			
+			Set valKeys = PropertyFactory.defaultPropertyMap.keySet();
+			for (Iterator items = valKeys.iterator(); items.hasNext();) {
+				String tmpValKey = (String) items.next();
+				logger.info("checking...."	+ tmpValKey + "====="
+							+ PropertyFactory.defaultPropertyMap.get(tmpValKey));
+			}
+			
+		} catch (Exception e) {
+			logger.error("load property error:" + e);
+		}
+		logger.info("<inti end........>");
+	}
+	
+	/**
+	 * @param config
+	 */
+	protected void initConfigValue(SystemConfig config) {
+		config.setOutBizNumber(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_OUT_BIZ_NUMBER));
+		config.setYrdPrefixion(this.getSysParameterValue(ApplicationConstant.SYS_YRD_PREFIXION));
+		config.setYrdUploadFolder(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_YRD_UPLOAD_FOLDER));
+		config.setImageServerUrl(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_IMAGE_URL_KEY));
+		config.setCustomerServicePhone(
+			this.getSysParameterValue(ApplicationConstant.SYS_SERVICE_PHONE_KEY));
+		
+		config.setCustomerServiceEmail(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_YRD_CS_EMAIL));
+		config.setCustomerServiceMobile(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_YRD_CS_MOBILE));
+		
+		config.setExchangeAccount(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_EXCHANGE_ACCOUNT));
+		config.setProfitSharingAccount(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_PROFIT_SHARING_ACCOUNT));
+		
+		config.setHostUrl(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_HOST));
+		
+		config.setHostHttpUrl(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_RETURN_URL_KEY));
+		
+		config.setDefaultBrokerUserName(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_YRD_PBROKER_USER_NAME));
+		
+		config.setYrdFopFontFolder(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_YRD_FOP_FONT));
+		config.setPlatformAddress(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_PLATFORM_ADDRESS));
+		config.setProductICP(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_PRODUCT_ICP));
+		
+		config.setAllCommon(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_ALLCOMMON));
+		
+		config.setProductQQ(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_PRODUCT_QQ));
+		
+		config.setCertificateServiceUrl(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_CERTIFICATE_SERVICE_URL));
+		config.setCertificateAppKey(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_CERTIFICATE_APP_KEY));
+		config.setCertificateAppSecret(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_CERTIFICATE_APP_SECRET));
+		
+		config.setMailServer(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_MAIL_SERVER));
+		config.setMailServerport(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_MAIL_SERVERPORT));
+		config.setMailUsername(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_MAIL_USERNAME));
+		config.setMailPassword(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_MAIL_PASSWORD));
+		config.setMailNickName(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_MAIL_NICKNAME));
+		config.setMailSenderName(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_MAIL_SENDERNAME));
+		config
+			.setTestAccount(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_TEST_ACCOUNT));
+		
+		config.setAppUpdateIOS(this.getSysParameterValue(ApplicationConstant.SYS_APP_UPDATE_IOS));
+		config.setAppUpdateANDROID(
+			this.getSysParameterValue(ApplicationConstant.SYS_APP_UPDATE_ANDROID));
+		config.setAppPwdKey(getSysParameterValue(ApplicationConstant.SYS_PARAM_APP_PWD_KEY));
+		config.setYjfUrl(this.getSysParameterValue(ApplicationConstant.SYS_PARAM_YJF_URL));
+		
+		config.setRefereePoints(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_REFEREE_POINTS));
+		
+		config.setGiftMoneyAccount(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_GIFT_MONEY_ACCOUNT));
+		
+		config.setLoginWithOutCheckCode(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_LOGIN_WITHOUT_CHECKCODE));
+		
+		config.setAllowErrorTimes(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_ALLOW_ERROR_TIMES));
+		config.setCloseDkCharge(
+			this.getSysParameterValue(ApplicationConstant.SYS_PARAM_APP_CLOSE_DKCHARGE));
+		
+		config.setYjfModifyPwdBtnColor(
+			getSysParameterValue(ApplicationConstant.SYS_PARAM_YJF_MODIFYPWD_BTNCOLOR));
+		config.setTwoLevelBroker(
+			getSysParameterValue(ApplicationConstant.SYS_PARAM_TWO_LEVEL_BROKER));
+		config
+			.setBrokerValidity(getSysParameterValue(ApplicationConstant.SYS_PARAM_BROKER_VALIDITY));
+		config.setUseUserLevel(getSysParameterValue(ApplicationConstant.SYS_PARAM_USE_USER_LEVEL));
+		
+		config.setIndustrialApiUrl(
+			getSysParameterValue(ApplicationConstant.SYS_PARAM_BORN_INTERNET_API_URL));
+		config.setYiShouHuUrl(getSysParameterValue(ApplicationConstant.YI_SHOU_HU_URL));
+		config.setFax(getSysParameterValue(ApplicationConstant.SYS_PARAM_PLATFORM_FAX));
+		
+		config.setTel(getSysParameterValue(ApplicationConstant.SYS_PARAM_PLATFORM_TEL));
+		config
+			.setYjfOpenApiUrl(getSysParameterValue(ApplicationConstant.SYS_PARAM_YJF_OPEN_API_URL));
+		config.setBornSecurityCheckKey(
+			getSysParameterValue(ApplicationConstant.SYS_PARAM_BORN_SECURITYCHECK_KEY));
+		
+		config.setOutPayeeShopId(getSysParameterValue(ApplicationConstant.SYS_PARAM_OUTPAY_SHOPID));
+
+		config.setWeixinAppId(getSysParameterValue(ApplicationConstant.WEIXIN_APP_ID));
+
+		config.setWeixinAppSecret(getSysParameterValue(ApplicationConstant.WEIXIN_APP_SECRET));
+		config.setHotelDateNumber(NumberUtil
+			.parseLong(getSysParameterValue(ApplicationConstant.SYS_PARAM_HOTEL_DATE_NUM), 90));
+		config.setAndroidYmKey(getSysParameterValue(ApplicationConstant.SYS_PARAM_ANDROID_YM_KEY));
+		config.setIosYmKey(getSysParameterValue(ApplicationConstant.SYS_PARAM_IOS_YM_KEY));
+		String maxNumber = getSysParameterValue(ApplicationConstant.SYS_PARAM_MAX_TABLE_NUMBER);
+		if (StringUtil.isNotBlank(maxNumber)) {
+			config.setMaxTableNumber(NumberUtil.parseLong(maxNumber, 50));
+		}
+		String varietiesFood = getSysParameterValue(
+			ApplicationConstant.SYS_PARAM_VARIETIES_OF_FOOD);
+		if (StringUtil.isBlank(varietiesFood)) {
+			varietiesFood = "西北菜,东北菜,川菜,湘菜,粤菜";
+		}
+		String[] varieties = varietiesFood.split(",");
+		List<String> varietiesOfFood = Lists.newArrayList();
+		for (String string : varieties) {
+			varietiesOfFood.add(string);
+		}
+		config.setVarietiesOfFood(varietiesOfFood);
+		config.setDiliveryFeeRate(NumberUtil
+			.parseDouble(getSysParameterValue(ApplicationConstant.SYS_PARAM_DILIVERY_FEE_RATE), 0));
+	}
+	
+	@Override
+	public QueryBaseBatchResult<SysParamDO> querySysPram(SysParamQueryOrder sysParamQueryOrder) {
+		QueryBaseBatchResult<SysParamDO> batchResult = new QueryBaseBatchResult<SysParamDO>();
+		try {
+			sysParamQueryOrder.check();
+			List<SysParamDO> pageList = new ArrayList<SysParamDO>(
+				(int) sysParamQueryOrder.getPageSize());
+			long totalCount = sysParamDAO.paramInfoQueryCount(sysParamQueryOrder.getParamName());
+			PageComponent component = new PageComponent(sysParamQueryOrder, totalCount);
+			List<SysParamDO> recordList = sysParamDAO.paramInfoQueryList(
+				sysParamQueryOrder.getParamName(), sysParamQueryOrder.getLimitStart(),
+				sysParamQueryOrder.getPageSize());
+			pageList.addAll(recordList);
+			batchResult.initPageParam(component);
+			batchResult.setSuccess(true);
+			batchResult.setPageList(pageList);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return batchResult;
+	}
+	
+	private static String makeProductKey(String platName, String productName) {
+		String sKey = "bornsoft86815300";
+		return (MD5Util.getMD5_32(platName + "_" + productName + "_" + sKey));
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(makeProductKey("重庆博恩软件科技有限公司", "财神在线"));
+	}
+	
+	private boolean loadProperty(String pfile, ClassLoader cl, Map initMap) {
+		InputStream pis = null;
+		Properties ps = null;
+		try {
+			logger.info("load property file>" + pfile);
+			pis = cl.getResourceAsStream(pfile);
+			ps = new Properties();
+			ps.load(pis);
+			
+			Set tmpKeys = ps.keySet();
+			for (Iterator items = tmpKeys.iterator(); items.hasNext();) {
+				String tempKey = (String) items.next();
+				initMap.put(tempKey, ps.getProperty(tempKey));
+				logger.info("set property value>" + tempKey + "---" + ps.getProperty(tempKey));
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			try {
+				if (pis != null)
+					pis.close();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+		
+		return true;
+	}
+}

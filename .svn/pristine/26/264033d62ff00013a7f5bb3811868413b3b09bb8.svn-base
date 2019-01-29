@@ -1,0 +1,288 @@
+package com.yjf.esupplier.service.contract.order;
+
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+/**
+ * 
+ * @Filename CustomerCompanyOrder.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author sxiaomeng
+ * 
+ * @Email weizhi@yiji.com
+ * 
+ * @History <li>Author: sxiaomeng</li> <li>Date: 2015-3-26</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ * 
+ */
+public class CustomerCompanyOrder extends ValidateOrderBase {
+	
+	private static final long serialVersionUID = -9147200481456392039L;
+	
+	/**
+	 * 月收入
+	 */
+	private long monthlyIncome;
+	
+	/**
+	 * 其它收入
+	 */
+	private long otherAmount;
+	
+	/**
+	 * 总收入
+	 */
+	private long allAmount;
+	
+	/**
+	 * 所在单位类型 企业/学校
+	 */
+	private String companyCategory;
+	
+	/**
+	 * 单位名称
+	 */
+	private String companyName;
+	
+	/**
+	 * 大学名称
+	 */
+	private String university;
+	
+	/**
+	 * 任职部门/班级
+	 */
+	private String department;
+	
+	/**
+	 * 工资年限
+	 */
+	private String workTime;
+	
+	/**
+	 * 现单位工作时间
+	 */
+	private String nowWorkTime;
+	
+	/**
+	 * 所属行业
+	 */
+	private String industry;
+	
+	/**
+	 * 单位性质
+	 */
+	private String companyType;
+	
+	/**
+	 * 职位
+	 */
+	private String position;
+	
+	/**
+	 * 单位联系电话
+	 */
+	private String companyPhone;
+	
+	/**
+	 * 单位所在省
+	 */
+	private String province;
+	
+	/**
+	 * 单位所在市
+	 */
+	private String city;
+	
+	/**
+	 * 单位所在去
+	 */
+	private String country;
+	
+	/**
+	 * 单位详细地址
+	 */
+	private String address;
+	
+	public long getMonthlyIncome() {
+		return monthlyIncome;
+	}
+	
+	public void setMonthlyIncome(long monthlyIncome) {
+		this.monthlyIncome = monthlyIncome;
+	}
+	
+	public long getOtherAmount() {
+		return otherAmount;
+	}
+	
+	public void setOtherAmount(long otherAmount) {
+		this.otherAmount = otherAmount;
+	}
+	
+	public long getAllAmount() {
+		return allAmount;
+	}
+	
+	public void setAllAmount(long allAmount) {
+		this.allAmount = allAmount;
+	}
+	
+	public String getCompanyCategory() {
+		return companyCategory;
+	}
+	
+	public void setCompanyCategory(String companyCategory) {
+		this.companyCategory = companyCategory;
+	}
+	
+	public String getCompanyName() {
+		return companyName;
+	}
+	
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+	
+	public String getUniversity() {
+		return university;
+	}
+	
+	public void setUniversity(String university) {
+		this.university = university;
+	}
+	
+	public String getDepartment() {
+		return department;
+	}
+	
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+	
+	public String getWorkTime() {
+		return workTime;
+	}
+	
+	public void setWorkTime(String workTime) {
+		this.workTime = workTime;
+	}
+	
+	public String getNowWorkTime() {
+		return nowWorkTime;
+	}
+	
+	public void setNowWorkTime(String nowWorkTime) {
+		this.nowWorkTime = nowWorkTime;
+	}
+	
+	public String getIndustry() {
+		return industry;
+	}
+	
+	public void setIndustry(String industry) {
+		this.industry = industry;
+	}
+	
+	public String getCompanyType() {
+		return companyType;
+	}
+	
+	public void setCompanyType(String companyType) {
+		this.companyType = companyType;
+	}
+	
+	public String getPosition() {
+		return position;
+	}
+	
+	public void setPosition(String position) {
+		this.position = position;
+	}
+	
+	public String getCompanyPhone() {
+		return companyPhone;
+	}
+	
+	public void setCompanyPhone(String companyPhone) {
+		this.companyPhone = companyPhone;
+	}
+	
+	public String getProvince() {
+		return province;
+	}
+	
+	public void setProvince(String province) {
+		this.province = province;
+	}
+	
+	public String getCity() {
+		return city;
+	}
+	
+	public void setCity(String city) {
+		this.city = city;
+	}
+	
+	public String getCountry() {
+		return country;
+	}
+	
+	public void setCountry(String country) {
+		this.country = country;
+	}
+	
+	public String getAddress() {
+		return address;
+	}
+	
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("CustomerCompanyOrder [monthlyIncome=");
+		builder.append(monthlyIncome);
+		builder.append(", otherAmount=");
+		builder.append(otherAmount);
+		builder.append(", allAmount=");
+		builder.append(allAmount);
+		builder.append(", companyCategory=");
+		builder.append(companyCategory);
+		builder.append(", companyName=");
+		builder.append(companyName);
+		builder.append(", university=");
+		builder.append(university);
+		builder.append(", department=");
+		builder.append(department);
+		builder.append(", workTime=");
+		builder.append(workTime);
+		builder.append(", nowWorkTime=");
+		builder.append(nowWorkTime);
+		builder.append(", industry=");
+		builder.append(industry);
+		builder.append(", companyType=");
+		builder.append(companyType);
+		builder.append(", position=");
+		builder.append(position);
+		builder.append(", companyPhone=");
+		builder.append(companyPhone);
+		builder.append(", province=");
+		builder.append(province);
+		builder.append(", city=");
+		builder.append(city);
+		builder.append(", country=");
+		builder.append(country);
+		builder.append(", address=");
+		builder.append(address);
+		
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<title>$!appConstantsUtil.getPlatformName()--会员列表</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/backstage/layout/admin_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/admin/layout/admin_left.vm")</td>
+    <td width="792" valign="top" >
+	<!-- 正文块-->
+	<form action="/admin/member/listMemberByParam.htm" name="myform" id="myform" method="post">
+    	<table align="center" width="792" height="51" cellpadding="0" cellspacing="0">
+       	<tr>
+             <td height="39" class="title">会员列表</td>
+       	</tr>  
+    	<tr>
+    		<td height="51" class="boder_y">
+    	 	 <table width="70%" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td width="6%" class="color_h">
+                	<select name="member.memberType">
+        		  		<option value="">会员类型</option>
+        		  		<option value="1" #if($!member.memberType == "1") selected #end>机构</option>
+        		  		<option value="2" #if($!member.memberType == "2") selected #end>个人</option>
+    		  		</select>
+    		  	</td>
+    		  	
+                <td width="17%" class="color_h">
+                	<input type="text" name="member.fullName" id="member.fullName" value="$!member.fullName" />
+                </td>
+                <td width="17%" class="color_h">
+                	<input type="hidden" name="member.area" id="area"><span id="divArea"></span>
+                </td>
+				#set($!mb = $member)
+    		  	<td width="17%" class="color_h">
+    		  		<select name="member.approveState">
+        		  		<option value="">会员状态</option>
+        		  		<option value="MailVerify" #if($!mb.approveState== $!asnConstLib.MemberApproveState.MailVerify)selected #else""#end>邮件验证</option>
+        		  		<option value="ManualVerify" #if($!mb.approveState== $!asnConstLib.MemberApproveState.ManualVerify)selected #else""#end>人工审核</option>
+        		  		<option value="Completed" #if($!mb.approveState== $!asnConstLib.MemberApproveState.Completed)selected #else""#end>审核完成</option>
+        		  		<option value="Rejected" #if($!mb.approveState== $!asnConstLib.MemberApproveState.Rejected)selected #else""#end>审核拒绝</option>
+    		  		</select>
+				</td>
+                <td width="10%" align="center"><img src="../../image/comdo/button_qd.gif" width="50" height="25" onClick="myform.action='/admin/member/listMemberByParam.htm?pageType=sub';myform.submit();" style="cursor:pointer;" /></td>
+              </tr>
+            </table>
+    		</td>
+    	</tr>
+    	
+    	<tr>
+    	    <td>
+    		    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:20px;" class="table_border">
+					<tr>
+                   	  	<td height="28" align="center" bgcolor="#e8f5fb"><input type="checkbox" name="allSelect" id="allSelect" class="cbborder" onClick="checkAll(this)"></input>序号</td>
+						<td height="28" align="center" bgcolor="#e8f5fb">登录账号</td>
+						<td height="28" align="center" bgcolor="#e8f5fb" width="40">类型</td>					
+						<td height="28" align="center" bgcolor="#e8f5fb">名称</td>
+						<td height="28" align="center" bgcolor="#e8f5fb">所属地区</td>
+						<!-- <td height="28" align="center" bgcolor="#e8f5fb">固定电话</td> -->
+						<!-- <td height="28" align="center" bgcolor="#e8f5fb">联系人</td> -->
+						<td height="28" align="center" bgcolor="#e8f5fb">审核状态</td>
+						<td height="28" align="center" bgcolor="#e8f5fb">锁定状态</td>
+						<td height="28" align="center" bgcolor="#e8f5fb">注册时间</td>
+						<!-- <td height="28" align="center" bgcolor="#e8f5fb">最后登录时间</td> -->	                    
+					</tr>
+					#foreach($m in $list)
+    			  	<tr>
+    					<td height="40"><input type="checkbox" name="tblistbox" id="tblistbox" class="cbborder" value="$!m.memberId">$!m.memberId</td>
+    					<td>&nbsp;<a target="_blank" href="$!{rc.contextPath}/admin/member/getMemberById.htm?id=$!m.memberId">$!m.ssoAccount</a>
+							#if($!m.approveState == "ManualVerify")
+								<img src="$!{rc.contextPath}/image/new-green.gif" />
+							#end
+    					</td>
+    					<td align="center">#if($!m.memberType==1)单位#else个人#end</td>
+    					<td width="200">&nbsp;$!m.fullName</td>
+    					<td width="200">&nbsp;$!m.getarea</td>
+    					<!-- <td class="zuo"><%=f.n2s(m.getFixedPhone())%></td>
+    					<td>&nbsp;<%=f.n2s(m.getContactor())%></td> -->
+    					<td>&nbsp;$!m.approveState</td>
+    					<td>&nbsp;$!m.lockState</td>
+    					<td>&nbsp;$!m.registerTime</td>
+    					<!-- <td class="zuo"><%=f.n2s(m.getLastLoginTime()== null?"":m.getLastLoginTime().toString().substring(0,10))%></td> -->
+    		  		</tr>
+    				#end
+    		  </table>
+			  <table width="790" border="0" cellspacing="1" cellpadding="2">
+					$!pageBar
+			  </table>
+    		</td>
+    	</tr>
+    </table>
+    </form>
+    <!-- 正文块-->
+	</td>
+  </tr>
+</table>
+#parse("/admin/layout/admin_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+
+var memberUrl="~/admin/member/getMemberById";
+
+//初始化地区组件
+geoloc.debugOn();
+$(document).ready(function(){
+	geoloc.init("divArea", "- 不限省市 -",null, null, "area",$!{member.area});
+});
+
+// 取地区选择结果，如果没有选择，结果为null；如果选择，数据形式为：310101|黄浦区
+function showSelection(){
+	var sel=geoloc.getSelection("divArea");
+	if(sel==null){
+		alert("没有选择");
+	} else {
+		alert(sel);
+	}
+}
+
+function checkAll(obj){
+	var checkbox=document.getElementsByName("tblistbox");
+	for(var i = 0;i < checkbox.length; i++){
+		if(checkbox[i].type == "checkbox")
+        {
+			checkbox[i].checked = obj.checked;
+        }
+	}
+}
+function operationMember(val,operation){
+	var checkboxArray = document.getElementsByName("tblistbox");
+	var value = "";
+	for(var i = 0;i < checkboxArray.length; i++){
+		if(checkboxArray[i].checked)
+        {
+			if(value == ""){
+				value += checkboxArray[i].value;
+			}else{
+				value += ","+checkboxArray[i].value;
+			} 
+        }
+	}
+	if(value == ""){
+		alert("请选择用户！");
+	}else{
+		if(operation == "check"){
+			location.href="adminCheckMember?memberIdset="+value+"&checktype="+val;
+		}else if(operation == "del"){
+			if(confirm('你确定删除?')){
+				location.href="delMemberInfo?memberIdset="+value;
+			}
+		}else if(operation == "lock"){
+			if(confirm('你确定冻结用户?')){
+				location.href="updMemberLocked?memberIdset="+value+"&lock="+val;
+			}
+		}
+		else if(operation == "unlock"){
+			if(confirm('你确定恢复用户?')){
+				location.href="updMemberLocked?memberIdset="+value+"&lock="+val;
+			}
+		}
+	}
+	
+}
+</script>
+</body>
+</html>

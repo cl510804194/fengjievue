@@ -1,0 +1,8 @@
+#Point covert money Conversion value
+integralDeductionCoefficient=100
+# enable user  Point
+isUserPoint=Y
+growthValueCoefficient=10
+isGrowthValue=Y
+#\u67e5\u770b\u4e00\u5361\u901a\u4f59\u989d
+isSeeMoney=Y

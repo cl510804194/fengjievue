@@ -1,0 +1,37 @@
+package com.yjf.esupplier.service.contract.order;
+
+import com.yjf.esupplier.ws.order.ProcessOrder;
+
+public class ContractProcessOrder extends ProcessOrder {
+	
+	private static final long serialVersionUID = -4526259265905037715L;
+	String contractId;
+	
+	public String getContractId() {
+		return this.contractId;
+	}
+	
+	public void setContractId(String contractId) {
+		this.contractId = contractId;
+	}
+	
+	@Override
+	public void check() {
+		super.check();
+		validateHasText(contractId, "合同id");
+		validateHasZore(getProcessorId(), "处理人");
+		validateHasText(getProcessName(), "处理人");
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("ContractProcessOrder [contractId=");
+		builder.append(contractId);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

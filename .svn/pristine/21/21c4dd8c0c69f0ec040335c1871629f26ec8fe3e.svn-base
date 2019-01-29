@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link href="/resources/css/main.css" rel="stylesheet" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="/resources/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<title>$!appConstantsUtil.getProductName()--广告申请</title>
+<link href="/resources/css/comdo.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div style="width: 950px; margin:0 auto;">
+#parse("/front/platform/member/layout/member_top.vm")
+<table width="950" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>   
+    <td width="152" valign="top" style="padding-right:6px;">#parse("/front/platform/member/layout/member_left.vm")</td>
+    <td width="792" valign="top" >
+	<!--内容块 -->
+	<!--<% 
+    	class ObjStatus{		
+    		public String handleStatus(String str){
+    			return str.equals("A")?"<font color=blue>申请中</font>":str.equals("P")?"<font color=green>审核通过</font>":str.equals("S")?"<font color=red>已签订合同</font>":str.equals("U")?"<font color=red>审核未通过</font>":str.equals("C")?"撤销申请":"";
+    		}
+    	}
+    	ObjStatus obj = new ObjStatus();
+    	Advert adv = (Advert)request.getAttribute("advert");
+    	proposerAdvert pro = (proposerAdvert)request.getAttribute("proposerAdvert");
+    
+    %>-->
+	#set($!adv = $!advert)
+    #set($!pro = $!proposerAdvert)
+	<table align="center" width="790" height="24" cellpadding="0" cellspacing="0" style="background:url(/image/comdo/dht_bg.gif) no-repeat;">
+		<tr>
+			<td width="5">&nbsp;</td>
+			<td width="735"><strong>广告申请</strong></td>	
+			<td width="50">[<a href="javascript:history.back();">返 回</a>]</td>	
+		</tr>
+    </table>
+
+	<table align="center" width="790"cellpadding="0" cellspacing="0" border="0" bordercolor="#CCCCCC" style="padding-top:10px;">			
+		
+		<tr>
+			<td width="290" height="220" align="center" style="border:1px #cccccc solid;">
+			#if(!$!adv.picPath)
+				<img src="/pic/product/bnopic.jpg" width="270" height="200" />
+			#else
+				<a target="_blank" href="$!adv.picPath.replace("/pic/product/s","/pic/product/b")">
+					<img src="$!adv.picPath" width="270" height="200" border="0" />
+				</a>
+			#end
+			</td>
+			<td width="500"><table width="100%" style="color:#333333;"> 
+				<tr>
+					<td height="30" align="right" width="90">广告名称：</td>						
+					<td><font color="#000000"><strong>$!adv.advName</strong></font>
+						<!--<% if(new Date().after(adv.getEndTime())){ %>-->
+						#if($!newDate.after($!adv.endTime))
+							<font color="red"><strong>（广告已过期）</strong> </font>
+						#end
+					</td>  
+				</tr>
+				<tr>
+					<td height="30" align="right" width="90">广告类型：</td>
+					<td>$!adv.advType</td> 
+					<td height="30" align="right" width="90">价格：</td>
+					<td><font color="red">$!adv.quote</font></td> 
+				</tr>
+				<tr>
+					<td height="30" align="right" width="90">广告地址：</td>        
+					<td colspan="3"><a href="$!adv.advAddress" target="_blank">$!adv.advAddress</a></td>  
+				</tr>
+				
+				<tr>
+					<td height="30" align="right" width="90">开始时间：</td>
+					<td>$!adv.startTime</td>    
+					<td height="30" align="right" width="90">结束时间：</td>
+					<td>$!adv.endTime</td>   
+				</tr>					
+				
+				<tr>
+					<td colspan="4" height="80">
+						#if($!newDate.after($!adv.endTime))
+						<table width="60%" height="100%" style="background:#faf6c6;border:1px #e9d162 solid;margin-left:33px;color:#666666;">
+							<tr>
+								<td height="30" align="center" colspan="2" style="padding-left:10px;">该广告位已过申请期了</td>
+							</tr>								            
+						</table>
+						#else
+						<table width="60%" height="100%" style="background:#faf6c6;border:1px #e9d162 solid;margin-left:33px;color:#666666;">
+							<tr>
+								<td height="30" colspan="2" valign="bottom" style="padding-left:10px;">如果你对我们的广告位广告位感兴趣，还等什么？</td>
+							</tr>
+							<tr>
+								<td style="padding-left:10px;" width="100">赶快申请吧！</td>
+								<td> 
+									#if(!$!pro || $!pro.handleStatus == "C")
+									<input type="button" value="申 请 " class="sm-submit4" onclick="applyAdvert('$!adv.advertId')" />
+									<label><input type="checkbox" name="onloadPic" id="onloadPic" value="-1" class="checkboxcss" onclick="onloadPic();" /><font color="green">上传效果图</font></label>
+									#elseif($!pro.handleStatus == "A")
+									<input type="button" value="撤 销 " class="sm-submit4" onclick="cancelAdvert('$!pro.proposerId')" />
+									#end
+								</td>              
+							</tr>               
+						</table>
+						#end			 	       
+					</td>
+				</tr>				
+			</table></td>
+		</tr>   
+	  </table>	
+	  
+	  <table align="center" width="790" height="24" cellpadding="0" cellspacing="0" style="background:url(/image/comdo/dht_bg.gif) no-repeat; margin-top:10px;">
+		<tr>
+			<td width="5">&nbsp;</td>
+			<td width="735"><strong>广告其它信息</strong></td>	       				
+		</tr>
+	  </table>  
+	  
+	  <table align="center" width="720"cellpadding="0" cellspacing="0" border="0" bordercolor="#CCCCCC" style="padding-top:10px;">			
+		<tr>			
+			<td height="30" valign="top" style="text-indent:2em">$!adv.description</td>
+		</tr>			
+	  </table>
+	  
+	  #if($!pro)
+	  <table align="center" width="790" height="24" cellpadding="0" cellspacing="0" style="background:url(/image/comdo/dht_bg.gif) no-repeat; margin-top:10px;">
+		<tr>
+			<td width="5">&nbsp;</td>
+			<td width="735"><strong>申请人信息</strong></td>	       				
+		</tr>
+	  </table>  
+	  
+	  <table align="center" width="770"cellpadding="0" cellspacing="0" border="0" bordercolor="#CCCCCC" style="padding-top:10px;">			
+		<tr>
+		<td width="120" height="120" align="center" style="border:1px #cccccc solid;">
+			#if(!$!pro.picPath)
+				<img src="/pic/product/bnopic.jpg" width="100" height="100" />
+			#else
+				<a target="_blank" href="$!pro.picPath.replace("/pic/product/s","/pic/product/b")">
+					<img src="$!pro.picPathp" width="100" height="100" border="0" />
+				</a>
+			#end
+			</td>
+			<td width="500"><table width="100%" style="color:#333333;"> 
+				<tr>
+					<td height="30" align="right" width="90">申请人名称：</td>
+					<td colspan="2"><font color="#000000"><strong>$!pro.member.fullName</strong></font></td>  
+				</tr>
+				<tr>
+					<td height="30" align="right" width="90">申请时间：</td>
+					<td>$!pro.applyTime</td> 
+				</tr>
+				<tr>
+					<td height="30" align="right" width="90">办理状态：</td>
+					<td><strong>$!pro.handleStatus</strong></td> 
+				</tr>
+				<tr>
+					<td height="30" align="right" width="90">处理时间：</td>        
+					<td colspan="3">#if($!pro.handleTime)$!pro.handleTime#else未处理#end</td>  
+				</tr>									
+			</table></td>
+			</tr>
+	  </table>
+	  
+	  #end
+    
+    <!-- *************************************
+    		弹出层
+    *************************************  -->
+    <div id="bgdiv" class="bgdiv"></div>
+    <div id="toopendiv" style="display:none;position:absolute;overflow:hidden;z-index:6553; ">
+    
+    <form action="/do/advert/insertAdvert" method="post" name="form1" id="form1" enctype="multipart/form-data">
+    <input type="hidden" name="advertId" id="advertId" value="$!adv.advertId">
+    <table width="543" border="0" id="tablemenu" cellspacing="0" cellpadding="0" align="center"  background="$!{rc.contextPath}/image/title.gif" height="28">
+      <tr> 
+        <td height="28" width="513" valign="middle"><div class="move">上传效果图</div></td>
+    	<td align="left" width="30" ><img src="$!{rc.contextPath}/image/point_cha.gif" width="11" height="13" onclick="openBg(0);openSelect(0);" style="cursor:pointer;" alt="关闭" title="关闭" /></td>
+      </tr>
+    </table>                    
+    <table width="543" border="0" id="tablecontent" cellspacing="0" cellpadding="0" align="center" class="openType_con">
+       
+       <tr>
+        <td height="33">&nbsp;</td>
+    	<td class="td_w" valign="bottom">上传效果图，有利于我们对你申请的广告位更清楚的了解</td>           
+      </tr>
+       
+       <tr>
+        <td height="33" width="85" class="td_title" style="padding-top: 0;" align=left>效果图片:</td>
+    	<td class="td_w"><input type="file" name="advertPic" id="advertPic" size="50"></td>           
+      </tr> 
+      
+      <tr>
+        <td height="33">&nbsp;</td>
+    	<td class="td_w"><input type="submit" value=" 上 传 " class="sm-buttom2-2" ></td>           
+      </tr> 
+      <tr><td height="10" colspan="2"></td></tr>
+    </table>	
+    </form>
+    
+    </div>		  
+    		  
+	<!--内容块 -->
+	</td>
+  </tr>
+</table>
+#parse("/front/platform/member/layout/member_bottom.vm")
+</div>
+
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'demo');
+</script>
+<script type="text/javascript">
+
+function onloadPic(){
+	var val = document.getElementById("onloadPic");
+	if(val.checked){
+		if(confirm("确定要上传效果图！")){
+			openCarSelectDiv();
+		}
+	}
+}
+
+function applyAdvert(id){
+	location.href="$!{rc.contextPath}/do/advert/insertAdvert?advertId="+id;
+}
+function cancelAdvert(id){
+	if(confirm("你确定要撤销申请！")){
+			location.href="$!{rc.contextPath}/do/advert/cancelProposertAdvert?advertId="+id;
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<table sqlname="gift_money">
+    <column name="total_amount" javatype="com.yjf.common.lang.util.money.Money" />
+    <column name="used_amount" javatype="com.yjf.common.lang.util.money.Money" />
+    <column name="amount" javatype="com.yjf.common.lang.util.money.Money" />
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO gift_money(gift_id,gift_name,increase,rate_of_year,gift_num,person_num,total_amount,amount,used_amount,give_type,type,use_type,use_amount,end_date,start_date,use_start_date,use_end_date,status,create_userid,create_username,raw_add_time,description,time_limit,outBizNo,used_gift_num,loan_biz_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+			 ]]>
+		</sql>
+        <sqlmap>
+            <![CDATA[
+		 INSERT INTO gift_money (gift_id,rate_of_year,gift_num, person_num,gift_name,increase, amount,total_amount,used_amount,give_type,
+		  type, use_type,use_amount, end_date, start_date,use_end_date,use_start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time, description,time_limit,outBizNo,used_gift_num,loan_biz_type)
+             	VALUES	(#giftId#,#rateOfYear#,#giftNum#,#personNum#,#giftName#,#increase#,#amount#,#totalAmount#,#usedAmount#,#giveType#,#type#,#useType#,#useAmount#,#endDate#,#startDate#,#useEndDate#,#useStartDate#,#status#,#createUserid#,#createUsername#,#rawAddTime#,#rawUpdateTime#,#description#,#timeLimit#,#outBizNo#,#usedGiftNum#,#loanBizType#)
+	       <selectKey  resultClass ="long"  keyProperty ="giftId" >
+	          		 SELECT LAST_INSERT_ID() AS ID
+	      	</selectKey>
+				]]>
+        </sqlmap>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+				<![CDATA[
+              UPDATE gift_money
+	SET gift_name = ? ,  rate_of_year = ? , gift_num = ? ,give_type=?,
+	person_num = ? , total_amount = ? , amount = ? , used_amount = ? , TYPE = ?, use_type = ? , use_amount = ? , end_date = ? , start_date = ? ,use_end_date =? ,use_start_date =?,
+	STATUS = ? , create_userid = ?, create_username = ? , raw_add_time = ? , raw_update_time =?,
+	description = ? ,increase=?,time_limit=?,used_gift_num=?,loan_biz_type=?	WHERE	gift_id =?
+  ]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="long">
+		<sql>
+				<![CDATA[
+					DELETE FROM gift_money WHERE gift_id = ?
+				]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="long">
+		<sql>
+				<![CDATA[ SELECT 	gift_id, gift_name,increase,  rate_of_year, gift_num, person_num, total_amount,give_type,
+	amount, used_amount, TYPE, use_type, use_amount, end_date, start_date,use_end_date,use_start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+	description ,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money WHERE gift_id = ? ]]>
+		</sql>
+	</operation>
+
+    <operation name="findByIdForUpdate" paramtype="long">
+        <sql>
+            <![CDATA[ SELECT gift_id, gift_name,increase,  rate_of_year, gift_num, person_num, total_amount,give_type,
+	amount, used_amount, TYPE, use_type, use_amount, give_type, end_date, start_date,use_end_date,use_start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+	description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money WHERE gift_id = ?  for update]]>
+        </sql>
+    </operation>
+
+
+	<operation name="giftMoneyListByCondition" paramtype="object"  multiplicity="many">
+        <extraparams>
+            <param name="limitStart" javatype="long" />
+            <param name="pageSize" javatype="long" />
+            <param name="typeList" javatype="java.util.List" />
+        </extraparams>
+        <sql>
+            SELECT gift_id, gift_name,increase,  rate_of_year, gift_num, person_num, total_amount,
+            amount, used_amount,give_type, TYPE, use_type, use_amount, use_start_date,use_end_date,end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+            description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where gift_name like ?
+        </sql>
+        <sqlmap>
+				<![CDATA[
+				SELECT gift_id, gift_name,  increase,rate_of_year, gift_num, person_num, total_amount,amount, used_amount,give_type, TYPE,
+				use_type, use_amount, use_start_date,use_end_date,	end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+	             description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where 1 =1
+	              <dynamic>
+				  <isNotEmpty property="giftMoney.giftName" prepend=" and ">
+		              ${cdata-start}      gift_name like #giftMoney.giftName#   ${cdata-end}
+		          </isNotEmpty>
+
+
+   				  <isNotEmpty property="giftMoney.status" prepend=" and ">
+		              ${cdata-start}    status = #giftMoney.status#   ${cdata-end}
+		          </isNotEmpty>
+
+
+		          <isNotEmpty property="giftMoney.type" prepend=" and ">
+		              ${cdata-start}      type = #giftMoney.type#   ${cdata-end}
+		          </isNotEmpty>
+
+		          <isNotEmpty property="typeList" prepend=" and ">
+                        type in
+                        <iterate property="typeList" open="(" close=")" conjunction=",">
+                            #typeList[]#
+                        </iterate>
+		         </isNotEmpty>
+
+	        </dynamic>
+		          ORDER BY IF(STATUS='NORMAL',1,0) desc,raw_update_time DESC LIMIT #limitStart#,#pageSize#
+
+			]]>
+		</sqlmap>
+	</operation>
+
+    <operation name="giftMoneyCountByCondition" paramtype="object" >
+        <extraparams>
+            <param name="typeList" javatype="java.util.List" />
+        </extraparams>
+
+           <sql>
+                SELECT count(gift_id) from gift_money where gift_name  like ?
+           </sql>
+
+          <sqlmap>
+            <![CDATA[
+				SELECT count(gift_id)  FROM gift_money where 1 =1
+	              <dynamic>
+				  <isNotEmpty property="giftMoney.giftName" prepend=" and ">
+		              ${cdata-start}   gift_name like #giftMoney.giftName#   ${cdata-end}
+		          </isNotEmpty>
+
+   				  <isNotEmpty property="giftMoney.status" prepend=" and ">
+		              ${cdata-start}    status = #giftMoney.status#   ${cdata-end}
+		          </isNotEmpty>
+
+
+
+		          <isNotEmpty property="giftMoney.type" prepend=" and ">
+		              ${cdata-start}  type = #giftMoney.type#   ${cdata-end}
+		          </isNotEmpty>
+
+		         <isNotEmpty property="typeList" prepend=" and ">
+                   type in
+                        <iterate property="typeList" open="(" close=")" conjunction=",">
+                            #typeList[]#
+                        </iterate>
+		         </isNotEmpty>
+
+		         </dynamic>
+			]]>
+        </sqlmap>
+    </operation>
+
+
+
+
+    <operation name="findCountByGiftName">
+        <sql>
+            <![CDATA[ SELECT count(gift_id) FROM gift_money where gift_id = ? and gift_name =?	]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+                    SELECT count(gift_id) FROM gift_money where 1=1
+                    <isNotEmpty property="giftName" prepend=" and ">
+                        ${cdata-start}      gift_name = #giftName#   ${cdata-end}
+                    </isNotEmpty>
+
+                    <isGreaterThan property="giftId" compareValue="0" prepend=" and ">
+                        gift_id != #giftId#
+                    </isGreaterThan>
+            ]]>
+        </sqlmap>
+
+    </operation>
+
+    <operation name="giveGiftMoneyListByCondition" paramtype="object"  multiplicity="many">
+        <extraparams>
+            <param name="currentDate" javatype="java.util.Date" />
+        </extraparams>
+         <sql>
+             SELECT gift_id, gift_name,increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+             amount, used_amount, give_type,TYPE, use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+             description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where total_amount>used_amount and status ='NORMAL'
+        </sql>
+        <sqlmap>
+            <![CDATA[
+		SELECT gift_id, gift_name, increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+             amount, used_amount,give_type, TYPE,  use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+             description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where  total_amount>used_amount and status ='NORMAL'
+               <dynamic>
+				  <isNotEmpty property="giftMoney.giveType" prepend=" and ">
+		              ${cdata-start}   give_type  =#giftMoney.giveType#   ${cdata-end}
+		          </isNotEmpty>
+
+		            <isNotEmpty property="giftMoney.type" prepend=" and ">
+		              ${cdata-start}   type  =#giftMoney.type#   ${cdata-end}
+		          </isNotEmpty>
+
+		           <isNotEmpty property="currentDate" prepend=" and ">
+		              ${cdata-start}   start_date <= #currentDate# and  end_date >= #currentDate#  ${cdata-end}
+		          </isNotEmpty>
+
+            </dynamic>
+	             ORDER BY start_date asc
+			]]>
+        </sqlmap>
+    </operation>
+
+
+    <operation name="giveGainMoneyListByCondition" paramtype="object"  multiplicity="many">
+        <extraparams>
+            <param name="currentDate" javatype="java.util.Date" />
+        </extraparams>
+        <sql>
+            SELECT gift_id, gift_name,increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+            amount, used_amount, give_type,TYPE, use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+            description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where gift_num >used_gift_num and status ='NORMAL'
+        </sql>
+        <sqlmap>
+            <![CDATA[
+		SELECT gift_id, gift_name, increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+             amount, used_amount,give_type, TYPE,  use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+             description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where  gift_num >used_gift_num and status ='NORMAL'
+               <dynamic>
+				  <isNotEmpty property="giftMoney.giveType" prepend=" and ">
+		              ${cdata-start}   give_type  =#giftMoney.giveType#   ${cdata-end}
+		          </isNotEmpty>
+
+		            <isNotEmpty property="giftMoney.type" prepend=" and ">
+		              ${cdata-start}   type  =#giftMoney.type#   ${cdata-end}
+		          </isNotEmpty>
+
+		           <isNotEmpty property="currentDate" prepend=" and ">
+		              ${cdata-start}   start_date <= #currentDate# and  end_date >= #currentDate#  ${cdata-end}
+		          </isNotEmpty>
+
+            </dynamic>
+	             ORDER BY start_date asc
+			]]>
+        </sqlmap>
+    </operation>
+
+
+    <operation name="giveAllInvestGiftMoneyListByCondition" paramtype="object"  multiplicity="many">
+        <extraparams>
+            <param name="currentDate" javatype="java.util.Date" />
+        </extraparams>
+        <sql>
+            SELECT gift_id, gift_name,increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+            amount, used_amount, give_type,TYPE, use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+            description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where used_amount is null and status ='NORMAL'
+        </sql>
+        <sqlmap>
+            <![CDATA[
+		SELECT gift_id, gift_name, increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+             amount, used_amount,give_type, TYPE,  use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+             description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where  total_amount>used_amount and status ='NORMAL'
+               <dynamic>
+				  <isNotEmpty property="giftMoney.giveType" prepend=" and ">
+		              ${cdata-start}   give_type  =#giftMoney.giveType#   ${cdata-end}
+		          </isNotEmpty>
+
+		           <isNotEmpty property="currentDate" prepend=" and ">
+		              ${cdata-start}   end_date <= #currentDate#  ${cdata-end}
+		          </isNotEmpty>
+
+            </dynamic>
+	             ORDER BY start_date asc
+			]]>
+        </sqlmap>
+    </operation>
+
+
+    <operation name="checkExistsSameGiftMoney" paramtype="object" >
+        <sql>
+            SELECT count(gift_id) FROM gift_money where gift_id != ?
+        </sql>
+        <sqlmap>
+            <![CDATA[
+		SELECT count(gift_id) FROM gift_money where   (status ='NORMAL' or status = "STOP" ) and gift_id != #giftId#
+               <dynamic>
+				  <isNotEmpty property="giveType" prepend=" and ">
+		              ${cdata-start}   give_type  =#giveType#   ${cdata-end}
+		          </isNotEmpty>
+
+		          <isNotEmpty property="type" prepend=" and ">
+                        ${cdata-start}  type  =#type#    ${cdata-end}
+                  </isNotEmpty>
+
+		           <isNotEmpty property="startDate" prepend=" and ">
+		              ${cdata-start}   ((start_date <= #startDate# and  end_date >= #startDate#)  ${cdata-end}
+		          </isNotEmpty>
+
+		          <isNotEmpty property="endDate" prepend=" or ">
+		              ${cdata-start}   (start_date <= #endDate# and  end_date >= #endDate#)  ${cdata-end}
+		          </isNotEmpty>
+
+            </dynamic>
+				 ${cdata-start}
+                or (#startDate# <= start_date and start_date <= #endDate# ) or (#startDate# <= end_date and end_date <= #endDate# ) )    ORDER BY start_date asc
+                ${cdata-end}
+			]]>
+        </sqlmap>
+    </operation>
+
+
+    <operation name="queryExpireGiftMoneyListByCondition" multiplicity="many"  paramtype="java.util.Date">
+        <extraparams>
+            <param name="currentDate" javatype="java.util.Date" />
+        </extraparams>
+
+        <sql>
+            SELECT gift_id, gift_name,increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+            amount, used_amount, give_type,TYPE, use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+            description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where status ='NORMAL'
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	        SELECT gift_id, gift_name, increase, rate_of_year, gift_num, person_num, total_amount,use_start_date,use_end_date,
+             amount, used_amount,give_type, TYPE,  use_type, use_amount, end_date, start_date, STATUS, create_userid, create_username, raw_add_time, raw_update_time,
+             description,time_limit,outBizNo,used_gift_num,loan_biz_type FROM gift_money where   status ='NORMAL'     and    #currentDate# > end_date
+
+			]]>
+
+
+
+        </sqlmap>
+    </operation>
+    
+    <operation name="insertAutotest" paramtype="object">
+		<sql>
+			<![CDATA[
+			INSERT INTO gift_money(gift_id,gift_name,increase,rate_of_year,gift_num,person_num,total_amount,amount,used_amount,give_type,type,use_type,use_amount,end_date,start_date,use_start_date,use_end_date,status,create_userid,create_username,raw_add_time,description,time_limit,outBizNo,used_gift_num,loan_biz_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ]]>
+		</sql>
+       
+	</operation>
+	
+	<operation name="deleteByIdAutotest" paramtype="long">
+		<sql>
+		    <![CDATA[
+				DELETE FROM gift_money WHERE gift_id = ?
+			]]>
+	    </sql>
+	</operation>
+	
+	<operation name="deleteByGiftNameAutotest" paramtype="String">
+		<sql>
+		    <![CDATA[
+				DELETE FROM gift_money WHERE gift_name = ?
+			]]>
+	    </sql>
+	</operation>
+	
+	<operation name="findByIdAutotest" paramtype="long">
+		<sql>
+			<![CDATA[
+			 SELECT  gift_id ,gift_name ,increase ,rate_of_year ,gift_num ,person_num ,total_amount ,amount ,used_amount ,give_type ,type ,use_type ,use_amount ,end_date ,start_date ,use_start_date ,use_end_date ,status ,create_userid ,create_username ,raw_add_time ,raw_update_time ,description ,time_limit,outBizNo,used_gift_num,loan_biz_type  FROM gift_money WHERE gift_id=?
+	       ]]>
+		</sql>
+	</operation>
+	
+	<operation name="findByGiftNameAutotest" paramtype="String">
+		<sql>
+			<![CDATA[
+			 SELECT  gift_id ,gift_name ,increase ,rate_of_year ,gift_num ,person_num ,total_amount ,amount ,used_amount ,give_type ,type ,use_type ,use_amount ,end_date ,start_date ,use_start_date ,use_end_date ,status ,create_userid ,create_username ,raw_add_time ,raw_update_time ,description ,time_limit,outBizNo,used_gift_num ,loan_biz_type FROM gift_money WHERE gift_name=?
+	       ]]>
+		</sql>
+	</operation>
+
+</table>

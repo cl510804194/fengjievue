@@ -1,0 +1,1 @@
+﻿INSERT INTO `user_base_info` VALUES ('1', 1, 'admin', NULL, '管理员', '96e79218965eb72c92a549dd5a330112', '96e79218965eb72c92a549dd5a330112', '', '', '', 'IS', '541442998@qq.com', 'IS', '', 'normal', NULL, '2016-4-25 12:48:29', '', '', '', '', 'IS', 0, '2016-4-22 10:36:59', 'GENERAL', NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ADMIN', NULL, NULL, NULL, 'E8', NULL);

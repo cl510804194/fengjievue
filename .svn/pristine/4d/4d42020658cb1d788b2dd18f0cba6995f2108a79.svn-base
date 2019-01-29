@@ -1,0 +1,247 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.common.services.impl;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.dal.daointerface.ExtraDAO;
+import com.yjf.esupplier.service.common.services.DateSeqService;
+import com.yjf.esupplier.service.common.services.result.DateSeqResult;
+import com.yjf.esupplier.ws.common.enums.SeqNameEnum;
+
+/**
+ * 
+ * @Filename DateSeqServicesImpl.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2013-7-5</li> <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ * 
+ */
+@Service("dateSeqService")
+public class DateSeqServiceImpl implements DateSeqService {
+	@Autowired
+	protected ExtraDAO extraDAO;
+	
+	static Map<String, SeqItem> exsitSeqMap = new HashMap<String, SeqItem>();
+	
+	/** 事务模板 */
+	@Autowired
+	protected TransactionTemplate transactionTemplateRequiresNew;
+	
+	@Override
+	public String getNextDateSeq(final SeqNameEnum seqName, String prefix, int length) {
+		
+		if (length > 100)
+			length = 100;
+		final int realLength = length;
+		if (prefix == null)
+			prefix = "";
+		final String realPrefix = prefix;
+		final Date date = new Date();
+		final String dateString = DateUtil.getFormat(com.yjf.common.lang.util.DateUtil.dtShort)
+			.format(date);
+		final StringBuffer sb = new StringBuffer();
+		SeqItem seqItem = exsitSeqMap.get(seqName.code());
+		if (seqItem != null) {
+			if (StringUtil.equals(dateString, seqItem.dateString)) {
+				long value = getNextIndex(seqName, date, seqItem);
+				return makeSeqString(realPrefix, realLength, dateString, sb, value);
+				//return getNextSeqString(seqName, prefix, length, date, dateString, sb);
+			}
+		}
+		synchronized (exsitSeqMap) {
+			exsitSeqMap.remove(seqName);
+			DateSeqResult result = transactionTemplateRequiresNew
+				.execute(new TransactionCallback<DateSeqResult>() {
+					@Override
+					public DateSeqResult doInTransaction(TransactionStatus status) {
+						DateSeqResult dateSeqResult = new DateSeqResult();
+						SeqItem newSeqItem = new SeqItem();
+						newSeqItem.seqName = seqName.code();
+						newSeqItem.dateString = dateString;
+						boolean isExsit = extraDAO.selectDateSeq(newSeqItem.seqName, date);
+						if (isExsit) {
+							dateSeqResult.setNextSeqString(getNextSeqString(seqName, realPrefix,
+								realLength, date, dateString, sb, newSeqItem));
+							exsitSeqMap.put(seqName.code(), newSeqItem);
+						} else {
+							long value = extraDAO.insertDateSeq(seqName.code(), date);
+							dateSeqResult.setNextSeqString(makeSeqString(realPrefix, realLength,
+								dateString, sb, value));
+						}
+						return dateSeqResult;
+					}
+				});
+			return result.getNextSeqString();
+		}
+	}
+	
+	private long getNextIndex(final SeqNameEnum seqName, final Date date, SeqItem seqItem) {
+		long nextIndex = seqItem.getNextIndex();
+		if (nextIndex > 0)
+			return nextIndex;
+		synchronized (seqItem) {
+			nextIndex = seqItem.getNextIndex();
+			if (nextIndex > 0)
+				return nextIndex;
+			return getNextSeqLong(seqName.code(), seqItem, date, seqName.getCacheCount());
+		}
+	}
+	
+	@Override
+	public long getNextSeqNumber(String seqName) {
+		return getNextSeqNumber(seqName, 50);
+	}
+	
+	@Override
+	public long getNextSeqNumber(SeqNameEnum nameEnum) {
+		return getNextSeqNumber(nameEnum.code(), nameEnum.getCacheCount());
+	}
+	
+	@Override
+	public long getNextSeqNumber(String seqName, long cacheNumber) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(2012, 1, 1, 0, 0, 0);
+		Date date = cal.getTime();
+		
+		SeqItem seqItem = exsitSeqMap.get(seqName);
+		if (seqItem != null) {
+			long nextIndex = seqItem.getNextIndex();
+			if (nextIndex > 0)
+				return nextIndex;
+			synchronized (seqItem) {
+				nextIndex = seqItem.getNextIndex();
+				if (nextIndex > 0)
+					return nextIndex;
+				return getNextSeqLong(seqName, seqItem, date, cacheNumber);
+			}
+			
+		}
+		synchronized (exsitSeqMap) {
+			exsitSeqMap.remove(seqName);
+			SeqItem newSeqItem = new SeqItem();
+			newSeqItem.seqName = seqName;
+			boolean isExsit = extraDAO.selectDateSeq(seqName, date);
+			if (isExsit) {
+				exsitSeqMap.put(seqName, newSeqItem);
+				return getNextSeqLong(seqName, newSeqItem, date, cacheNumber);
+			} else {
+				return insertSeq(seqName, newSeqItem, date);
+			}
+		}
+	}
+	
+	/**
+	 * @param seqName
+	 * @param prefix
+	 * @param length
+	 * @param date
+	 * @param dateString
+	 * @param sb
+	 * @return
+	 */
+	protected String getNextSeqString(final SeqNameEnum seqName, final String prefix,
+										final int length, final Date date, final String dateString,
+										final StringBuffer sb, final SeqItem newSeqItem) {
+		long value = transactionTemplateRequiresNew.execute(new TransactionCallback<Long>() {
+			@Override
+			public Long doInTransaction(TransactionStatus status) {
+				
+				long value = extraDAO.getNextDateSeq(seqName.code(), date, seqName.getCacheCount());
+				newSeqItem.currentIndex = value - seqName.getCacheCount() + 1;
+				newSeqItem.maxIndex = value;
+				return newSeqItem.getNextIndex();
+			}
+		});
+		return makeSeqString(prefix, length, dateString, sb, value);
+	}
+	
+	protected long getNextSeqLong(final String seqName, final SeqItem seqItem, final Date date,
+									final long cacheNumber) {
+		
+		return transactionTemplateRequiresNew.execute(new TransactionCallback<Long>() {
+			@Override
+			public Long doInTransaction(TransactionStatus status) {
+				
+				long value = extraDAO.getNextDateSeq(seqName, date, cacheNumber);
+				seqItem.currentIndex = value - cacheNumber + 1;
+				seqItem.maxIndex = value;
+				return seqItem.getNextIndex();
+			}
+		});
+		
+	}
+	
+	protected long insertSeq(final String seqName, final SeqItem newSeqItem, final Date date) {
+		
+		return transactionTemplateRequiresNew.execute(new TransactionCallback<Long>() {
+			@Override
+			public Long doInTransaction(TransactionStatus status) {
+				long value = extraDAO.insertDateSeq(seqName, date);
+				newSeqItem.currentIndex = value;
+				newSeqItem.maxIndex = value;
+				exsitSeqMap.put(seqName, newSeqItem);
+				return newSeqItem.getNextIndex();
+			}
+		});
+		
+	}
+	
+	/**
+	 * @param prefix
+	 * @param length
+	 * @param dateString
+	 * @param sb
+	 * @param value
+	 * @return
+	 */
+	protected String makeSeqString(String prefix, int length, String dateString, StringBuffer sb,
+									long value) {
+		int numberOfDigits = length - dateString.length() - prefix.length();
+		String seq = String.valueOf(value);
+		sb.append(prefix);
+		sb.append(dateString);
+		while (seq.length() < numberOfDigits) {
+			seq = "0" + seq;
+		}
+		sb.append(seq);
+		return sb.toString();
+	}
+	
+	private static class SeqItem {
+		public String seqName = "";
+		public String dateString = "";
+		public long currentIndex = 0;
+		public long maxIndex = 10;
+		
+		public long getNextIndex() {
+			long index = currentIndex++;
+			if (index <= maxIndex)
+				return index;
+			else
+				return -1;
+		}
+	}
+
+}

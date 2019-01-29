@@ -1,0 +1,4 @@
+testId,userName,mobile,logPassword,id,orderStatus,supplierId,totalAmount,workflowStatus,supplierName,saleTypeB2c,saleTypeO2o,facade,paymentFlowId,refundStatus,saleTypeHotels,resortsBusinessId,batchNo,tuneMeal,isPayed,takegoodsId,paymentMethod,saleTypeOrderMeal,tableNumber,tableNumberSeq,qrCode,itemId,itemProductId,itemProductName,quantity,proPrice,picPath,postFree,days,roomType
+1001,梵蒂冈,13767141215,666666,4858,YFK,4881,100,HAVE_BEEN_ISSUED,奇谈,NO,NO,SEVEN_AFTER,8854,REFUNDING,NO,4545,88777,NO,NO,5877,ONLINE,NO,4558,1515,8475,4857,5745,规范,1,100,485,10,0,normal
+1002,梵蒂冈,13767141215,666666,4858,YFK,4881,100,HAVE_BEEN_ISSUED,奇谈,NO,NO,SEVEN_AFTER,8854,REFUNDING,NO,4545,88777,NO,NO,5877,ONLINE,NO,4558,1515,8475,4857,5745,规范,1,100,485,10,0,normal
+1003,梵蒂冈,13767141215,666666,4858,YFK,4881,100,HAVE_BEEN_ISSUED,奇谈,NO,NO,SEVEN_AFTER,8854,REFUNDING,NO,4545,88777,NO,NO,5877,ONLINE,NO,4558,1515,8475,4857,5745,规范,1,100,485,10,0,normal

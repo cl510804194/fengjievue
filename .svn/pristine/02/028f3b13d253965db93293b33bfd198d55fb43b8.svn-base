@@ -1,0 +1,55 @@
+#parse("/front/platform/layout/header-title.vm")
+
+ <body id="setHeight">
+    #parse("/front/platform/layout/header.vm")
+
+        <!--centerContent start-->
+         <div class="content MO link_error">
+            <div class="MI">
+	            <div class="error_bg">
+		            <div class="error_tips_box">
+		                <p class="error_msgs">很抱歉，系统打了个盹，导致操作失败了...</p>
+		                <p class="error_msgs">你要坚强些，继续发掘别的页面去吧</p>
+		                <p class="error_btn">
+		                    <a href="javascript:history.go(-1);location.reload()" class="return_pre DIB">返回上一页</a>
+		                    #if($sessionLocal.userBizType.code=="BUYER")
+		                    <a href="/do/mainHome.htm" class="return_center DIB">回到个人中心</a>
+		                    #elseif($sessionLocal.userBizType.code=="SELLER")
+		                    <a href="/do/scenic/doCenter/mainHome.htm" class="return_center DIB">回到景区中心</a>	
+		                    #end
+		                </p>
+		             </div>
+	             </div>
+            </div>
+        </div> 
+        <!--centerContent end-->
+        
+		<!--centerContent start-->
+		<!--<div class="content person_cntr MO">
+		    <div class="MI">
+		        ##parse("/front/platform/member/layout/member_left.vm")
+		        <div class="left_cnt DIB push_pro">
+		            <p class="nav_title"><span class="DIB">提示信息</span><a href="#" class="DIB">返回</a></p>
+		
+		            <div class="left_content">
+		                <p class="err_msg"><i class="warn"></i><span>抱歉，系统打了个盹，导致操作失败了!</span></p>
+		
+		                <div class="opt_btn">
+		                    <a href="javascript:history.go(-1);location.reload()"><input type="button" class="return_pre" value="返回上一页"/></a>
+		                    <a href="/do/mainHome.htm"><input type="button" class="return_pre" value="回到景首页"/></a>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>-->
+		<!--centerContent end-->
+
+		<!-- footer begin -->
+		    #parse("/front/platform/layout/footer.vm")
+		<!-- footer end -->
+</body>
+<script>
+    seajs.use($_GLOBAL.mode +'orderConfirm');
+</script>
+</html>
+

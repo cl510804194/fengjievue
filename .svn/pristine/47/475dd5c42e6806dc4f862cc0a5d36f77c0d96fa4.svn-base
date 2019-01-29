@@ -1,0 +1,207 @@
+package yrd.app;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.alibaba.fastjson.JSONObject;
+import com.autotest.annotation.AutoTestCase;
+import com.autotest.runner.AutoTestJUnit4ClassRunner;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.dal.dataobject.UserLoginLogDO;
+import com.yjf.esupplier.web.util.AESUtil;
+
+import testbase.ServiceAutoTestBase;
+@RunWith(AutoTestJUnit4ClassRunner.class)
+public class AppUserInfoTest extends ServiceAutoTestBase {
+
+	/*
+	 * 测试方向：
+	 * 1001 查询失败，用户没登录
+	 * 1002 查询成功，买家，默认不查看余额和用户卡状态
+	 */
+	@Test
+	@AutoTestCase(file = "yrd/app/appUserInfoTestSuccess.csv", 
+			description = "账户信息,成功用例")
+	public void appUserInfoTestSuccess(int testId,
+									   String userName,
+									   String mobile,
+									   String logPassword,
+									   String seeMoney){
+		long userId=0;
+		String userBaseId="";
+		//清除数据
+		clearnPointsRuleByRuleType("REGISTER");
+		clearnPointsRuleByRuleType("LOGIN");
+		UserBaseInfoDO userBaseInfoDO=findUserBaseInfoByUserName(userName);
+		if (userBaseInfoDO!=null) {
+			userId=userBaseInfoDO.getUserId();
+			userBaseId=userBaseInfoDO.getUserBaseId();
+		}
+		clearnUserRoleByUserId(userId);
+		clearnUserByUserName(userName);
+		clearnPersonaInfoByUserBaseId(userBaseId);
+		clearnUserBaseInfoByUserName(userName);
+		clearnUserAccountDataByUserId(userId);
+		clearnUserExtendByUserId(userId);
+		clearnUserLogin(userName);
+		
+		
+		// 准备数据
+		logger.info("更新系统参数");
+		updateSysParamInfoDOByParamName("SYS_PARAM_HUA_HONG_IS_USE","Y");
+		sysParameterService.clearCache();
+		
+		
+		// 测试过程
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response =null;
+		String conResult =null;
+		JSONObject jobj =null;
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("msg", getStringFromJson(new JSONObject())));
+			HttpEntity httpEntity=new UrlEncodedFormEntity(nameValuePairs, "UTF-8");
+
+			if (testId!=1001) {
+				//获取图片验证码
+				String getImgCodeUrl="http://127.0.0.1:8085/app/getImgCode.htm";
+				HttpPost getImgCodeHP = new HttpPost(getImgCodeUrl);
+				getImgCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				getImgCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(getImgCodeHP);
+				getImgCodeHP.releaseConnection();
+				
+				
+				//发送短信验证码(register注册)
+				String sendSmsCodeUrl="http://127.0.0.1:8085/app/sendSmsCode.htm?mobile="+mobile+"&business=register";
+				HttpPost sendSmsCodeHP = new HttpPost(sendSmsCodeUrl);
+				sendSmsCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				sendSmsCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(sendSmsCodeHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				sendSmsCodeHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				assertEquals(1, jobj.get("code"));
+				assertEquals("发送手机验证码成功", jobj.get("message"));	
+				
+				
+				//提交注册信息
+				String registerSubmitUrl="http://127.0.0.1:8085/app/registerSubmit.htm?userName="+userName+
+						"&mobile="+mobile+"&logPassword="+AESUtil.encode(logPassword)+"&code=888888&imgCode=8888";
+				HttpPost registerSubmitHP = new HttpPost(registerSubmitUrl);
+				registerSubmitHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				registerSubmitHP.setEntity(httpEntity);
+				response = httpclient.execute(registerSubmitHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				registerSubmitHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("注册成功", jobj.get("message"));
+				assertEquals(0, jobj.get("giftMoney"));
+				assertEquals("无优惠券信息", jobj.get("giftMoneyMessage"));
+				//数据校验
+				userBaseInfoDO=findUserBaseInfoByUserName(userName);
+				userId=userBaseInfoDO.getUserId();
+				userBaseId=userBaseInfoDO.getUserBaseId();
+				assertEquals(mobile, userBaseInfoDO.getMobile());
+				assertEquals(userName, userBaseInfoDO.getUserName());
+				assertEquals(MD5Util.getMD5_32(logPassword), userBaseInfoDO.getLogPassword());
+			}
+			
+			
+			//获取账户信息
+			String userInfoUrl="http://127.0.0.1:8085/app/userInfo.htm?seeMoney="+seeMoney;
+			HttpPost userInfoHP = new HttpPost(userInfoUrl);
+			userInfoHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+			userInfoHP.setEntity(httpEntity);
+			response = httpclient.execute(userInfoHP);
+			/*读返回数据*/
+			conResult = EntityUtils.toString(response.getEntity());
+			jobj = JSONObject.parseObject(conResult);
+			userInfoHP.releaseConnection();
+			System.out.println(jobj.get("code"));
+			System.out.println(jobj.get("message"));
+			//验证结果
+			if (testId==1001) {
+				assertEquals(-1, jobj.get("code"));
+				assertEquals("未登录或登录失效", jobj.get("message"));
+			}else if (testId==1002) {
+				assertEquals(1, jobj.get("code"));
+				assertEquals("获取用户基本信息成功", jobj.get("message"));
+				Map<String, String> map=(Map<String, String>) jobj.get("info");
+				assertEquals(userName, map.get("userName"));
+				assertEquals("0", map.get("amount"));
+				assertEquals("", map.get("cardUseState"));
+				assertEquals("0", map.get("giftCount"));
+				assertEquals("0", map.get("gainCount"));
+				assertEquals("0", map.get("userIntegral"));
+				assertEquals("GENERAL", map.get("userLevel"));
+				assertEquals("", map.get("userLevelMax"));
+				assertEquals("0", map.get("userLevelDayNum"));
+				assertEquals("0.0", map.get("userGrowthValue"));
+				assertEquals("0", map.get("jfen"));
+				assertEquals("YES", map.get("hasPayPassword"));
+			}
+			
+			//清除数据
+			clearnUserRoleByUserId(userId);
+			clearnUserByUserName(userName);
+			clearnPersonaInfoByUserBaseId(userBaseId);
+			clearnUserBaseInfoByUserName(userName);
+			clearnUserAccountDataByUserId(userId);
+			clearnUserExtendByUserId(userId);
+			clearnUserLogin(userName);
+			
+			//清除登录日志
+			List<UserLoginLogDO> userLoginLogDOlist=findUserLoginLogByUserId(userId);
+			if (!userLoginLogDOlist.isEmpty()) {
+				for (int i = 0; i < userLoginLogDOlist.size(); i++) {
+					UserLoginLogDO userLoginLogDO=userLoginLogDOlist.get(i);
+					if (userLoginLogDO!=null) {
+						clearnUserLoginLogById(userLoginLogDO.getTblBaseId());
+					}
+				}
+			}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static String getStringFromJson(JSONObject adata) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		for (Object key : adata.keySet()) {
+			sb.append("\"" + key + "\":\"" + adata.get(key) + "\",");
+		}
+		String rtn = sb.toString().substring(0, sb.toString().length() - 1)
+				+ "}";
+		return rtn;
+	}
+}

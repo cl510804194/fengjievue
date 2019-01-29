@@ -1,0 +1,278 @@
+<table sqlname="hotels_stock">
+    <column name="product_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="market_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="morning_room_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="special_room_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <column name="exec_price" javatype="com.yjf.common.lang.util.money.Money"/>
+    <operation name="insert" paramtype="object">
+        <sql>
+            <![CDATA[
+           INSERT INTO hotels_stock(id,product_id,product_name,supplier_id,price_date,product_price,market_price,exec_price,morning_room_price,special_room_price,in_stock,available_stock,ordain_num,morning_room_total_num,morning_room_num,special_room_total_num,special_room_num,long_room_num,status,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[ INSERT INTO hotels_stock(id,product_id,product_name,supplier_id,price_date,product_price,market_price,exec_price,morning_room_price,special_room_price,in_stock,available_stock,ordain_num,morning_room_total_num,morning_room_num,special_room_total_num,special_room_num,long_room_num,status,raw_add_time)
+             VALUES (#id#,#productId#,#productName#,#supplierId#,#priceDate#,#productPrice#,#marketPrice#,#execPrice#,#morningRoomPrice#,#specialRoomPrice#,#inStock#,#availableStock#,#ordainNum#,#morningRoomTotalNum#,#morningRoomNum#,#specialRoomTotalNum#,#specialRoomNum#,#longRoomNum#,#status#,#rawAddTime#)
+	       <selectKey  resultClass ="long"  keyProperty ="id" >
+	          		 SELECT LAST_INSERT_ID() AS ID
+	      	</selectKey>
+				]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="findById" paramtype="string">
+        <sql>
+            <![CDATA[
+			SELECT  * FROM hotels_stock WHERE id=?
+
+	     ]]>
+        </sql>
+    </operation>
+    <operation name="findByCondition" paramtype="object" multiplicity="many">
+        <extraparams>
+			<param name="productStatus" javatype="java.lang.String"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="leftStock" javatype="long"/>
+            <param name="normalStock" javatype="long"/>
+            <param name="leftSpeStock" javatype="long"/>
+            <param name="leftMorStock" javatype="long"/>
+            <param name="limitStart" javatype="long"/>
+            <param name="pageSize" javatype="long"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  *  FROM hotels_stock
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  *  FROM hotels_stock  h INNER JOIN tbl_product t on h.product_id=t.product_id
+              <dynamic prepend="where">
+	            <isGreaterThan property="hotelsStock.supplierId"  compareValue="0" prepend=" and ">
+				h.supplier_id = #hotelsStock.supplierId#
+				</isGreaterThan>
+				<isNotEmpty property="productStatus" prepend=" and ">
+				 t.product_status = #productStatus#
+				</isNotEmpty>
+				<isNotEmpty property="hotelsStock.priceDate" prepend=" and ">
+				h.price_date = #hotelsStock.priceDate#
+				</isNotEmpty>
+				<isGreaterThan property="hotelsStock.productId"  compareValue="0" prepend=" and ">
+				h.product_id = #hotelsStock.productId#
+				</isGreaterThan>
+	            <isGreaterThan property="hotelsStock.ordainNum"  compareValue="0" prepend=" and ">
+	               h.ordain_num>=#ordainNum#
+	            </isGreaterThan>
+				<isNotEmpty property="beginDate" prepend=" and ">
+				${cdata-start} h.price_date>=#beginDate# ${cdata-end}
+				</isNotEmpty>
+				<isNotEmpty property="endDate" prepend=" and ">
+				${cdata-start} h.price_date<#endDate# ${cdata-end}
+				</isNotEmpty>
+	            <isGreaterThan property="leftStock"  compareValue="0" prepend=" and ">
+	               (h.available_stock-h.ordain_num)>=#leftStock#
+	            </isGreaterThan>
+	            <isGreaterThan property="normalStock"  compareValue="0" prepend=" and ">
+	               (h.available_stock-h.ordain_num-(h.special_room_total_num-h.special_room_num)-(h.morning_room_total_num-h.morning_room_num))>=#normalStock#
+	            </isGreaterThan>
+	            <isGreaterThan property="leftSpeStock"  compareValue="0" prepend=" and ">
+	               (h.special_room_total_num-h.special_room_num)>=#leftSpeStock#
+	            </isGreaterThan>
+	            <isGreaterThan property="leftMorStock"  compareValue="0" prepend=" and ">
+	               (h.morning_room_total_num-h.morning_room_num)>=#leftMorStock#
+	            </isGreaterThan>
+				<isNotEmpty property="hotelsStock.status" prepend=" and ">
+				h.status = #hotelsStock.status#
+				</isNotEmpty>
+				  </dynamic>
+	           ORDER by h.price_date desc,h.product_Id,h.id
+        <isGreaterThan property="limitStart" compareValue="-1">
+            LIMIT #limitStart#,#pageSize#;
+        </isGreaterThan>
+        ]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="findByConditionCount" paramtype="object">
+        <extraparams>
+			<param name="productStatus" javatype="java.lang.String"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="leftStock" javatype="long"/>
+            <param name="normalStock" javatype="long"/>
+            <param name="leftSpeStock" javatype="long"/>
+            <param name="leftMorStock" javatype="long"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	        SELECT  count(*)  FROM hotels_stock
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	          SELECT  count(*)   FROM hotels_stock h INNER JOIN tbl_product t on h.product_id=t.product_id
+	            <dynamic prepend="where">
+	            <isGreaterThan property="hotelsStock.supplierId"  compareValue="0" prepend=" and ">
+				h.supplier_id = #hotelsStock.supplierId#
+				</isGreaterThan>
+				<isNotEmpty property="productStatus" prepend=" and ">
+				 t.product_status = #productStatus#
+				</isNotEmpty>
+				<isNotEmpty property="hotelsStock.priceDate" prepend=" and ">
+				h.price_date = #hotelsStock.priceDate#
+				</isNotEmpty>
+				<isGreaterThan property="hotelsStock.productId"  compareValue="0" prepend=" and ">
+				h.product_id = #hotelsStock.productId#
+				</isGreaterThan>
+	            <isGreaterThan property="hotelsStock.ordainNum"  compareValue="0" prepend=" and ">
+	               h.ordain_num>=#ordainNum#
+	            </isGreaterThan>
+				<isNotEmpty property="beginDate" prepend=" and ">
+				${cdata-start} h.price_date>=#beginDate# ${cdata-end}
+				</isNotEmpty>
+				<isNotEmpty property="endDate" prepend=" and ">
+				${cdata-start} h.price_date<#endDate# ${cdata-end}
+				</isNotEmpty>
+	            <isGreaterThan property="leftStock"  compareValue="0" prepend=" and ">
+	               (h.available_stock-h.ordain_num)>=#leftStock#
+	            </isGreaterThan>
+	            <isGreaterThan property="normalStock"  compareValue="0" prepend=" and ">
+	               (h.available_stock-h.ordain_num-(h.special_room_total_num-h.special_room_num)-(h.morning_room_total_num-h.morning_room_num))>=#normalStock#
+	            </isGreaterThan>
+	            <isGreaterThan property="leftSpeStock"  compareValue="0" prepend=" and ">
+	               (h.special_room_total_num-h.special_room_num)>=#leftSpeStock#
+	            </isGreaterThan>
+	            <isGreaterThan property="leftMorStock"  compareValue="0" prepend=" and ">
+	               (h.morning_room_total_num-h.morning_room_num)>=#leftMorStock#
+	            </isGreaterThan>
+				<isNotEmpty property="hotelsStock.status" prepend=" and ">
+				h.status = #hotelsStock.status#
+				</isNotEmpty>
+				  </dynamic>
+            ]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="findByPidAndDates" multiplicity="many">
+        <extraparams>
+            <param name="idList" javatype="java.util.List"/>
+            <param name="beginDate" javatype="java.util.Date"/>
+            <param name="endDate" javatype="java.util.Date"/>
+            <param name="status" javatype="java.lang.String"/>
+        </extraparams>
+        <sql>
+            <![CDATA[
+	       SELECT  *  FROM hotels_stock
+	       WHERE  1=1
+	        ]]>
+        </sql>
+        <sqlmap>
+            <![CDATA[
+	         SELECT  *  FROM hotels_stock
+	            <dynamic prepend="where">
+				<isNotEmpty property="idList" prepend=" and ">
+				product_Id in
+				<iterate  property="idList" open="(" close=")" conjunction=",">
+					#idList[]#
+				</iterate>
+				</isNotEmpty>
+				<isNotEmpty property="beginDate" prepend=" and ">
+				${cdata-start} price_date>=#beginDate# ${cdata-end}
+				</isNotEmpty>
+				<isNotEmpty property="endDate" prepend=" and ">
+				${cdata-start} price_date<#endDate# ${cdata-end}
+				</isNotEmpty>
+				<isNotEmpty property="status" prepend=" and ">
+				status = #status#
+				</isNotEmpty>
+				  </dynamic>
+	           ORDER by price_date desc,product_Id,id
+        ]]>
+        </sqlmap>
+    </operation>
+
+    <operation name="findByIdForUpdate" paramtype="string">
+        <sql>
+            <![CDATA[
+		SELECT  *  FROM hotels_stock  WHERE id=? for update
+
+	     ]]>
+        </sql>
+    </operation>
+
+    <operation name="findByPidAndDate" paramtype="string">
+        <sql>
+            <![CDATA[
+		SELECT  *  FROM hotels_stock  WHERE product_id=? and price_date = ?
+
+	     ]]>
+        </sql>
+    </operation>
+
+    <operation name="updateProductName" paramtype="string">
+        <sql>
+            <![CDATA[
+		update hotels_stock set product_name=? where  product_id=?
+
+	     ]]>
+        </sql>
+    </operation>
+
+    <operation name="deleteById" paramtype="string">
+        <sql>
+            <![CDATA[
+			DELETE FROM hotels_stock WHERE id=?
+	     ]]>
+        </sql>
+    </operation>
+    <operation name="deleteByProductId" paramtype="string">
+        <sql>
+            <![CDATA[
+			DELETE FROM hotels_stock WHERE product_id=?
+	       ]]>
+        </sql>
+    </operation>
+
+    <operation name="deleteByInit" paramtype="string">
+        <sql>
+            <![CDATA[
+			DELETE FROM hotels_stock WHERE product_id=? and price_date>=? and price_date<? and status='ON' and ordain_num=0
+	       ]]>
+        </sql>
+    </operation>
+
+    <operation name="deleteByPIdAndDates" paramtype="string">
+        <sql>
+            <![CDATA[
+			DELETE FROM hotels_stock WHERE product_id=? and price_date>=? and price_date<?
+	       ]]>
+        </sql>
+    </operation>
+
+    <operation name="findPeriod" paramtype="string">
+        <sql>
+            <![CDATA[
+			
+			select 0 id,null price_date,0 morning_room_price,0 special_room_price,0 morning_room_num,null raw_add_time,null raw_update_time, product_id,product_name, supplier_id,avg(product_price) product_price,avg(market_price) market_price,avg(exec_price) exec_price,min(in_stock) in_stock,min(available_stock) available_stock,max(ordain_num) ordain_num,
+			min(special_room_total_num) special_room_total_num, max(special_room_num) special_room_num,max(long_room_num) long_room_num  FROM hotels_stock
+			
+			WHERE product_id=? and price_date>=? and price_date<? and status=?
+			group by product_id,product_name, supplier_id
+			
+	       ]]>
+        </sql>
+    </operation>
+    <operation name="update" paramtype="object">
+        <sql>
+            <![CDATA[
+				UPDATE hotels_stock SET
+				product_id = ?,product_name = ?,supplier_id = ?,price_date = ?,product_price = ?,market_price = ?,exec_price = ?,morning_room_price = ?,special_room_price = ?,in_stock = ?,available_stock = ?,ordain_num = ?,morning_room_total_num = ?,morning_room_num = ?,special_room_total_num = ?,special_room_num = ?,long_room_num = ?,status = ?
+				 WHERE id=?
+
+	       ]]>
+        </sql>
+    </operation>
+
+
+</table>

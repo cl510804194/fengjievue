@@ -1,0 +1,118 @@
+var facadeEditor={};
+
+facadeEditor.debug=true;
+
+//butil.loadJs("~/js/auto-complete/jquery.auto-complete.js");
+butil.loadCss("/resources/js/auto-complete/jquery.auto-complete.css");
+
+facadeEditor.init=function(typeCodeFieldId, editorId, facadeValueFieldId, defaultValue){
+	var fldType=butil.element(typeCodeFieldId);
+	var fldValue=butil.element(facadeValueFieldId);
+	var fldEditor=butil.element(editorId);
+	if(!fldType || !editorId || !fldValue) return;
+	var dValue="";
+	if(typeof(defaultValue)!="undefined") dValue=defaultValue;
+	// default vale will be in format as
+	//##品牌--4::OOO##制茶工艺--7::红茶##
+	var oldType="";
+	$(document).everyTime("1s", typeCodeFieldId+"_timer", function(){
+		if(oldType!=fldType.value){
+			oldType=fldType.value;
+			facadeEditor.loadData(oldType, fldEditor, fldValue, dValue);
+		}
+	});
+	
+};
+
+facadeEditor.extractValue=function(dValue, name){
+	var ret="";
+	var reg=new RegExp("##{name}::(.*?)##".replaceToken("{name}",name.regexEscape()), "img");
+	var coll=reg.exec(dValue);
+	if(coll) ret=coll[1];
+	return ret;
+};
+
+facadeEditor.template={
+		outer:"<table width=100 border=0 cellspacing=0 cellpadding=2>{rows}</table>",
+		row: "<tr><td nowrap='nowrap'>{name}</td><td nowrap='nowrap'>{control}</td></tr>",
+		text: "<input saveTo='{saveTo}' defOptions='{defOptions}' type='text' name='{name}--{defId}' value='{value}' />"
+};
+
+
+facadeEditor.loadData=function(typeCode, fldEditor, fldValue, dValue){
+	// load ajax data
+	  var data=null;
+	  var url=butil.fullPath("/do/facade/listFacadeDef.htm?ptCode="+typeCode);
+	  $.ajax({
+		  url: url,
+		  async: false,
+		  dataType: "json",
+		  error: function(resp){
+			  if (facadeEditor.debug) ;//alert("Error: "+resp.responseText);
+		  },
+		  success: function(resp){
+			  data=resp;
+		  }
+	  });
+	if(typeof(data)!="object") return;
+	// show data
+	// [{"defineId":"1","name":"品牌","options":null,"ptCode":"0001"}]
+	var saveTo=fldValue.name;
+	var collRow={};
+	for(var key in data){
+		var def=data[key];
+		var ctrl="";
+		var value=facadeEditor.extractValue(dValue, def.name+"--"+def.defineId);
+		var options=def.options ? def.options : "";
+		ctrl=facadeEditor.template.text.replaceToken("{name}", def.name)
+				.replaceToken("{defId}", def.defineId);
+		ctrl=ctrl.replaceToken("{saveTo}", saveTo)
+					.replaceToken("{defOptions}", escape(options))
+					.replaceToken("{value}", value);
+		row=facadeEditor.template.row.replaceToken("{name}", def.name)
+				.replaceToken("{control}", ctrl);
+		collRow[def.name]=row;
+		
+	}
+	var rows="";
+	for(var keyRow in collRow){
+		rows+=collRow[keyRow];
+	}
+	s=facadeEditor.template.outer.replaceToken("{rows}", rows);
+
+	fldValue.value="";
+	
+	$(fldEditor).html(s);
+	var inputs=$("input[defOptions]");
+	for(var i=0; i<inputs.length; i++ ) {
+		var elem=inputs[i];
+		var options=unescape($(elem).attr("defOptions")).replaceToken("；", ";").split(";");
+		$(elem).autoComplete({
+			dataSupply: options
+		});
+	}
+	
+	// save init value
+	facadeEditor.saveValue(saveTo);
+	// bind event handler
+	$("*[saveTo="+saveTo+"]").blur(function(){
+		facadeEditor.saveValue(saveTo);
+	});
+	
+};
+
+facadeEditor.saveValue=function(saveTo){
+	var fldValue=butil.element(saveTo);
+	if(!fldValue) return;
+	var coll=$("*[saveTo="+saveTo+"]");
+	var ret="";
+	for(var i=0; i<coll.size(); i++){
+		ret+="##";
+		var fld=coll.get(i);
+		ret+=fld.name+"::"+fld.value;
+	}
+	if(ret!="") ret+="##";
+	//fldValue.value=encodeURI(ret);
+	//alert(ret);
+	fldValue.value=ret;
+};

@@ -1,0 +1,384 @@
+package com.yjf.esupplier.service.report.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.log.Logger;
+import com.yjf.common.log.LoggerFactory;
+import com.yjf.esupplier.common.page.Page;
+import com.yjf.esupplier.common.page.PageParam;
+import com.yjf.esupplier.common.page.PageParamUtil;
+import com.yjf.esupplier.common.util.MiscUtil;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.dal.daointerface.ReportDao;
+import com.yjf.esupplier.dal.daointerface.ReportRuleDAO;
+import com.yjf.esupplier.dal.daointerface.RoleReportDAO;
+import com.yjf.esupplier.dal.dataobject.ReportRuleDO;
+import com.yjf.esupplier.dal.dataobject.RoleReportDO;
+import com.yjf.esupplier.domain.convert.DomainConvert;
+import com.yjf.esupplier.service.report.ReportService;
+import com.yjf.esupplier.service.report.order.ReportQueryOrder;
+import com.yjf.esupplier.service.report.order.ReportQueryParam;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.data.ReportRuleData;
+import com.yjf.esupplier.ws.info.RoleReportInfo;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service
+public class ReportServiceImpl implements ReportService {
+	
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	ReportRuleDAO reportRuleDao;
+	
+	@Autowired
+	ReportDao reportDao;
+	
+	@Autowired
+	RoleReportDAO roleReportDAO;
+	
+	@Override
+	public ReportRuleData getQueryRule(long sqlId) {
+		ReportRuleData reportRuleData = new ReportRuleData();
+		ReportRuleDO queryRule = reportRuleDao.findById(sqlId);
+		if (queryRule != null) {
+			DomainConvert.convertReportRuleDomain(reportRuleData, queryRule);
+			return reportRuleData;
+		} else {
+			return null;
+		}
+		
+	}
+	
+	@Override
+	public long addQueryRule(ReportRuleData ruleData) throws Exception {
+		ReportRuleDO queryRuleDO = new ReportRuleDO();
+		ruleData.check();
+		DomainConvert.convertReportRuleDO(queryRuleDO, ruleData);
+		long reportId = reportRuleDao.insert(queryRuleDO);
+		this.grant2Roles(reportId, ruleData.getRoleIds());
+		return reportId;
+	}
+	
+	@Override
+	public long udpateQueryRule(ReportRuleData ruleData) throws Exception {
+		ReportRuleDO queryRuleDO = new ReportRuleDO();
+		ruleData.check();
+		DomainConvert.convertReportRuleDO(queryRuleDO, ruleData);
+		reportRuleDao.update(queryRuleDO);
+		this.grant2Roles(queryRuleDO.getReportId(), ruleData.getRoleIds());
+		return queryRuleDO.getReportId();
+	}
+	
+	public int deleteQueryRule(long reportId) {
+		roleReportDAO.deleteByReportId(reportId);
+		return reportRuleDao.deleteById(reportId);
+		
+	}
+	
+	@Override
+	public List<Map<String, String>> queryReportData(ReportQueryParam queryParam,
+														ReportRuleData ruleData) {
+		
+		ReportRuleDO queryRuleDO = new ReportRuleDO();
+		DomainConvert.convertReportRuleDO(queryRuleDO, ruleData);
+		
+		String sql = creatSql(queryParam, queryRuleDO);
+		
+		return doQuery(sql);
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ReportRuleData> getQueryRules(ReportQueryOrder reportQueryOrder) {
+		QueryBaseBatchResult<ReportRuleData> batchResult = new QueryBaseBatchResult<ReportRuleData>();
+		
+		try {
+			reportQueryOrder.check();
+			List<ReportRuleData> pageList = new ArrayList<ReportRuleData>(
+				(int) reportQueryOrder.getPageSize());
+			
+			ReportRuleDO reportRule = new ReportRuleDO();
+			reportRule.setReportName(reportQueryOrder.getReportName());
+			reportRule.setNote(reportQueryOrder.getNote());
+			long reportId = 0;
+			if (reportQueryOrder.getReportId() != null
+				&& !"".equals(reportQueryOrder.getReportId())) {
+				reportId = Long.parseLong(reportQueryOrder.getReportId());
+			}
+			reportRule.setReportId(reportId);
+			
+			long totalCount = 0;
+			PageComponent component = null;
+			List<ReportRuleDO> recordList = null;
+			
+			if (reportQueryOrder.getUserId() == 0) {
+				totalCount = reportRuleDao.findByConditionCount(reportRule,
+					reportQueryOrder.getRole());
+				component = new PageComponent(reportQueryOrder, totalCount);
+				recordList = reportRuleDao.findByCondition(reportRule, component.getFirstRecord(),
+					component.getPageSize(), reportQueryOrder.getRole());
+			} else {
+				totalCount = reportRuleDao.findMyReportByConditionCount(reportRule,
+					reportQueryOrder.getUserId());
+				component = new PageComponent(reportQueryOrder, totalCount);
+				recordList = reportRuleDao.findMyReportByCondition(reportRule,
+					component.getFirstRecord(), component.getPageSize(),
+					reportQueryOrder.getUserId());
+			}
+			
+			for (ReportRuleDO item : recordList) {
+				ReportRuleData rule = new ReportRuleData();
+				DomainConvert.convertReportRuleDomain(rule, item);
+				pageList.add(rule);
+			}
+			batchResult.initPageParam(component);
+			batchResult.setSuccess(true);
+			batchResult.setPageList(pageList);
+		} catch (IllegalArgumentException e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.INCOMPLETE_REQ_PARAM);
+			batchResult.setMessage(e.getMessage());
+			logger.error(e.getLocalizedMessage(), e);
+		} catch (Exception e) {
+			batchResult.setSuccess(false);
+			batchResult.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+		
+		return batchResult;
+		
+	}
+	
+	@Override
+	public Page<Map<String, String>> queryReportPage(ReportQueryParam queryParam,
+														PageParam pageParam, ReportRuleData rule) {
+		
+		long limitStart = (pageParam.getPageNo() - 1) * pageParam.getPageSize();
+		long pageSize = pageParam.getPageSize();
+		long totalSize = this.queryReportCount(queryParam, rule);
+		List<Map<String, String>> rsList = this.queryReportList(queryParam, rule, limitStart,
+			pageSize);
+		
+		if (totalSize == 0 && rsList.size() > 0) { //调用存储过程的结果特殊处理
+			totalSize = rsList.size();
+			pageSize = rsList.size();
+		}
+		
+		int start = PageParamUtil
+			.startValue((int) totalSize, (int) pageSize, pageParam.getPageNo());
+		Page<Map<String, String>> pageActivityDetail = new Page<Map<String, String>>(start,
+			totalSize, pageParam.getPageSize(), rsList);
+		
+		return pageActivityDetail;
+	}
+	
+	public List<Map<String, String>> queryReportList(ReportQueryParam queryParam,
+														ReportRuleData rule, long limitStart,
+														long pageSize) {
+		
+		ReportRuleDO queryRuleDO = new ReportRuleDO();
+		DomainConvert.convertReportRuleDO(queryRuleDO, rule);
+		String sql = creatSql(queryParam, queryRuleDO);
+		return doQueryList(sql, limitStart, pageSize);
+	}
+	
+	private List<Map<String, String>> doQueryList(String sql, long limitStart, long pageSize) {
+		logger.debug("Excel report sql :" + sql);
+		String sqlStr = sql.toUpperCase();
+		if (sqlStr.indexOf("DELETE ") >= 0 || sqlStr.indexOf("UPDATE ") >= 0
+			|| sqlStr.indexOf("INSERT ") >= 0 || sqlStr.indexOf("DROP ") >= 0
+			|| sqlStr.indexOf("TRUNCATE") >= 0) {
+			logger.error("doQuery() 查询失败！SQL 注入风险，放弃执行");
+			return null;
+		}
+		String limitSql = "";
+		if (sqlStr.indexOf("CALL ") >= 0) {//调用存储过程
+			limitSql = sql;
+		} else {
+			limitSql = "select outerTmp.* from (" + sql + ")outerTmp   LIMIT " + limitStart + ","
+						+ pageSize;
+		}
+		return reportDao.query(limitSql);
+	}
+	
+	public long queryReportCount(ReportQueryParam queryParam, ReportRuleData rule) {
+		
+		ReportRuleDO queryRuleDO = new ReportRuleDO();
+		DomainConvert.convertReportRuleDO(queryRuleDO, rule);
+		String sql = creatSql(queryParam, queryRuleDO);
+		return doQueryCount(sql);
+	}
+	
+	/**
+	 * 根据合成的SQL 查询 数据
+	 * @param sql
+	 * @return
+	 */
+	private List<Map<String, String>> doQuery(String sql) {
+		logger.info("Excel report sql:" + sql);
+		String sqlStr = sql.toUpperCase();
+		if (sqlStr.indexOf("DELETE ") >= 0 || sqlStr.indexOf("UPDATE ") >= 0
+			|| sqlStr.indexOf("TRUNCATE ") >= 0 || sqlStr.indexOf("INSERT ") >= 0
+			|| sqlStr.indexOf("DROP ") >= 0) {
+			logger.error("doQuery() 查询失败！SQL 注入风险，放弃执行");
+			return null;
+		}
+		return reportDao.query(sql);
+		
+	}
+	
+	private long doQueryCount(String sql) {
+		logger.debug("Excel report sql :" + sql);
+		String sqlStr = sql.toUpperCase();
+		if (sqlStr.indexOf("DELETE ") >= 0 || sqlStr.indexOf("UPDATE ") >= 0
+			|| sqlStr.indexOf("INSERT ") >= 0 || sqlStr.indexOf("DROP ") >= 0
+			|| sqlStr.indexOf("TRUNCATE ") >= 0) {
+			logger.error("doQuery() 查询失败！SQL 注入风险，放弃执行");
+			return 0;
+		}
+		if (sqlStr.indexOf("CALL ") >= 0) {//调用存储过程
+			return 0;
+		}
+		String countSql = "select count(1) ounterCount from (" + sql + ")outerTmp";
+		return reportDao.queryCount(countSql);
+	}
+	
+	private String creatSql(ReportQueryParam queryParam, ReportRuleDO rule) {
+		String sql = rule.getSqlStr();
+		
+		logger.debug("befor sql:" + sql);
+		
+		String filterSql1 = rule.getFilter1Sql();
+		if (filterSql1 != null && StringUtil.isNotEmpty(queryParam.getFilter1Value())) {
+			filterSql1 = filterSql1.replaceAll("\\?", queryParam.getFilter1Value());
+			sql = sql.replaceAll("/\\*AND1\\*/", filterSql1);
+		}
+		sql = sql.replaceAll("/\\*PARAM1\\*/", StringUtil.defaultIfEmpty(queryParam.getFilter1Value(),""));
+		
+		String filterSql2 = rule.getFilter2Sql();
+		if (filterSql2 != null && StringUtil.isNotEmpty(queryParam.getFilter2Value())) {
+			filterSql2 = filterSql2.replaceAll("\\?", queryParam.getFilter2Value());
+			sql = sql.replaceAll("/\\*AND2\\*/", filterSql2);
+		}
+		sql = sql.replaceAll("/\\*PARAM2\\*/", StringUtil.defaultIfEmpty(queryParam.getFilter2Value(), ""));
+
+		String filterSql3 = rule.getFilter3Sql();
+		if (filterSql3 != null && StringUtil.isNotEmpty(queryParam.getFilter3Value())) {
+			filterSql3 = filterSql3.replaceAll("\\?", queryParam.getFilter3Value());
+			sql = sql.replaceAll("/\\*AND3\\*/", filterSql3);
+		}
+		sql = sql.replaceAll("/\\*PARAM3\\*/", StringUtil.defaultIfEmpty(queryParam.getFilter3Value(), ""));
+
+		String filterSql4 = rule.getFilter4Sql();
+		if (filterSql4 != null && StringUtil.isNotEmpty(queryParam.getFilter4Value())) {
+			filterSql4 = filterSql4.replaceAll("\\?", queryParam.getFilter4Value());
+			sql = sql.replaceAll("/\\*AND4\\*/", filterSql4);
+		}
+		sql = sql.replaceAll("/\\*PARAM4\\*/", StringUtil.defaultIfEmpty(queryParam.getFilter4Value(), ""));
+
+		String filterSql5 = rule.getFilter5Sql();
+		if (filterSql5 != null && StringUtil.isNotEmpty(queryParam.getFilter5Value())) {
+			filterSql5 = filterSql5.replaceAll("\\?", queryParam.getFilter5Value());
+			sql = sql.replaceAll("/\\*AND5\\*/", filterSql5);
+		}
+		sql = sql.replaceAll("/\\*PARAM5\\*/", StringUtil.defaultIfEmpty(queryParam.getFilter5Value(), ""));
+		
+		String filterSql6 = rule.getFilter6Sql();
+		if (filterSql6 != null && StringUtil.isNotEmpty(queryParam.getFilter6Value())) {
+			filterSql6 = filterSql6.replaceAll("\\?", queryParam.getFilter6Value());
+			sql = sql.replaceAll("/\\*AND6\\*/", filterSql6);
+		}
+		sql = sql.replaceAll("/\\*PARAM6\\*/", StringUtil.defaultIfEmpty(queryParam.getFilter6Value(), ""));
+		
+		logger.info(" Report sql:" + sql);
+		
+		return sql;
+	}
+	
+	public String getQueryParam(ReportQueryParam queryParam, ReportRuleData rule) {
+		StringBuffer filters = new StringBuffer("");
+		if (rule.getFilter1Sql() != null && StringUtil.isNotEmpty(queryParam.getFilter1Value())) {
+			filters.append(rule.getFilter1Name() + "  " + queryParam.getFilter1Value());
+		}
+		
+		if (rule.getFilter2Sql() != null && StringUtil.isNotEmpty(queryParam.getFilter2Value())) {
+			filters.append(rule.getFilter2Name() + "  " + queryParam.getFilter2Value());
+		}
+		
+		if (rule.getFilter3Sql() != null && StringUtil.isNotEmpty(queryParam.getFilter3Value())) {
+			filters.append(rule.getFilter3Name() + "  " + queryParam.getFilter3Value());
+		}
+		
+		if (rule.getFilter4Sql() != null && StringUtil.isNotEmpty(queryParam.getFilter4Value())) {
+			filters.append(rule.getFilter4Name() + "  " + queryParam.getFilter4Value());
+		}
+		
+		if (rule.getFilter5Sql() != null && StringUtil.isNotEmpty(queryParam.getFilter5Value())) {
+			filters.append(rule.getFilter5Name() + "  " + queryParam.getFilter5Value());
+		}
+		
+		if (rule.getFilter6Sql() != null && StringUtil.isNotEmpty(queryParam.getFilter6Value())) {
+			filters.append(rule.getFilter6Name() + "  " + queryParam.getFilter6Value());
+		}
+		
+		return filters.toString();
+	}
+	
+	@Override
+	public long grant2Roles(long reportId, long[] roleIds) throws Exception {
+		long rs = 0;
+		if (reportId > 0) {
+			roleReportDAO.deleteByReportId(reportId);
+			if (roleIds != null && roleIds.length > 0) {
+				for (long roleId : roleIds) {
+					RoleReportDO roleReport = new RoleReportDO();
+					roleReport.setRoleId(roleId);
+					roleReport.setReportId(reportId);
+					roleReportDAO.insert(roleReport);
+					rs++;
+				}
+			}
+		}
+		return rs;
+	}
+	
+	@Override
+	public List<RoleReportInfo> getGrantedRoles(long reportId) {
+		List<RoleReportInfo> list = new ArrayList<RoleReportInfo>();
+		List<RoleReportDO> rsList = roleReportDAO.findByReportId(reportId);
+		for (RoleReportDO roleDo : rsList) {
+			RoleReportInfo info = new RoleReportInfo();
+			MiscUtil.copyPoObject(info, roleDo);
+			list.add(info);
+		}
+		return list;
+	}
+	
+	@Override
+	public QueryBaseBatchResult<ReportRuleData> getMyReport(ReportQueryOrder reportQueryOrder) {
+		return this.getQueryRules(reportQueryOrder);
+	}
+	
+	private int callProcedure(String procedure) {
+		logger.info("Excel report sql:" + procedure);
+		String sqlStr = procedure.toUpperCase();
+		if (sqlStr.indexOf("DELETE ") >= 0 || sqlStr.indexOf("UPDATE ") >= 0
+			|| sqlStr.indexOf("TRUNCATE ") >= 0 || sqlStr.indexOf("INSERT ") >= 0
+			|| sqlStr.indexOf("DROP ") >= 0) {
+			logger.error("callProcedure() 查询失败！SQL 注入风险，放弃执行");
+			return -2;
+		}
+		return reportDao.call("CALL " + procedure);
+	}
+	
+	@Override
+	public int refreshData() {
+		return callProcedure("p_refresh_profit_detail()");
+	}
+}

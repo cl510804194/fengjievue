@@ -1,0 +1,52 @@
+#parse("/front/index/common/header-title.vm")
+<style type="text/css">
+.brief-con span{
+	##float:left;  
+    line-height:20px;  
+	text-align:left;
+    height:20px;  
+	height:auto;
+	display:inline-block;
+}
+</style>
+<body class="warp">
+	<!--头部-->
+	#parse("/front/index/common/header-yrd.vm")
+	
+	<!--内容-->
+	<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="bd-box db-p14 container">
+    	#if($!{informationHelpCenter})
+    	<h2 class="title1 mt10"><span>资讯动态</span></h2>
+        <ul class="help-list mt20">
+         #foreach($info in $informationHelp)
+        	 <li><a a style="font-size: 10pt;color: #4f4f4f;" href="/help/informationHelp/$!{info.popId}"> $velocityCount. $!{info.title}</a><span>$!{dateUtil.dtSimpleFormat($!{info.modifyTime})}</span></li>
+         #end
+        </ul>
+        #else
+		   <h3>$!{popInformation.title}</h3>
+           </br> 
+		   <div class="brief-con">
+			  $!{popInformation.content}
+              </br> 
+			  <h4 class="text-r"style="text-align:right;">$!appConstantsUtil.getPlatformName()</h4>
+			  <h4 class="text-r" style="margin-right:50px;text-align:right;">$!{dateUtil.dtSimpleFormat($!{popInformation.modifyTime})}</h4>
+		   </div>
+        #end
+    </div>
+    <div class="blank50"></div>
+    </div>
+	
+	
+	#parse("/front/index/common/footer-yrd.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+    </script>
+</body>
+</html>

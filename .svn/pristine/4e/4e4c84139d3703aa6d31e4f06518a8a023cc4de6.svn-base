@@ -1,0 +1,192 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="sellerRefundApplyCheckList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB pro_list">
+            <p class="nav_title"><span class="DIB" >#if($!{orderType.code} == 'O2O')商品退款#elseif(${orderType.code}=='TICKET')门票退款#end</span><a onclick="javascript:window.history.back();" class="fn-right">返回</a></p>
+            <div class="left_content ">
+                <form action="sellerRefundApplyCheckList.htm?#if($!{orderType.code} == 'O2O')itemType=bulkRefund#elseif(${orderType.code}=='TICKET')itemType=mailRefund#end" method="post">
+                	<input type="hidden" name="orderType" value="$!{orderType.code}"/>
+                    <div class="search_list">
+					<span class="inpt">
+						<label class="inpt_txt DIB">订单号：</label>
+						<input type="text" name="orderId" size="20" value="$!orderId">
+					</span>
+##					<span class="inpt">
+##						<label class="inpt_txt">售后类型：</label>
+##						<select name="refundTypeEnum">
+##                            <option value="">全部</option>
+##                            #enumIterator("RefundTypeEnum",$!refundTypeEnum)
+##                        </select>
+##					</span>
+					<span class="inpt">
+						<input type="submit" value="查 询 " class="button5">
+					</span>
+                    <input id="total" type="text" value='$!baseBatchResult.totalCount' style="display: none;"></input>
+					
+                    </div>
+                    <div class="com_list push_pro">
+                        <p class="order_tl">
+                            #if($!{orderType}=="HOTELS")
+                                <span class="DIB pp_img1">房间图片</span>
+                                <span class="DIB pp_name">房间名称</span>
+                            #elseif($!{orderType}=="O2O")
+                                <span class="DIB pp_img1">图片</span>
+                                <span class="DIB pp_name">商品名称</span>
+                            #elseif($!{orderType}=="TICKET")
+                                <span class="DIB pp_img1">图片</span>
+                                <span class="DIB pp_name">门票名称</span>
+                            #else
+                                <span class="DIB pp_img1">商品图片</span>
+                                <span class="DIB pp_name">商品名称</span>
+                            #end
+                            <span class="DIB pp_prc">申请总价</span>
+                            <span class="DIB pp_stt">退款金额</span>
+                            <span class="DIB pp_type2" style="width: 75px;">售后类型</span>
+                            <span class="DIB pp_ssta" style="width: 100px;">订单状态</span>
+                            <span class="DIB pp_opt">操作</span>
+                        </p>
+
+                        <div class="order_list">
+                            #foreach($item in $list)
+                            <div class="list_i">
+                                <p class="list_hd">
+                                    <span>订单号：<label>$!item.orderId</label></span>
+                                    <span>申请时间：<label>$dateUtil.simpleFormat($!item.applyDate)</label></span>
+                                </p>
+
+                                <div class="list_cnt">
+	    						<span class="DIB pp_img1">
+	    							<label class="list_img DIB">
+                                            #if($stringUtil.isEmpty($!item.picPath))
+                                                <img src='/resources/images/photo_not_exits_small.gif'>
+                                            #else
+                                                <img src='$!item.picPath'>
+                                            #end
+                                    </label>
+	    						</span>
+                                    <span class="DIB pp_name">$!item.productName</span>
+                                    <span class="DIB pp_prc">$!{item.totalAmount.toStandardString()}元</span>
+                                    <span class="DIB pp_stt">$!{item.refundAmount.toStandardString()}元</span>
+                                    <span class="DIB pp_type2" style="width: 75px;">$!item.refundType.message</span>
+                                    #if($!orderType.code == "O2O")
+                                    	<span class="DIB pp_ssta" style="width: 100px;">$!item.status.o2oMessage</span>
+                                    #elseif($!orderType.code == "B2C")
+                                    	<span class="DIB pp_ssta" style="width: 100px;">$!item.status.message</span>
+                                    #end
+                                    
+	    						<span class="DIB pp_opt">
+	    						#if($!orderType.code != "O2O")
+                                    #if($!item.status.code=="REFUND_APPLY")
+                                        <a onclick="doRedirect('refundApplyCheck.htm?refundId=$!item.refundId&orderType=$!{orderType.code}')">$!{item.refundType.message}审核</a>
+                                    #end
+                                    #if($!item.status.code=="RETURNED_PURCHASEING")
+                                        <a onclick="doRedirect('refundConfirmGoods.htm?refundId=$!item.refundId&orderType=$!{orderType.code}')">收货确认</a><br/>
+                                    #end
+								#end
+								<!--	#if($!item.status.code=="REFUND_APPLY")
+                                        <a onclick="doRedirect('refundApplyCheck.htm?refundId=$!item.refundId&orderType=$!{orderType.code}')">$!{item.refundType.message}审核</a>
+                                    #end
+								-->
+                                    <a href="/do/aftermarket/buyer/refundOrderInfo.htm?refundId=$!{item.refundId}"
+                                       refundId="$!{item.refundId}">详情</a>
+	    						</span>
+                                </div>
+                            </div>
+                            #end
+                        </div>
+                    </div>
+                    <div class="center_page">
+                        <table  width="100%" height="40" cellpadding="0" cellspacing="0" style="text-align: right;">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <input type="hidden" name="pages" id=""/>
+                                    $!{pageBar}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode + 'queryBuyOrder');
+</script>
+<script type="text/javascript">
+    //clickShow(2,0);
+    function doRedirect(url){
+        window.location.href=url;
+    }
+
+    function checkAll(){
+        var checkBoxProductIds=document.getElementsByName("checkBoxProductId");
+        var box=document.getElementById("allSelect");
+        for(var i=0;i<checkBoxProductIds.length;i++)
+        {
+            var idCheckBox = checkBoxProductIds[i];
+            if(box.checked){
+                if (!idCheckBox.checked) {
+                    idCheckBox.checked = true;
+                }
+            } else {
+                if (idCheckBox.checked) {
+                    idCheckBox.checked = false;
+                }
+            }
+        }
+
+    }
+
+    function submitSelectBox(url){
+        var checkBoxProductIds=document.getElementsByName("checkBoxProductId");
+        var ids="";
+        for(var i=0;i<checkBoxProductIds.length;i++){
+            var idCheckBox = checkBoxProductIds[i];
+            if(idCheckBox.checked){
+                ids+=idCheckBox.value+",";
+            }
+        }
+        if(ids==""){
+            alert("请选择要操作的商品");
+            return;
+        }
+        var r=confirm("确认是这些商品吗？");
+        if(r==true){
+            window.location.href=url+ids;
+        }
+    }
+    function submitSelectBoxDel(url){
+        var total=document.getElementById("total").value;
+        var ids="";
+        for(i=1;i<=total;i++){
+            var idCheckBox = document.getElementById("checkBox"+i);
+            if(idCheckBox.checked){
+                ids+=idCheckBox.value+",";
+            }
+        }
+        if(ids==""){
+            alert("请选择要永久删除的商品");
+            return;
+        }
+        var r=confirm("确认要将这些商品永久删除吗？");
+        if(r==true){
+            window.location.href=url+ids;
+        }
+    }
+</script>
+</html>

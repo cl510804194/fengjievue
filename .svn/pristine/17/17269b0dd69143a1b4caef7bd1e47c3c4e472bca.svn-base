@@ -1,0 +1,19 @@
+package com.yjf.esupplier.service.erp.client.result;
+
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public class QueryProductStockResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = 2144583273122669843L;
+	
+	long constantlyStock;
+	
+	public long getConstantlyStock() {
+		return this.constantlyStock;
+	}
+	
+	public void setConstantlyStock(long constantlyStock) {
+		this.constantlyStock = constantlyStock;
+	}
+	
+}

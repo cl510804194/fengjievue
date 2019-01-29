@@ -1,0 +1,249 @@
+package com.yjf.esupplier.service.product;
+
+import java.util.List;
+
+import com.yjf.esupplier.dal.custom.ibatis.IbatisProductCusDAO;
+import com.yjf.esupplier.service.hotel.HotelsStockService;
+import com.yjf.esupplier.service.supplier.SupplierService;
+import com.yjf.esupplier.ws.product.enums.ProductVaryEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.common.util.NumberUtil;
+import com.yjf.esupplier.common.util.StringUtil;
+import com.yjf.esupplier.dal.custom.daointerface.FacadeDAO;
+import com.yjf.esupplier.dal.custom.daointerface.SaleProductDAO;
+import com.yjf.esupplier.dal.custom.daointerface.SpecialProductDAO;
+import com.yjf.esupplier.dal.custom.daointerface.StorageDAO;
+import com.yjf.esupplier.dal.custom.daointerface.StorageInOutDAO;
+import com.yjf.esupplier.dal.custom.daointerface.StorageInOutDetailDAO;
+import com.yjf.esupplier.dal.custom.daointerface.SupplierProductDAO;
+import com.yjf.esupplier.dal.custom.dataobject.SpecialProductDO;
+import com.yjf.esupplier.dal.custom.dataobject.SupplierProductDO;
+import com.yjf.esupplier.dal.daointerface.TblDeliverDAO;
+import com.yjf.esupplier.dal.daointerface.TblLogisticDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductCustomPropertyDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductPropertyDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductRecommendDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductTypeDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductUserDAO;
+import com.yjf.esupplier.dal.daointerface.TblStorageDAO;
+import com.yjf.esupplier.dal.daointerface.TblStorageInoutDAO;
+import com.yjf.esupplier.dal.daointerface.TblStorageInoutDetailDAO;
+import com.yjf.esupplier.dal.daointerface.TblSupplierDAO;
+import com.yjf.esupplier.dal.dataobject.TblProductDO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.domain.service.repository.ProductDomainRepository;
+import com.yjf.esupplier.domain.service.repository.ProductTypeDomainRepository;
+import com.yjf.esupplier.service.base.EsupplierTransServiceBase;
+import com.yjf.esupplier.service.base.data.BaseDataLoader;
+import com.yjf.esupplier.service.biz.util.BizCommonUtil;
+import com.yjf.esupplier.service.common.services.DateSeqService;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.info.SpecialProductInfo;
+import com.yjf.esupplier.ws.product.enums.PostFeeTypeEnum;
+import com.yjf.esupplier.ws.product.enums.ProductStatusEnum;
+import com.yjf.esupplier.ws.product.enums.RefundRuleEnum;
+import com.yjf.esupplier.ws.product.info.ProductInfo;
+import com.yjf.esupplier.ws.product.info.ProductTypeInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.SysClearCacheWebService;
+import com.yjf.esupplier.ws.supplier.enums.StoreStyleColorEnum;
+import com.yjf.esupplier.ws.supplier.enums.SupplierApproveStateEnum;
+import com.yjf.esupplier.ws.supplier.enums.SupplierRunStateEnum;
+import com.yjf.esupplier.ws.supplier.enums.VouchStateEnum;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+
+public class ProductBaseService extends EsupplierTransServiceBase {
+	@Autowired
+	protected SaleProductDAO saleProductDAO;
+	@Autowired
+	protected TblProductDAO tblProductDAO;
+	@Autowired
+	protected IbatisProductCusDAO productCusDAO;
+	@Autowired
+	protected SupplierProductDAO supplierProductDAO;
+	@Autowired
+	protected ProductDomainRepository productDomainRepository;
+	@Autowired
+	protected ProductTypeDomainRepository productTypeDomainRepository;
+	@Autowired
+	protected SpecialProductDAO specialProductDAO;
+	@Autowired
+	protected HotelsStockService hotelsStockService;
+	@Autowired
+	protected UserQueryService userQueryService;
+	
+	@Autowired
+	protected TblProductCustomPropertyDAO tblProductCustomPropertyDAO;
+	
+	@Autowired
+	protected TblDeliverDAO tblDeliverDAO;
+	
+	@Autowired
+	protected FacadeDAO facadeDAO;
+	
+	@Autowired
+	protected TblProductTypeDAO tblProductTypeDAO;
+	
+	@Autowired
+	protected StorageDAO storageDAO;
+	
+	@Autowired
+	protected TblStorageDAO tblStorageDAO;
+	
+	@Autowired
+	protected StorageInOutDAO storageInOutDAO;
+	@Autowired
+	protected StorageInOutDetailDAO storageInOutDetailDAO;
+	
+	@Autowired
+	protected SysClearCacheWebService sysClearCacheWebService;
+	
+	@Autowired
+	protected BaseDataLoader baseDataLoader;
+	@Autowired
+	protected DateSeqService dateSeqService;
+	
+	@Autowired
+	protected TblStorageInoutDAO tblStorageInoutDAO;
+	
+	@Autowired
+	protected TblStorageInoutDetailDAO tblStorageInoutDetailDAO;
+	
+	@Autowired
+	protected TblLogisticDAO tblLogisticDAO;
+	
+	@Autowired
+	protected TblProductUserDAO tblProductUserDAO;
+	
+	@Autowired
+	protected TblProductRecommendDAO tblProductRecommendDAO;
+	
+	@Autowired
+	protected TblProductPropertyDAO tblProductPropertyDAO;
+	
+	@Autowired
+	protected TblSupplierDAO tblSupplierDAO;
+	@Autowired
+	protected SupplierService supplierService;
+
+	protected List<ProductInfo> converProductInfos(List<TblProductDO> productDOs) {
+		List<ProductInfo> productInfos = Lists.newArrayList();
+		for (TblProductDO TblProductDO : productDOs) {
+			ProductInfo info = new ProductInfo();
+			productInfoCovertDO(info, TblProductDO);
+			ProductTypeInfo productTypeInfo = baseDataLoader
+				.getProductTypeInfoByCode(info.getProductType());
+			if (productTypeInfo != null)
+				info.setProductTypeName(productTypeInfo.getFullTypeName());
+			productInfos.add(info);
+			
+		}
+		return productInfos;
+	}
+
+	protected List<ProductInfo> convertSupplierProductInfos(List<SupplierProductDO> productDOs,String longitude,String latitude) {
+		List<ProductInfo> productInfos = Lists.newArrayList();
+		for (SupplierProductDO supplierProductDO : productDOs) {
+			ProductInfo info = new ProductInfo();
+			productInfoCovertDO(info, supplierProductDO);
+			TblSupplierDO supplierDO = supplierProductDO.getSupplierDO();
+			SupplierInfo supplierInfo = new SupplierInfo();
+			if (supplierDO != null) {
+				supplierConvertInfo(supplierInfo, supplierDO);
+				if(StringUtil.isNotEmpty(longitude)&&StringUtil.isNotEmpty(latitude)&&StringUtil.isNotEmpty(supplierProductDO.getSupplierDO().getLongitude())&&StringUtil.isNotEmpty(supplierProductDO.getSupplierDO().getLatitude())){
+					Long distance = BizCommonUtil.getDistance(NumberUtil.parseDouble(latitude), NumberUtil.parseDouble(longitude),
+							NumberUtil.parseDouble(supplierProductDO.getSupplierDO().getLatitude()), NumberUtil.parseDouble(supplierProductDO.getSupplierDO().getLongitude()));
+					supplierInfo.setDistance(distance);
+				}
+			}
+			info.setSupplierInfo(supplierInfo);
+			info.setCity(supplierProductDO.getCity());
+			info.setProvince(supplierProductDO.getProvince());			
+			info.setProductVary(ProductVaryEnum.getByCode(supplierProductDO.getProductVary()));
+			ProductTypeInfo productTypeInfo = baseDataLoader.getProductTypeInfoByCode(info
+					.getProductType());
+			if (productTypeInfo != null)
+				info.setProductTypeName(productTypeInfo.getFullTypeName());
+			productInfos.add(info);
+		}
+		return productInfos;
+	}
+	
+	protected void productInfoCovertDO(ProductInfo por, TblProductDO porSrc) {
+		BeanCopier.staticCopy(porSrc, por);
+		por.setProductVary(ProductVaryEnum.getByCode(porSrc.getProductVary()));
+		por.setPostType(PostFeeTypeEnum.getByCode(porSrc.getPostType()));
+		por.setFacade(RefundRuleEnum.getByCode(porSrc.getFacade()));
+		por.setProductStatus(ProductStatusEnum.getByCode(porSrc.getProductStatus()));
+		por.setSaleTypeB2c(BooleanEnum.getByCode(porSrc.getSaleTypeB2c()));
+		por.setSaleTypeO2o(BooleanEnum.getByCode(porSrc.getSaleTypeO2o()));
+		por.setSaleTypeHotels(BooleanEnum.getByCode(porSrc.getSaleTypeHotels()));
+		por.setSaleTypeOrderMeal(BooleanEnum.getByCode(porSrc.getSaleTypeOrderMeal()));
+		por.setTuneMeal(BooleanEnum.getByCode(porSrc.getTuneMeal()));
+		por.setRecommend(BooleanEnum.getByCode(porSrc.getRecommend()));
+		por.setMorningRoom(BooleanEnum.getByCode(porSrc.getMorningRoom()));
+		por.setLongRentRoom(BooleanEnum.getByCode(porSrc.getLongRentRoom()));
+		por.setSpecialRoom(BooleanEnum.getByCode(porSrc.getSpecialRoom()));
+		por.setCustomType1(BooleanEnum.getByCode(porSrc.getCustomType1()));
+		por.setCustomType2(BooleanEnum.getByCode(porSrc.getCustomType2()));
+		por.setSupplierId(porSrc.getSupplierId());
+	}
+	
+	protected void productDOCovertInfo(ProductInfo por, TblProductDO porSrc) {
+		BeanCopier.staticCopy(por, porSrc);
+		if (por.getPostType() != null)
+			porSrc.setPostType(por.getPostType().getCode());
+		if (por.getProductStatus() != null)
+			porSrc.setProductStatus(por.getProductStatus().code());
+	}
+	
+	protected List<SpecialProductInfo> converSpecialProducts(List<SpecialProductDO> productDOs) {
+		List<SpecialProductInfo> productInfos = Lists.newArrayList();
+		for (SpecialProductDO TblProductDO : productDOs) {
+			SpecialProductInfo info = new SpecialProductInfo();
+			BeanCopier.staticCopy(TblProductDO, info);
+			productInfos.add(info);
+			
+		}
+		return productInfos;
+	}
+	
+	public void supplierConvertInfo(SupplierInfo info, TblSupplierDO tblSupplierDO) {
+		if(tblSupplierDO==null) return;
+		BeanCopier.staticCopy(tblSupplierDO, info);
+		if (tblSupplierDO.getApproveState() != null) {
+			info.setApproveState(
+				SupplierApproveStateEnum.getByCode(tblSupplierDO.getApproveState()));
+		}
+		if (tblSupplierDO.getRunState() != null) {
+			info.setRunState(SupplierRunStateEnum.getByCode(tblSupplierDO.getRunState()));
+		}
+		info.setDiningRunState(SupplierRunStateEnum.getByCode(tblSupplierDO.getDiningRunState()));
+		if (tblSupplierDO.getVouchState() != null) {
+			info.setVouchState(VouchStateEnum.getByCode(tblSupplierDO.getVouchState()));
+		}
+		if (tblSupplierDO.getStoreStyle() != null) {
+			info.setStoreStyle(StoreStyleColorEnum.getByCode(tblSupplierDO.getStoreStyle()));
+		} else {
+			info.setStoreStyle(StoreStyleColorEnum.ORANGE);
+		}
+		if(StringUtil.isNotEmpty(tblSupplierDO.getO2o())){
+			info.setO2o(BooleanEnum.getByCode(tblSupplierDO.getO2o()));
+		}
+		if(StringUtil.isNotEmpty(tblSupplierDO.getHotels())){
+			info.setHotels(BooleanEnum.getByCode(tblSupplierDO.getHotels()));
+		}
+		info.setProductDiscount(new Double(tblSupplierDO.getProductDiscount()));
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+	
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>新增操作员</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <link href="/resources/style/global.css" rel="stylesheet">
+  <link href="/resources/style/module.css" rel="stylesheet">
+  <link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+  <link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+</head>
+<body class="m-content">
+<form id="personal_form" name="personal_form">
+
+  <!--section-->
+  <div class="m-section first">
+
+    <!--head-->
+    <div class="hd">
+      <!--inner-->
+      <div class="in">
+        <span class="title">新增操作员</span>
+      </div>
+      <!--inner-->
+    </div>
+    <!--head End-->
+    
+    <!--body-->
+    <div class="bd">
+      
+      <!--form-->
+      <div class="m-form column">
+        
+        <!--group-->
+		<div class="group">
+		<err class="label err"></err>
+        </div>
+		<br/>
+		 <div class="group">
+          <label class="label"><i>*</i>操作员登录名：</label>
+          <input class="input" type="text" name="userName" id="userName"/>
+        </div>
+		
+        <div class="group">
+          <label class="label"><i>*</i>操作员名称：</label>
+          <input class="input" type="text" name="realName" id="realName"/>
+        </div>
+		
+		<div class="group">
+          <label class="label"><i>*</i>操作员登录密码：</label>
+          <input class="input" type="text" name="logPassword" id="logPassword"/>
+        </div>
+        <!--group End-->
+        
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>操作员手机：</label>
+          <input class="input" type="text" name="mobile" id="mobile"/>
+        </div>
+        <!--group End-->
+        
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>操作员角色：</label>
+		  #set($index=1)
+		  #foreach($info in $roleList)
+				<input type="checkbox" class="checkbox" name="roleId" id="roleId" value="$!{info.roleId}"/>
+				<label class="label2">$!{info.roleName}</label>
+				#if($index == 4)
+					<br/ >
+				#end
+				#set($index=$index+1)
+		  #end
+        </div>
+        <!--group End-->
+
+
+        <!--group-->
+        <div class="group">
+			<label class="label"><i>*</i>管辖区域：</label>
+			<div id="cityInfo">
+    			 <label>省：</label>
+					<select class="select2" id="userProvince" name="userProvince" style="width:110px">
+                        <option value="">请选择</option>
+    					#foreach($info in $regionList)
+							<option value="$!{info.regionId}" >$!{info.regionName}</option>
+    					#end
+					</select> 
+				<label>市：</label>
+                <select class="select2 userCity" id="userCity" name="userCity" style="width:110px">
+					 <option value="">请选择城市</option>
+				</select>
+				
+				<label>区/县：</label>
+                <select class="select2 userCounty" id="userCounty" name="userCounty" style="width:110px">
+					 <option value="">请选择区/县</option>
+				</select>
+			</div>
+          
+        </div>
+        <!--group End-->
+
+
+        <!--group-->
+        <div class="group">
+          <label class="label"><i>*</i>账户状态：</label>
+		  <div id="stateInfo">
+          <input class="radio" type="radio" name="state" id="state" value="normal" checked/>
+          <label class="label2">正常</label>
+          <input class="radio" type="radio" name="state" id="state" value="freeze"/>
+          <label class="label2">冻结</label>
+          </div>
+        </div>
+        <!--group End-->
+
+
+      </div>
+      <!--form End-->
+
+    </div>
+    <!--body End-->
+  </div>
+  <!--section-->
+
+  
+  <div class="f-tac f-mt20">
+	<button type="button" class="u-btn2 blue f-ml20 Cancel" id="Cancel" name="Cancel">取消</button>
+    <button type="button" class="u-btn2 blue f-ml20 submit_form" id="submit_form" name="submit_form">确定</button>
+  </div>
+</form>
+    <script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+    <script type="text/javascript" src="/resources/js/global.js"></script>
+	<script type="text/javascript">
+    	seajs.use('/resources/js/content/addSystemUser');
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>演示-列表页</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link href="/resources/style/global.css" rel="stylesheet">
+    <link href="/resources/style/module.css" rel="stylesheet">
+</head>
+<body class="m-content">
+
+<!--toolbar-->
+<div class="m-toolbar">
+    <!--form-->
+    <form class="m-form horizontal" method="/contract/queryContractPageList.htm">
+        <!--row-->
+        <div class="row">
+
+            <!--group-->
+            <div class="group">
+                <label class="label">合同状态：</label>
+                <select class="select" name="status">
+                    <option value="">所有</option>
+                    #foreach($status in $!statusList)
+                        <option value="$!{status.code}" #if($!{queryContractOrder.status.code} == $!status.code)selected="selected"#end>$!status.message</option>
+                    #end
+                </select>
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="group">
+                <label class="label">贷款品种：</label>
+                <select class="select" name="loanType">
+                    <option value="">所有</option>
+                    #foreach($loanType in $!loanTypeList)
+                        <option value="$!{loanType.code}" #if($!{queryContractOrder.loanType.code} == $!loanType.code)selected="selected"#end>$!loanType.message</option>
+                    #end
+                </select>
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="group">
+                <label class="label">校对状态：</label>
+                <select class="select" name="matchStatus">
+                    <option value="">所有</option>
+                    #foreach($matchStatus in $!matchStatusList)
+                        <option value="$!{matchStatus.code}" #if($!{queryContractOrder.matchStatus.code} == $!matchStatus.code)selected="selected"#end>$!matchStatus.message</option>
+                    #end
+                </select>
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--row End-->
+        <!--row-->
+        <div class="row">
+
+            <!--group-->
+            <div class="group">
+                <label class="label">商品种类：</label>
+                <select class="select" name="commodityType">
+                    <option value="">所有</option>
+                    <option>手机</option>
+                    <option>电脑</option>
+                </select>
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="group">
+                <label class="label">客户手机号码：</label>
+                <input class="input" type="text" name="mobileNumber" maxlength="11" value="$!{queryContractOrder.mobileNumber}"/>
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="group">
+                <label class="label">客户姓名：</label>
+                <input class="input" type="text" name="customerName" maxlength="64" value="$!{queryContractOrder.customerName}"/>
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--row End-->
+
+        <!--row-->
+        <div class="row">
+
+            <!--group-->
+            <div class="group">
+                <label class="label">合同编号：</label>
+                <input class="input" type="text" name="contractId" maxlength="32" value="$!{queryContractOrder.contractId}"/>
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="group">
+                <button type="submit" class="u-btn white">查询</button>
+                <a class="u-btn white" title="重置" href="javascript:;">重置</a>
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--row End-->
+
+    </form>
+    <!--form End-->
+</div>
+<!--toolbar End-->
+
+<!--grid-->
+<div class="m-grid f-mt20">
+    <table class="table">
+        <tbody>
+        <!--head-->
+        <tr class="hd">
+            <th><div>合同号</div></th>
+            <th><div>申请时间</div></th>
+            <th><div>销售代表</div></th>
+            <th><div>客户姓名</div></th>
+            <th><div>商品总价(元)</div></th>
+            <th><div>贷款本金(元)</div></th>
+            <th><div>消费类型</div></th>
+            <th><div>分期期数</div></th>
+            <th><div>合同状态</div></th>
+            <th><div>校对状态</div></th>
+            <th><div>操作</div></th>
+        </tr>
+        <!--head End-->
+        <!--row-->
+            #foreach($info in $page.result)
+            <tr class="odd">
+                <td>$!info.contractId</td>
+                <td>$!dateUtil.simpleFormat($!{info.rawAddTime})</td>
+                <td>$!info.userName</td>
+                <td>$!info.customerName</td>
+                <td>$!info.commodityAmount</td>
+                <td>$!info.loanAmount</td>
+                <td>$!info.loanPurpose</td>
+                <td>$!info.stageNum</td>
+                <td>$!info.status.message</td>
+                <td>$!info.matchStatus.message</td>
+                <td>
+                    <a class="u-link blue" href="#">查看</a>
+                    #if($!info.status == 'PASSED')
+                        <a class="u-link blue" href="#">发货</a>
+                    #end
+                    #if($!info.status == 'WAIT')
+                        <a class="u-link blue" href="#">撤销</a>
+                    #end
+                </td>
+            </tr>
+            #end
+        <!--row End-->
+        </tbody>
+    </table>
+    <div class="p-box pages-b fn-clear">
+        #parse("/backstage/page/page.vm")
+    </div>
+</div>
+<!--grid End-->
+
+
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+<script type="text/javascript">
+    function toPage(totalPage, pageNo){
+        if(totalPage<pageNo){
+            return false;
+        }
+        var url = "/contract/queryContractPageList"
+                +"?payNo=$!{order.payNo}"
+                +"&pageSize=$!{page.pageSize}&pageNo="+pageNo;
+        window.location.href=url;
+    }
+</script>
+</body>
+</html>

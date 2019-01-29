@@ -1,0 +1,56 @@
+package com.yjf.esupplier.service.user.result;
+
+import java.util.List;
+
+import com.yjf.esupplier.service.user.info.UserWeixinInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+/**
+ * 用户查询结果集
+ * 
+ * @author qichunhai
+ * 
+ */
+public class UserWeixinQueryResult extends EsupplierBaseResult {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -556805675099162567L;
+	/**
+	 * 查询个数
+	 */
+	long queryCount = 0;
+	/**
+	 * 批量查询
+	 */
+	List<UserWeixinInfo> queryUserWeixinList;
+	/**
+	 * 单个用户查询结果
+	 */
+	UserWeixinInfo queryUserWeixinInfo;
+
+	public long getQueryCount() {
+		return queryCount;
+	}
+
+	public void setQueryCount(long queryCount) {
+		this.queryCount = queryCount;
+	}
+
+	public List<UserWeixinInfo> getQueryUserWeixinList() {
+		return queryUserWeixinList;
+	}
+
+	public void setQueryUserWeixinList(List<UserWeixinInfo> queryUserWeixinList) {
+		this.queryUserWeixinList = queryUserWeixinList;
+	}
+
+	public UserWeixinInfo getQueryUserWeixinInfo() {
+		return queryUserWeixinInfo;
+	}
+
+	public void setQueryUserWeixinInfo(UserWeixinInfo queryUserWeixinInfo) {
+		this.queryUserWeixinInfo = queryUserWeixinInfo;
+	}
+}

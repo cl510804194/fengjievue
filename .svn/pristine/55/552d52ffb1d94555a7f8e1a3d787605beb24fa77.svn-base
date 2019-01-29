@@ -1,0 +1,54 @@
+            <div class="b-border pro-info">
+                    	<ul>
+                        	<li><span>项目名称：</span><p>$!{trade.tradeName}</p></li>
+                            <li><span>借款金额：</span><p>$!{loanDemand.loanAmount.toStandardString()} 元</p></li>
+                            <li><span>成本年化率：</span><p>$!{totalAnnualInterest}</p></li>
+                            <li><span>期限：</span><p>$!{trade.timeLimit} $!{trade.timeLimitUnit.viewName}</p></li>
+                            <li><span>还款方式：</span><p>$!loanDemand.repayDivisionWay.message</p></li>
+                            #if($!{trade.tradeStatus.value}==1)
+							<li><span>已投金额：</span><p>$!{trade.loanedAmount.toStandardString()} 元</p></li>
+							<li class="ft-f60"><span>最低投资：</span><p>$!{loanDemand.leastInvestAmount.toStandardString()} 元</p><br/>
+								#if($!{lastInvestAvailable})
+									#set($st1=$permission.check('/invest/invest'))
+									#if($st1 > 0 && $!{item.bizTypec.code}=='public')
+			    						<span id="contract-demo" class="wnd-tip wnd-tip-tooltip" style="width:150px;">
+			    							项目尾投阶段不受此处最低投资限制
+			    							<a id="lastInvestAvlb" href="javascript:;">
+			    							点此投资</a>
+			                            </span><br/>
+									#end
+								#end
+							</li>
+							<li><span>还需金额：</span><p>$!{investableAmount.toStandardString()} 元</p></li>
+							
+							<li><span>满标条件：</span><p>$stringUtil.subString($!{tradeUtil.getSaturationCondition($!{loanDemand.saturationConditionMethod}, $!{loanDemand.saturationCondition})},10,"..")</p></li>
+							#end
+                            <li><span>承诺函编号：</span><p>$!{loanDemand.guaranteeLicenceNo}</p></li>
+				            #if($!{trade.tradeStatus.value}==1)
+								<li><span>状态：</span><p>筹款中</p></li>
+								<li><span>起投时间：</span><p> 
+								$!{dateUtil.simpleFormat($!{loanDemand.investAvlDate})}</p></li>
+								<li><span>截止时间：</span><p>
+								$!{dateUtil.simpleFormat($!{loanDemand.deadline})}</p></li>
+							#elseif($!{trade.tradeStatus.value}==6)
+								<li><span>成立时间：</span><p>
+								#if($!{trade.tradeEffectiveDate})$!{dateUtil.simpleFormat($!{trade.tradeEffectiveDate})}#else 暂无数据 #end</p></li>
+								<li><span>状态：</span><p>待成立</p></li>
+							#else
+								#if($!{trade.tradeStatus.value}==3 || $!{trade.tradeStatus.value}==7)
+									<li><span>还款时间：</span><p>
+										$!{dateUtil.simpleFormat($!{trade.tradeFinishDate})}</p></li>
+									<li><span>状态：</span><p>已还款</p></li>
+								#elseif($!{trade.tradeStatus.value}==4)
+									<li><span>状态：</span><p>未成立</p></li>
+								#else
+									<li><span>成立时间：</span><p>
+										$!{dateUtil.simpleFormat($!{trade.tradeEffectiveDate})}</p></li>
+									<li><span>状态：</span><p>已成立</p></li>
+								#end	
+							#end
+							<li><span>借款人：</span><p>$stringUtil.subString($!{loanDemand.loanerName},1,"****")</p></li><br/>
+                            <li><span>项目用途：</span><p>$stringUtil.subString($!{loanDemand.loanPurpose},10,"..")</p></li>
+                        </ul>
+           </div>
+            <input type="hidden" name="demandId" value="$!{loanDemand.demandId}"/> 	

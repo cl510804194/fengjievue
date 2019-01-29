@@ -1,0 +1,140 @@
+<table sqlname="tbl_product_property">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO tbl_product_property(property_id,property_code,property_name,property_type,product_type,raw_add_time) VALUES (?,?,?,?,?,?)
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE tbl_product_property SET property_code=?,property_name=?,property_type=?,product_type = ? WHERE property_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  property_id ,property_code ,property_name ,property_type,product_type ,raw_add_time ,raw_update_time  FROM tbl_product_property WHERE property_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByCode" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  property_id ,property_code ,property_name ,property_type ,product_type,raw_add_time ,raw_update_time  FROM tbl_product_property WHERE property_code=?
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="findByName" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  property_id ,property_code ,property_name ,property_type ,product_type,raw_add_time ,raw_update_time  FROM tbl_product_property WHERE property_name=?
+			]]>
+		</sql>
+	</operation>
+
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM tbl_product_property WHERE property_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM tbl_product_property
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByCondition" paramtype="object" multiplicity="many">
+		<extraparams>
+		<param name="limitStart" javatype="long" />
+		<param name="pageSize" javatype="long" />
+		<param name="beginDate" javatype="java.util.Date" />
+		<param name="endDate" javatype="java.util.Date" />
+		</extraparams>
+	    <sql>
+	        <![CDATA[
+	       SELECT  property_id ,property_code ,property_name ,property_type ,product_type,raw_add_time ,raw_update_time  FROM tbl_product_property
+	       WHERE  1=1
+	        ]]>
+	    </sql>
+	    <sqlmap>
+	        <![CDATA[
+	        SELECT  property_id ,property_code ,property_name ,property_type ,product_type,raw_add_time ,raw_update_time  FROM tbl_product_property
+	      	WHERE  1=1
+	        <dynamic>
+	            <isGreaterThan property="tblProductProperty.propertyId"  compareValue="0" prepend=" and ">
+	                property_id = #tblProductProperty.propertyId#
+	            </isGreaterThan>
+	            <isNotEmpty property="tblProductProperty.propertyCode" prepend=" and ">
+	                property_code like concat('',#tblProductProperty.propertyCode#,'%')
+	            </isNotEmpty>
+	            <isNotEmpty property="tblProductProperty.propertyName" prepend=" and ">
+	                property_name = #tblProductProperty.propertyName#
+	            </isNotEmpty>
+	            <isNotEmpty property="tblProductProperty.propertyType" prepend=" and ">
+	                property_type = #tblProductProperty.propertyType#
+	            </isNotEmpty>
+	            <isNotEmpty property="tblProductProperty.productType" prepend=" and ">
+	                product_type = #tblProductProperty.productType#
+	            </isNotEmpty>
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	            <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+            ORDER by product_type,property_type,property_code,property_id
+            
+            LIMIT #limitStart#,#pageSize#;
+	        ]]>
+	    </sqlmap>
+	</operation>
+	<operation name="findByConditionCount" paramtype="object" >
+			<extraparams>
+			<param name="beginDate" javatype="java.util.Date" />
+			<param name="endDate" javatype="java.util.Date" />
+		</extraparams>
+	    <sql>
+	        <![CDATA[
+	        SELECT  count(*) FROM tbl_product_property
+	        WHERE  1=1
+	        ]]>
+	    </sql>
+	    <sqlmap>
+	        <![CDATA[
+	         SELECT  count(*) FROM tbl_product_property
+	         where 1=1
+	         <dynamic>
+	            <isGreaterThan property="tblProductProperty.propertyId"  compareValue="0" prepend=" and ">
+	                property_id = #tblProductProperty.propertyId#
+	            </isGreaterThan>
+	            <isNotEmpty property="tblProductProperty.propertyCode" prepend=" and ">
+	                property_code = #tblProductProperty.propertyCode#
+	            </isNotEmpty>
+	            <isNotEmpty property="tblProductProperty.propertyName" prepend=" and ">
+	                property_name = #tblProductProperty.propertyName#
+	            </isNotEmpty>
+	            <isNotEmpty property="tblProductProperty.propertyType" prepend=" and ">
+	                property_type = #tblProductProperty.propertyType#
+	            </isNotEmpty>
+	            <isNotEmpty property="tblProductProperty.productType" prepend=" and ">
+	                product_type = #tblProductProperty.productType#
+	            </isNotEmpty>
+	            <isNotEmpty property="beginDate" prepend=" and ">
+	              ${cdata-start} raw_add_time >= #beginDate# ${cdata-end}
+	            </isNotEmpty>
+	            <isNotEmpty property="endDate" prepend=" and ">
+	              ${cdata-start} raw_add_time <= #endDate# ${cdata-end}
+	            </isNotEmpty>
+	        </dynamic>
+	        ]]>
+	    </sqlmap>
+	</operation>
+</table>

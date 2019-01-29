@@ -1,0 +1,49 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+    require('../plugins/jquery.window.js');
+    var addForm = $('#add_refundHotel');
+    if (addForm.length) {
+        addForm.validate({
+            submitHandler: function () {
+                addForm.ajaxSubmit({
+                    success: function (res) {
+                        alert(res.message);
+                        if (res.code == 1) {
+                            window.location.href = "/admin/hotel/refund/setRefundHotelList.htm";
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    $(".fn-submit1").bind("click", function () {
+		var refundTime = $(".refundTime").val();
+		var index = 0;
+		$("[id=userGrade]:checkbox").each(function(i) {
+	   		 if($(this).attr("checked")){
+	   			 	index ++;
+	   		 }
+		});
+		if(index >0){
+			if($(".refundTime").val().length >0){
+				 addForm.submit();
+			}
+		}else{
+  			 $(".userGrade_error").show();
+  		}
+       
+    });
+    
+    function validationTime(refundTime){
+		var userreg=/^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;	
+		if(userreg.test(refundTime)){
+			return true;
+		}else{
+			//$(this).val("");
+			$(".refundtime_error").show();
+			//alert("输入的时间不规范(注意时间格式),如 11:10");
+			return false;
+		}
+	};
+});

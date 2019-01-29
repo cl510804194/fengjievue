@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>推荐结果</title>
+	<link type="text/css" href="/resources/css/loan.css" rel="stylesheet" />
+</head>
+<style type="text/css">
+	
+	.i_type{
+	padding: 0 30px 25px;
+	}
+	
+	.i_type li.focus {
+    background: #a60000;
+    color: #fff;
+    }
+    .i_type li {
+    float: left;
+    display: inline;
+    height: 34px;
+    line-height: 34px;
+    background: #d6d6d6;
+    padding: 0 15px;
+    color: #787878;
+    margin: 0 1px 0 0;
+    font-size: 14px;
+    font-family: "微软雅黑";
+    cursor: pointer;
+    }
+	.i_type a {
+    color: #333;
+    }
+	.i_type a.ocur {
+    color: #fff;
+    }
+	
+	.ft-999 {
+    color: #333;
+    }
+
+	 .safe-serve{
+	 	padding: 0 30px 25px;
+	 }
+	 
+	.safe .safe-serve li {
+    padding: 10px;
+    position: relative;
+    }
+	.safe .safe-serve li a {
+    font-size: 14px;
+    font-weight: bold;
+	position: inherit;
+    top: 25px;
+    right: 30px;
+    }
+	.safe .safe-serve li em {
+	 font-size: 14px;
+    color: #333;
+    }
+	.safe .safe-serve li em.w200{
+	width:200px;
+	}
+	.safe .safe-serve li em.w150{
+	width:150px;
+	}
+</style>
+<body>
+	#parse("/front/index/common/header.vm")
+	<!--内容-->
+	<div class="container fn-clear">
+		<!--左侧导航-->
+		#parse("/front/user/common/left.vm")
+		<!--右侧内容-->
+		<div class="main-content mc-border fn-right">
+			<h3 class="con-title">我的推荐</h3>
+			<div class="safe">
+				<div class="safe-level">
+					<p class="ft-999 fn-mt5">推荐结果实时更新，请及时查看结果  </p>
+				</div>
+				<div style="display: block;padding-bottom: 40px;">
+					<ul class="i_type">
+						<li  class="focus">
+							<a class="ocur" href="javascript:;">我的最新推荐：</a>
+                        </li>
+                    </ul>
+                </div>
+				<div class="safe-serve">
+					<ul>
+						<li class="border-b fn-clear" style="background:lightGray;">
+    							<em class="w200">活动名称</em>
+								<em class="w150">被推荐人姓名</em>
+    							<em class="w150">推荐时间</em>
+    							<em class="w150">状态</em>
+    						</li>
+						#if($!page.result.size()==0 || !$!page.result)
+            				<li class="border-b fn-clear">
+    							<p>
+    								<p>暂无推荐朋友记录，点此
+        								<a style="right:400px;top:30px;" href="/userManage/shareWithFriends">
+        									立即推荐
+                                        </a>
+                                    </p>
+                                </p>
+    						</li>
+        				#end
+						#foreach($item in $!{page.result})
+							<li class="border-b fn-clear">
+    							<em class="w200">$!{item.activityName}</em>
+								<em class="w150">$!{item.realName}</em>
+    							<em class="w150">$!{dateUtil.dtSimpleFormat($!{item.addTime})}</em>
+    							<em class="w150">#if($!{item.status}==2)推荐完成#else未认证#end</em>
+    						</li>
+						#end	
+					</ul>
+					<div class="fn-tb-bottom fn-clear">
+    				#parse("/backstage/page/page.vm")
+    			</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+	#parse("/front/index/common/footer.vm")
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'securityCenter');
+		
+    </script>
+</body>
+</html>

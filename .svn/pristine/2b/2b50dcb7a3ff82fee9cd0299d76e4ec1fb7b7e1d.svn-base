@@ -1,0 +1,24 @@
+package com.yjf.esupplier.service.user.info;
+
+import java.io.Serializable;
+
+import com.yjf.esupplier.common.util.ConfigParamProperty;
+import com.yjf.esupplier.ws.userManage.data.UserAccountData;
+
+/**
+ * 用户账户数据
+ * 
+ * 
+ * @author qch
+ * 
+ */
+public class UserAccountDataInfo extends UserAccountData implements Serializable {
+	
+	private static final long serialVersionUID = -5878401739176188519L;
+
+	public double getViewUserGrowthValue() {
+		double viewUserGrowthValue = this.getUserGrowthValue()
+										/ ConfigParamProperty.getgGrowthValueCoefficient();
+		return viewUserGrowthValue;
+	}
+}

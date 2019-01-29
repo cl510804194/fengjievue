@@ -1,0 +1,39 @@
+/**
+	quotationClip.css
+	频道或者新首页行情信息显示小栏目 样式
+*/
+.quoListName {
+	
+}
+
+.quot {
+	background: url("");
+	width: 11px;
+	height: 11px;
+	margin-top: 6px;
+	margin-right: 3px;
+	margin-left: 3px;
+}
+
+.fl {
+	float: left;
+}
+
+.cl {
+	clear: both;
+}
+
+.str_hidden {
+	overflow: hidden;
+	width: 190px;
+	word-wrap: normal;
+	display: block;
+	white-space: nowrap;
+	-o-text-overflow: ellipsis; /* opera */
+	text-overflow: ellipsis; /* ie, safari (webkit) */
+	-moz-binding: url '../../../css/ellipsis.xml#ellipsis'; /* firefox */
+}
+
+.quo_title{
+	width:200px;
+}

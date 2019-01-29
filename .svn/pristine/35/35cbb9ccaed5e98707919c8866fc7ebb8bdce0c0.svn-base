@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>账户首页</title>
+	<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+<body >
+	<!--头部-->
+	#parse("/front/index/common/header-yrd.vm")
+	<div class="home-section_bd pt20">
+  <div class="blank20"></div>
+  <div class="bd-box container fn-clear">
+   #parse("/front/user/common/left1.vm")
+    <div class="m-content fn-right">
+      <div class="m-content-box">
+        		<div class="title1 mt10"><span>客户管理</span></div>
+                <div class="blank20"></div>
+                <div class="border-b">
+				<form action="/investorManager/investorManage" method="post" id="investorManageForm1" name ="investorManageForm1">
+				   <input type="hidden"  name="pageSize"  value="$!{pageParam.pageSize}">
+			       <input type="hidden"  name="pageNo"  value="$!{pageParam.pageNo}">  
+				
+                    <div class="fn-condition mt15 fn-clear">
+                    	<dl class="fn-clear mb20">
+							<dt>用户名：</dt>
+							<dd><input type="text" class="fn-text w120" name="userName" value="$!{queryConditions.userName}" /></dd>
+							<dt>真实姓名：</dt>
+							<dd>
+								<input type="text" class="fn-text w120" name="realName" value="$!{queryConditions.realName}" />
+							</dd>
+                            <dd>
+                            	<a class="fn-h-btn ml20" href="javascript:doSubmit()"><span>筛选</span></a>
+                            </dd>
+                            <dd class="ml20">
+                            	<a class="account-holder ml20" href="/investorManager/investorOpenAccount">投资人开户</a>
+                            </dd>				
+						</dl>
+                    </div>
+				</form>
+                    <table cellpadding="0" cellspacing="0" border="0" class="mtable-list">
+                       <tr class="thead">
+					<td width="90" style="text-align:center">用户名</td>
+					<td width="90">真实姓名</td>
+					<td width="90">用户编号</td>
+					<td width="60">收益分配</td>
+					<td width="120">创建时间</td>
+					<td width="35">状态</td>
+					<td width="130">操作</td>
+				</tr>
+				  #if($!page.result.size()==0)
+						<tr class="even">
+							<td colspan=6 align=center>暂时没有个人用户记录</td>
+						</tr>
+					#end
+					#foreach($info in $page.result)
+						<tr>
+							<td style="text-align:center">$!{info.userName}</td>
+							<td>$!{info.realName}</td>
+							<td>$!{info.memberNo}</td>
+							<td>#if($!{info.investorDistributionQuota} !=-1.0)$rateUtil.getRate($!{info.investorDistributionQuota})#else还未分配#end</td>
+							<td>$!dateUtil.simpleFormat($!{info.rowAddTime})</td>
+							<td class="red">$!{info.state.message}</td>
+							<td><a href="/investorManager/investorInfo?userBaseId=$!{info.userBaseId}">查看详情</a>
+							<a href="/investorManager/profitAsignInfo?userBaseId=$!{info.userBaseId}&pageNo=$!{pageParam.pageNo}&userName=$!{queryConditions.userName}&realName=$!{queryConditions.realName}"> | 收益配置</a></td>
+						
+						</tr>
+					#end
+                    </table>
+                   	<!--分页-->
+					<div class="fn-tb-bottom fn-clear">
+						#parse("/backstage/page/page.vm")
+					</div>
+                    <div class="blank30"></div>
+                </div>
+                <div class="blank30"></div>
+            </div>
+    </div>
+  </div>
+  <div class="blank50"></div>
+</div>
+
+#parse("/front/index/common/footer-yrd.vm")	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'demo');
+		
+		
+		function toPage(totalPage, pageNo){
+    		if(totalPage<pageNo){
+    			return false;
+    		}
+			$('[name=pageSize]').val($!{page.pageSize}) ;
+			$('[name=pageNo]').val(pageNo);
+			$('form[name=investorManageForm1]').attr('action', '$!{rc.contextPath}/investorManager/investorManage');
+			 document.investorManageForm1.submit();
+		}
+		
+		
+		
+		function doSubmit() {
+		    $('[name=pageSize]').val($!{page.pageSize}) ;
+			$('[name=pageNo]').val(1);
+			document.investorManageForm1.submit();
+		}
+		
+		
+		
+    </script>
+</body>
+</html>

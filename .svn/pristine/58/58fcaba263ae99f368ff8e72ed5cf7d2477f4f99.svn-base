@@ -1,0 +1,5 @@
+testId,resultCode,resultMessage,orderNo,timestamp,mobile,templateName,content,jsonParam
+1001,EXECUTE_FAILURE,签名值不能为空!,2894,20160914223333,13759824689,T,102A,user:aauu
+1002,EXECUTE_FAILURE,缺少必填参数serviceName!,2894,20160914223333,13759824689,T,102A,user:aauu
+1003,EXECUTE_FAILURE,[mobile]不能为空!,2894,20160914223333,13759824689,T,102A,user:aauu
+1004,EXECUTE_FAILURE,[content]不能为空!,2894,20160914223333,13759824689,T,102A,user:aauu

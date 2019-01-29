@@ -1,0 +1,28 @@
+package com.yjf.esupplier.dal.custom.daointerface;
+
+import java.util.List;
+
+import com.yjf.esupplier.dal.custom.dataobject.DrawerAddressDO;
+
+public interface DrawerAddressDAO {
+	/***
+	 * 修改地址 2010-4-19
+	 * @author yuwenqiang
+	 * @param address
+	 */
+	void updateDrawerAddress(DrawerAddressDO address);
+	
+	void deleteAddressInfo(Long addID);
+	
+	DrawerAddressDO findAddressInfo(Long addID);
+	
+	List<DrawerAddressDO> getAddressByMember(Long memberId);
+	
+	/***
+	 * 保存地址 2010-4-19
+	 * @author yuwenqiang
+	 * @param address
+	 */
+	void saveDrawerAddress(DrawerAddressDO address);
+	
+}

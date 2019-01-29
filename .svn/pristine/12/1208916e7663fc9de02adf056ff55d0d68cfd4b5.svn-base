@@ -1,0 +1,55 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+    //var maxValue = $('input[name="addStockQuantity"]').attr('maxValue');
+    //$('#form').validate({
+    //	errorClass: 'error-tip',
+    //	errorElement: 'b',
+    //	errorPlacement: function(error, element) {
+    //		element.after(error);
+    //	},
+    //	onkeyup: false, //不在按键时进行验证
+    //	rules: {
+    //		addStockQuantity: {
+    //			required: true,
+    //			number: true,
+    //			max:maxValue
+    //		}
+    //	},
+    //	messages: {
+    //		addStockQuantity: {
+    //			required: '必填',
+    //			number: '请输入正确的数字',
+    //			max:'超过最大数量'
+    //		}
+    //	},
+    //	submitHandler: function(form) {
+    //		form.submit();
+    //	}
+    //});
+    //$('#goodsOK').click(function(event) {
+    //	$('.pop-up').show();
+    //});
+    //$('#popUpNo').click(function(event) {
+    //	$('.pop-up').hide();
+    //});
+
+    var text = ['同意后退款将立即退到用户账户，<br />是否同意该操作?', '是否同意该操作?'],
+        _pop = $('.pop-up');
+    $('.judge').click(function (event) {
+        var _thisId = this.id;
+        if (_thisId == 'refundTypeOK') {
+            $('#refundValue').val('refundValueOk')
+            _pop.find('.cnt_txt').html(text[0]);
+            _pop.show();
+        }
+    });
+
+    $('.popUp').click(function (event) {
+        var _thisId = this.id;
+        if (_thisId == 'popUpOk') {
+            $('#form').submit();
+        } else {
+            _pop.hide();
+        }
+    });
+});

@@ -1,0 +1,65 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.common.util;
+
+/**
+ * 
+ * @Filename SessionConstant.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2013-2-20</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ * 
+ */
+public class SessionConstant {
+	public static final String SESSION_KAPTCHA_KEY = "SESSION_KAPTCHA_KEY";
+	public static final String KAPTCHA_SESSION_KEY = "KAPTCHA_SESSION_KEY";
+	public static final String SESSION_CURR_USER = "SESSION_CURR_USER";
+	public static final String SESSION_CURR_USER_PRE = "SESSION_CURR_USER_PRE";
+	public static final String SESSION_VALIDATE_CODE = "SESSION_VALIDATE_CODE";
+	
+	public static final String SESSION_PASSWORDRETAKE_KEY = "SESSION_PASSWORDRETAKE_KEY";
+	public static final String SESSION_PASSWORDRETAKE_USER = "SESSION_PASSWORDRETAKE_USER";
+	
+	public static final String SESSION_ACTIVATEACCOUNT_KEY = "SESSION_ACTIVATEACCOUNT_KEY";
+	public static final String SESSION_ACTIVATEACCOUNT_USER = "SESSION_ACTIVATEACCOUNT_USER";
+	
+	public static final String SESSION_VERIFIEDMOBILEPHONE_KEY = "SESSION_VERIFIEDMOBILEPHONE_KEY";
+	
+	public static final String SESSION_MODIFYPHONENO_KEY = "SESSION_MODIFYPHONENO_KEY";
+	public static final String SESSION_MODIFYPHONENO_STEP_KEY = "SESSION_MODIFYPHONENO_STEP_KEY";
+	public static final String SESSION_HOUSERINFO_KEY = "SESSION_HOUSERINFO_KEY";
+	public static final String SESSION_BUYER_CHECK_BANK = "SESSION_BUYER_CHECK_BANK";
+	public static final String SESSION_SELLER_CHECK_BANK = "SESSION_SELLER_CHECK_BANK";
+	public static final String SESSION_BIZ_NO_KEY = "SESSION_BIZ_NO_KEY";
+	public static final String SESSION_TRADE_FLAG_KEY = "SESSION_TRADE_FLAG_KEY";
+	public static final String SESSION_CLEARING_FLAG_KEY = "SESSION_CLEARING_FLAG_KEY";
+	public static final String SESSION_BUYER_MODIFY_FLAG_KEY = "SESSION_BUYER_MODIFY_FLAG_KEY";
+	public static final String SESSION_SELLER_MODIFY_FLAG_KEY = "SESSION_SELLER_MODIFY_FLAG_KEY";
+	public static final String SESSION_BUYER_TRADE_MOBILE_FLAG_KEY = "SESSION_BUYER_TRADE_MOBILE_FLAG_KEY";
+	public static final String SESSION_SELLER_TRADE_MOBILE_FLAG_KEY = "SESSION_SELLER_TRADE_MOBILE_FLAG_KEY";
+	public static final String SESSION_TRADE_RULE_MOBILE_FLAG_KEY = "SESSION_TRADE_RULE_MOBILE_FLAG_KEY";
+	
+	public static final String SESSION_CANCEL_FLAG_KEY = "SESSION_CANCEL_FLAG_KEY";
+	public static final String SESSION_BUYER_CANCEL_FLAG_KEY = "SESSION_BUYER_CANCEL_FLAG_KEY";
+	public static final String SESSION_SELLER_CANCEL_FLAG_KEY = "SESSION_SELLER_CANCEL_FLAG_KEY";
+	public static final String SEARCH_HOUSEINFO_FORM_KEY = "SEARCH_HOUSEINF_FORM_KEY";
+	public static final String SESSION_TYPEIN_HOUSEINFO_FORM_KEY = "SESSION_TYPEIN_HOUSEINFO_FORM_KEY";
+	public static final String SESSION_CHANGE_HOUSEINFO_KEY = "SESSION_CHANGE_HOUSEINFO_KEY";
+	public static final String SESSION_CHANGE_ESTATEHOUSEINFO_KEY = "SESSION_CHANGE_ESTATEHOUSEINFO_KEY";
+	
+	public static final String SESSION_CUSTOMER_BIZNO_KEY = "SESSION_CUSTOMER_BIZNO_KEY";
+	public static final String SESSION_CUSTOMER_PRE_BIZNO_KEY = "SESSION_CUSTOMER_PRE_BIZNO_KEY";
+	
+	public static final String SESSION_TRADE_RULE_BANK_KEY = "SESSION_TRADE_RULE_BANK_KEY";
+	
+}

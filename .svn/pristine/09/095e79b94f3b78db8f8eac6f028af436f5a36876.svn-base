@@ -1,0 +1,886 @@
+package com.yjf.esupplier.service.lottery.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.common.lang.util.DateUtil;
+import com.yjf.common.lang.util.ListUtil;
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.common.service.base.AfterProcessInvokeService;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.esupplier.common.util.ConfigParamProperty;
+import com.yjf.esupplier.dal.dataobject.LotteryActivityInstanceDO;
+import com.yjf.esupplier.dal.dataobject.LotteryDrawCountDO;
+import com.yjf.esupplier.dal.dataobject.LotteryRecordDO;
+import com.yjf.esupplier.dal.dataobject.LotteryToBeWinnerDO;
+import com.yjf.esupplier.dal.dataobject.LotteryWinnerDO;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.domain.lottery.LotteryActivityDomain;
+import com.yjf.esupplier.domain.lottery.LotteryActivityInstanceDomain;
+import com.yjf.esupplier.domain.lottery.LotteryConditionDomain;
+import com.yjf.esupplier.domain.lottery.PrizeRuleDetailDomain;
+import com.yjf.esupplier.domain.lottery.PrizeRuleDomain;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.lottery.LotteryActivityBaseService;
+import com.yjf.esupplier.service.lottery.query.LotteryActivityQueryService;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyGiveTypeEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTypeEnum;
+import com.yjf.esupplier.ws.gifamount.order.HandGiftMoneyOrder;
+import com.yjf.esupplier.ws.integral.UserPointsOrder;
+import com.yjf.esupplier.ws.integral.enums.PointsTypeEnum;
+import com.yjf.esupplier.ws.lottery.LotteryActivityService;
+import com.yjf.esupplier.ws.lottery.enums.LotteryActivityStatusEnum;
+import com.yjf.esupplier.ws.lottery.enums.LotteryConditionTypeEnum;
+import com.yjf.esupplier.ws.lottery.enums.LotteryTimesTypeEnum;
+import com.yjf.esupplier.ws.lottery.enums.LotteryTypeEnum;
+import com.yjf.esupplier.ws.lottery.enums.PrizeTypeEnum;
+import com.yjf.esupplier.ws.lottery.enums.WinnerStatusEnum;
+import com.yjf.esupplier.ws.lottery.info.LotteryActivityInfo;
+import com.yjf.esupplier.ws.lottery.info.LotteryConditionInfo;
+import com.yjf.esupplier.ws.lottery.order.AddLotteryActivityOrder;
+import com.yjf.esupplier.ws.lottery.order.DrawAwardOrder;
+import com.yjf.esupplier.ws.lottery.order.GiveWinnerOrder;
+import com.yjf.esupplier.ws.lottery.order.LotteryConditionOrder;
+import com.yjf.esupplier.ws.lottery.order.UpdateLotteryActivityOrder;
+import com.yjf.esupplier.ws.lottery.query.order.LotteryActivityQueryOrder;
+import com.yjf.esupplier.ws.lottery.query.order.LotteryRecordQueryOrder;
+import com.yjf.esupplier.ws.lottery.query.result.LotteryConditionResult;
+import com.yjf.esupplier.ws.lottery.query.result.LotteryResult;
+import com.yjf.esupplier.ws.lottery.result.DrawAwardResult;
+import com.yjf.esupplier.ws.order.ProcessOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service("lotteryActivityService")
+public class LotteryActivityServiceImpl extends LotteryActivityBaseService
+										implements LotteryActivityService {
+	@Autowired
+	protected LotteryActivityQueryService lotteryActivityQueryService;
+	static final Random random = new Random();
+	
+	@Override
+	public EsupplierBaseResult addLotteryActivity(final AddLotteryActivityOrder activityOrder) {
+		return commonProcess(activityOrder, "添加活动", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = new LotteryActivityDomain();
+				BeanCopier.staticCopy(activityOrder, activityDomain);
+				if (activityOrder.getLotteryType() == LotteryTypeEnum.LOTTERY) {
+					PrizeRuleDomain ruleDomain = prizeRuleDomainRepository
+						.load(activityDomain.getPrizeRuleId());
+					if (ruleDomain == null) {
+						throw ExceptionFactory
+							.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "奖品规则不存在");
+					}
+					
+					List<LotteryConditionDomain> conditionDomains = Lists.newArrayList();
+					for (LotteryConditionOrder conditionOrder : activityOrder
+						.getConditionOrders()) {
+						LotteryConditionDomain conditionDomain = new LotteryConditionDomain();
+						BeanCopier.staticCopy(conditionOrder, conditionDomain);
+						conditionDomains.add(conditionDomain);
+					}
+					activityDomain.setLotteryConditionDomains(conditionDomains);
+				}
+				
+				Date sysDate = EsupplierDomainHolder.get().getSysDate();
+				activityDomain.setRawAddTime(sysDate);
+				activityDomain.setRawUpdateTime(sysDate);
+				activityDomain.setStatus(LotteryActivityStatusEnum.NOT_STARTED);
+				lotteryActivityDomainRepository.store(activityDomain);
+				return activityDomain;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult giveWinner(final GiveWinnerOrder giveWinnerOrder) {
+		return commonProcess(giveWinnerOrder, "发放奖品", new BeforeProcessInvokeService() {
+			@Override
+			public Domain before() {
+				lotteryWinnerDAO.giveWinner(giveWinnerOrder.getExpressNo(),
+					giveWinnerOrder.getStatus().getCode(), giveWinnerOrder.getWinnerId());
+				return null;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult updateLotteryActivity(final UpdateLotteryActivityOrder activityOrder) {
+		return commonProcess(activityOrder, "修改活动", new BeforeProcessInvokeService() {
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = lotteryActivityDomainRepository
+					.load(activityOrder.getId());
+				BeanCopier.staticCopy(activityOrder, activityDomain);
+				if (activityDomain.getStatus() != LotteryActivityStatusEnum.NOT_STARTED) {
+					throw ExceptionFactory
+						.newYrdException(EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "该活动不能修改");
+				}
+				if (activityOrder.getLotteryType() == LotteryTypeEnum.LOTTERY) {
+					PrizeRuleDomain ruleDomain = prizeRuleDomainRepository
+						.load(activityDomain.getPrizeRuleId());
+					if (ruleDomain == null) {
+						throw ExceptionFactory
+							.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM, "奖品规则不存在");
+					}
+					List<LotteryConditionDomain> conditionDomains = Lists.newArrayList();
+					for (LotteryConditionOrder conditionOrder : activityOrder
+						.getConditionOrders()) {
+						LotteryConditionDomain conditionDomain = new LotteryConditionDomain();
+						BeanCopier.staticCopy(conditionOrder, conditionDomain);
+						conditionDomains.add(conditionDomain);
+					}
+					activityDomain.setLotteryConditionDomains(conditionDomains);
+				}
+				
+				lotteryActivityDomainRepository.reStore(activityDomain);
+				return activityDomain;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public void startLotteryActivityTask() {
+		Date sysDate = getSysdate();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(sysDate);
+		//开始前半个小时初始化奖次
+		calendar.add(Calendar.MINUTE, 30);
+		LotteryActivityQueryOrder lotteryActivityQueryOrder = new LotteryActivityQueryOrder();
+		lotteryActivityQueryOrder.setPageSize(100);
+		lotteryActivityQueryOrder.setEndStartDate(calendar.getTime());
+		List<LotteryActivityStatusEnum> statusEnums = Lists.newArrayList();
+		statusEnums.add(LotteryActivityStatusEnum.NOT_STARTED);
+		statusEnums.add(LotteryActivityStatusEnum.STARTING_ERROR);
+		statusEnums.add(LotteryActivityStatusEnum.STARTING);
+		lotteryActivityQueryOrder.setStatusEnums(statusEnums);
+		QueryBaseBatchResult<LotteryActivityInfo> batchResult = lotteryActivityQueryService
+			.queryLotteryActivity(lotteryActivityQueryOrder);
+		if (ListUtil.isNotEmpty(batchResult.getPageList())) {
+			for (LotteryActivityInfo activityInfo : batchResult.getPageList()) {
+				ProcessOrder processOrder = new ProcessOrder();
+				processOrder.setBizNo(activityInfo.getId());
+				processOrder.setProcessorId(-1);
+				processOrder.setProcessName("系统");
+				startLotteryActivity(processOrder);
+			}
+		}
+	}
+	
+	@Override
+	public void endLotteryActivityTask() {
+		Date sysDate = getSysdate();
+		
+		LotteryActivityQueryOrder lotteryActivityQueryOrder = new LotteryActivityQueryOrder();
+		lotteryActivityQueryOrder.setPageSize(100);
+		lotteryActivityQueryOrder.setEndEndDate(sysDate);
+		List<LotteryActivityStatusEnum> statusEnums = Lists.newArrayList();
+		statusEnums.add(LotteryActivityStatusEnum.STARTING_ERROR);
+		statusEnums.add(LotteryActivityStatusEnum.STARTING);
+		statusEnums.add(LotteryActivityStatusEnum.STARTED);
+		lotteryActivityQueryOrder.setStatusEnums(statusEnums);
+		QueryBaseBatchResult<LotteryActivityInfo> batchResult = lotteryActivityQueryService
+			.queryLotteryActivity(lotteryActivityQueryOrder);
+		if (ListUtil.isNotEmpty(batchResult.getPageList())) {
+			for (LotteryActivityInfo activityInfo : batchResult.getPageList()) {
+				if (sysDate.after(activityInfo.getConditionEndDate())
+					&& sysDate.after(activityInfo.getEndTime())) {
+					ProcessOrder processOrder = new ProcessOrder();
+					processOrder.setBizNo(activityInfo.getId());
+					processOrder.setProcessorId(-1);
+					processOrder.setProcessName("系统");
+					endLotteryActivity(processOrder);
+				}
+				
+			}
+		}
+	}
+	
+	@Override
+	public EsupplierBaseResult startLotteryActivity(final ProcessOrder processOrder) {
+		final LotteryActivityService asynchronousService = this;
+		return commonProcess(processOrder, "开始活动", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = lotteryActivityDomainRepository
+					.active(processOrder.getBizNo(), true);
+				if (activityDomain == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"活动数据不存在");
+				}
+				if (activityDomain.getStatus() != LotteryActivityStatusEnum.NOT_STARTED) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "活动数据状态不正确，不能开始");
+				}
+				activityDomain.setStatus(LotteryActivityStatusEnum.STARTING);
+				lotteryActivityDomainRepository.onlyModifyLotteryActiveDomain(activityDomain);
+				asynchronousTaskJob.addAsynchronousService(asynchronousService,
+					new Object[] { activityDomain });
+				return activityDomain;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public EsupplierBaseResult startedLotteryActivity(final ProcessOrder processOrder) {
+		return commonProcess(processOrder, "开始活动", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = lotteryActivityDomainRepository
+					.active(processOrder.getBizNo(), true);
+				if (activityDomain == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"活动数据不存在");
+				}
+				if (activityDomain.getStatus() != LotteryActivityStatusEnum.STARTING) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "活动数据状态不正确，不能开始");
+				}
+				activityDomain.setStatus(LotteryActivityStatusEnum.STARTED);
+				lotteryActivityDomainRepository.onlyModifyLotteryActiveDomain(activityDomain);
+				return activityDomain;
+			}
+		}, null, null);
+		
+	}
+	
+	@Override
+	public EsupplierBaseResult startErrorLotteryActivity(final ProcessOrder processOrder) {
+		return commonProcess(processOrder, "开始活动", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = lotteryActivityDomainRepository
+					.active(processOrder.getBizNo(), true);
+				if (activityDomain == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"活动数据不存在");
+				}
+				if (activityDomain.getStatus() != LotteryActivityStatusEnum.STARTING) {
+					throw ExceptionFactory.newYrdException(
+						EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "活动数据状态不正确，不能开始");
+				}
+				activityDomain.setStatus(LotteryActivityStatusEnum.STARTING_ERROR);
+				lotteryActivityDomainRepository.onlyModifyLotteryActiveDomain(activityDomain);
+				return activityDomain;
+			}
+		}, null, null);
+		
+	}
+	
+	@Override
+	public EsupplierBaseResult endLotteryActivity(final ProcessOrder processOrder) {
+		return commonProcess(processOrder, "结束活动", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = lotteryActivityDomainRepository
+					.active(processOrder.getBizNo(), true);
+				if (activityDomain == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"活动数据不存在");
+				}
+				if (activityDomain.getStatus() != LotteryActivityStatusEnum.STARTED
+					&& activityDomain.getStatus() != LotteryActivityStatusEnum.STARTING
+					&& activityDomain.getStatus() != LotteryActivityStatusEnum.STARTING_ERROR) {
+					throw ExceptionFactory
+						.newYrdException(EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "活动数据状态不正确");
+				}
+				activityDomain.setStatus(LotteryActivityStatusEnum.END);
+				lotteryActivityDomainRepository.onlyModifyLotteryActiveDomain(activityDomain);
+				lotteryToBeWinnerDAO.deleteByActivityId(activityDomain.getId());
+				lotteryActivityInstanceDomainRepository.removeByActiveId(activityDomain.getId());
+				return activityDomain;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new DrawAwardResult();
+	}
+	
+	@Override
+	public EsupplierBaseResult removeLotteryActivity(final ProcessOrder processOrder) {
+		return commonProcess(processOrder, "删除活动", new BeforeProcessInvokeService() {
+			
+			@Override
+			public Domain before() {
+				LotteryActivityDomain activityDomain = lotteryActivityDomainRepository
+					.active(processOrder.getBizNo(), false);
+				if (activityDomain == null) {
+					throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+						"活动数据不存在");
+				}
+				if (activityDomain.getStatus() != LotteryActivityStatusEnum.NOT_STARTED) {
+					throw ExceptionFactory
+						.newYrdException(EsupplierResultEnum.DO_ACTION_STATUS_ERROR, "活动已经开始，不能删除");
+				}
+				
+				lotteryActivityDomainRepository.remove(activityDomain);
+				return activityDomain;
+			}
+		}, null, null);
+	}
+	
+	@Override
+	public void execute(Object[] objects) {
+		ProcessOrder processOrder = new ProcessOrder();
+		try {
+			LotteryActivityDomain activityDomain = (LotteryActivityDomain) objects[0];
+			processOrder.setBizNo(activityDomain.getId());
+			PrizeRuleDomain prizeRuleDomain = prizeRuleDomainRepository
+				.load(activityDomain.getPrizeRuleId());
+			int toBeWinner = (int) (prizeRuleDomain.getPrizeNum()
+									- prizeRuleDomain.getNotWinningNum());
+			if (toBeWinner > 100000) {
+				toBeWinner = 100000;
+			}
+			if (activityDomain.getStatus() == LotteryActivityStatusEnum.STARTING) {
+				LotteryActivityInstanceDO instanceDO = lotteryActivityInstanceDAO
+					.findByActivityId(activityDomain.getId());
+				if (instanceDO != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(getSysdate());
+					cal.add(Calendar.MINUTE, 30);//30分钟奖池初始化完成开始
+					if (!instanceDO.getRawAddTime().before(cal.getTime())) {
+						return;
+					}
+				}
+			}
+			lotteryToBeWinnerDAO.deleteByActivityId(activityDomain.getId());
+			lotteryActivityInstanceDomainRepository.removeByActiveId(activityDomain.getId());
+			LotteryActivityInstanceDomain instanceDomain = new LotteryActivityInstanceDomain();
+			BeanCopier.staticCopy(activityDomain, instanceDomain);
+			instanceDomain.setActivityId(activityDomain.getId());
+			instanceDomain.setLotteryNum(0);
+			instanceDomain.setSurplusNum(prizeRuleDomain.getPrizeNum());
+			instanceDomain.setTobeWinnerNum(toBeWinner);
+			lotteryActivityInstanceDomainRepository.store(instanceDomain);
+			Random rand = new Random();
+			int onePosition = rand.nextInt(toBeWinner);
+			PrizeRuleDetailDomain[] toBeArray = new PrizeRuleDetailDomain[toBeWinner];
+			int curIndex = onePosition;
+			for (PrizeRuleDetailDomain ruleDetailDomain : prizeRuleDomain
+				.getPrizeRuleDetailDomains()) {
+				if (curIndex >= toBeWinner) {
+					curIndex = curIndex - toBeWinner;
+				}
+				int itemCount = (int) ruleDetailDomain.getPrizeNum();
+				for (int n = 0; n < itemCount; n++) {
+					if (curIndex >= toBeWinner) {
+						curIndex = curIndex - toBeWinner;
+					}
+					toBeArray[curIndex] = ruleDetailDomain;
+					curIndex++;
+				}
+				
+			}
+			for (int i = 0; i < toBeWinner; i++) {
+				PrizeRuleDetailDomain ruleDetailDomain = toBeArray[i];
+				LotteryToBeWinnerDO toBeWinnerDO = new LotteryToBeWinnerDO();
+				BeanCopier.staticCopy(ruleDetailDomain, toBeWinnerDO);
+				toBeWinnerDO.setWinnerNumber(i);
+				toBeWinnerDO.setPrizeType(ruleDetailDomain.getPrizeType().code());
+				toBeWinnerDO.setInstanceId(instanceDomain.getInstanceId());
+				toBeWinnerDO.setActivityId(instanceDomain.getActivityId());
+				toBeWinnerDO.setRawAddTime(new Date());
+				lotteryToBeWinnerDAO.insert(toBeWinnerDO);
+			}
+			startedLotteryActivity(processOrder);
+		} catch (Exception e) {
+			logger.error("启动初始化抽奖池", e);
+			startErrorLotteryActivity(processOrder);
+		}
+		
+	}
+	
+	@Override
+	public DrawAwardResult drawAward(final DrawAwardOrder drawAwardOrder) {
+		
+		return (DrawAwardResult) commonProcess(drawAwardOrder, "抽奖",
+			new BeforeProcessInvokeService() {
+				
+				@Override
+				public Domain before() {
+					UserInfo info = userQueryService.queryByUserId(drawAwardOrder.getProcessorId())
+						.getQueryUserInfo();
+					if (info == null) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+							"用户不存在");
+					}
+					EsupplierBaseResult canDrawResult = isCanDrawAward(drawAwardOrder);
+					if (!canDrawResult.isSuccess()) {
+						throw ExceptionFactory.newYrdException(
+							EsupplierResultEnum.INCOMPLETE_REQ_PARAM, canDrawResult.getMessage());
+					}
+					LotteryActivityInstanceDomain activityInstanceDomain = lotteryActivityInstanceDomainRepository
+						.active(drawAwardOrder.getBizNo(), true);
+					long lotteryRecordCount = 0;
+					Object object = EsupplierDomainHolder.get().getAttribute("lotteryRecordCount");
+					Date nowDate = EsupplierDomainHolder.get().getSysDate();
+					if (object != null) {
+						lotteryRecordCount = (long) object;
+					}
+					LotteryTimesTypeEnum timesTypeEnum = (LotteryTimesTypeEnum) EsupplierDomainHolder
+						.get().getAttribute("lotteryTimesType");
+					if (object != null) {
+						lotteryRecordCount = (long) object;
+					}
+					lotteryRecordCount++;
+					String outBizNo = makeOutBizNo(drawAwardOrder, lotteryRecordCount,
+						timesTypeEnum);
+					if ((int) activityInstanceDomain.getSurplusNum() <= 0) {
+						throw ExceptionFactory.newYrdException(EsupplierResultEnum.HAVE_NOT_DATA,
+							"亲！奖品已经抽完了。");
+					}
+					int drawAwardIndex = random
+						.nextInt((int) activityInstanceDomain.getSurplusNum());
+					activityInstanceDomain
+						.setSurplusNum(activityInstanceDomain.getSurplusNum() - 1);
+					LotteryToBeWinnerDO beWinnerDO = lotteryToBeWinnerDAO.findByInstanceId(
+						drawAwardOrder.getLotteryActivityInstanceId(), drawAwardIndex);
+					if (beWinnerDO == null) {
+						activityInstanceDomain
+							.setLotteryNum(activityInstanceDomain.getLotteryNum() + 1);
+					} else {
+						activityInstanceDomain
+							.setLotteryNum(activityInstanceDomain.getLotteryNum() + 1);
+						activityInstanceDomain
+							.setTobeWinnerNum(activityInstanceDomain.getTobeWinnerNum() - 1);
+						LotteryWinnerDO winnerDO = new LotteryWinnerDO();
+						BeanCopier.staticCopy(beWinnerDO, winnerDO);
+						winnerDO.setMoble(info.getMobile());
+						winnerDO.setRealName(info.getRealName());
+						winnerDO.setRawAddTime(getSysdate());
+						winnerDO.setUserId(info.getUserId());
+						winnerDO.setUserName(info.getUserName());
+						winnerDO.setActivityName(activityInstanceDomain.getName());
+						winnerDO.setStatus(WinnerStatusEnum.WINNER.code());
+						lotteryWinnerDAO.insert(winnerDO);
+						lotteryToBeWinnerDAO.deleteById(beWinnerDO.getToBeWinnerId());
+						EsupplierDomainHolder.get().addAttribute("addNewWinner", winnerDO);
+					}
+					insertLotteryRecord(info, activityInstanceDomain, nowDate, outBizNo);
+					lotteryActivityInstanceDomainRepository.reStore(activityInstanceDomain);
+					return activityInstanceDomain;
+				}
+			}, null, new AfterProcessInvokeService() {
+				
+				@Override
+				public Domain after(Domain domain) {
+					DrawAwardResult awardResult = (DrawAwardResult) EsupplierDomainHolder.get()
+						.getAttribute(HOLDER_RESULT_KEY);
+					LotteryWinnerDO winnerDO = (LotteryWinnerDO) EsupplierDomainHolder.get()
+						.getAttribute("addNewWinner");
+					String message = "";
+					if (winnerDO == null) {
+						awardResult.setIsWinner(BooleanEnum.NO);
+						awardResult.setWinnerDesc("很遗憾没有中奖");
+					} else {
+						
+						long addNewWinnerId = winnerDO.getWinnerId();
+						PrizeTypeEnum prizeTypeEnum = PrizeTypeEnum
+							.getByCode(winnerDO.getPrizeType());
+						EsupplierBaseResult baseResult = new EsupplierBaseResult();
+						if (prizeTypeEnum == PrizeTypeEnum.REDPACKET) {
+							message = "红包(" + new Money(new BigDecimal(winnerDO.getPrizeAmount()))
+								.toStandardString() + "元)";
+							String desc = "抽奖" + message;
+							baseResult = grantGiftMoney(winnerDO, desc,
+								GiftMoneyTypeEnum.GIFT_MONEY);
+								
+						} else if (prizeTypeEnum == PrizeTypeEnum.EXPERIENCE_AMOUNT) {
+							message = "体验金(" + new Money(new BigDecimal(winnerDO.getPrizeAmount()))
+								.toStandardString() + "元)";
+							String desc = "抽奖" + message;
+							baseResult = grantGiftMoney(winnerDO, desc,
+								GiftMoneyTypeEnum.EXPERIENCE_AMOUNT);
+						} else if (prizeTypeEnum == PrizeTypeEnum.HIKE_VOUCHER) {
+							message = "加息券(" + winnerDO.getPrizeAmount() + ")";
+							String desc = "抽奖" + message;
+							baseResult = grantGiftMoney(winnerDO, desc,
+								GiftMoneyTypeEnum.GAIN_AMOUNT);
+						} else if (prizeTypeEnum == PrizeTypeEnum.USERPOINT) {
+							UserInfo info = userQueryService
+								.queryByUserId(drawAwardOrder.getProcessorId()).getQueryUserInfo();
+							UserPointsOrder userPointsOrder = new UserPointsOrder();
+							long point = new BigDecimal(winnerDO.getPrizeAmount()).longValue();
+							if (point > 0) {
+								message = "积分(" + point + "分)";
+								userPointsOrder.setContent("抽奖送" + message);
+								userPointsOrder.setPointsTypeEnum(PointsTypeEnum.CHOUJIANG);
+								userPointsOrder.setUserId(info.getUserId());
+								userPointsOrder.setPointValue(point);
+								userPointsOrder.setSource(String.valueOf(addNewWinnerId));
+								baseResult = userPointsService.addUserPointsDetail(userPointsOrder);
+							}
+						}
+						if (prizeTypeEnum != PrizeTypeEnum.PHYSICAL) {
+							if (baseResult.isSuccess()) {
+								winnerDO.setStatus(WinnerStatusEnum.ISSUED.code());
+								lotteryWinnerDAO.update(winnerDO);
+							}
+						} else {
+							message = winnerDO.getAwards() + "(" + winnerDO.getPrizeName() + ")";
+						}
+						
+						awardResult.setIsWinner(BooleanEnum.YES);
+						awardResult.setWinnerDesc(
+							"恭喜您，成功中得,奖品:" + message + "\n" + StringUtil.defaultIfBlank(
+								ConfigParamProperty.getParamValue("drawRewardMessage"), ""));
+					}
+					
+					return domain;
+				}
+			});
+	}
+	
+	@Override
+	public EsupplierBaseResult isCanDrawAward(DrawAwardOrder drawAwardOrder) {
+		EsupplierBaseResult baseResult = new EsupplierBaseResult();
+		LotteryActivityInstanceDomain activityInstanceDomain = lotteryActivityInstanceDomainRepository
+			.load(drawAwardOrder.getBizNo());
+		if (activityInstanceDomain == null) {
+			baseResult.setMessage("亲，未找到抽奖实例！");
+			return baseResult;
+		}
+		Date currentDate = getSysdate();
+		if (currentDate.getTime() < activityInstanceDomain.getConditionBeginDate().getTime()
+			|| currentDate.getTime() > activityInstanceDomain.getConditionEndDate().getTime()) {
+			baseResult.setMessage("亲，当前抽奖时间或已结束！");
+			return baseResult;
+		}
+		
+		if (userExtraHasDrawChance(drawAwardOrder.getProcessorId())) {
+			baseResult.setSuccess(true);
+			return baseResult;
+		}
+		
+		LotteryConditionResult lotteryConditionResult = lotteryActivityQueryService
+			.findCondByActityId(activityInstanceDomain.getActivityId());
+		if (ListUtil.isNotEmpty(lotteryConditionResult.getConditionInfos())) {
+			
+			for (LotteryConditionInfo conditionInfo : lotteryConditionResult.getConditionInfos()) {
+				if (conditionInfo.getLotteryConditionType() == LotteryConditionTypeEnum.NONE) {
+					baseResult = isAppeaseCondition(drawAwardOrder, conditionInfo);
+					if (!baseResult.isSuccess()) {
+						return baseResult;
+					}
+				} else if (conditionInfo
+					.getLotteryConditionType() == LotteryConditionTypeEnum.INVESTMENT) {
+					baseResult = validateInvestCondition(drawAwardOrder, activityInstanceDomain,
+						conditionInfo);
+					if (!baseResult.isSuccess()) {
+						return baseResult;
+					}
+					
+				} else if (conditionInfo
+					.getLotteryConditionType() == LotteryConditionTypeEnum.REGISTER) {
+					baseResult = validateRegisterCondition(drawAwardOrder, activityInstanceDomain,
+						conditionInfo);
+					if (!baseResult.isSuccess()) {
+						return baseResult;
+					}
+				}
+			}
+			
+		}
+		baseResult.setSuccess(true);
+		return baseResult;
+	}
+	
+	protected EsupplierBaseResult validateAuthenticationCondition(	DrawAwardOrder drawAwardOrder,
+																	LotteryActivityInstanceDomain activityInstanceDomain,
+																	LotteryConditionInfo conditionInfo) {
+																	
+		UserInfo userInfo = userQueryService.queryByUserId(drawAwardOrder.getProcessorId())
+			.getQueryUserInfo();
+		Date authenticationDate = userInfo.getRowUpdateTime();
+		if (authenticationDate.getTime() >= activityInstanceDomain.getStartTime().getTime()
+			&& authenticationDate.getTime() <= activityInstanceDomain.getEndTime().getTime()) {
+			EsupplierBaseResult yrdBaseResult = isAppeaseCondition(drawAwardOrder, conditionInfo);
+			return yrdBaseResult;
+		} else {
+			EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+			yrdBaseResult.setSuccess(false);
+			yrdBaseResult.setMessage("实名没有满足抽奖条件");
+			return yrdBaseResult;
+		}
+	}
+	
+	protected EsupplierBaseResult validateInvestCondition(	DrawAwardOrder drawAwardOrder,
+															LotteryActivityInstanceDomain activityInstanceDomain,
+															LotteryConditionInfo conditionInfo) {
+		if (StringUtil.isEmpty(conditionInfo.getConditionValue())
+			|| StringUtil.equalsIgnoreCase("0", conditionInfo.getConditionValue())) {
+			EsupplierBaseResult yrdBaseResult = isAppeaseCondition(drawAwardOrder, conditionInfo);
+			return yrdBaseResult;
+		}
+		Money investMoney = new Money(conditionInfo.getConditionValue());
+		Money investTotalMoney = Money.zero();
+		EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+		if (conditionInfo.getStartPeriod() > 0 && conditionInfo.getEndPeriod() > 0) {
+			boolean periodFlg = false;
+			investTotalMoney = getInvestTotalMoneyByPeriod(drawAwardOrder, conditionInfo,
+				activityInstanceDomain, periodFlg);
+			if (!periodFlg && !investTotalMoney.greaterThan(Money.zero())) {
+				yrdBaseResult.setSuccess(false);
+				yrdBaseResult.setMessage("投资期数没有满足抽奖条件");
+				return yrdBaseResult;
+			}
+		} else {
+			investTotalMoney = getInvestTotalMoney(drawAwardOrder, activityInstanceDomain);
+		}
+		if (!investMoney.greaterThan(investTotalMoney)) {
+			yrdBaseResult = isAppeaseCondition(drawAwardOrder, conditionInfo);
+			return yrdBaseResult;
+		} else {
+			yrdBaseResult.setSuccess(false);
+			yrdBaseResult.setMessage("投资总额没有满足抽奖条件");
+			return yrdBaseResult;
+		}
+	}
+	
+	private Money getInvestTotalMoney(	DrawAwardOrder drawAwardOrder,
+										LotteryActivityInstanceDomain activityInstanceDomain) {
+		Money investTotalMoney = Money.zero();
+		
+		return investTotalMoney;
+	}
+	
+	private Money getInvestTotalMoneyByPeriod(	DrawAwardOrder drawAwardOrder,
+												LotteryConditionInfo conditionInfo,
+												LotteryActivityInstanceDomain activityInstanceDomain,
+												boolean periodFlg) {
+												
+		Money investTotalMoney = Money.zero();
+		
+		return investTotalMoney;
+	}
+	
+	protected EsupplierBaseResult validateRegisterCondition(DrawAwardOrder drawAwardOrder,
+															LotteryActivityInstanceDomain activityInstanceDomain,
+															LotteryConditionInfo conditionInfo) {
+															
+		UserInfo userInfo = userQueryService.queryByUserId(drawAwardOrder.getProcessorId())
+			.getQueryUserInfo();
+		Date authenticationDate = userInfo.getRowAddTime();
+		if (authenticationDate.getTime() >= activityInstanceDomain.getStartTime().getTime()
+			&& authenticationDate.getTime() <= activityInstanceDomain.getEndTime().getTime()) {
+			EsupplierBaseResult yrdBaseResult = isAppeaseCondition(drawAwardOrder, conditionInfo);
+			return yrdBaseResult;
+		} else {
+			EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+			yrdBaseResult.setSuccess(false);
+			yrdBaseResult.setMessage("注册时间没有满足抽奖条件");
+			return yrdBaseResult;
+		}
+	}
+	
+	protected EsupplierBaseResult isAppeaseCondition(	DrawAwardOrder drawAwardOrder,
+														LotteryConditionInfo conditionInfo) {
+		EsupplierBaseResult yrdBaseResult = new EsupplierBaseResult();
+		if (conditionInfo.getLotteryTimesType() == LotteryTimesTypeEnum.EVERY_DAY_TIMES) {
+			LotteryRecordQueryOrder recordQueryOrder = new LotteryRecordQueryOrder();
+			recordQueryOrder.setBeginCreateDate(DateUtil.getStartTimeOfTheDate(new Date()));
+			recordQueryOrder.setEndCreateDate(DateUtil.getEndTimeOfTheDate(new Date()));
+			recordQueryOrder.setUserId(drawAwardOrder.getProcessorId());
+			recordQueryOrder.setInstanceId(drawAwardOrder.getLotteryActivityInstanceId());
+			long times = lotteryActivityQueryService.queryLotteryRecordCount(recordQueryOrder);
+			
+			if (conditionInfo.getTime() <= times) {
+				yrdBaseResult.setSuccess(false);
+				yrdBaseResult.setMessage("亲，您今天的抽奖机会已用完，请明天再来！");
+				return yrdBaseResult;
+			} else {
+				if (EsupplierDomainHolder.get() != null) {
+					EsupplierDomainHolder.get().addAttribute("lotteryRecordCount", times);
+					EsupplierDomainHolder.get().addAttribute("lotteryTimesType",
+						conditionInfo.getLotteryTimesType());
+				}
+			}
+			
+		} else if (conditionInfo.getLotteryTimesType() == LotteryTimesTypeEnum.TOTAL_TIMES) {
+			LotteryRecordQueryOrder recordQueryOrder = new LotteryRecordQueryOrder();
+			recordQueryOrder.setUserId(drawAwardOrder.getProcessorId());
+			recordQueryOrder.setInstanceId(drawAwardOrder.getLotteryActivityInstanceId());
+			long times = lotteryActivityQueryService.queryLotteryRecordCount(recordQueryOrder);
+			
+			if (conditionInfo.getTime() <= times) {
+				yrdBaseResult.setSuccess(false);
+				yrdBaseResult.setMessage("亲，抽奖机会已用完！");
+				return yrdBaseResult;
+			} else {
+				if (EsupplierDomainHolder.get() != null) {
+					EsupplierDomainHolder.get().addAttribute("lotteryRecordCount", times);
+					EsupplierDomainHolder.get().addAttribute("lotteryTimesType",
+						conditionInfo.getLotteryTimesType());
+				}
+			}
+		}
+		yrdBaseResult.setSuccess(true);
+		return yrdBaseResult;
+	}
+	
+	@Override
+	public LotteryResult getStartedLotteryActivity() {
+		LotteryResult lotteryResult = new LotteryResult();
+		LotteryActivityQueryOrder lotteryActivityQueryOrder = new LotteryActivityQueryOrder();
+		List<LotteryActivityStatusEnum> stauts = Lists.newArrayList();
+		stauts.add(LotteryActivityStatusEnum.STARTED);
+		lotteryActivityQueryOrder.setStatusEnums(stauts);
+		QueryBaseBatchResult<LotteryActivityInfo> result = lotteryActivityQueryService
+			.queryLotteryActivity(lotteryActivityQueryOrder);
+		List<LotteryActivityInfo> list = new ArrayList<>();
+		if (result.getTotalCount() > 0) {
+			for (LotteryActivityInfo info : result.getPageList()) {
+				LotteryConditionResult conditionResult = lotteryActivityQueryService
+					.findCondByActityId(info.getId());
+				info.setConditionInfos(conditionResult.getConditionInfos());
+				LotteryActivityInstanceDO instanceDO = lotteryActivityInstanceDAO
+					.findByActivityId(info.getId());
+				if (instanceDO != null) {
+					info.setLotteryActivityInstanceId(instanceDO.getInstanceId());
+				}
+				list.add(info);
+			}
+			lotteryResult.setLotteryActivityInfos(list);
+			lotteryResult.setSuccess(true);
+			lotteryResult.setMessage("成功");
+		} else {
+			lotteryResult.setSuccess(false);
+			lotteryResult.setMessage("失败");
+			lotteryResult.setCreditsysResultEnum(EsupplierResultEnum.HAVE_NOT_DATA);
+		}
+		return lotteryResult;
+	}
+	
+	@Override
+	public LotteryResult getStartedLotteryActivity(long activityId) {
+		LotteryResult lotteryResult = new LotteryResult();
+		
+		LotteryResult result = lotteryActivityQueryService.findByActityId(activityId);
+		if (result.getLotteryActivityInfo() != null) {
+			lotteryResult.setLotteryActivityInfo(result.getLotteryActivityInfo());
+			LotteryConditionResult conditionResult = lotteryActivityQueryService
+				.findCondByActityId(lotteryResult.getLotteryActivityInfo().getId());
+			lotteryResult.getLotteryActivityInfo()
+				.setConditionInfos(conditionResult.getConditionInfos());
+			LotteryActivityInstanceDO instanceDO = lotteryActivityInstanceDAO
+				.findByActivityId(lotteryResult.getLotteryActivityInfo().getId());
+			if (instanceDO != null) {
+				lotteryResult.getLotteryActivityInfo()
+					.setLotteryActivityInstanceId(instanceDO.getInstanceId());
+			}
+		}
+		return lotteryResult;
+	}
+	
+	protected String makeOutBizNo(	final DrawAwardOrder drawAwardOrder, long lotteryRecordCount,
+									LotteryTimesTypeEnum timesTypeEnum) {
+		if (timesTypeEnum == LotteryTimesTypeEnum.TOTAL_TIMES
+			|| timesTypeEnum == LotteryTimesTypeEnum.EXTRA_DRAW_TIME) {
+			return drawAwardOrder.getProcessorId()+ "_"
+					+ drawAwardOrder.getLotteryActivityInstanceId() + "_" + timesTypeEnum.code()
+					+ "_" + lotteryRecordCount;
+		} else if (timesTypeEnum == LotteryTimesTypeEnum.EVERY_DAY_TIMES) {
+			return drawAwardOrder.getProcessorId()+ "_"
+					+ DateUtil.dtSimpleFormat(EsupplierDomainHolder.get().getSysDate()) + "_"
+					+ drawAwardOrder.getLotteryActivityInstanceId() + "_" + timesTypeEnum.code()
+					+ "_" + lotteryRecordCount;
+		} else {
+			return null;
+		}
+		
+	}
+	
+	protected void insertLotteryRecord(	UserInfo info,
+										LotteryActivityInstanceDomain activityInstanceDomain,
+										Date nowDate, String outBizNo) {
+		LotteryRecordDO lotteryRecord = new LotteryRecordDO();
+		lotteryRecord.setActivityId(activityInstanceDomain.getActivityId());
+		lotteryRecord.setInstanceId(activityInstanceDomain.getInstanceId());
+		lotteryRecord.setOutBizNo(outBizNo);
+		lotteryRecord.setRealName(info.getRealName());
+		lotteryRecord.setUserId(info.getUserId());
+		lotteryRecord.setUserName(info.getUserName());
+		lotteryRecord.setRawAddTime(nowDate);
+		lotteryRecord.setRawUpdateTime(nowDate);
+		lotteryRecordDAO.insert(lotteryRecord);
+	}
+	
+	protected EsupplierBaseResult grantGiftMoney(	LotteryWinnerDO winnerDO, String description,
+													GiftMoneyTypeEnum giftMoneyTypeEnum) {
+		EsupplierBaseResult baseResult = null;
+		final HandGiftMoneyOrder handGiftMoneyOrder = new HandGiftMoneyOrder();
+		handGiftMoneyOrder.setUserId(winnerDO.getUserId());
+		handGiftMoneyOrder.setType(giftMoneyTypeEnum);
+		handGiftMoneyOrder
+			.setOutBizNo(String.valueOf(winnerDO.getInstanceId() + "_" + winnerDO.getWinnerId()));
+		handGiftMoneyOrder.setGiveType(GiftMoneyGiveTypeEnum.LOTTERY);
+		if (giftMoneyTypeEnum == GiftMoneyTypeEnum.GAIN_AMOUNT) {
+			double yearOfRate = Double.valueOf(winnerDO.getPrizeAmount());
+			handGiftMoneyOrder.setYearOfRate(yearOfRate);
+		} else {
+			Money money = new Money(new BigDecimal(winnerDO.getPrizeAmount()));
+			handGiftMoneyOrder.setAmount(money);
+		}
+		
+		handGiftMoneyOrder.setDescription(description);
+		baseResult = commonProcess(handGiftMoneyOrder, "抽奖发(红包,体验金，收益券)",
+			new BeforeProcessInvokeService() {
+				@Override
+				public Domain before() {
+					giftMoneyAssignProcessService.handGiftMoney(handGiftMoneyOrder);
+					return null;
+				}
+			}, null, null);
+		return baseResult;
+	}
+	
+	/**
+	 * 用户是否有额外的抽奖机会
+	 * @return
+	 */
+	private boolean userExtraHasDrawChance(long userId) {
+		try {
+			LotteryDrawCountDO lotteryDrawCountDO = lotteryDrawCountDAO
+				.userExtraHasDrawChance(userId);
+			if (lotteryDrawCountDO != null) {
+				long count = lotteryDrawCountDO.getUsedCount() + 1;
+				if (count > lotteryDrawCountDO.getTotalCount()) {
+					return false;
+				}
+				lotteryDrawCountDO.setUsedCount(count);
+				lotteryDrawCountDAO.update(lotteryDrawCountDO);
+				EsupplierDomainHolder.get().addAttribute("lotteryRecordCount", count);
+				EsupplierDomainHolder.get().addAttribute("lotteryTimesType",
+					LotteryTimesTypeEnum.EXTRA_DRAW_TIME);
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		return false;
+	}
+}

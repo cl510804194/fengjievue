@@ -1,0 +1,186 @@
+package com.yjf.esupplier.service.recharge.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.dal.dataobject.RechargeFlowDO;
+import com.yjf.esupplier.integration.openapi.SignService;
+import com.yjf.esupplier.integration.openapi.info.SignBankInfo;
+import com.yjf.esupplier.integration.openapi.order.QuerySignBankOrder;
+import com.yjf.esupplier.integration.openapi.order.SignOrder;
+import com.yjf.esupplier.integration.openapi.result.SignBankResult;
+import com.yjf.esupplier.integration.openapi.result.SignResult;
+import com.yjf.esupplier.service.base.BaseAutowiredToolsService;
+import com.yjf.esupplier.service.common.services.SystemMessageService;
+import com.yjf.esupplier.service.recharge.RechargeFlowService;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.base.PageComponent;
+import com.yjf.esupplier.ws.enums.ExtPayTypeEnum;
+import com.yjf.esupplier.ws.info.RechargeFlowInfo;
+import com.yjf.esupplier.ws.service.query.order.RechargeFlowOrder;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+@Service("rechargeFlowService")
+public class RechargeFlowServiceImpl extends BaseAutowiredToolsService implements
+																		RechargeFlowService {
+	
+	@Autowired
+	SignService signService;
+	@Autowired
+	UserQueryService userQueryService;
+	
+	@Autowired
+	SystemMessageService systemMessageService;
+	
+	@Override
+	public List<SignBankInfo> querySignBankCardInfos(String userId) {
+		QuerySignBankOrder querySignBankOrder = new QuerySignBankOrder();
+		querySignBankOrder.setUserId(userId);
+		querySignBankOrder.setUpUserNo("24");
+		querySignBankOrder.setAfterStatus("PACT");
+		SignBankResult signBankResult = signService.querySignBankCard(querySignBankOrder,
+			this.getOpenApiContext());
+		return signBankResult.getSignBankInfos();
+		
+	}
+	
+	@Override
+	public String getSignUrl(String userId) {
+		SignOrder signOrder = new SignOrder();
+		signOrder.setUserId(userId);
+		SignResult signResult = signService.sign(signOrder, this.getOpenApiContext());
+		return signResult.getUrl();
+	}
+	
+	@Override
+	public long addRechargeFlow(RechargeFlowInfo rechargeFlowInfo) throws Exception {
+		if (rechargeFlowInfo == null) {
+			throw new Exception("参数为空");
+		} else {
+			RechargeFlowDO rechargeFlow = new RechargeFlowDO();
+			BeanCopier.staticCopy(rechargeFlowInfo, rechargeFlow);
+			rechargeFlow.setPayType(rechargeFlowInfo.getPayType().getCode());
+			rechargeFlow.setIsTradeRedundancy(rechargeFlowInfo.getIsTradeRedundancy().code());
+			if (rechargeFlow.getUserId() > 0) {
+				UserInfo user = queryUser(rechargeFlow.getUserId());
+				rechargeFlow.setYjfAccountId(user.getAccountId());
+				rechargeFlow.setUserName(user.getUserName());
+				rechargeFlow.setUserRealName(user.getRealName());
+			}
+			if (rechargeFlow.getOutUserId() > 0) {
+				UserInfo user = queryUser(rechargeFlow.getOutUserId());
+				rechargeFlow.setOutYjfAccountId(user.getAccountId());
+				rechargeFlow.setOutUserName(user.getUserName());
+				rechargeFlow.setOutUserRealName(user.getRealName());
+			}
+			rechargeFlow.setRawAddTime(new Date());
+			return rechargeFlowDAO.insert(rechargeFlow);
+		}
+		
+	}
+	
+	/**
+	 * @param rechargeFlow
+	 * @return
+	 * @throws Exception
+	 */
+	private UserInfo queryUser(long useId) throws Exception {
+		
+		UserInfo userInfo = userQueryService.queryByUserId(useId).getQueryUserInfo();
+		return userInfo;
+	}
+	
+	@Override
+	public RechargeFlowInfo queryByOutBizNo(String outBizNo) {
+		RechargeFlowInfo rechargeFlowInfo = new RechargeFlowInfo();
+		RechargeFlowDO rechargeFlow = rechargeFlowDAO.findByOutBizNo(outBizNo);
+		if (rechargeFlow == null) {
+			return null;
+		}
+		BeanCopier.staticCopy(rechargeFlow, rechargeFlowInfo);
+		rechargeFlowInfo.setPayType(ExtPayTypeEnum.getByCode(rechargeFlow.getPayType()));
+		return rechargeFlowInfo;
+	}
+	
+	@Override
+	public int update(RechargeFlowInfo rechargeFlowInfo) {
+		RechargeFlowDO rechargeFlowDO = rechargeFlowDAO.findByOutBizNo(rechargeFlowInfo
+			.getOutBizNo());
+		if (rechargeFlowDO != null && rechargeFlowDO.getStatus() == 1) {
+			return 1;
+		} else if (rechargeFlowDO != null) {
+			if (rechargeFlowInfo.getAmount() == null) {
+				rechargeFlowInfo.setAmount(rechargeFlowDO.getAmount());
+			}
+			if (rechargeFlowInfo.getStatus() == 2) {
+				rechargeFlowInfo.setPayTime(new Date());
+			}
+			BeanCopier.staticCopy(rechargeFlowInfo, rechargeFlowDO);
+			return rechargeFlowDAO.update(rechargeFlowDO);
+		}
+		
+		return 0;
+		
+	}
+	
+	@Override
+	public QueryBaseBatchResult<RechargeFlowInfo> getFlow(RechargeFlowOrder rechargeFlowOrder) {
+		QueryBaseBatchResult<RechargeFlowInfo> batchResult = new QueryBaseBatchResult<RechargeFlowInfo>();
+		String payType = null;
+		if (rechargeFlowOrder.getPayType() != null) {
+			payType = rechargeFlowOrder.getPayType().code();
+		}
+		RechargeFlowDO rechargeFlow = new RechargeFlowDO();
+		if (rechargeFlowOrder.getPayType() != null) {
+			payType = rechargeFlowOrder.getPayType().code();
+		}
+		if (rechargeFlowOrder.getIsTradeRedundancy() != null) {
+			rechargeFlow.setIsTradeRedundancy(rechargeFlowOrder.getIsTradeRedundancy().code());
+		}
+		long totalCount = this.rechargeFlowDAO.findByCountCondtion(rechargeFlow, payType,
+			rechargeFlowOrder.getStartTime(), rechargeFlowOrder.getEndTime(),
+			rechargeFlowOrder.getStatus(), rechargeFlowOrder.getAccountId());
+		
+		PageComponent component = new PageComponent(rechargeFlowOrder, totalCount);
+		
+		List<RechargeFlowDO> list = rechargeFlowDAO.findByCondtion(rechargeFlow, payType,
+			component.getFirstRecord(), component.getPageSize(), rechargeFlowOrder.getStartTime(),
+			rechargeFlowOrder.getEndTime(), rechargeFlowOrder.getStatus(),
+			rechargeFlowOrder.getAccountId());
+		
+		List<RechargeFlowInfo> pageList = new ArrayList<RechargeFlowInfo>(list.size());
+		for (RechargeFlowDO flowDO : list) {
+			RechargeFlowInfo info = new RechargeFlowInfo();
+			BeanCopier.staticCopy(flowDO, info);
+			info.setPayType(ExtPayTypeEnum.getByCode(flowDO.getPayType()));
+			pageList.add(info);
+		}
+		batchResult.initPageParam(component);
+		batchResult.setSuccess(true);
+		batchResult.setPageList(pageList);
+		return batchResult;
+	}
+	
+	/**
+	 * @param id
+	 * @return
+	 * @see com.yjf.yrd.service.recharge.RechargeFlowService#queryById(long)
+	 */
+	@Override
+	public RechargeFlowInfo queryById(long id) {
+		RechargeFlowInfo rechargeFlowInfo = new RechargeFlowInfo();
+		RechargeFlowDO rechargeFlow = rechargeFlowDAO.findById(id);
+		if (rechargeFlow == null) {
+			return null;
+		}
+		BeanCopier.staticCopy(rechargeFlow, rechargeFlowInfo);
+		rechargeFlowInfo.setPayType(ExtPayTypeEnum.getByCode(rechargeFlow.getPayType()));
+		return rechargeFlowInfo;
+	}
+}

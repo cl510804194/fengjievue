@@ -1,0 +1,121 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	require('../Y-all/Y-script/Y-tip.js');
+	require('../plugins/jquery.box.js');
+	require('../plugins/jquery.combobox.js');
+	require('../plugins/jquery.window.js');
+	require('../content/chineseAmountExchange.js');
+	require('../Y-all/Y-script/Y-imgplayer.js');
+	require('../Y-all/Y-script/Y-msg.js');
+	
+	var frm = $('#frm');
+	
+	$('.submit_form').click(function() {
+		frm.submit();
+	})
+	
+	/** 验证借款申请FORM表单 */
+	if (frm.length) {
+		frm.validate({
+			errorClass : 'error-tip',
+			errorElement : 'b',
+			errorPlacement : function(error, element) {
+				
+				if(element.is('.suffixInput')){
+					element.next().after(error);
+				}else {
+					element.after(error);
+				}
+			},
+			rules : {
+				permissionCode : {
+					required : true
+				},
+				permissionName : {
+					required : true
+				},
+				permissionOperate : {
+					required : true
+				},
+				permissionCallback : {
+					required : true
+				}
+			},
+			messages : {
+				permissionCode : {
+					required : '权限代码不能为空'
+				},
+				permissionName : {
+					required : '权限名称不能为空'
+				},
+				permissionOperate : {
+					required : '操作不能为空'
+				},
+				permissionCallback : {
+					required : '回执操作不能为空'
+				}
+			},
+			submitHandler:function(){
+				frm.ajaxSubmit({
+					success:function(res){
+		    			alert(res.message);
+		    			if(res.code == 1){
+		    				document.location.href = "/admin/authority/permissions/1/12.htm";
+		    			}else {
+		    				document.location.href = document.location.href;
+						}
+		    		}
+		    	});
+			},
+			onkeyup : false
+		});
+	}
+	
+	$('[name=delPermission]').click(function(){
+		var _this = this;
+		Y.confirm('请选择','确定执行该操作？',function(opn){
+				if(opn=="yes"){
+					$.ajax({
+						url : '/admin/authority/delPermission.json',
+						type : 'post',
+						dataType : 'json',
+						data : {
+							ids : $(_this).attr("data")
+						},
+						success : function(json) {
+							alert(json.message);
+							location.reload();
+						}
+					})
+				}
+			
+		})
+		
+	});
+	
+//	function addPermission(){
+// 	   var code = $('input[name=permissionCode]').val();
+// 	   if(code == null || code.length < 1){
+// 	   	alert("权限代码不能为空");
+// 	    return ;
+// 	   }
+// 	    var name = $('input[name=permissionName]').val();
+// 	   if(name == null || name.length < 1){
+// 	   	alert("权限名称不能为空");
+// 	    return ;
+// 	   }
+// 	    var operate = $('input[name=permissionOperate]').val();
+// 	   if(operate == null || operate.length < 1){
+// 	   	alert("操作不能为空");
+// 	    return ;
+// 	   }
+// 	    var backOperate = $('input[name=permissionCallback]').val();
+// 	   if(backOperate == null || backOperate.length < 1){
+// 	   	alert("回执操作不能为空");
+// 	    return ;
+// 	   }
+//	   
+//	  	 document.frm.submit();
+//	 	}
+	
+});

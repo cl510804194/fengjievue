@@ -1,0 +1,10 @@
+package com.yjf.esupplier.service.bill.info;
+
+import java.io.Serializable;
+
+import com.yjf.esupplier.ws.bill.data.RefundOrderData;
+
+public class RefundOrderInfo extends RefundOrderData implements Serializable {
+	private static final long serialVersionUID = 3337291816404450011L;
+	
+}

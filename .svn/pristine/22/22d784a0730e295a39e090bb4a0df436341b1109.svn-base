@@ -1,0 +1,201 @@
+﻿@charset "utf-8";
+/*margin*/
+.m5 {margin:5px}
+.m10 {margin:10px}
+.m15 {margin:15px}
+.m20 {margin:20px}
+.mt5 {margin-top:5px}
+.mt10 {margin-top:10px}
+.mt15 {margin-top:15px}
+.mt20 {margin-top:20px}
+.mt25 {margin-top:25px}
+.mt40 {margin-top:40px}
+.mt55 {margin-top:55px}
+.mr5 {margin-right:5px}
+.mr10 {margin-right:10px}
+.mr15 {margin-right:15px}
+.mr20 {margin-right:20px}
+.mb5 {margin-bottom:5px}
+.mb10 {margin-bottom:10px}
+.mb15 {margin-bottom:15px}
+.mb20 {margin-bottom:20px}
+.mb25 {margin-bottom:25px}
+.mb30 {margin-bottom:30px}
+.mb55 {margin-bottom:55px}
+.ml5 {margin-left:5px}
+.ml10 {margin-left:10px}
+.ml15 {margin-left:15px}
+.ml20 {margin-left:20px}
+.ml30 {margin-left:30px}
+.ml50 {margin-left:50px}
+.ml80 {margin-left:80px}
+.ml105 {margin-left:105px}
+.ml-45{margin-left:-45px; }
+.mlr7{ margin:0 7px; }
+.mlr15{ margin:0 15px; }
+/*padding*/
+.pt5{ padding-top:5px; }
+.pt10{ padding-top:10px; }
+.pt20{ padding-top:20px; }
+.pt50{ padding-top:50px; }
+.pr20{ padding-right:20px; }
+.ptb25{ padding:25px 0; }
+.plr15{ padding:0 15px; }
+.plr40{ padding:0 40px; }
+.pb5{ padding-bottom:5px; }
+
+/*宽度*/
+.w20{width:20px;}
+.w35{width:35px;}
+.w40{width:40px;}
+.w60{width:60px;}
+.w70{width:70px;}
+.w90{width:90px;}
+.w110{width:110px;}
+.w112{width:112px;}
+.w120{width:120px;}
+.w130{width:130px;}
+.w140{width:140px;}
+.w170{width:170px;}
+.w235{width:235px;}
+
+
+/*高度*/
+
+.h20{height:20px;}
+.h30{height:30px;}
+.h35{height:35px;}
+.h40{height:40px;}
+.h60{height:60px;}
+.h70{height:70px;}
+.h90{height:90px;}
+.h110{height:110px;}
+.h112{height:112px;}
+.h120{height:120px;}
+.h130{height:130px;}
+.h140{height:140px;}
+.h170{height:170px;}
+.h235{height:235px;}
+
+/*对齐方式*/
+.vm{vertical-align:middle;}
+.vt{vertical-align:top;}
+.vb{vertical-align:bottom;}
+.text-r{text-align:right;}
+.text-c{text-align:center;}
+/*竖线*/
+.line{color:#ccc; padding:0 10px;}
+/*最小高度*/
+.mh400{min-height:400px; _height:400px;}
+/* 强制换行 */
+/* 一般 block-level 元素 */
+.sl-wrap, .sl-wrap td, .sl-wrap th{
+	word-wrap:break-word;word-break:break-all;
+}
+/* table */
+.sl-wrap-table{
+	table-layout:fixed;
+}
+
+/* 强制不换行 */
+.ws-no{ word-break:break-all; word-wrap:break-word; }
+
+/* 页面位置 */
+.g-full{ width:100%; }
+.g-container{ margin:0 auto; width:1000px; }
+.g-centerImg{ margin:0 auto; display:block; }
+.g-ma{ margin:0 auto; }
+.g-tlbr{ position:absolute; margin:auto; top:0; left:0; right:0; bottom:0;  }
+
+/*层级*/
+.g-zix5{ z-index:5; }
+.g-zix6{ z-index:6; }
+.g-zix7{ z-index:7; }
+.g-zix8{ z-index:8; }
+.g-zix9{ z-index:9; }
+
+/*text-indent*/
+.f-it1{ text-indent:1em; }
+.f-it2{ text-indent:2em; }
+.f-it3{ text-indent:3em; }
+.f-it4{ text-indent:4em; }
+.f-it5{ text-indent:5em; }
+
+/*定位*/
+.f-rel{ position:relative; }
+.f-abs{ position:absolute; }
+.f-fix{ position:fixed; }
+
+/*使文字上下居中*/
+.f-box{ display:table; }
+.f-children{ vertical-align:middle; display:table-cell; }
+
+/*显示影藏*/
+.f-db{ display:block; }
+.f-dn{ display:none; }
+
+/*常用top，left*/
+.g-t50p{ top:50%; }
+.g-l50p{ left:50%; }
+.g-bottom{ bottom:0; }
+.g-top-l{ top:0; left:0; }
+.g-top-r{ top:0; right:0; }
+.g-bottom-l{ bottom:0; left:0; }
+.g-bottom-r{ bottom:0; right:0; }
+/*鼠标状态*/
+.f-cu_p{ cursor:pointer; }
+
+/*块级元素inline-block*/
+a,b,span,em,i,strong{ display:inline-block; }
+
+/*图片居中*/
+.imgmiddle{ height:100%; display:inline-block; overflow:hidden; }
+
+/*常用颜色*/
+.c-fff{ color:#fff; }
+.c-000{ color:#000; }
+.c-1c{ color:#1c1c1c; }
+.c-5f{ color:#5f5f5f;}
+
+/*常用背景颜色*/
+.b-5f{ background:#5f5f5f; }
+
+
+/*常用字体大小*/
+.s-12{ font-size:12px; }
+.s-13{ font-size:13px; }
+.s-14{ font-size:14px; }
+.s-15{ font-size:15px; }
+.s-16{ font-size:16px; }
+.s-17{ font-size:17px; }
+.s-18{ font-size:18px; }
+.s-19{ font-size:19px; }
+.s-20{ font-size:20px; }
+.s-21{ font-size:21px; }
+.s-22{ font-size:22px; }
+.s-23{ font-size:23px; }
+.s-24{ font-size:24px; }
+.s-30{ font-size:30px; }
+
+/*文字加粗否*/
+.s-fwb{ font-weight:bold; }
+.s-fw1{ font-weight:100; }
+
+/*常用行距*/
+.l-ht20{ line-height:20px; }
+.l-ht25{ line-height:25px; }
+.l-ht30{ line-height:30px; }
+.l-ht35{ line-height:35px; }
+.l-ht40{ line-height:40px; }
+.l-ht45{ line-height:45px; }
+
+
+/*圆角*/
+.b-ra2{ border-radius:2px; }
+.b-ra3{ border-radius:3px; }
+.b-ra4{ border-radius:4px; }
+.b-ra5{ border-radius:5px; }
+.b-ra6{ border-radius:6px; }
+
+
+

@@ -1,0 +1,90 @@
+body { margin: 0px; border: 0px; font-size: 12px; font-family: 宋体; background-color: #A5D2A7; text-align:left;}
+form { margin: 0px; padding: 0px; }
+ul { list-style: none; margin: 0px; padding: 0px; }
+img { border: 0px; }
+a:link { color: #003278; text-decoration: none; }
+a:visited { color: #003278; text-decoration: none; }
+a:hover { color: #FF6600; text-decoration: underline; }
+#dt01{ background:#FFFFFF; width:974px; height:auto; margin:0 auto;}
+/*购物车样式开始 */
+.gwc01{width:960px; height:24px;background:#f5f5f5;}
+.gwc01_1{ width:150px; color:#000000; float:left; font-size:12px; text-align:left; line-height:24px; vertical-align:middle; padding-left:18px;}
+.gwc01_2{ width:280px; color:#5b5b5b; float:left;font-size:12px; text-align:left; line-height:24px; vertical-align:middle; margin-left:300px; }
+.gwc01_3{ width:50px; background:url(../images/help.gif) no-repeat left 50%;text-align:center; line-height:24px; vertical-align:middle; float:left;}
+.gwc02{width:960px; background:#FFFFFF; height:60px;}
+.gwc02_1{width:105px; height:60px;background:url(../images/logo_p.jpg) no-repeat left 50%; float:left}
+.gwc02_2{width:840px;background:#FFFFFF; height:40px; margin-top:10px; margin-bottom:10px; display:inherit; font-size:18px; font-weight:bold; border-left:1px solid #666666; float:left; text-align:left; line-height:40px; vertical-align:middle;color:#0000; padding-left:5px;}
+/*进货单导航开始 */
+/*进货单导航开始 */
+.gwc03{width:960px; background:#FFFFFF; height:80px;}
+.flow-steps {margin:20px 0;overflow:hidden;}
+.flow-steps li.current {background-color:#66c00b;color:#FFFFFF;}
+.flow-steps li.done {background-color:#FFE6BA;background-position:100% -46px;color:#FF6600;}
+.flow-steps li.current-prev {background-position:100% -23px;}
+.flow-steps li.done .first {background-color:#FFE6BA;background-position:-12px -115px;}
+.flow-steps .num5 li {width:165px;}
+.flow-steps li {background:url(../images/flow_steps_bg.png) #E4E4E4 no-repeat scroll 100% 0;color:#404040;float:left;font-size:14px;font-weight:bold;height:23px;line-height:23px;overflow:hidden;padding:0 15px 0 0;text-align:center;}
+.flow-steps li.current .first {background-color:#66c00b;background-position:-12px -92px;}
+.flow-steps li .first {background:url(../images/flow_steps_bg.png) #E4E4E4 no-repeat scroll -12px -69px;}
+.flow-steps li span, .flow-steps li strong {display:block;} 
+.flow-steps li {color:#404040;font-size:14px;font-weight:bold;line-height:23px;text-align:center;}
+.flow-steps li.last {background-position:100% -138px;}
+/*进货单导航结束 */
+
+/*进货单导航结束 */
+.gwc04{width:960px; background:#FFFFFF; height:30px; text-align:left; line-height:30px; vertical-align:middle;}
+.company{ color:#3366cc; font-weight:bold;}
+.gwc05{width:960px; background:#FFFFFF;}
+.gwc05 table tr td{ font-size:12px;}
+.gwc05_1{ height:25px; color:#000000; font-weight:bold; background:#ecf9e2; border-top:1px solid #6cbc48; font-size:12px; line-height:25px; vertical-align:middle; text-align:center;}
+.gwc05_2{ height:25px; color:#000000;  font-size:12px; line-height:25px; vertical-align:middle;}
+.jine{color:#ff7300; font-weight:bold; font-size:14px;}
+.jine2{color:#ff7300; font-weight:bold; font-size:20px;}
+/*购物车样式结束 */
+.wz-12{ font-size:12px;}
+.new_xinxi{width:960px; background:#FFFFFF; }
+
+.buy_title {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; FONT-SIZE: 14px; BACKGROUND: #e1f8d8; PADDING-BOTTOM: 2px; PADDING-TOP: 2px
+}
+.buy_title2 {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; FONT-SIZE: 14px; BACKGROUND: #e1f8d8; PADDING-BOTTOM: 2px; PADDING-TOP: 2px
+}
+.buy_title {
+	TEXT-ALIGN: center
+}
+.buy_title2 {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; PADDING-BOTTOM: 2px; PADDING-TOP: 2px; TEXT-ALIGN: right
+}
+
+.blue27b {
+	FONT-WEIGHT: 700; FONT-SIZE: 27px; COLOR: #2d6417; LINE-HEIGHT: 32px;
+}
+.blue27 {FONT-WEIGHT: bold;color:#FF0000; LINE-HEIGHT: 32px; FONT-FAMILY: "宋体"
+}
+.line_left {
+	BORDER-RIGHT: #222 1px dashed; BORDER-BOTTOM: #222 1px dashed;font-size:12px;
+}
+.line_right {
+	BORDER-BOTTOM: #222 1px dashed; font-size:12px;
+}
+.gray12 {
+	FONT-SIZE: 12px; COLOR: #787878
+}
+.gray12b {
+	FONT-SIZE: 12px; COLOR: #787878
+}
+.gray12line {
+	FONT-SIZE: 12px; COLOR: #787878
+}
+.gray12italic {
+	FONT-SIZE: 12px; COLOR: #787878; FONT-STYLE: italic
+}
+.gray30 {
+	FONT-SIZE: 30px; COLOR: #555; LINE-HEIGHT: 62px; FONT-FAMILY: "Arial Black"
+}
+.cpfl_sc{ font-size:14px; font-weight:bold; color:#FFFFFF; line-height:26px; height:26px; text-align:left; padding-left:27px;}
+
+
+
+

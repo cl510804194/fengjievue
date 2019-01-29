@@ -1,0 +1,768 @@
+#parse("/front/index/common/header-title.vm")
+</head>
+<body class="warp">
+	#parse("/front/index/common/header-yrd.vm")
+<div class="home-section_bd pt20">
+	<div class="blank20"></div>
+    <div class="bd-box db-p14 container fn-clear">
+    	<h2 class="title2 mt10"><span class="tit-name">项目详情</span><a  class="return" href="javascript:history.go(-1);">《 返回</a><span class="balance" href="#">可用余额<span class="ml5">￥$!{yjfAccountInfo.availableBalance.toStandardString()}</span><a href="/userManage/topUp/withholdingIndex"></a></span></h2>
+        <div class="blank15"></div>
+       #parse("/front/common/investBaseInfo.vm")
+        #set($ia = $!{investableAmount})
+        <div class="cast-money fn-right">
+        	<h2 class="f-title">可投金额</h2>
+            <div class="cast-money-box">
+            
+                #set($p = $moneyUtil.getPercentage($!{trade.loanedAmount},$!{trade.tradeAmount},$!{trade.leastInvestAmount}))
+            
+               <table border="0" class='pro-table'>
+               	<tr>
+               		<td style="border:0px;">
+               			<span class="plan_bg" style="width:80%;"><span style="width:$!{p};" class="plan"></span></span>$!{p}
+               		</td>
+               	</tr>
+               </table>
+                
+                <div class="blank50"></div>
+                <p>剩余可投资金额：$!{investableAmount.toStandardString()} 元</p>
+                <div class="blank30"></div>
+                <span>
+                    #set($st=$permission.check('/invest/invest'))
+                    #if( $!{trade.tradeStatus.value}==1 && $!{trade.tradeAmount.greaterThan($!trade.loanedAmount)})<!--待成立状态下、投资未满 才可投资-->
+            			#if($!{deadlineReached})<!--是否已过投资时间-->
+							<a class="btn red-btn"  style="color:#FFFFFF">已过投资时间</a>
+						#else	
+        						#if( $!{investAvlTimeReached} )  <!--是否到投资时间-->
+            							
+                						  #if(!$sessionScope)  <!--未登录时跳转-->
+                                                <a href="$!{rc.contextPath}/login/login" class="btn red-btn" style="color:#FFFFFF" >立即投资</a>
+                                          #else
+                		                          #if($st > 0) <!--投资人才可以投资-->
+                		                          	#if(${loanDemand.loanPassword} && ${loanDemand.loanPassword}!="")
+														<a href="javascript:void(0);" class="btn red-btn" style="color:#FFFFFF" id="pass-btn">立即投资</a>
+													#else
+														<a href="javascript:void(0);" class="btn red-btn" style="color:#FFFFFF" id="invest-btn">立即投资</a>
+													#end
+                		                          #else 
+                		                               <a href="/" class="btn gray-btn">返回</a> 
+                		                          #end	   
+                                          #end 
+            						#else
+            							<a href="javascript:void(0);" class="btn red-btn"  style="color:#FFFFFF">未到投资时间</a>
+        						#end
+						#end
+						
+                    #else
+                    	 <a href="/" class="btn gray-btn">返回</a> 
+                    #end 
+					<!--$!{trade.tradeStatus.value}- $!{trade.tradeAmount.greaterThan($!trade.loanedAmount)} -$!{investAvlTimeReached} -->	
+				</span>
+            </div>
+        </div>
+        <div class="blank15"></div>
+        <div class="blank50"></div>
+        <div class="borrowing-info">
+        	<div class="b-tab fn-clear">
+            	<ul>
+                	<li class="curr"  id="tradeinfo"><a href="javascript:;" >借款信息</a></li>
+                    <li id="touziinfo"><a href="javascript:;" >投资明细</a></li>
+                </ul>
+            </div>
+            <div class="borrowing-list f-clear" id="tradediv">
+            	<div class="blank5"></div>
+            	<div class="borrow-box fn-left ml20">
+                	<h2>项目信息</h2>
+					 #parse("/front/common/tradeDetailInfo.vm")
+				</div>
+                   <div class="borrow-box fn-left ml20">
+                    	<h2>承诺信息</h2>
+                    	#parse("/front/common/tradeGuaranteeInfo.vm")
+                	</div>
+                    <div class="borrow-box fn-left ml20">
+                    	<h2>审核记录</h2>
+                    	#parse("/front/common/tradeGuaranteeCheckInfo.vm")
+                	</div>
+					#foreach($attachmentModuleTypeInfo in $list)
+					<div class="borrow-box fn-left ml20">
+					
+							<h2>${attachmentModuleTypeInfo.moduleType.message}</h2>
+							<div class="b-border pro-info">
+							#foreach($attachmentInfo in $attachmentModuleTypeInfo.attachmentInfos)
+								<img id="guaranteeLicenseUrl_Img" style="width:100px;height:100px;" src='$!attachmentInfo.requestPath'/>
+							#end		
+							</div>
+                    	
+                	</div>
+						#end	
+                <div class="blank30"></div>
+            </div>
+			
+            <div class="borrowing-list f-dn" id="touzhidiv">
+            	 #parse("/front/common/tradeInvestmentInfo.vm")
+            </div>
+        </div>
+        
+        
+        <div class="m-layer" style="width:400px; display:none;"  id="pass-window"  >
+		<div class="invest-tit fn-clear">
+			<h2 class="u-tt">该项目融资人已设置投资密码</h2>
+            <a class="u-close" href="#" id="pass-cancel"></a>
+		</div>
+	    <div class="lyct">
+	        <form name="" method="post" action="#" class="m-form">
+				<fieldset>
+					<div class="invest-up">
+						<div class="fn-item">
+							<label class="fn-label">请输入投资密码：</label>
+							<input type="password" class="fn-text" style="width:170px"  name="loan-pass" id="loan-password" maxLength="20" oncopy="return false;"onpaste="return false;"/> 
+							<br /> <b class="error-tip" id="loan-password-messge"></b>
+						</div>
+							<input type="hidden" id="password" name="password" value="$!{loanDemand.loanPassword}"/>
+							<a href="javascript:void(0);" class="btn red-btn" style="color:#FFFFFF;display: block;height: 34px;width: 234px;background: #f60;text-align: center;line-height: 34px;font-size: 14px;font-weight: bold;margin-left: 65px;" id="invest-btn">确定</a>
+					</div>
+				</fieldset>
+			</form>
+	    </div>
+		</div>
+
+        #if($!yjfPaypassUrl)
+        <div class="m-layer" style="width:500px; display:none;"  id="invest-window"  >
+            <div class="invest-tit fn-clear">
+                <h2 class="u-tt">确认投资金额</h2>
+                <a class="u-close" href="#" id="invest-cancel"></a>
+            </div>
+            <div class="lyct">
+                <form name="" method="post" action="#" class="m-form">
+                    <fieldset>
+                        <div class="invest-up">
+                            <div class="fn-item">
+                                <label class="fn-label">请输入投资金额：</label>
+                                <input type="text" class="fn-text" style="width:170px"  name="invest-pay" id="invest-pay-amount" maxLength="10" oncopy="return false;"onpaste="return false;"/> <span class="fn-span">元</span><b class="error-tip" id="invest-pay-amount-messge"></b>
+                                <br /><p class="fn-span" id="invest-pay-amount-chinese-messge"></p>
+                            </div>
+                            <div class="fn-item">
+                                <label class="fn-label">确认投资金额：</label>
+                                <input type="text" class="fn-text" style="width:170px" name="invest-pay" id="invest-pay-amount-re" maxLength="10" oncopy="return false;"onpaste="return false;"/> <span class="fn-span">元</span><b class="error-tip" id="invest-pay-amount-re-messge"></b>
+                                <br /><p  class="fn-span" id="invest-pay-amount-re-chinese-messge"></p>
+                            </div>
+                            <!--20141209-->
+                            <div class="fn-item" id="div_giftMoney" style="display: none">
+                                <label class="fn-label">使用红包：</label>
+                                <input type="text" class="fn-text" style="width:170px" name="giftMoney" id="giftMoney" maxLength="10" oncopy="return false;"onpaste="return false;"/><span class="fn-span">元</span>
+
+                            </div>
+
+                            <div class="fn-item" id="div_experienceAmount" style="display: none">
+                                <label class="fn-label">使用体验金：</label>
+                                <input type="text" class="fn-text" style="width:170px" name="experienceAmount" id="experienceAmount" maxLength="10" oncopy="return false;"onpaste="return false;"/><span class="fn-span">元</span>
+
+                            </div>
+
+
+                            <input type="hidden" id="token" name="token" value="$!{token}"/>
+                            <iframe frameborder="0" width="450" height="150" id="paypassIframe" name="mypaypassIframe" scrolling="no" src="$!yjfPaypassUrl"></iframe>
+
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        #else
+
+        <div class="m-layer" style="width:500px; display:none;"  id="invest-window"  >
+            <div class="invest-tit fn-clear">
+                <h2 class="u-tt">确认投资金额</h2>
+                <a class="u-close" href="#" id="invest-cancel"></a>
+            </div>
+            <div class="lyct">
+                <form name="" method="post" action="#" class="m-form">
+                    <fieldset>
+                        <div class="invest-up">
+                            <div class="fn-item">
+                                <label class="fn-label">请输入投资金额：</label>
+                                <input type="text" class="fn-text"  name="invest-pay" id="invest-pay-amount" maxLength="10" oncopy="return false;"onpaste="return false;"/> <span class="fn-span">元</span><b class="error-tip" id="invest-pay-amount-messge"></b>
+                                <br /><p class="fn-span" id="invest-pay-amount-chinese-messge"></p>
+                            </div>
+                            <div class="fn-item">
+                                <label class="fn-label">确认投资金额：</label>
+                                <input type="text" class="fn-text" name="invest-pay" id="invest-pay-amount-re" maxLength="10" oncopy="return false;"onpaste="return false;"/> <span class="fn-span">元</span><b class="error-tip" id="invest-pay-amount-re-messge"></b>
+                                <br /><p  class="fn-span" id="invest-pay-amount-re-chinese-messge"></p>
+                            </div>
+                            <!--20141209-->
+                            <div class="fn-item" id="div_giftMoney" style="display: none">
+                                <label class="fn-label">使用红包：</label>
+                                <input type="text" class="fn-text" style="width:170px" name="giftMoney" id="giftMoney" maxLength="10" oncopy="return false;"onpaste="return false;"/><span class="fn-span">元</span>
+
+                            </div>
+
+                            <div class="fn-item" id="div_experienceAmount" style="display: none">
+                                <label class="fn-label">使用体验金：</label>
+                                <input type="text" class="fn-text" style="width:170px" name="experienceAmount" id="experienceAmount" maxLength="10" oncopy="return false;"onpaste="return false;"/><span class="fn-span">元</span>
+
+                            </div>
+
+                            <div class="fn-item">
+                                <label class="fn-label"><span class="required">*</span>验证码：</label>
+                                <input id="code1" type="text" class="fn-text w90" name="code" />
+                                <input id="mobile1" type="hidden"   disabled="disabled" class="fn-text w130"  name="mobile" value="$!{userBaseInfo.mobile}"/>
+                                <a id="getCode1" class="fn-h-btn Y-countdown" href="javascript:;" style="display: inline-block;">
+                                    <span class="timedown">获取验证码</span>
+                                </a>
+                                <input id="business1" type="hidden" name="business" value="invest"/>
+                            </div>
+
+                            <div class="fn-item fn-clear">
+                                <label class="fn-label"></label>
+
+                                <input type="hidden" id="token" name="token" value="$!{token}"/>
+
+                                <a href="javascript:;" class="affirm mr15" id="invest-ok">确认投资</a><a href="javascript:;" class="consider" id="invest-cancel">再考虑一下</a>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        #end
+        <div class="blank10"></div>
+    </div>
+    <div class="blank50"></div>
+</div>
+	#parse("/front/index/common/footer-yrd.vm")
+
+    #if(${giftMoney})
+    <div class="hongbao">
+        <a class="close" href="javascript:;">&nbsp;</a>
+        <span class="money"><strong>恭喜您</strong><br/><p>获得<em>${giftMoney}</em></p></span>
+        <a class="btn" href="/userGiftMoney/pageQuery"></a>
+    </div>
+    #end
+
+
+
+	#parse("/front/index/common/js.vm")
+	<script type="text/javascript">
+	$_GLOBAL = {};
+	</script>
+	<script type="text/javascript" src="$!{rc.contextPath}/resources/js/content/chineseAmountExchange.js"></script>
+	<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+	<script type="text/javascript" src="$!{rc.contextPath}/resources/js/comp/security.js"></script>
+	
+	<script type="text/javascript">
+		seajs.use($_GLOBAL.mode+"index_invest_detail");
+	</script>
+	
+	<script type="text/javascript">
+	    $("#tradeinfo").click(function(){
+            $("#touzhidiv").hide();
+            $("#tradediv").show();
+            $('#touziinfo').removeClass('curr');
+            $(this).addClass('curr');
+		});
+		
+		$("#touziinfo").click(function(){
+		    $("#tradediv").hide();
+            $("#touzhidiv").show();
+            $('#tradeinfo').removeClass('curr');
+            $(this).addClass('curr');
+		});
+	
+		$('#pass-btn').click(function (){
+			var e3 = $('#loan-password-messge');
+			var e4 = $('#loan-password-re-messge');
+    		
+			e3.hide();
+			e4.hide();
+
+		  if(islogin()){
+		   
+		    $('input[name=loan-pass]').val('');
+		     $('.fn-item label[id]').empty();
+			 window.investWnd = $('body').window({
+			      key:'pass-window',
+	    	      content:'#pass-window',
+	    	      simple:true,
+	    	      closeEle:'#pass-cancel',
+				  close:function(){
+				  	document.location.href = document.location.href;
+				  }
+	    	   });
+    	   }else{
+    	     document.location.href = '$!{rc.contextPath}/login/login?redirect=' + document.location.href;
+    	   }
+		});
+
+
+        $('#invest-btn').click(function (){
+            var e1 = $('#invest-pay-amount-chinese-messge');
+            var e2 = $('#invest-pay-amount-re-chinese-messge');
+            var e3 = $('#invest-pay-amount-messge');
+            var e4 = $('#invest-pay-amount-re-messge');
+            var e5 = $('#invest-pay-password-messge');
+            var pass = $('#loan-password').val();
+            var passed = $('#password').val();
+
+            e3.hide();
+            e4.hide();
+            e5.hide();
+            var json = checkTrade();
+            if(json.status == false){
+                alert(json.message);
+                return ;
+            }
+            json = checkInvest();
+            if(json.status == false){		
+                alert(json.message);
+                return ;
+            }
+
+            var result = isInvest();
+            if(result.code==2){
+                alert(result.message);
+                return;
+            }
+            if(islogin()){
+				if(pass!=""){
+                    if(pass==passed){
+                        $('input[name=invest-pay]').val('');
+                        $('.fn-item label[id]').empty();
+                        window.investWnd = $('body').window({
+                            content:'#invest-window',
+                            simple:true,
+                            closeEle:'#invest-cancel',
+                            close:function(){
+                                document.location.href = document.location.href;
+                            }
+                        });
+                    }else{
+                        alert("请输入正确的密码");
+                        $('#loan-password').val('');
+                    }
+				}else{
+					$('input[name=invest-pay]').val('');
+                        $('.fn-item label[id]').empty();
+                        window.investWnd = $('body').window({
+                            content:'#invest-window',
+                            simple:true,
+                            closeEle:'#invest-cancel',
+                            close:function(){
+                                document.location.href = document.location.href;
+                            }
+                        });
+				}
+            }else{
+                document.location.href = '$!{rc.contextPath}/login/login?redirect=' + document.location.href;
+            }
+        });
+
+
+		
+		function isInvest(){
+			var url = '/invest/isInvest';
+			var data = {'demandId' : $('[name=demandId]').val()};
+			return $_GLOBAL.ajax(url,data);
+			
+		}
+		
+		var pwd;
+		var modulus = "";
+		var exponent = "";
+		$('#invest-pay-password').change(function (){
+			checkPayPassword();
+		});
+		
+		function getKey(){
+			var url = '/login/keyPair';
+			var result = $_GLOBAL.ajax(url);
+			if(result.code==1){
+				modulus = result.modulus;
+				exponent = result.exponent;
+				setHiddenPwd();
+			}
+		}
+		
+    	function setHiddenPwd(){
+    		var thisPwd = $('#invest-pay-password').val();
+    		var key = RSAUtils.getKeyPair(exponent, '', modulus);
+    		pwd =  RSAUtils.encryptedString(key, thisPwd);
+    	}
+
+        //begin-1
+        #if($!yjfPaypassUrl)
+            $('#invest-ok').click(function (){
+            btnComfirm($('#paytk').val())
+            });
+        #else
+        $('#invest-ok').click(function (){
+            //如果设置了disabled 第二次点无效
+            if($(this).attr('disabled'))return false;
+
+
+
+
+            if( checkAmount() && checkReAmount() && checkCode() ){//&& checkPayPassword()
+                var url = '$!{rc.contextPath}/invest/invest';
+                //alert($("#code1").val());
+                var data = {password:pwd,smsCode:$("#code1").val(),
+                    giftMoney : $("#giftMoney").val(),
+                    experienceAmount:$("#experienceAmount").val(),
+                    mobile:$("#mobile1").val(),business:$("#business1").val(),
+                    amount:(parseInt($('#invest-pay-amount').val())),
+                    tradeId:$!{tradeId},token:$('#token').val()};
+
+                var str = "处理中..." ;
+                var _this = $(this);
+                _this.html(str).attr('disabled',true);
+                data = $.param(data,true)
+                setTimeout(function(){
+                    var result = $_GLOBAL.ajax(url, data);
+                    alert(result.message);
+                    _this.html("确认投资").attr('disabled',false);
+                    if(!(result.message=="短信验证码错误" || result.message=="连续错误5次，请重新获取验证码")){
+                        document.location.href = document.location.href;
+                    }
+                }, 100);
+                return false;
+            }else{
+                return false;
+            }
+        });
+
+
+        #end
+
+
+        function btnComfirm(paytk)
+        {
+            //如果设置了disabled 第二次点无效
+            if($(this).attr('disabled'))
+            {
+                paypassIframe.src='$!yjfPaypassUrl';
+                return false;
+            }
+
+
+            if( checkAmount() && checkReAmount()){
+                var url = '$!{rc.contextPath}/invest/invest';
+                //alert($("#code1").val());
+                var data = {'paytk':paytk,
+                    giftMoney:$("#giftMoney").val(),
+                    mobile:$("#mobile1").val(),business:$("#business1").val(),
+                    experienceAmount:$("#experienceAmount").val(),
+                    amount:(parseInt($('#invest-pay-amount').val())),
+                    tradeId:$!{tradeId},token:$('#token').val()};
+
+                var str = "处理中..." ;
+                var _this = $(this);
+                _this.html(str).attr('disabled',true);
+                setTimeout(function(){
+                    var result = $_GLOBAL.ajax(url, data);
+
+                    alert(result.message);
+                    _this.html("确认投资").attr('disabled',false);
+                    paypassIframe.src='$!yjfPaypassUrl';
+                    document.location.href = document.location.href;
+                }, 100);
+                return false;
+            }else{
+                paypassIframe.src='$!yjfPaypassUrl';
+                document.frames['mypaypassIframe'].location.reload();
+                return false;
+            }
+        }
+
+
+        $('#invest-pay-amount').change(function (){
+            var url = '/boot/queryUserGiftMoney';
+            var data = {investAmount :$(this).val(),demandId : $('[name=demandId]').val()};
+            var json =  $_GLOBAL.ajax(url,data);
+            var giftMoney = json["giftMoney"];
+            $(".giftMoney").remove();
+            $("#div_giftMoney").hide();
+            $("#div_experienceAmount").hide();
+            if(giftMoney){
+                var giftMoneyLimitAmount =json["giftMoneyLimitAmount"];
+                if(giftMoneyLimitAmount){
+                    $("#giftMoneyLimitAmount").remove();
+                    var h = '<div class="tishi giftMoney" id="giftMoneyLimitAmount"><p><i class="orange">当前项目可使用'+giftMoneyLimitAmount.standardString+'元红包</i></p></div>';
+                    $("#div_giftMoney").before(h)
+                }
+
+                var h = '<div class="tishi giftMoney" ><p><i class="orange">您当前可使用的红包总额：' +giftMoney.standardString+'元</i></p></div>';
+                $("#div_giftMoney").before(h)
+
+
+                $("#div_giftMoney").show();
+            }else{
+                $("#div_giftMoney").hide();
+            }
+
+            var experienceAmount = json["experienceAmount"];
+            if(experienceAmount){
+                var  h = '<div class="tishi giftMoney" ><p><i class="orange">您当前可使用的体验金总额：' +experienceAmount.standardString+'元</i></p></div>';
+                $("#div_experienceAmount").before(h)
+
+                $("#div_experienceAmount").show();
+            }else{
+                $("#div_experienceAmount").hide();
+            }
+
+
+        });
+        //end-1
+		
+		$('#invest-pay-amount').keyup(function (){
+			//checkAmount();
+			var inputAmount = $(this).val() ;
+			var chineseAmount = convertCurrency(inputAmount);
+			if(chineseAmount.indexOf("error") >= 0){
+				return;
+			}else{
+				$("#invest-pay-amount-chinese").val("");
+				var e = $('#invest-pay-amount-chinese-messge');
+				var amountPreWord = "金额大写： ";
+				e.html(amountPreWord + chineseAmount).show();
+			}
+		});
+		
+		$('#invest-pay-amount-re').keyup(function (){
+			//checkReAmount();
+			var inputAmount = $(this).val() ;
+			var chineseAmount = convertCurrency(inputAmount);
+			if(chineseAmount.indexOf("error") >= 0){
+				return;
+			}else{
+				$("#invest-pay-amount-re-chinese").val("");
+				var e = $('#invest-pay-amount-re-chinese-messge');
+				var amountPreWord = "金额大写： ";
+				e.html(amountPreWord + chineseAmount).show();
+			}
+		});
+		
+		function checkAmount(){
+		 	var amount = $('#invest-pay-amount').val();
+		 	var e = $('#invest-pay-amount-messge').hide();
+		 	if(amount.length < 1){
+		 		e.html('投资金额不能为空').show();
+		 		return false;
+		 	}else if(isNaN(amount)){
+		 	   	e.html('投资金额必须为数字').show();
+		 		return false;
+		 	}else if(parseFloat(amount*1) < 100){
+		 		e.html('投资金额必须为大于100的数字').show();
+		 		return false;
+		 	}else if(parseFloat(amount)%100!=0){
+				e.html('投资金额必须为100元的整数倍').show();
+		 		return false;
+			}
+			var url = '$!{rc.contextPath}/invest/checkamount/$!{tradeId}';
+			var data = {'amount' : parseInt(amount)};
+			var result = $_GLOBAL.ajax(url, data);
+			
+			if(!result.status){
+			
+			    alert(result.message);
+				e.html(result.message).show();
+			}
+			return result.status;
+		}
+		
+		function checkReAmount(){
+			var e = $('#invest-pay-amount-re-messge');
+			e.hide();
+		   if($('#invest-pay-amount').val() != $('#invest-pay-amount-re').val()){
+		   		e.html('两次输入的金额不一致').show();
+		   		return false;
+		   }
+		   return true;
+		}
+		
+		function checkPayPassword(){
+			var e = $('#invest-pay-password-messge');
+			e.hide();
+		    var password = $('#invest-pay-password').val();
+		    if(password.length < 1){
+		    	e.html('支付密码不能为空').show();
+		    	return false;
+		    }
+			getKey();
+			if(!pwd){
+				setTimeout(getKey,10);
+			}
+			var url = '$!{rc.contextPath}/invest/checkpaypassword';
+			var data = {'password' : pwd};
+			var status = $_GLOBAL.ajax(url, data);
+			if(!status){
+				e.html('支付密码错误').show();
+			}
+			return status;
+		}
+		
+		function checkCode(){
+		    var code = $('#code1').val();
+		    if(code.length < 1){
+		    	alert('手机验证码不能为空');
+		    	return false;
+		    }
+			return true;
+		}
+		
+		function islogin(){
+		    var url = '$!{rc.contextPath}/login/islogin';
+			return $_GLOBAL.ajax(url);
+		}
+		
+		function checkTrade(tradeId){
+			var url = '$!{rc.contextPath}/invest/checktrade/$!{tradeId}';
+			return $_GLOBAL.ajax(url);
+		}
+		
+		function checkInvest(){
+			var url = '$!{rc.contextPath}/invest/checkinvest/$!{tradeId}';
+			return $_GLOBAL.ajax(url);
+		}
+		$("#contractPreview").hover(function(){
+			$("#contract-demo").show();
+		}, function(){
+			$("#contract-demo").hide();
+		});
+		$(".checkbox").click(
+			function(){
+				if($('.checkbox').attr("checked")=="checked"){
+					$("#invest-ok").css("display","inline-block");
+        		}else{
+					alert("请勾选同意合同");
+					$("#invest-ok").css("display","none");
+        		}
+			}
+		);
+		
+		$('#lastInvestAvlb').click(function (){
+    		var e1 = $('#invest-pay-amount-chinese-messge');
+    		var e2 = $('#invest-pay-amount-re-chinese-messge');
+			var e3 = $('#invest-pay-amount-messge');
+			var e4 = $('#invest-pay-amount-re-messge');
+			var e5 = $('#invest-pay-password-messge');
+    		e1.html();
+    		e2.html();
+			e3.html();
+			e4.html();
+			e5.html();
+		  if(islogin()){
+		      $('input[name=invest-pay]').val('');
+		      $('.fn-item label[id]').empty();
+			  $('body').window({
+	    	      content:'#invest-window',
+	    	      simple:true,
+	    	      closeEle:'#invest-cancel',
+				  close:function(){
+				  	document.location.href = document.location.href;
+				  }
+	    	   });
+    	   }else{
+    	     document.location.href = '$!{rc.contextPath}/login/login?redirect=' + document.location.href;
+    	   }
+		});
+		
+		$("#contractPreview").click(
+    		function(){
+				window.open('/upload/downLoadFile?demandId=0&type=preivew&fileType=inverst');
+    		}
+		);
+		var e1 = $('#invest-pay-amount-chinese-messge');
+    		var e2 = $('#invest-pay-amount-re-chinese-messge');
+			var e3 = $('#invest-pay-amount-messge');
+			var e4 = $('#invest-pay-amount-re-messge');
+			var e5 = $('#invest-pay-password-messge');
+    		e1.html();
+    		e2.html();
+			e3.html();
+			e4.html();
+			e5.html();
+			
+			
+			
+   // -------------------------------------发送手机验证码-----------------------------------------------
+//	$('#getCode1').click(function() {
+//		var business = $("#business1").val();
+//		var mobile = $("#mobile1").val();
+//		var countdown = Y.getCmp('getCode1');
+//		sendMobile(business, mobile, countdown);
+//	});
+
+	
+  	function sendMobile(business, mobile, conutdown) {
+       var extendMessage =",投资金额："+ $("#invest-pay-amount-re").val()+"元";
+
+		jQuery.ajax({
+			url : '/anon/sendSmsCode',
+			dataType : 'json',
+			data : {
+				mobile : mobile,
+				business : business,
+                extendMessage:extendMessage
+			},
+			cache : false,
+			success : function(res) {
+				if (res.code == 1) {
+				} else {
+					alert(res.message);
+					if (countdown) {
+						countdown.close();
+					}
+				}
+			},
+			error : function() {
+				alert('获取验证码失败');
+				if (countdown) {
+					countdown.close();
+				}
+			}
+		});
+	}	
+<!--分页跳转-->
+		function toPage(totalPage, pageNo){
+		
+				if(totalPage<pageNo){
+					return false;
+				}
+				var url = "$!{rc.contextPath}/boot/lookup/$!{trade.demandId},$!{trade.tradeId}?pageSize=$!{page.pageSize}&pageNo="+pageNo+"&tab=invest";
+				//alert (url);
+				window.location.href=url;
+		}
+		
+		function toInvestListTab(){
+		    $("#tradediv").hide();
+            $("#touzhidiv").show();
+            $('#tradeinfo').removeClass('curr');
+            $('#touziinfo').addClass('curr');
+		
+		}
+		 
+		//分页跳转后显示正确的tab页面
+		#if($!{tab}=='invest') 
+		toInvestListTab();
+		#end
+
+        function payPassOk(key)
+        {
+            btnComfirm(key);
+        }
+        function payPassCancel()
+        {
+            investWnd.close();
+
+            $('#invest-window_pay').attr('display','none');
+        }
+    </script>
+<script type="text/javascript">
+        function honbbao_move(){
+            $('.hongbao').animate({height:'230px'},2000);
+        }
+honbbao_move();
+$('.hongbao .close').click(function(){
+    $('.hongbao').hide();
+});
+</script>
+</body>
+</html>

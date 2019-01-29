@@ -1,0 +1,61 @@
+package com.yjf.esupplier.service.common.order;
+
+import com.yjf.esupplier.integration.openapi.enums.OccupationEnum;
+import com.yjf.esupplier.ws.service.query.QueryPageBase;
+
+public class GuarantorInfoQueryOrder extends QueryPageBase {
+	
+	private static final long serialVersionUID = 4966979135803131835L;
+	String guarantorName;
+	String guaranteeCertNo;
+	String guaranteePhone;
+	OccupationEnum guaranteeOccupation;
+	
+	public String getGuarantorName() {
+		return this.guarantorName;
+	}
+	
+	public void setGuarantorName(String guarantorName) {
+		this.guarantorName = guarantorName;
+	}
+	
+	public String getGuaranteeCertNo() {
+		return this.guaranteeCertNo;
+	}
+	
+	public void setGuaranteeCertNo(String guaranteeCertNo) {
+		this.guaranteeCertNo = guaranteeCertNo;
+	}
+	
+	public String getGuaranteePhone() {
+		return this.guaranteePhone;
+	}
+	
+	public void setGuaranteePhone(String guaranteePhone) {
+		this.guaranteePhone = guaranteePhone;
+	}
+	
+	public OccupationEnum getGuaranteeOccupation() {
+		return this.guaranteeOccupation;
+	}
+	
+	public void setGuaranteeOccupation(OccupationEnum guaranteeOccupation) {
+		this.guaranteeOccupation = guaranteeOccupation;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("GuarantorInfoQueryOrder [guarantorName=");
+		builder.append(guarantorName);
+		builder.append(", guaranteeCertNo=");
+		builder.append(guaranteeCertNo);
+		builder.append(", guaranteePhone=");
+		builder.append(guaranteePhone);
+		builder.append(", guaranteeOccupation=");
+		builder.append(guaranteeOccupation);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

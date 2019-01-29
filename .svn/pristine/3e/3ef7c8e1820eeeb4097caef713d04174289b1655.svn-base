@@ -1,0 +1,198 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	getParam = Site.getParam();
+	//设置导航
+	var getParam = Site.getParam(),
+		productTypeNum = getParam.productType,
+		navAlias,
+		navArr = [{
+			alias: 'yljk',
+			arr: ['0001-0001-0001', '0001-0001-0002', '0001-0001-0003', '0001-0001-0004']
+		}, {
+			alias: 'ly',
+			arr: ['0001-0002-0001', '0001-0002-0002', '0001-0002-0003']
+		}, {
+			alias: 'bx',
+			arr: ['0001-0003-0001', '0001-0003-0002', '0001-0003-0003']
+		}];
+	for (var i = navArr.length - 1; i >= 0; i--) {
+		for (var j = navArr[i].arr.length - 1; j >= 0; j--) {
+			if (navArr[i].arr[j] == productTypeNum) {
+				navAlias = navArr[i].alias;
+			}
+		}
+	};
+	//banner样式选择
+	$('#uiTopNav').find('a[alias="' + navAlias + '"]').addClass('on');
+	var jointUrl = {
+		objList: $('.condition-dl dl'),
+		objFindList: 'dd a',
+		property: 'dataName',
+		smallMenus: '.smallMenus',
+		colse: '.colse-btn',
+		sort: '.sort',
+		price: '.price',
+		initFun: function() {
+			jointUrl.addClassFun();
+			jointUrl.smallMenusFun();
+			jointUrl.smallMenusRemoveFun();
+			jointUrl.clickFun();
+			jointUrl.sortFun();
+			jointUrl.sortFunAddClass();
+			jointUrl.priceInputFun();
+		},
+		clickFun: function() {
+			jointUrl.objList.find(jointUrl.objFindList).click(function() { //点击后汇总
+				var clickPortion = jointUrl.clickPortion($(this)),
+					objListSiblings = jointUrl.objListSiblings($(this)),
+					clickPortionObjListSiblings = (clickPortion + objListSiblings).substring(1).split('&'),
+					jointUrlLocationSearchFun = jointUrl.locationSearchFun(),
+					getParamProductType = location.pathname + '?' + jointUrl.mergeFunLocation(clickPortionObjListSiblings, jointUrlLocationSearchFun)[0].join('&');
+				window.location.href = getParamProductType;
+			});
+		},
+		clickPortion: function(_this) { //获取点击后的属性并拼接成部分URL
+			var _propertyArr = _this.attr(jointUrl.property).split(','),
+				_thisAllSearch = '',
+				i;
+			for (i = 0; i < _propertyArr.length; i++) {
+				_thisAllSearch += '&' + _propertyArr[i] + '=' + _this.attr(_propertyArr[i]);
+			}
+			return _thisAllSearch;
+		},
+		objListSiblings: function(_this) { //获取点击后父级dl同胞被选中的属性并拼接成部分URL
+			var _activeObj = _this.parents('dl').siblings().find('.active'),
+				_thisExceptProperty = '',
+				_thisExceptSearch = '',
+				_propertyExceptArr, j;
+			_activeObj.each(function(index) {
+				_propertyExceptArr = $(this).attr(jointUrl.property).split(',');
+				for (j = 0; j < _propertyExceptArr.length; j++) {
+					_thisExceptProperty += '&' + _propertyExceptArr[j] + '=' + $(this).attr(_propertyExceptArr[j]);
+				}
+			})
+			return _thisExceptProperty;
+		},
+		addClassFun: function() {
+			var i;
+			jointUrl.objList.find(jointUrl.objFindList).each(function(index, el) {
+				var _this = $(el),
+			
+					_parents = _this.parents('dl'),
+					dataNameArr = _this.attr('dataName').split(','),
+					allDataName = _parents.attr('allDataName').split(','),
+					_judge = true;
+				for (i = 0; i < dataNameArr.length; i++) {
+					_judge = (_judge && (_this.attr(dataNameArr[i]) == allDataName[i]))
+				}
+				if (_judge) {
+					_this.addClass('active');
+				}
+			});
+		},
+		smallMenusFun: function() {
+			jointUrl.objList.each(function(index, el) {
+				var allDataName = $(el).attr('allDataName').replace(",", "-"),
+					dataName = $(el).attr('dataName');
+				
+				if (allDataName && allDataName != '-') {
+					var allDataNames = allDataName.split('-')
+					if(allDataNames.length == 2){
+						if(allDataNames[1] == ''){
+						
+							allDataName = allDataNames[0] +"以上";
+						}
+					}
+					$(jointUrl.smallMenus).append('<span class="list-sx" dataName=' + dataName + '> > ' + allDataName + '<i class="colse-btn">X</i></span>');
+				}
+			});
+		},
+		smallMenusRemoveFun: function() {
+			$(jointUrl.colse).click(function() {
+				var self = $(this),
+					selfParent = self.parent(".list-sx"),
+					selfContent = selfParent.attr('dataName').split(','),
+					locationSearch = jointUrl.locationSearchFun(),
+					k, h;
+				for (h = 0; h < selfContent.length; h++) {
+					for (k = 0; k < locationSearch.length; k++) {
+						var locationSearchIndexOf = locationSearch[k].indexOf('=')
+						if (selfContent[h] == locationSearch[k].substring(0, locationSearchIndexOf)) {
+							locationSearch.splice(k, 1);
+						}
+					}
+				}
+				window.location.href = location.pathname + '?' + locationSearch.join('&')
+			})
+		},
+		sortFun: function() {
+			$(jointUrl.sort).find('dd.dd').click(function(event) {
+				var _this = $(this),
+					_thisa = _this.find('a'),
+					_dataName = _thisa.attr('dataName'),
+					_dataNameArr = _thisa.attr(_dataName),
+					//_add = _dataName + '=' + _dataNameArr + '&',
+					_thisb = _this.siblings('dd.dd').find('a'),
+					_dataNameb = _thisb.attr('dataName'),
+					_dataNameArrb = _thisb.attr(_dataNameb),
+					_locationSearchFun = jointUrl.locationSearchFun();
+					if(getParam[_dataName]=='asc'){
+						_dataNameArr = 'desc';
+						_dataNameArrb = getParam[_dataNameb];
+					}else if(getParam[_dataName]=='desc'){
+						_dataNameArr = 'asc';
+						_dataNameArrb = getParam[_dataNameb];
+					}else{
+						_dataNameArr = 'asc';
+							_dataNameArrb='';
+					}
+
+					// console.log(_dataNameArr)
+				var _minus = [_dataNameb + '=' + _dataNameArrb, _dataName + '=' + _dataNameArr],
+					jointUrlmergeFunLocation = jointUrl.mergeFunLocation(_minus, jointUrl.locationSearchFun())[0],
+					sortFunUrl = location.pathname + '?'  + jointUrlmergeFunLocation.join('&');
+				//console.log(jointUrlmergeFunLocation)
+				window.location.href = sortFunUrl;
+
+			});
+		},
+		sortFunAddClass: function() {
+			$(jointUrl.sort).find('dd.dd a').each(function(index, el) {
+				var _index = $(el);
+				// console.log(_index.attr('dataname'))
+				if (_index.attr('allDataName') == 'desc') {
+					_index.addClass('active')
+				}
+			});
+		},
+		priceInputFun: function() {
+			$(jointUrl.price).find('button').click(function(event) {
+				var _upper = $(jointUrl.price).find('.upper').val(),
+					_floor = $(jointUrl.price).find('.floor').val(),
+					priceInputArr = ['beginPrice=' + _upper, 'endPrice=' + _floor],
+					jointUrlMergeFunLocation = jointUrl.mergeFunLocation(priceInputArr, jointUrl.locationSearchFun())[0];
+				if (parseFloat(_upper) >= parseFloat(_floor)) {
+					alert('请输入正确的值');
+					return false;
+				}
+				window.location.href = location.pathname + '?' + jointUrlMergeFunLocation.join('&');
+			});
+		},
+		locationSearchFun: function() {
+			return location.search.substring(1).split('&')
+		},
+		mergeFunLocation: function(A, B) {
+			for (var i = 0; i < A.length; i++) {
+				var AindexOf = A[i].indexOf('=');
+				for (var j = 0; j < B.length; j++) {
+					var BindexOf = B[j].indexOf('=');
+					if (A[i].substring(0, AindexOf) == B[j].substring(0, BindexOf)) {
+						B.splice(j, 1)
+					}
+				}
+			}
+			return [A.concat(B), B];
+		}
+	}
+	jointUrl.initFun();
+});

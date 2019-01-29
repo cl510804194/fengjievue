@@ -1,0 +1,46 @@
+package com.yjf.esupplier.service.user.integral;
+
+import com.yjf.esupplier.ws.integral.UserPointsOrder;
+import com.yjf.esupplier.ws.integral.info.UserPointsDetailInfo;
+import com.yjf.esupplier.ws.integral.order.PointsGoodsDetailOrder;
+import com.yjf.esupplier.ws.integral.order.UserPointsDetailQueryOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface UserPointsService {
+	
+	/**
+	 * 处理已配送积分商品信息
+	 * @param pointsGoodsDetail
+	 * @return
+	 * @throws Exception
+	 */
+	public EsupplierBaseResult processGoodsDetail(PointsGoodsDetailOrder pointsGoodsDetail);
+	
+	/**
+	 * 增加用户积分信息
+	 * @param userPointsOrder
+	 * @return YrdBaseResult
+	 * @throws Exception
+	 */
+	public EsupplierBaseResult addUserPointsDetail(UserPointsOrder userPointsOrder);
+	
+	EsupplierBaseResult insertPointsGoodsDetail(PointsGoodsDetailOrder pointsGoodsDetail);
+	
+	/**
+	 * 查询用户积分明细
+	 * @param pointsDetailQueryOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<UserPointsDetailInfo> queryDetailUserPoints(	UserPointsDetailQueryOrder pointsDetailQueryOrder);
+	
+	long queryStatistic(UserPointsDetailQueryOrder pointsDetailQueryOrder);
+	
+	/**
+	 * 检查用户积分是否能够满足这次消费
+	 * @param userPointsOrder
+	 * @return
+	 */
+	boolean checkUserIntegral(UserPointsOrder userPointsOrder);
+	
+}

@@ -1,0 +1,128 @@
+package com.yjf.esupplier.service.user.order;
+
+import java.util.Date;
+
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+
+public class OfflineMerchantRegister extends RegisterBaseOrder {
+	private static final long serialVersionUID = 2572412892012842842L;
+	/**
+	 * 登录密码
+	 */
+	String logPassword = "888888";
+
+	/**
+	 *支付密码
+	 */
+	String payPassword = "888888";
+
+	/**
+	 * 外部商户id
+	 */
+	String linkCode;
+	/** 手机号 **/
+	private String mobile;
+	/** 景区或商户名称 **/
+	String merchantName;
+	/** 商户的景区ID **/
+	String touristAreaId;
+	BooleanEnum dataFlag = BooleanEnum.YES;// 景区和商户的标志	否	Y表示景区,N表示商户	
+	/**
+	 * 商户创建时间
+	 */
+	Date createTime;
+
+	@Override
+	public void check() {
+		validateHasText(userName, "用户名");
+		validateHasText(linkCode, "外部商户id");
+		validateNotNull(dataFlag, "景区和商户");
+		validateHasText(merchantName, "商户名称");
+	}
+
+	public String getLogPassword() {
+		return this.logPassword;
+	}
+
+	public void setLogPassword(String logPassword) {
+		this.logPassword = logPassword;
+	}
+
+	public String getLinkCode() {
+		return this.linkCode;
+	}
+
+	public void setLinkCode(String linkCode) {
+		this.linkCode = linkCode;
+	}
+
+	public String getTouristAreaId() {
+		return this.touristAreaId;
+	}
+
+	public void setTouristAreaId(String touristAreaId) {
+		this.touristAreaId = touristAreaId;
+	}
+
+	public BooleanEnum getDataFlag() {
+		return this.dataFlag;
+	}
+
+	public void setDataFlag(BooleanEnum dataFlag) {
+		this.dataFlag = dataFlag;
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getMerchantName() {
+		return this.merchantName;
+	}
+
+	public void setMerchantName(String merchantName) {
+		this.merchantName = merchantName;
+	}
+
+	public String getPayPassword() {
+		return payPassword;
+	}
+
+	public void setPayPassword(String payPassword) {
+		this.payPassword = payPassword;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("OfflineMerchantRegister [logPassword=");
+		builder.append(logPassword);
+		builder.append(", linkCode=");
+		builder.append(linkCode);
+		builder.append(", merchantName=");
+		builder.append(merchantName);
+		builder.append(", touristAreaId=");
+		builder.append(touristAreaId);
+		builder.append(", dataFlag=");
+		builder.append(dataFlag);
+		builder.append(", mobile=");
+		builder.append(mobile);
+		builder.append(", createTime=");
+		builder.append(createTime);
+		builder.append("]");
+		return builder.toString();
+	}
+
+}

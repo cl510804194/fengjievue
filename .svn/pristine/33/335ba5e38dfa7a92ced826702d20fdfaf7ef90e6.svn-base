@@ -1,0 +1,31 @@
+package com.yjf.esupplier.dal.custom.ibatis;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.yjf.esupplier.dal.custom.daointerface.ShipDAO;
+import com.yjf.esupplier.dal.custom.dataobject.DeliveryShipDO;
+import com.yjf.esupplier.dal.custom.dataobject.LogisticsDO;
+
+@SuppressWarnings("deprecation")
+public class IbatisShipDAO extends SqlMapClientDaoSupport implements ShipDAO {
+	
+	@Override
+	public List<LogisticsDO> getLogistics() {
+		return getSqlMapClientTemplate().queryForList("getLogistics");
+		
+	}
+	
+	@Override
+	public void saveDelivery(DeliveryShipDO delivery) {
+		getSqlMapClientTemplate().insert("insertShipDelivery", delivery);
+	}
+	
+	@Override
+	public DeliveryShipDO getDeliveryByOrderId(Map m) {
+		return (DeliveryShipDO) getSqlMapClientTemplate().queryForObject("getDeliveryById", m);
+	}
+	
+}

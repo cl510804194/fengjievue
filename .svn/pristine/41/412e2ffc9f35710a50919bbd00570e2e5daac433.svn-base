@@ -1,0 +1,29 @@
+<!DOCTYPE HTML >
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit"/>
+	<meta http-equiv="Cache-Control" content="no-siteapp"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title>首页-$!appConstantsUtil.getProductName()金融官网</title>
+	<link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm.min.css">
+	<style type="text/css">
+		.app41{ width: 100%; margin: 0 auto;background-size: 100%}
+	</style>
+</head>
+<body>	
+	 <!-- page 容器 -->
+    <div class="page">
+      <!-- 这里是页面内容区 -->
+      <div class="content">
+      	<img class="app41" src="/styles/images/newyear/nqa10-app6.jpg" />
+	  </div>
+	</div>
+
+
+
+	<script type='text/javascript' src='//g.alicdn.com/sj/lib/zepto/zepto.min.js' charset='utf-8'></script>
+	<script type='text/javascript' src='//g.alicdn.com/msui/sm/0.6.2/js/sm.min.js' charset='utf-8'></script>
+</body>
+</html>

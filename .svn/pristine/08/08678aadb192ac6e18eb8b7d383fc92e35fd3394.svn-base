@@ -1,0 +1,43 @@
+package com.yjf.esupplier.dal.ibatis;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.orm.ibatis.support.SqlMapClientDaoSupport;
+
+import com.yjf.esupplier.dal.daointerface.EmailTemplateDAO;
+import com.yjf.esupplier.dal.dataobject.EmailTemplateDO;
+
+public class EmailTemplateDAOImpl extends SqlMapClientDaoSupport implements EmailTemplateDAO {
+	
+	@Override
+	public EmailTemplateDO getById(long id) {
+		return (EmailTemplateDO) getSqlMapClientTemplate().queryForObject(
+			"EMAILTEMPLATE-GETBYTEMPLATEID", id);
+	}
+	
+	@Override
+	public long queryCountByCondition(Map<String, Object> conditions) {
+		
+		return (Long) getSqlMapClientTemplate().queryForObject("EMAILTEMPLATE-COUNTBYCONDITIONS",
+			conditions);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<EmailTemplateDO> queryListByCondition(Map<String, Object> conditions) {
+		// TODO Auto-generated method stub
+		return getSqlMapClientTemplate().queryForList("EMAILTEMPLATE-LISTBYCONDITIONS", conditions);
+	}
+	
+	@Override
+	public void insertEmailTemplate(EmailTemplateDO emailTemplate) {
+		getSqlMapClientTemplate().insert("EMAILTEMPLATE-INSERT", emailTemplate);
+		
+	}
+	
+	@Override
+	public long updateEmailTemplate(EmailTemplateDO emailTemplate) {
+		return getSqlMapClientTemplate().update("EMAILTEMPLATE-UPDATE", emailTemplate);
+	}
+}

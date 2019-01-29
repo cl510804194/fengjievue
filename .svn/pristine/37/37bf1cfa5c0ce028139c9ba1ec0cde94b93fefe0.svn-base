@@ -1,0 +1,42 @@
+/*后台登陆*/
+.back_login_bg{height: 100%;background: url(../images/backstage/back_bg.jpg) no-repeat center center;background-size: 100% 100%;overflow: hidden;}
+.back_login_area{position: relative;}
+.back_login_bg .login_bg{position: absolute;top: 50%;left: 50%;margin: -205px 0 0 -175px;width: 1009px;}
+.back_login_bg .login_content{width: 350px;height: 100%;}
+.back_login_bg .logo{height: 135px;line-height: 135px;text-align: center;}
+.back_login_bg .item{width: 335px;margin: 0 auto;color: #E91830;font-size: 12px;height: 25px;margin-top: 20px;}
+.back_login_bg .group{width: 335px;height: 40px;border: 1px solid #eee;margin: 0 auto;margin-bottom: 25px;font-size: 0;background: #fff;}
+.back_login_bg .group .input{width: 280px;height: 40px;line-height: 40px;padding-left: 10px;}
+.back_login_bg .func{width: 335px;height: 40px;background: #147bcf;border-radius: 5px;margin: 0 auto;margin-top: 5px;}
+.back_login_bg .func a{width: 100%;height: 100%;color: #fff;line-height: 40px;text-align: center;}
+.back_login_bg .footer{height: 125px;line-height: 125px;}
+.back_login_bg .fonter_content{padding-top: 42px;}
+.back_login_bg .footer p{text-align: center;color: #333;font-size: 12px;height: 20px;line-height: 20px;text-transform:uppercase;}
+/*footer*/
+.foot {background: #07589a;position:absolute;bottom:0;}
+.foot .three_g,
+.foot .nav_map{background: #f9f9f9;}
+.foot .three_g{height: 105px;text-align: center;line-height: 105px;}
+.foot .three_g i{margin: 0 90px 0 110px;color: #333;font-size: 20px;padding-left: 70px;}
+.foot .nav_map{font-size: 0;border-top: 1px solid #f0f0f0;height: 165px;}
+.foot .nav_map p{display: inline-block;*display:inline;_display:inline;zoom:1;vertical-align: top;width: 255px;font-size: 18px;color: #1d1615;margin-top: 30px;}
+.foot .nav_map p label{margin-bottom: 10px;display: inline-block;*display:inline;_display:inline;zoom:1;width: 100%;}
+.foot .nav_map p a{font-size: 14px;color: #333;display: block;margin-top: 10px;}
+.foot .nav_map p.follow_us a{display: inline-block;*display:inline;_display:inline;zoom:1;vertical-align: top;}
+.foot .nav_map p span{display: block;}
+.foot .about_us{margin-left: 70px;}
+.foot .nav_map .tel_fax{background: url(../images/comp/tel_moblie.png) no-repeat 0 center;margin-top: 50px;width: auto;}
+.foot .tel_fax span{display: inline-block;_display:inline;zoom:1;margin-left: 60px;font-size: 16px;}
+.foot .tel_fax span em{font-size: 18px;}
+.foot .foot_con{background: #a51612;color: #fff;text-align: center;font-size: 12px;height: 90px;padding: 10px 0 15px 0;}
+.foot .foot_con p{margin-top: 10px;}
+
+/*弹窗*/
+.wnd-wnd{background: #fff;border-radius: 5px;overflow: hidden;}
+.wnd-wnd .wnd-header{font-size: 16px;position: relative;height: 30px;line-height: 30px;background: #5F99CF;color: #fff;}
+.wnd-wnd .wnd-title{padding-left: 10px;}
+.wnd-wnd .wnd-msg-bottom{margin: 10px 0;}
+.wnd-wnd .wnd-header a{position: absolute;height: 30px;line-height: 30px;width: 30px;text-align: center;background: url(../images/comp/close.png) no-repeat center center;background-size: 30px auto;right: 0;}
+.wnd-wnd .base-btn span{cursor: pointer;display: inline-block;*display:inline;_display:inline;zoom:1;vertical-align: top;background: #5F99CF;font-size: 12px;color: #fff;padding: 3px 10px;}
+.wnd-wnd .fn-upclear span{background: #ccc;}
+.wnd-wnd .wnd-body > div {padding: 20px;}

@@ -1,0 +1,6 @@
+testId,userName,mobile,logPassword,tableNumber,productId,counts,productName,productNumber,productStatus,productUnit,reservedCount,saleCount,viewCount,price1,smallPicPath,realName,address,storeName,serviceChargeRate,id,consumeAmount,orderCount,settleAccountsAmount,peopleNo,status,canSettle,tableNumberSeq,supplierId,userBaseId1,realName1,storeName1
+1001,DGL王,13768458258,666666,2,4852,2,超级麻辣宫保鸡丁,78656,ON,份,0,0,0,50,5df5,川菜馆,重庆市渝北某某,菜园子,5,5245,100,2,0,2,USING,NO,42587,5485,2585,王老厨,王老厨饭店
+1002,DGL王,13768458258,666666,2,4852,2,超级麻辣宫保鸡丁,78656,ON,份,0,0,0,50,5df5,川菜馆,重庆市渝北某某,菜园子,5,5245,100,2,0,2,USING,NO,42587,5485,2585,王老厨,王老厨饭店
+1003,DGL王,13768458258,666666,2,4852,2,超级麻辣宫保鸡丁,78656,ON,份,0,0,0,50,5df5,川菜馆,重庆市渝北某某,菜园子,5,5245,100,2,0,2,USING,NO,42587,5485,2585,王老厨,王老厨饭店
+1004,DGL王,13768458258,666666,2,4852,2,超级麻辣宫保鸡丁,78656,ON,份,0,0,0,50,5df5,川菜馆,重庆市渝北某某,菜园子,5,5245,100,2,0,2,USING,NO,42587,5485,2585,王老厨,王老厨饭店
+1005,DGL王,13768458258,666666,2,4852,2,超级麻辣宫保鸡丁,78656,ON,份,0,0,0,50,5df5,川菜馆,重庆市渝北某某,菜园子,5,5245,100,2,0,2,USING,NO,42587,5485,2585,王老厨,王老厨饭店

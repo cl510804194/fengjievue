@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>首页-$!appConstantsUtil.getProductName()金融官网</title>
+	<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="home-newpro fn-left" style="border:none;" >
+          <div class="newpro-list">
+    		<h3><span>最新项目</span><strong class="time">每日10:30准时认购</strong></h3>				
+    			
+        		 #foreach($trade in $!{page.result})
+
+    				
+					<table width="100%" border="0" cellpadding="0" cellspacing="0" class="newpro-table">
+                      <tr>
+                        <td class="title"><a href="javascript:lookup($!{trade.demandId},$!{trade.tradeId});">$stringUtil.subString($!{trade.loanName},10,"..")</a> </td>
+						#set($percent = $moneyUtil.getPercentage($!{trade.loanedAmount},$!{trade.loanAmount},$!{trade.leastInvestAmount}))
+                        <td class="money">借款金额：<em>￥$!{trade.tradeAmount.toStandardString()}</em></td>
+                        <td colspan="2" class="bar">投资进度:<span class="plan_bg mr10 ml10"><span class="plan" style="width:${percent};"></span></span>${percent}</td>
+                      </tr>
+                      <tr>
+                        <td>承诺机构：$stringUtil.subString($!{trade.guaranteeName},8,"..")</td>
+                        <td>期限：$!{trade.timeLimit} $!{trade.timeLimitUnit.viewName}</td>
+                        <td class="number">年化利率：<em>$!rateUtil.getRate($!trade.interestRate)</em></td>
+						#set($needAmount =  $moneyUtil.getMoneyByw($!{trade.loanAmount}, $!{trade.loanedAmount}))
+            				#if($!{trade.tradeStatus.value}==1 && ${needAmount}>0 )	
+								<td class="button">#if($!{trade.loanPassword})<a title="定向投资" href="javascript:lookup($!{trade.demandId},$!{trade.tradeId});" ><span class="u-icon u-icon-lock"></span><span class="u-text">投资</span></a>#else<a href="javascript:lookup($!{trade.demandId},$!{trade.tradeId});" >立即投资</a>#end</td>
+								
+							#elseif($!{trade.tradeStatus.value}==3||$!{trade.tradeStatus.value}==7||$!{trade.tradeStatus.value}==8)	
+							 
+								<td class="button"><a  class="f-full" href="javascript:lookup($!{trade.demandId},$!{trade.tradeId});">$!{trade.tradeStatus.loanderStatus}</a></td>
+						
+							#else
+								<td class="button"><a  class="f-full" href="javascript:lookup($!{trade.demandId},$!{trade.tradeId});">投资已满</a></td>
+            				#end
+                        
+                      </tr>
+                    </table>
+            	#end	   	  
+            <p class="look-more"><a href="/boot/moreIndex/10/1?status=1" target="_parent">查看更多项目</a></p>
+          </div>
+    	</div>
+    </div>	
+</body>
+</html>	
+<script type="text/javascript">
+	function lookup(demandId, tradeId){
+		top.location.href = '$!{rc.contextPath}/boot/lookup/' + demandId + ',' + tradeId;
+	}
+</script>

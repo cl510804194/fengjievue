@@ -1,0 +1,130 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="toProductList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB pro_list">
+            <p class="nav_title"><span class="DIB">优惠券管理</span><a onclick="javascript:window.history.back();"
+                                                                  class="fn-right">返回</a></p>
+
+            <form action="/do/scenic/doCenter/pageQueryGainMoney.htm?itemType=gainTemp" method="post">
+                <div class="search_list">
+							<span class="inpt">
+								<label class="inpt_txt">名称：</label>
+								<input type="text" name="templateName" size="20"
+                                       value="$!{queryConditions.templateName}"/>
+							</span>
+							<span class="inpt">
+								<input type="submit" class="button5" value="查询"/>
+                                <input type="button" value="新增优惠券" class="button5"
+                                       onclick="javascript:addModule();"/>
+							</span>
+                </div>
+                <div class="left_content ">
+                    <div class="">
+                        <div class="pushPro on">
+                            <div class="com_list push_pro">
+                                <p class="order_tl">
+                                    <span class="DIB pp_img1">名称</span>
+                                    <span class="DIB pp_name">类型</span>
+                                    <span class="DIB pp_prc">活动开始时间</span>
+                                    <span class="DIB pp_prc">活动结束时间</span>
+                                    <span class="DIB pp_stt">状态</span>
+                                    <span class="DIB pp_prc1">操作</span>
+                                </p>
+                                #if($page.result.size()==0)
+                                    <div class="order_list">
+                                        <td colspan=8 align=center>暂时没有优惠券模板记录</td>
+                                    </div>
+                                #end
+                                <div class="order_list">
+                                    #foreach($info in $page.result)
+                                        <div class="list_i">
+                                            <div class="list_cnt">
+					    						<span class="DIB pp_img1">
+					    							<label>
+                                                        <a href="updateGainMoney.htm?giftId=$!{info.giftId}">$!{info.giftName}</a>
+                                                    </label>
+					    						</span>
+                                                <span class="DIB pp_name">
+                                                	<label>
+                                                        $!{info.type.message}
+                                                    </label>
+                                                </span>
+					    						<span class="DIB pp_prc">
+													<label>
+                                                        $!dateUtil.simpleFormat($!{info.startDate})
+                                                    </label>
+					    						</span>
+                                                <span class="DIB pp_prc">
+                                                		<label>
+                                                            $!dateUtil.simpleFormat($!{info.endDate})
+                                                        </label>
+                                                </span>
+                                                <span class="DIB pp_prc">
+                                                		<label>
+                                                            #if($!{info.status}=="NORMAL")启用 #elseif($!{info.status}==
+                                                                "FINISH") 发放完毕 #elseif($!{info.status}=="EXPIRE")
+                                                                过期 #elseif($!{info.status}=="GAMEOVER") 手动结束 #else
+                                                                停用  #end
+                                                        </label>
+                                                </span>
+                                                <span class="DIB pp_prc1">
+                                                      #if($!{info.status} =='STOP')
+                                                          <a href="#" status="NORMAL" giftId="$!{info.giftId}" giftMoneyType="$!{type}" class="status">启用</a>  |
+                                                      #end
+
+                                                    #if($!{info.status} =='NORMAL')
+                                                        <a href="#" status="GAMEOVER" giftId="$!{info.giftId}"
+                                                           giftMoneyType="$!{type}" class="status">结束活动</a>  |
+                                                    #end
+
+                                                    <a href="updateGainMoney.htm?giftId=$!{info.giftId}&type=$!{type}">详情</a>
+                                                    #if($!{info.status} =='NORMAL' || $!{info.status} ==
+                                                        'FINISH' || $!{info.status} =="GAMEOVER" ||$!{info.status} ==
+                                                        "EXPIRE")
+                                                        |<a href="pageQueryGainMoneyTrade.htm?giftId=$!{info.giftId}">领取详情</a> #end
+                                                </span>
+                                            </div>
+                                        </div>
+                                    #end
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="center_page">
+                            <table width="100%" height="40" cellpadding="0" cellspacing="0" style="text-align: right;">
+                                <tr>
+                                    <td style="vertical-align: middle;">
+                                        <input type="hidden" name="pages" id=""/>
+                                        $!{pageBar}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript">
+    var $_GLOBAL =
+    {
+    }
+    ;
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode +'pageQueryGainMoneyInfoFront');
+</script>
+</body>
+</html>

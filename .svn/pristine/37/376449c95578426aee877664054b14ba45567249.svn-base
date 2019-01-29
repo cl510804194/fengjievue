@@ -1,0 +1,66 @@
+package com.yjf.esupplier.service.user.order;
+
+import com.yjf.esupplier.service.user.enums.PasswordTypeEnum;
+import com.yjf.esupplier.ws.order.ValidateOrderBase;
+
+public class MobileBindingOrder extends ValidateOrderBase {
+	private static final long serialVersionUID = 6718479508875327637L;
+	
+	/**
+	 * 用户baseId
+	 */
+	String userBaseId;
+	/**
+	 * 新手机号
+	 */
+	String  mobile;
+	/**
+	 * 是否是线下同步
+	 */
+	boolean isSync = false;
+	
+	@Override
+	public void check() {
+		validateNotNull(userBaseId, "会员ID");
+		validateNotNull(mobile, "新手机号");
+
+	}
+
+	public String getUserBaseId() {
+		return userBaseId;
+	}
+
+	public void setUserBaseId(String userBaseId) {
+		this.userBaseId = userBaseId;
+	}
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public boolean isSync() {
+		return isSync;
+	}
+
+	public void setSync(boolean isSync) {
+		this.isSync = isSync;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SynPwdInfoOrder [userBaseId=");
+		builder.append(userBaseId);
+		builder.append(", mobile=");
+		builder.append(mobile);
+		builder.append(", isSync=");
+		builder.append(isSync);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

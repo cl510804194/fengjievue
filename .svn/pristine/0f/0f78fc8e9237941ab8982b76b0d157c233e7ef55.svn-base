@@ -1,0 +1,164 @@
+package com.yjf.esupplier.service.supplier;
+
+import java.util.List;
+
+import com.yjf.esupplier.common.util.NumberUtil;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import rop.thirdparty.com.google.common.collect.Lists;
+
+import com.yjf.common.lang.beans.cglib.BeanCopier;
+import com.yjf.esupplier.dal.custom.daointerface.LicenseDAO;
+import com.yjf.esupplier.dal.custom.daointerface.ProductCustomPropertyDAO;
+import com.yjf.esupplier.dal.custom.daointerface.ProductDAO;
+import com.yjf.esupplier.dal.custom.daointerface.Pt2dyDAO;
+import com.yjf.esupplier.dal.custom.daointerface.SupplierDAO;
+import com.yjf.esupplier.dal.daointerface.PersonalInfoDAO;
+import com.yjf.esupplier.dal.daointerface.TblDiningTableSituationDAO;
+import com.yjf.esupplier.dal.daointerface.TblProductDAO;
+import com.yjf.esupplier.dal.daointerface.TblSupplierDAO;
+import com.yjf.esupplier.dal.daointerface.TblSupplierRecommendDAO;
+import com.yjf.esupplier.dal.daointerface.UserBaseInfoDAO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.integration.openapi.SMSService;
+import com.yjf.esupplier.service.base.EsupplierTransServiceBase;
+import com.yjf.esupplier.service.orderfood.OrderfoodService;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.MerchantStateEnum;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.supplier.enums.StoreStyleColorEnum;
+import com.yjf.esupplier.ws.supplier.enums.SupplierApproveStateEnum;
+import com.yjf.esupplier.ws.supplier.enums.SupplierRunStateEnum;
+import com.yjf.esupplier.ws.supplier.enums.VouchStateEnum;
+import com.yjf.esupplier.ws.supplier.info.SupplierInfo;
+
+public class SupplierBaseService extends EsupplierTransServiceBase {
+	@Autowired
+	protected TblSupplierDAO tblSupplierDAO;
+	@Autowired
+	protected SupplierDAO supplierDAO;
+	@Autowired
+	protected LicenseDAO licenseDAO;
+	@Autowired
+	protected SMSService smsService;
+	@Autowired
+	protected UserQueryService userQueryService;
+	@Autowired
+	protected ProductDAO productDAO;
+	@Autowired
+	protected ProductCustomPropertyDAO productCustomPropertyDAO;
+	@Autowired
+	protected Pt2dyDAO pt2dyDAO;
+	@Autowired
+	protected UserBaseInfoDAO userBaseInfoDAO;
+	@Autowired
+	protected TblProductDAO tblProductDAO;
+	@Autowired
+	protected TblDiningTableSituationDAO tblDiningTableSituationDAO;
+	
+	@Autowired
+	protected OrderfoodService orderfoodService;
+	@Autowired
+	protected TblSupplierRecommendDAO tblSupplierRecommendDAO;
+	@Autowired
+	protected PersonalInfoDAO 	personalInfoDAO;
+	protected List<SupplierInfo> converSupplierInfos(List<TblSupplierDO> productDOs) {
+		List<SupplierInfo> productInfos = Lists.newArrayList();
+		for (TblSupplierDO tblSupplierDO : productDOs) {
+			SupplierInfo info = new SupplierInfo();
+			convertInfo(info, tblSupplierDO);
+			productInfos.add(info);
+
+		}
+		return productInfos;
+	}
+
+	public void convertInfo(SupplierInfo info, TblSupplierDO tblSupplierDO) {
+		BeanCopier.staticCopy(tblSupplierDO, info);
+		info.setApproveState(SupplierApproveStateEnum.getByCode(tblSupplierDO.getApproveState()));
+		info.setRunState(SupplierRunStateEnum.getByCode(tblSupplierDO.getRunState()));
+		info.setDiningRunState(SupplierRunStateEnum.getByCode(tblSupplierDO.getDiningRunState()));
+		info.setVouchState(VouchStateEnum.getByCode(tblSupplierDO.getVouchState()));
+		info.setStoreStyle(StoreStyleColorEnum.getByCode(tblSupplierDO.getStoreStyle()));
+		info.setMerchantStateEnum(MerchantStateEnum.getByCode(tblSupplierDO.getMerchantState()));
+		if (tblSupplierDO.getO2o() != null) {
+			info.setO2o(BooleanEnum.getByCode(tblSupplierDO.getO2o()));
+		}
+		if (tblSupplierDO.getOrderMeal() != null) {
+			info.setOrderMeal(BooleanEnum.getByCode(tblSupplierDO.getOrderMeal()));
+		}
+		if (tblSupplierDO.getHotels() != null) {
+			info.setHotels(BooleanEnum.getByCode(tblSupplierDO.getHotels()));
+		}
+		if (tblSupplierDO.getToShop() != null) {
+			info.setToShop(BooleanEnum.getByCode(tblSupplierDO.getToShop()));
+		}
+		if (info.getStoreStyle() == null) {
+			info.setStoreStyle(StoreStyleColorEnum.ORANGE);
+		}
+		info.setDining(BooleanEnum.getByCode(tblSupplierDO.getDining()));
+		info.setRecommendRoom(BooleanEnum.getByCode(tblSupplierDO.getRecommendRoom()));
+		info.setSpecialRoom(BooleanEnum.getByCode(tblSupplierDO.getSpecialRoom()));
+		info.setLongRentRoom(BooleanEnum.getByCode(tblSupplierDO.getLongRentRoom()));
+		info.setMorningRoom(BooleanEnum.getByCode(tblSupplierDO.getMorningRoom()));
+		info.setRecommend(BooleanEnum.getByCode(tblSupplierDO.getRecommend()));
+	}
+
+	public void converSupplierDO(SupplierInfo info, TblSupplierDO tblSupplierDO) {
+		BeanCopier.staticCopy(info, tblSupplierDO);
+		if (info.getApproveState() != null) {
+			tblSupplierDO.setApproveState(info.getApproveState().code());
+		}
+		if (info.getRunState() != null) {
+			tblSupplierDO.setRunState(info.getRunState().code());
+		}
+		if (info.getDiningRunState() != null) {
+			tblSupplierDO.setDiningRunState(info.getDiningRunState().code());
+		}
+		if (info.getVouchState() != null) {
+			tblSupplierDO.setVouchState(info.getVouchState().code());
+		}
+		if (info.getMerchantStateEnum() != null) {
+			tblSupplierDO.setMerchantState(info.getMerchantStateEnum().code());
+		}
+		if (info.getOrderMeal() != null) {
+			tblSupplierDO.setOrderMeal(info.getOrderMeal().code());
+		}
+		if (info.getHotels() != null) {
+			tblSupplierDO.setHotels(info.getHotels().code());
+		}
+		if (info.getToShop() != null) {
+			tblSupplierDO.setToShop(info.getToShop().code());
+		}
+		if (info.getO2o() != null) {
+			tblSupplierDO.setO2o(info.getO2o().code());
+		}
+		if (info.getDining() != null) {
+			tblSupplierDO.setDining(info.getDining().code());
+		}
+		if (info.getRecommendRoom() != null) {
+			tblSupplierDO.setRecommendRoom(info.getRecommendRoom().code());
+		}
+		if (info.getSpecialRoom() != null) {
+			tblSupplierDO.setSpecialRoom(info.getSpecialRoom().code());
+		}
+		if (info.getLongRentRoom() != null) {
+			tblSupplierDO.setLongRentRoom(info.getLongRentRoom().code());
+		}
+		if (info.getMorningRoom() != null) {
+			tblSupplierDO.setMorningRoom(info.getMorningRoom().code());
+		}
+		if (info.getRecommend() != null) {
+			tblSupplierDO.setRecommend(info.getRecommend().code());
+		}
+		if(info.getProductDiscount() != null){
+			tblSupplierDO.setProductDiscount((long)(info.getProductDiscount()*100));
+		}
+	}
+	@Override
+	protected EsupplierBaseResult createResult() {
+		return new EsupplierBaseResult();
+	}
+}

@@ -1,0 +1,356 @@
+@charset "UTF-8";
+/**
+ * 
+ * @authors 熊洋 (xywindows@gmail.com)
+ * @date    2015-03-18 10:59:40
+ * @version $Id$
+ */
+
+/****************************************************
+ * 全局样式
+ ****************************************************
+ */
+/**
+ * html5doctor.com Reset Stylesheet v1.6.1 (http://html5doctor.com/html-5-reset-stylesheet/)
+ * Richard Clark (http://richclarkdesign.com)
+ * http://cssreset.com
+ */
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+abbr, address, cite, code,
+del, dfn, em, img, ins, kbd, q, samp,
+small, strong, sub, sup, var,
+b, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+body {
+    line-height:1;
+}
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section {
+    display:block;
+}
+nav ul {
+    list-style:none;
+}
+blockquote, q {
+    quotes:none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content:'';
+    content:none;
+}
+a {
+    margin:0;
+    padding:0;
+    font-size:100%;
+    vertical-align:baseline;
+    background:transparent;
+}
+/* change colours to suit your needs */
+ins {
+    background-color:#ff9;
+    color:#000;
+    text-decoration:none;
+}
+/* change colours to suit your needs */
+mark {
+    background-color:#ff9;
+    color:#000;
+    font-style:italic;
+    font-weight:bold;
+}
+del {
+    text-decoration: line-through;
+}
+abbr[title], dfn[title] {
+    border-bottom:1px dotted;
+    cursor:help;
+}
+table {
+    border-collapse:collapse;
+    border-spacing:0;
+}
+/* change border colour to suit your needs */
+hr {
+    display:block;
+    height:1px;
+    border:0;
+    border-top:1px solid #cccccc;
+    margin:1em 0;
+    padding:0;
+}
+input, select {
+    vertical-align:middle;
+}
+
+/*字体*/
+body,input,textarea{
+  font: 12px/1.5 arial,\5b8b\4f53;
+  color: #555;
+}
+body{
+  background: #f1f1f1;
+}
+a{
+  color: #5f5f5f;
+  text-decoration: none;
+}
+a:hover{
+  color: #444;
+}
+ul,ol{
+  list-style-type: none;
+}
+input{
+  outline: none;
+}
+
+/****************************************************
+ * 布局  grid
+ * 
+ * 前缀  .g-
+ ****************************************************
+ */
+/*container*/
+.g-ct{
+  width: 1200px;
+  margin-left:auto;
+  margin-right: auto;
+}
+
+/*两栏布局 左侧宽度固定240px 右侧宽度自适应*/
+.g-sb{
+  position: relative;
+  float: left;
+  width: 230px;
+  margin-right:-230px;
+  z-index: 1;
+  zoom: 1;
+}
+.g-mn{
+  width: 100%;
+}
+.g-mnIn{
+  margin:0 0 0 240px;
+}
+
+/*两栏布局 左侧宽度固定600px 右侧宽度自适应*/
+.g-sb2{
+  position: relative;
+  float: left;
+  width: 600px;
+  margin-right:-600px;
+  z-index: 1;
+  zoom: 1;
+}
+.g-mn2{
+  width: 100%;
+}
+.g-mnIn2{
+  margin:0 0 0 600px;
+}
+
+/****************************************************
+ * 元件  unit
+ * 
+ * 前缀  .u-
+ ****************************************************
+ */
+/**
+ * 标志
+ */
+.u-logo{
+  width: 194px;
+  height: 20px;
+}
+
+/**
+ * 图标
+ */
+.u-icon{
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+.u-icon.exit{
+  background-image: url(images/icon_exit.png);
+}
+.u-icon.like{
+  background-image: url(images/icon_like.jpg);
+}
+
+/**
+ * 遮罩
+ */
+.u-mask{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #fff url(images/loading.gif) no-repeat center center;
+  z-index: 9999;
+}
+
+/**
+ * 按钮
+ */
+.u-btn{
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  height: 25px;
+  line-height: 25px;
+  padding: 0 18px;
+}
+.u-btn.white{
+  background: url(images/btn_bg.jpg) repeat 0 0;
+  color: #000;
+  border:1px solid #c7c7c7;
+}
+.u-btn.gray{
+  background: #ebebeb;
+  color:#05a7d6;
+}
+
+.u-btn.nm{
+  padding: 0 12px;
+  height: 37px;
+  line-height: 37px;
+  border-radius: 3px;
+}
+
+/**
+ * 按钮2
+ */
+.u-btn2{
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+  padding: 0 18px;
+  border-width: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 5px 20px;
+}
+/*颜色*/
+/*黄色*/
+.u-btn2.yellow{
+  background: #ff6600;
+  color: #fff;
+}
+/*蓝色*/
+.u-btn2.blue{
+  background: #417eb7;
+  color: #fff;
+}
+/*尺寸*/
+.u-btn2.lg{
+  padding: 10px 30px;
+  font-size: 20px;
+}
+
+/**
+ * 按钮3
+ */
+.u-btn3{
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+/*颜色*/
+.u-btn3.blue{
+  background: #3593e9;
+}
+/*尺寸*/
+.u-btn3.full{
+  width: 100%;
+  height: 41px;
+  line-height: 41px;
+  font-size: 24px;
+  color: #fff;
+  text-align: center;
+  border:1px solid #b9d4ee;
+  border-radius: 5px;
+  font-family: arial,microsoft yahei;
+}
+
+/*链接*/
+.u-link.blue{
+  color: #2279bc;
+}
+.u-link.blue:hover{
+  text-decoration: underline;
+}
+
+/****************************************************
+ * 功能  function
+ * 
+ * 前缀  .f-
+ ****************************************************
+ */
+
+/*清除浮动 clearFloat*/
+.f-cf:after,
+.m-form:after{
+  display:block;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  clear: both;
+  content: ' ';
+  visibility: hidden;
+}
+.f-cf,
+.m-form{
+  *zoom: 1;
+}
+
+/*行内快级元素 inline-block*/
+.f-dib{
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
+}
+
+/**
+ * 边距
+ */
+.f-ml5{
+  margin-left: 5px;
+}
+.f-ml20{
+  margin-left: 20px;
+}
+.f-mt20{
+  margin-top: 20px;
+}
+
+/**
+ * 文本排版
+ */
+.f-tac{
+  text-align: center;
+}
+.f-tar{
+  text-align: right;
+}

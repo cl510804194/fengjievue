@@ -1,0 +1,87 @@
+package com.yjf.esupplier.dal.custom.daointerface;
+
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import com.yjf.esupplier.dal.custom.dataobject.ProductDO;
+
+public interface ProductDAO {
+	/**
+	 * 添加产品点击
+	 * @throws SQLException
+	 */
+	public void insertPdtClick(long productId);
+	
+	public List<ProductDO> getProductBySidAndNum(Map m);
+	
+	public void insertProduct(ProductDO product);
+	
+	public int getProductCount(Map m);
+	
+	public List<ProductDO> getProductList(Map m);
+	
+	public ProductDO getProductById(String productId);
+	
+	/**
+	 * 根据产品ID查询产品信息 2010-4-1
+	 * @author yuwenqiang
+	 * @param productId
+	 * @return
+	 * @throws Exception
+	 */
+	public ProductDO getProductById(long productId);
+	
+	public ProductDO getViewProductById(long productId);
+	
+	public void updateProduct(ProductDO product);
+	
+	public int getProductSearchCount(Map m);
+	
+	public List<ProductDO> getProductSearchList(Map m);
+	
+	public void setProductStatus(Map m);
+	
+	public List<ProductDO> getProductListChenL(long supplierId);
+	
+	public Map<String, Double> getPriceById(long productId);
+	
+	public void deleteProductById(long productId);
+	
+	public void deleteProductBySupplierId(long supplierId);
+	
+	public List<ProductDO> getProductListBySupplierId(long supplierId, long startCount,
+														long endCount);
+	
+	public List<ProductDO> getAllProductList(Map m);
+	
+	public int getAllProductCount(Map m);
+	
+	public void setProductCensor(Map m);
+	
+	public List<ProductDO> getProductListOrderByView(Map m);
+	
+	public List<ProductDO> getProductListByType(Map m);
+	
+	public void setProductAmount(Map m);
+	
+	public Integer getProductAmountById(long productId);
+	
+	/**
+	 * 修改库存方法 cl 2011-01-05
+	 * */
+	public void updateProductAmount(Map m);
+	
+	//获得产品code
+	public List<String> getFirstCode(Map m);
+	
+	public List<String> getSecondCode(Map m);
+	
+	public List<String> getThirdCode(Map m);
+	
+	//获得短信产品
+	public List<ProductDO> getSmsProductList();
+	
+	//获取所有产品，生成html和图片加水印零时用的方法
+	public List<ProductDO> getAllProduct();
+}

@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+            <title>账户首页</title>
+            <link type="text/css" href="/styles/style.css" rel="stylesheet" />
+</head>
+<body >
+    <!--头部-->
+    #parse("/front/index/common/header-yrd.vm")
+    <div class="home-section_bd pt20">
+        <div class="blank20"></div>
+        <div class="bd-box container fn-clear">
+            #parse("/front/user/common/left1.vm")
+            <div class="m-content fn-right">
+                <div class="m-content-box">
+                    <div class="title1 mt10">
+                        <span>账户总览</span>
+                    </div>
+                    <div class="info-list">
+                        <dl class="account-list">
+                            <dd>
+                                <span class="mr20">&nbsp;&nbsp;&nbsp;用户名： <i>$!{sessionScope.userName}
+                                        #set($t = $permission.check('/investorManager/*'))
+                                        #if($t>0)
+                                            (编号：$!{userMemoNo})
+                                        #end
+                                </i>
+                                </span>
+                            </dd>
+                            <dd>																										##
+                                <span>支付账户： <i>$!{sessionScope.accountName} &nbsp;	#if($!{yjfAccountInfo.userStatus.code}=='W') #if($!{accountInactive})<a href="$!{activeAccountURL}" #else <a href="/anon/activeYjfAccount.htm" #end class="g-recharge ml5 mr5" style="width:60px">立即激活</a>
+                                #end</i>
+                                </span>
+                            </dd>
+                            <dd>可用余额： <i class="g-orange">$!{yjfAccountInfo.availableBalance.toStandardString()}</i>
+                                <a class="g-recharge ml5 mr5" href="/do/userManage/topUp/withholdingIndex.htm">充值</a>
+                                <a class="g-withdrawal ml5" href="/do/withdrawals/launchWithdrawals.htm">提现</a>
+                            </dd>
+                            <dd>冻结金额： <i>$!{yjfAccountInfo.freezeAmount.toStandardString()}</i>
+                            </dd>
+                            <dd>资产总额： <i>$!{yjfAccountInfo.balance.toStandardString()}</i>
+                            </dd>
+                        </dl>
+						<!--
+                        <dl class="m-p-list">
+                            <dt class="make" style=" position:absolute; z-index:2">赚</dt>
+                            <dd>$!{investCount.investedProfitAmount.toStandardString()}</dd>
+                            <dd>$!{investCount.notPaidInvestedAmount.toStandardString()}【待收收益】</dd>
+                        </dl>
+                        <dl class="m-p-list">
+                            <dt class="put"  style=" position:absolute; z-index:2">投</dt>
+                            <dd>$!{investCount.totalInvestedAmount.toStandardString()}</dd>
+                            <dd>$!{investCount.notPaidInvestedProfitAmount.toStandardString()}【待收本金】</dd>
+                        </dl>
+						-->
+                    </div>
+                    <div class="title1" style="width:700px"></div>
+                    <div class="blank10"></div>
+                    #if($!{isBroker})
+                        <DIV class=general>
+                            <H2 class="mb10"><A class="g-more fn-right mr10" href="/investorManager/salesList?role=broker">更多&gt;&gt;</A><b>最近收益</b></H2>
+                                <TABLE class=mtable-list border=0 cellSpacing=0 cellPadding=0>
+                                    <TBODY>
+                                        <tr>
+                                            <td width="19%" style="text-align:left">交易名称</td>
+                                            <td width="10%">投资人</td>
+                                            <td width="12%">投资金额(元)</td>
+                                            <td width="12%">投资日期</td>
+                                            <td width="12%">成立日期</td>
+                                            <td width="12%">到期日期</td>
+                                            <td width="10%">佣金(元)</td>
+                                            <td width="13%" class="50">投资状态</td>
+                                        </tr>
+										
+										
+        							    #if($!commissionList.result.size()==0)
+                                            <tr>
+                                                <td colspan=5 align=center>暂时没有交易记录</td>
+                                            </tr>
+                                        #end
+        									 
+                                        <!--列表-->               
+                                         #foreach($info in $commissionList.result)
+                                            <tr>
+                                                <td>&nbsp;<a href="/investorManager/salesDetails/$!{info.tradeId}/$!{info.tradeDetailId}?investDetailId=$!{info.note}">$stringUtil.subString($!{info.tradeName},10,"..")</a>
+                                                </td>
+                                                <td>$!{info.originalRealName}</td>
+                                                <td>
+                                                    <span class="ft-f60">$!{info.originalAmount.toStandardString()}</span>
+                                                </td>
+                                                <td>$!dateUtil.dtSimpleFormat($!{info.tradeCreateDate})</td>
+                                                #if($!{info.tradeEffectiveDate})
+                                                    <td>$!dateUtil.dtSimpleFormat($!{info.tradeEffectiveDate})</td>
+                                                    #else
+                                                        <td>暂无</td>
+                                                #end
+                                                #if($!{info.tradeExpireDate})
+                                                    <td>$!dateUtil.dtSimpleFormat($!{info.tradeExpireDate})</td>
+                                                    #else
+                                                        <td>暂无</td>
+                                                #end
+                                                <td>
+                                                    <span class="ft-f60">$!{info.benefitAmount.toStandardString()}</span>
+                                                </td>
+                                                <td>$!{info.tradeStatus.investorStatus}
+                                                </td>
+                                            </tr>
+                                        #end
+                                    </TBODY>
+                                </TABLE>
+                        </DIV>
+
+
+                        #else
+                            <div class="survey-list">
+                                <div class="general mr20"   #if(!$!{isLoaner}) style="width: 100%" #end>
+                                    <h2>投标概况</h2>
+                                    <table cellpadding="0" cellspacing="0" border="1" class="general-table" rules=rows style="border-color:#DDDDDD">
+                                        <tbody style="heigth:100%">
+                                            <tr>
+                                                <th width="30%">状态</th>
+                                                <th width="40%">笔数</th>
+                                                <th width="30%">金额</th>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="blue">投标中</i>
+                                                </td>
+                                                <td>$!{investCount.totalCollectingInvested}</td>
+                                                <td>$!{investCount.collectingInvestedAmount.toStandardString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="blue">回款中</i>
+                                                </td>
+                                                <td>$!{investCount.totalNotPaidInvestedProfit}</td>
+                                                <td>$!{investCount.notPaidInvestedProfitAmount.toStandardString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="blue">已回款</i>
+                                                </td>
+                                                <td>$!{investCount.totalPaidInvestedPrinciple}</td>
+                                                <td>$!{investCount.paidInvestedPrincipleAmount.toStandardString()}</td>
+                                            </tr>
+                                            #if($!investCount.faildTransactions>=1)
+                                                <tr>
+                                                    <td>
+                                                        <i class="blue">失败</i>
+                                                    </td>
+                                                    <td>$!{investCount.faildTransactions}</td>
+                                                    <td>$!{investCount.faildInvestedAmount.toStandardString()}</td>
+                                                </tr>
+                                            #end
+                                            <tr>
+                                                <td>总计</td>
+                                                <td>$!{investCount.totalTransactions}</td>
+                                                <td>$!{investCount.totalInvestedAmount.toStandardString()}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            #if($!{isInvestor})
+                                <div class="linksagent mt30">
+                                    <input type="hidden"  id="content"  value="$!appConstantsUtil.getHostHttpUrl()/anon/investorOpenInvestor?NO=$!{userMemoNo}" />
+                                    <p>投资人推广链接：<em>$!appConstantsUtil.getHostHttpUrl()/anon/investorOpenInvestor?NO=$!{userMemoNo}<em><a class="ml30" href="javascript:;" id="jscopy">复制链接</a></p>
+                                    <p>推广链接是发展投资用户的最直接的方式，轻松点击上方的复制链接按钮，发给投资人完成注册!</p>
+                                </div>
+                             #end
+
+                            #if($!{isLoaner})
+                                <div class="general">
+                                    <h2>借款概况</h2>
+                                    <table cellpadding="0" cellspacing="0" border="1" class="general-table" rules=rows style="border-color:#DDDDDD">
+                                        <tbody>
+                                            <tr>
+                                                <th width="30%">状态</th>
+                                                <th width="40%">笔数</th>
+                                                <th width="30%">金额</th>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="blue">借款中</i>
+                                                </td>
+                                                <td>$!{loanedCount.totalCollectingLoaned}</td>
+                                                <td>$!{loanedCount.collectingLoanedAmount.toStandardString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="blue">还款中</i>
+                                                </td>
+                                                <td>$!{loanedCount.totalToPayLoaned}</td>
+                                                <td>$!{loanedCount.toPayLoanedAmount.toStandardString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="blue">已还款</i>
+                                                </td>
+                                                <td>$!{loanedCount.totalPaidLoaned}</td>
+                                                <td>$!{loanedCount.paidLoanedAmount.toStandardString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>总计</td>
+                                                <td>$!{loanedCount.totalTransactions}</td>
+                                                <td>$!{loanedCount.totalLoanedMoney.toStandardString()}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                             #end
+                            </div>
+                    #end	
+                    <div class="blank30"></div>
+                </div>
+            </div>
+        </div>
+        <div class="blank50"></div>
+    </div>
+    #parse("/front/index/common/footer-yrd.vm")	
+    <script type="text/javascript">
+        var $_GLOBAL = {};
+    </script>
+    <script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+    <script type="text/javascript" src="/resources/js/zeroclipboard/jquery.zclip.js"></script>
+    <script type="text/javascript">
+        seajs.use($_GLOBAL.mode + 'userHome');
+        //var int=self.setInterval("refreshTime()",1000);
+        function refreshTime(){
+        var myDate = new Date();
+        if(!document.getElementById("curTime")) {
+        clearInterval(int);
+        }
+        document.getElementById("curTime").innerHTML= "当前时间："+myDate.toLocaleString();   //获取日期与时间
+        }
+    </script>
+</body>
+</html>

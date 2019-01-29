@@ -1,0 +1,93 @@
+package com.yjf.esupplier.service.user.info;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.yjf.esupplier.integration.openapi.enums.YjFPayModeEnum;
+import com.yjf.esupplier.ws.enums.UserInterestType;
+import com.yjf.esupplier.ws.userManage.enums.UserLevelEnum;
+
+public class UserInterestInfo implements Serializable {
+	
+	private static final long serialVersionUID = 4415322617439873356L;
+	
+	private long userInterestId;
+	
+	private UserInterestType userInterestType;
+	
+	private UserLevelEnum userLevel;
+	
+	private YjFPayModeEnum payModeEnum;
+	
+	private Date rawUpdateTime;
+	
+	private Date rawAddTime;
+	
+	public long getUserInterestId() {
+		return this.userInterestId;
+	}
+	
+	public void setUserInterestId(long userInterestId) {
+		this.userInterestId = userInterestId;
+	}
+	
+	public UserInterestType getUserInterestType() {
+		return this.userInterestType;
+	}
+	
+	public void setUserInterestType(UserInterestType userInterestType) {
+		this.userInterestType = userInterestType;
+	}
+	
+	public UserLevelEnum getUserLevel() {
+		return this.userLevel;
+	}
+	
+	public void setUserLevel(UserLevelEnum userLevel) {
+		this.userLevel = userLevel;
+	}
+	
+	public YjFPayModeEnum getPayModeEnum() {
+		return this.payModeEnum;
+	}
+	
+	public void setPayModeEnum(YjFPayModeEnum payModeEnum) {
+		this.payModeEnum = payModeEnum;
+	}
+	
+	public Date getRawUpdateTime() {
+		return this.rawUpdateTime;
+	}
+	
+	public void setRawUpdateTime(Date rawUpdateTime) {
+		this.rawUpdateTime = rawUpdateTime;
+	}
+	
+	public Date getRawAddTime() {
+		return this.rawAddTime;
+	}
+	
+	public void setRawAddTime(Date rawAddTime) {
+		this.rawAddTime = rawAddTime;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("UserInterestInfo [userInterestId=");
+		builder.append(userInterestId);
+		builder.append(", userInterestType=");
+		builder.append(userInterestType);
+		builder.append(", userLevel=");
+		builder.append(userLevel);
+		builder.append(", payModeEnum=");
+		builder.append(payModeEnum);
+		builder.append(", rawUpdateTime=");
+		builder.append(rawUpdateTime);
+		builder.append(", rawAddTime=");
+		builder.append(rawAddTime);
+		builder.append("]");
+		return builder.toString();
+	}
+	
+}

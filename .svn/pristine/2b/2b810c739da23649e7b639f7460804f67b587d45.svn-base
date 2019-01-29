@@ -1,0 +1,46 @@
+/*
+ * www.yiji.com Inc.
+ * Copyright (c) 2014 All Rights Reserved.
+ */
+
+/*
+ * 修订记录：
+ * sxm 下午2:06:05 创建
+ */
+package com.yjf.esupplier.service.hotel.result;
+
+import com.yjf.esupplier.ws.hotel.info.HotelLongSetInfo;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+/**
+ *
+ *
+ * @author zhouwei
+ *
+ */
+public class HotelLongSetResult extends EsupplierBaseResult {
+	
+	private static final long serialVersionUID = -7439098216641989831L;
+	
+	HotelLongSetInfo hotelLongSetInfo;
+	
+	public HotelLongSetInfo getHotelLongSetInfo() {
+		return hotelLongSetInfo;
+	}
+	
+	public void setHotelLongSetInfo(HotelLongSetInfo hotelLongSetInfo) {
+		this.hotelLongSetInfo = hotelLongSetInfo;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("HotelLongSetResult [hotelLongSetInfo=");
+		builder.append(hotelLongSetInfo);
+		builder.append(", toString()=");
+		builder.append(super.toString());
+		builder.append("]");
+		return builder.toString();
+	}
+
+}

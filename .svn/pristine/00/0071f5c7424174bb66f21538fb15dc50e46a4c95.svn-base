@@ -1,0 +1,38 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+
+	$('#form').validate({
+	    errorClass: 'error-tip',
+	    errorElement: 'b',
+	    errorPlacement : function(error, element) {
+	    	element.after(error);
+		},
+	    onkeyup: false,  //不在按键时进行验证
+	    rules: {
+	    	compellation: {
+	            required: true,
+	            checkZh: true,
+	            minlength: 2
+	        },
+	        identity: {
+	            required: true,
+	            checkID: true
+	        }
+	    },
+	    messages: {
+	        compellation: {
+	            required: '必填',
+	            checkZh: '输入正确的名字',
+	            minlength:'输入正确的名字',
+	        },
+	        identity: {
+	            required: '必填',
+	            checkID:'输入正确的身份证号码'
+	        }
+	    },
+	    submitHandler:function(form){
+	    	form.submit();
+		}
+	});
+});
+

@@ -1,0 +1,26 @@
+package com.yjf.esupplier.service.pop.impl;
+
+
+import java.util.Comparator;
+
+import com.yjf.esupplier.dal.dataobject.PopInfoDO;
+
+/**
+ * Created by min on 2014/11/10.
+ */
+public class ComparatorPopHits implements Comparator {
+    public int compare(Object arg0, Object arg1) {
+        PopInfoDO infoDO1 = (PopInfoDO)arg0;
+        PopInfoDO infoDO2 = (PopInfoDO)arg1;
+        if (infoDO1.getHits() > infoDO2.getHits()) {
+            return -1;
+        } else if(infoDO1.getHits() < infoDO2.getHits()) {
+            return 1;
+        }else {
+            return 0;
+        }
+    }
+
+
+
+}

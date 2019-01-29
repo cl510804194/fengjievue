@@ -1,0 +1,307 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2011 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.base;
+
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
+import com.yjf.common.domain.api.Domain;
+import com.yjf.common.service.Order;
+import com.yjf.common.service.base.AfterProcessInvokeService;
+import com.yjf.common.service.base.BeforeProcessInvokeService;
+import com.yjf.common.service.base.ProcessInvokeService;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.domain.context.EsupplierDomainContext;
+import com.yjf.esupplier.domain.context.EsupplierDomainHolder;
+import com.yjf.esupplier.domain.exception.EsupplierDomainException;
+import com.yjf.esupplier.service.exception.CreditsysBizException;
+import com.yjf.esupplier.service.exception.ExceptionFactory;
+import com.yjf.esupplier.service.security.util.ShiroSessionUtils;
+import com.yjf.esupplier.service.session.SessionLocal;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.order.OperationJournalAddOrder;
+import com.yjf.esupplier.ws.order.ProcessOrder;
+import com.yjf.esupplier.ws.order.TradeProcessOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.CheckBeforeProcessService;
+import com.yjf.esupplier.ws.service.EsupplierResultEnum;
+import com.yjf.esupplier.ws.service.OperationJournalService;
+
+/**
+ * 
+ * @Filename UserBaseService.java
+ * 
+ * @Description
+ * 
+ * @Version 1.0
+ * 
+ * @Author qichunhai
+ * 
+ * @Email qchunhai@yiji.com
+ * 
+ * @History <li>Author: qichunhai</li> <li>Date: 2014-4-8</li> <li>Version: 1.0</li>
+ * <li>Content: create</li>
+ * 
+ */
+public abstract class BaseBizService extends BaseAutowiredToolsService {
+	protected final static String HOLDER_RESULT_KEY = "result";
+	@Autowired
+	protected UserQueryService userQueryService;
+	@Autowired
+	protected OperationJournalService operationJournalService;
+	
+	protected void checkOrder(Order order) {
+		logger.info("[order={}]", order);
+		
+		if (null == order) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.EXECUTE_FAILURE,
+				"order must not be null");
+		}
+		
+		try {
+			order.check();
+		} catch (IllegalArgumentException ex) {
+			throw ExceptionFactory.newYrdException(EsupplierResultEnum.INCOMPLETE_REQ_PARAM,
+				"请求参数异常--" + ex.getLocalizedMessage());
+			
+		}
+	}
+	
+	protected void setYrdException(TransactionStatus status, EsupplierBaseResult result,
+									CreditsysBizException eex, String errorMessage) {
+		if(status!=null){
+		   status.setRollbackOnly();
+		}
+		result.setSuccess(false);
+		result.setCreditsysResultEnum(eex.getResultCode());
+		result.setMessage(errorMessage);
+		logger.error(eex.getLocalizedMessage() + " ==errMesaage=" + eex.getErrorMsg()
+						+ " result={}", result);
+	}
+	
+	protected void setYrdDomainException(TransactionStatus status, EsupplierBaseResult result,
+											EsupplierDomainException eex, String errorMessage) {
+		status.setRollbackOnly();
+		result.setSuccess(false);
+		result.setCreditsysResultEnum(EsupplierResultEnum
+			.getByCode(eex.getDomainResult().getCode()));
+		result.setMessage(errorMessage);
+		logger.error(eex.getLocalizedMessage() + " ==errMesaage=" + eex.getErrorMsg(), eex);
+	}
+	
+	protected void setUnknownException(EsupplierBaseResult result, Exception ex) {
+		logger.error(ex.getLocalizedMessage(), ex);
+		result.setSuccess(false);
+		result.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+	}
+	
+	protected void setUnknownException(EsupplierBaseResult result, Throwable ex) {
+		logger.error(ex.getMessage(), ex);
+		result.setSuccess(false);
+		result.setCreditsysResultEnum(EsupplierResultEnum.UN_KNOWN_EXCEPTION);
+	}
+	
+	protected void setDbException(TransactionStatus status, EsupplierBaseResult result, Exception e) {
+		logger.error(e.getLocalizedMessage(), e);
+		status.setRollbackOnly();
+		result.setCreditsysResultEnum(EsupplierResultEnum.DATABASE_EXCEPTION);
+		result.setSuccess(false);
+	}
+	
+	protected EsupplierBaseResult commonProcess(final Order order,
+												final String processBizName,
+												final CheckBeforeProcessService checkBeforeProcessService,
+												final BeforeProcessInvokeService beforeProcessInvokeService,
+												final ProcessInvokeService processInvokeService,
+												final AfterProcessInvokeService successProcessInvokeService) {
+		logger.info("-进入{} " + this.getClass().getName()
+					+ "  commonProcess processBizName={} order={} ", processBizName, order);
+		EsupplierBaseResult result = createResult();
+		final Date nowDate = getSysdate();
+		boolean isClear = false;
+		if (EsupplierDomainHolder.get() == null) {
+			EsupplierDomainHolder.set(new EsupplierDomainContext<Order>(nowDate, order, null));
+			isClear = true;
+		}
+		try {
+			
+			checkOrder(order);
+			if (checkBeforeProcessService != null)
+				checkBeforeProcessService.check();
+			result = transactionTemplate.execute(new TransactionCallback<EsupplierBaseResult>() {
+				
+				@Override
+				public EsupplierBaseResult doInTransaction(TransactionStatus status) {
+					EsupplierBaseResult result = createResult();
+					try {
+						// 激活领域模型
+						Domain domain = null;
+						EsupplierDomainHolder.get().addAttribute(HOLDER_RESULT_KEY, result);
+						if (beforeProcessInvokeService != null) {
+							domain = beforeProcessInvokeService.before();
+							logger.info("beforeProcessInvokeService.before():" + domain);
+						}
+						
+						if (domain != null) {
+							EsupplierDomainHolder.get().setDomain(domain);
+						}
+						if (processInvokeService != null) {
+							processInvokeService.process(domain);
+							logger.info("processInvokeService.process():" + domain);
+						}
+						
+						if (result.getCreditsysResultEnum() == EsupplierResultEnum.UN_KNOWN_EXCEPTION) {
+							result.setSuccess(true);
+						}
+						addOperationJournalInfo(processBizName, processBizName, order.toString());
+					} catch (CreditsysBizException eex) {
+						setYrdException(status, result, eex, eex.getErrorMsg());
+						
+					} catch (EsupplierDomainException e) {
+						setYrdDomainException(status, result, e, e.getErrorMsg());
+					} catch (Exception e) {
+						setDbException(status, result, e);
+					}
+					
+					return result;
+				}
+			});
+		} catch (CreditsysBizException eex) {
+			logger.error(eex.getLocalizedMessage(), eex);
+			result.setSuccess(false);
+			result.setCreditsysResultEnum(eex.getResultCode());
+			result.setMessage(processBizName + "异常[" + eex.getErrorMsg() + "]");
+			
+		} catch (Exception ex) {
+			setUnknownException(result, ex);
+		}
+		if (result.isSuccess()) {
+			try {
+				if (successProcessInvokeService != null) {
+					successProcessInvokeService.after(EsupplierDomainHolder.get().getDomain());
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+		if (isClear) {
+			EsupplierDomainHolder.clear();
+		}
+		return result;
+	}
+	
+	protected EsupplierBaseResult commonProcess(final Order order,
+												final String processBizName,
+												final BeforeProcessInvokeService beforeProcessInvokeService,
+												final ProcessInvokeService processInvokeService,
+												final AfterProcessInvokeService successProcessInvokeService) {
+		return commonProcess(order, processBizName, null, beforeProcessInvokeService,
+			processInvokeService, successProcessInvokeService);
+	}
+	
+	protected EsupplierBaseResult checkProcess(final Order order, final String processBizName,
+												final ProcessInvokeService processInvokeService) {
+		logger.info("-进入{} " + this.getClass().getName()
+					+ "  commonProcess processBizName={} order={} ", processBizName, order);
+		EsupplierBaseResult result = null;
+		final Date nowDate = getSysdate();
+		EsupplierDomainHolder.set(new EsupplierDomainContext<Order>(nowDate, order, null));
+		try {
+			checkOrder(order);
+			result = createResult();
+			if (processInvokeService != null)
+				processInvokeService.process(null);
+			result.setSuccess(true);
+			return result;
+		} catch (CreditsysBizException eex) {
+			logger.error(eex.getLocalizedMessage(), eex);
+			result.setSuccess(false);
+			result.setCreditsysResultEnum(eex.getResultCode());
+			result.setMessage(processBizName + "异常[" + eex.getErrorMsg() + "]");
+		} catch (Exception ex) {
+			setUnknownException(result, ex);
+		}
+		EsupplierDomainHolder.clear();
+		return result;
+	}
+	
+	protected void addOperationJournalInfo(String permissionName, String operationContent,
+											String memo) {
+		try {
+			OperationJournalAddOrder order = new OperationJournalAddOrder();
+			order.setMemo(memo);
+			SessionLocal local = ShiroSessionUtils.getSessionLocal();
+			if (local == null || local.getUserId() == null) {
+				order.setOperatorId(-1);
+				order.setOperatorName("系统自动");
+				order.setOperatorIp("127.0.0.1");
+				
+			} else {
+				order.setOperatorId(local.getUserId());
+				order.setOperatorName(local.getRealName());
+				if (local.getRealName() == null) {
+					order.setOperatorName(local.getUserName());
+				}
+				order.setOperatorIp(local.getRemoteAddr());
+				
+			}
+			if (EsupplierDomainHolder.get() != null) {
+				OperationJournalAddOrder tempOrder = (OperationJournalAddOrder) EsupplierDomainHolder
+					.get().getAttribute("loginLogOrder");
+				if (tempOrder != null) {
+					order = tempOrder;
+				}
+			}
+			order.setBaseModuleName(AppConstantsUtil.getProductName());
+			order.setPermissionName(permissionName);
+			order.setOperationContent(operationContent);
+			
+			operationJournalService.addOperationJournalInfo(order);
+		} catch (Exception e) {
+			logger.error("添加操作日志失败,失败原因：{}", e.getMessage(), e);
+		}
+	}
+	
+	protected TradeProcessOrder createSystemTradeProcessOrder(long tradeId) {
+		TradeProcessOrder processOrder = new TradeProcessOrder();
+		processOrder.setBizNo(tradeId);
+		processOrder.setProcessorId(-1);
+		processOrder.setBelongTo(-1);
+		processOrder.setProcessName("系统自动");
+		return processOrder;
+	}
+	
+	protected ProcessOrder initSystemProcessOrder(ProcessOrder processOrder) {
+		
+		processOrder.setProcessorId(-1);
+		processOrder.setBelongTo(-1);
+		processOrder.setProcessName("系统自动");
+		return processOrder;
+	}
+	
+	protected EsupplierBaseResult simpleSaveTemplate(String processBizName, String paramNames,
+														ProcessInvokeService processInvokeService) {
+		EsupplierBaseResult baseResult = createResult();
+		try {
+			processInvokeService.process(null);
+			baseResult.setSuccess(true);
+			addOperationJournalInfo(processBizName, processBizName, paramNames);
+		} catch (CreditsysBizException eex) {
+			setYrdException(null, baseResult, eex, eex.getErrorMsg());
+			
+		} catch (Exception e) {
+			setUnknownException(baseResult, e);
+		} catch (Throwable e) {
+			setUnknownException(baseResult, e);
+		}
+		return baseResult;
+	}
+	
+	protected abstract EsupplierBaseResult createResult();
+	
+}

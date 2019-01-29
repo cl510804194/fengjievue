@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<meta charset="UTF-8"/>
+	<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<link type="text/css" rel="stylesheet" href="../Y-source/css/Y-all.css"></link>
+</head>
+<body>
+<div style=" height:30px;color:#ee7700">
+Tip,显示在:
+<select id = "align">
+   <option value="top">上</option>  
+   <option value="bottom">下</option>
+   <option value="left">左</option>
+   <option value="right">右</option>   
+   <option value="left top">左上</option>  
+   <option value="left bottom">左下</option>
+   <option value="right top">右上</option>
+   <option value="right bottom" selected>右下</option>  
+<select>
+</div>
+<div style=" height:50px; margin-left:80px;">
+<button id='tip' type="button">Tip</button>
+</div>
+<div style=" height:50px; margin-left:80px;">
+<button id='tooltip' type="button">ToolTip</button>
+</div>
+<div style=" height:50px; margin-left:10px;">
+<input id="rareword" />
+<span id='open'>生僻字</span><br />
+</div>
+<div style=" height:50px; margin-left:10px;">
+starttip:<input id="starttip" defaultValue="请输入XXX"/><br />
+</div>
+<div style=" height:50px; margin-left:10px;">
+searchTip:<input id="searchTip"/>(输入字母查看效果)<br />
+</div>
+<div style=" height:50px; margin-left:10px;">
+fmoney:<input id="fmoney"/>(输入数字查看效果)<br />
+</div>
+<div style=" height:50px; margin-left:10px;">
+digitUppercase:<input id="digitUppercase"/>(输入数字查看效果)<br />
+</div>
+customMade:<input id="customMade"/>(输入数字查看效果)<br />
+<form>
+
+</form>
+<script type="text/javascript" src="../jquery-1.7.2.min.js"></script>
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="../../lib/sea.js"></script>
+<script type="text/javascript">
+	  seajs.use("./demo-tip.js");
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>无权限</title>
+	<link type="text/css" href="/styles/style.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+</head>
+<div class="warp">
+<div class="head fn-clear">
+			<h1 class="fn-left">$!appConstantsUtil.getProductName()管理平台 <a href="javascript:document.location.href='${rc.contextPath}/login/logout?redirect=/backstagelogin/login'">退出</a></h1>
+			<p class="fn-right"><span></span><a href="" class="exit"></a></p>
+		</div>
+
+	<div class="blank50"></div>
+    <div class="warp">
+    	<div class="error404">
+			#if($!{sessionInvalidCheck})
+            <h4><em></em>没有权限!</h4>
+            <p class="content">您登录的会话已过期或页面地址错误</p>
+        		错误代码$!{sessionInvalidCheck}：,您无权查看此页，<span id="timer">3</span>秒后系统将自动为您跳转到之前的页面</br>
+				你也可以选择
+        		#if($!{sessionInvalidCheck} == '30')
+        			<a href="$!{rc.contextPath}/admin/backstageIdex" >回到首页</a>
+        		#else
+        			<a href="$!{rc.contextPath}/admin/backstageIdex" >回到首页</a>
+        		#end	
+			#else
+				<script type="text/javascript">
+    			alert("请您重新登录!");
+    			window.location.href='$!{rc.contextPath}/backstagelogin/login';
+    			</script>
+			#end
+        </div>
+    </div>
+    <div class="blank50"></div>
+</div>
+</body>
+</html>	
+<script type="text/javascript">
+    var count =3; 
+    var int=self.setInterval("refreshTime()",1000)
+	function refreshTime(){
+		var timer = document.getElementById("timer");
+		timer.innerHTML=count;
+		count--;
+		if(count == -1){
+             int = window.clearInterval(int);
+             window.history.back(-1);
+		}
+	}
+	
+	
+</script>

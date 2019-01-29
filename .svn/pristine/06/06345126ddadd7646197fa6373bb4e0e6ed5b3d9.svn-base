@@ -1,0 +1,487 @@
+package yrd.app;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import testbase.ServiceAutoTestBase;
+
+import com.alibaba.fastjson.JSONObject;
+import com.autotest.annotation.AutoTestCase;
+import com.autotest.runner.AutoTestJUnit4ClassRunner;
+import com.yjf.common.lang.util.DateUtil;
+import com.yjf.common.lang.util.money.Money;
+import com.yjf.esupplier.common.util.MD5Util;
+import com.yjf.esupplier.dal.dataobject.GiftMoneyTradeDO;
+import com.yjf.esupplier.dal.dataobject.HotelsStockDO;
+import com.yjf.esupplier.dal.dataobject.TblOrderInfoDO;
+import com.yjf.esupplier.dal.dataobject.TblOrderItemDO;
+import com.yjf.esupplier.dal.dataobject.TblProductDO;
+import com.yjf.esupplier.dal.dataobject.TblSupplierDO;
+import com.yjf.esupplier.dal.dataobject.UserBaseInfoDO;
+import com.yjf.esupplier.dal.dataobject.UserLoginLogDO;
+import com.yjf.esupplier.web.util.AESUtil;
+import com.yjf.esupplier.ws.bill.enums.OrderFlowStatus;
+import com.yjf.esupplier.ws.bill.enums.OrderStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.PaymentMethodEnum;
+import com.yjf.esupplier.ws.bill.enums.PrintReceiptStatusEnum;
+import com.yjf.esupplier.ws.bill.enums.TakeWaysEnum;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyStatusEnum;
+import com.yjf.esupplier.ws.gifamount.enums.GiftMoneyTradeTypeEnum;
+import com.yjf.esupplier.ws.hotel.enums.HotelTypeEnum;
+import com.yjf.esupplier.ws.product.enums.SaleTypeEnum;
+@RunWith(AutoTestJUnit4ClassRunner.class)
+public class AppConfirmOrderSubTest extends ServiceAutoTestBase {
+
+	/*
+	 * 测试方向：
+	 * 1001 未登录
+	 * 1002 团购订单失败,没有查到商品信息
+	 * 1003 团购酒店订单失败,房间类型有误
+	 * 1004 团购酒店订单失败,该房间信息没查到
+	 * 1005 团购酒店订单， 保存订单失败，优惠券没有查到
+	 * 1006 团购酒店订单成功,普通房（优惠券满100送10，不叠加,单个订单，不用积分）
+	 */
+	@Test
+	@AutoTestCase(file = "yrd/app/appConfirmOrderSubTestSuccess.csv", 
+			description = "生成订单(团购),成功用例")
+	public void appConfirmOrderSubTestSuccess(int testId,
+											 String userName,
+											 String mobile,
+											 String logPassword,
+											 long productId,
+											 String counts,
+											 String specialExplain,
+											 String payType,
+											 String gainMoneyTradesId,
+											 String roomType,
+											 long supplierId,
+											 String productName,
+											 String productNumber,
+											 String productStatus,
+											 String productUnit,
+											 long reservedCount,
+											 long saleCount,
+											 long viewCount,
+											 String postType,
+											 Money price1,
+											 long id,
+											 Money productPrice,
+											 Money marketPrice,
+											 long inStock,
+											 long availableStock,
+											 long ordainNum,
+											 String status,
+											 long specialRoomNum,
+											 long morningRoomNum,
+											 long longRoomNum,
+											 long morningRoomTotalNum,
+											 Money morningRoomPrice,
+											 long specialRoomTotalNum,
+											 Money specialRoomPrice,
+											 String realName,
+											 String giftName,
+											 long giftId,
+											 Money amount,
+											 Money usedAmount, 
+											 String useType,
+											 String useAmount,
+											 String notify,
+											 long tradeDetailId,
+											 String tradeName, 
+											 String outBizNo, 
+											 double rateOfYear, 
+											 String sendAccountCode,
+											 String sendAccountName,
+											 long templateId, 
+											 String templateName, 
+											 String increase, 
+											 long ruleId,
+											 Money ruleAmount,
+											 double amountRu,
+											 String statusTe){
+		long userId=0;
+		String userBaseId="";
+		payType=SaleTypeEnum.HOTELS.getCode();//团购酒店订单
+		roomType=HotelTypeEnum.NORMAL.code();
+		TblProductDO tblProductDOex=null;
+		HotelsStockDO hotelsStockDOex=null;
+		TblSupplierDO tblSupplierDOex=null;
+		TblOrderInfoDO tblOrderInfoDO=null;
+		List<GiftMoneyTradeDO> giftMoneyTradeDOlist=null;
+		GiftMoneyTradeDO giftMoneyTradeDOex=null;
+		//清除数据
+		clearnPointsRuleByRuleType("REGISTER");
+		clearnPointsRuleByRuleType("LOGIN");
+		UserBaseInfoDO userBaseInfoDO=findUserBaseInfoByUserName(userName);
+		if (userBaseInfoDO!=null) {
+			userId=userBaseInfoDO.getUserId();
+			userBaseId=userBaseInfoDO.getUserBaseId();
+		}
+		clearnUserRoleByUserId(userId);
+		clearnUserByUserName(userName);
+		clearnPersonaInfoByUserBaseId(userBaseId);
+		clearnUserBaseInfoByUserName(userName);
+		clearnUserAccountDataByUserId(userId);
+		clearnUserExtendByUserId(userId);
+		clearnUserLogin(userName);
+		
+		clearnTblProductByProductId(productId);
+		clearnHotelsStockById(id);
+		clearnTblSupplierById(supplierId);
+		clearnGiftMoneyTradeByGiftId(giftId);
+		clearnGiftMoneyTradeByGiftId(Long.valueOf(gainMoneyTradesId));
+		clearnGiftMoneyTemplateById(templateId);
+		clearnGiftMoneyTemplateRuleById(templateId);
+		// 准备数据
+		logger.info("更新系统参数");
+		updateSysParamInfoDOByParamName("SYS_PARAM_HUA_HONG_IS_USE","Y");
+		sysParameterService.clearCache();
+		//获取时间
+		Calendar cad = Calendar.getInstance();
+        cad.setTime(new Date());
+        cad.add(Calendar.DATE, 1);
+		Date beginDate=cad.getTime();//住店开始时间(明天)
+		cad.add(Calendar.DATE, 1);
+		Date priceDate=cad.getTime();//价格日期(后天)
+		cad.add(Calendar.DATE, 1);
+		Date endDate=cad.getTime();//住店结束时间(大后天)
+		
+		// 测试过程
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response =null;
+		String conResult =null;
+		JSONObject jobj =null;
+		try {
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("msg", getStringFromJson(new JSONObject())));
+			HttpEntity httpEntity=new UrlEncodedFormEntity(nameValuePairs, "UTF-8");
+
+			if (testId!=1001) {
+				//获取图片验证码
+				String getImgCodeUrl="http://127.0.0.1:8085/app/getImgCode.htm";
+				HttpPost getImgCodeHP = new HttpPost(getImgCodeUrl);
+				getImgCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				getImgCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(getImgCodeHP);
+				getImgCodeHP.releaseConnection();
+				
+				
+				//发送短信验证码(register注册)
+				String sendSmsCodeUrl="http://127.0.0.1:8085/app/sendSmsCode.htm?mobile="+mobile+"&business=register";
+				HttpPost sendSmsCodeHP = new HttpPost(sendSmsCodeUrl);
+				sendSmsCodeHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				sendSmsCodeHP.setEntity(httpEntity);
+				response = httpclient.execute(sendSmsCodeHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				sendSmsCodeHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				assertEquals(1, jobj.get("code"));
+				assertEquals("发送手机验证码成功", jobj.get("message"));	
+				
+				
+				//提交注册信息
+				String registerSubmitUrl="http://127.0.0.1:8085/app/registerSubmit.htm?userName="+userName+
+						"&mobile="+mobile+"&logPassword="+AESUtil.encode(logPassword)+"&code=888888&imgCode=8888";
+				HttpPost registerSubmitHP = new HttpPost(registerSubmitUrl);
+				registerSubmitHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+				registerSubmitHP.setEntity(httpEntity);
+				response = httpclient.execute(registerSubmitHP);
+				/*读返回数据*/
+				conResult = EntityUtils.toString(response.getEntity());
+				jobj = JSONObject.parseObject(conResult);
+				registerSubmitHP.releaseConnection();
+				System.out.println(jobj.get("code"));
+				System.out.println(jobj.get("message"));
+				//验证结果
+				assertEquals(1, jobj.get("code"));
+				assertEquals("注册成功", jobj.get("message"));
+				assertEquals(0, jobj.get("giftMoney"));
+				assertEquals("无优惠券信息", jobj.get("giftMoneyMessage"));
+				//数据校验
+				userBaseInfoDO=findUserBaseInfoByUserName(userName);
+				userId=userBaseInfoDO.getUserId();
+				userBaseId=userBaseInfoDO.getUserBaseId();
+				assertEquals(mobile, userBaseInfoDO.getMobile());
+				assertEquals(userName, userBaseInfoDO.getUserName());
+				assertEquals(MD5Util.getMD5_32(logPassword), userBaseInfoDO.getLogPassword());
+			}
+			
+			
+			//准备数据
+			if (testId==1003) {
+				roomType="";
+			}
+			if (testId!=1002) {
+				insertTblProductIncomplete(productId, supplierId, productName, productNumber, productStatus, productUnit, reservedCount,
+						saleCount, viewCount, postType);
+				tblProductDOex=findTblProductByProductId(productId);
+				tblProductDOex.setPrice1(price1);
+				tblProductDAO.update(tblProductDOex);//产品
+			}
+			if (testId!=1004) {
+				insertHotelsStockIncomplete(id, productId, productName, productPrice, inStock, availableStock, ordainNum, status,
+						specialRoomNum, morningRoomNum, longRoomNum, priceDate);
+				hotelsStockDOex=findHotelsStockById(id);
+				hotelsStockDOex.setMarketPrice(marketPrice);
+				hotelsStockDOex.setMorningRoomTotalNum(morningRoomTotalNum);
+				hotelsStockDOex.setMorningRoomPrice(morningRoomPrice);
+				hotelsStockDOex.setSpecialRoomTotalNum(specialRoomTotalNum);
+				hotelsStockDOex.setSpecialRoomPrice(specialRoomPrice);
+				hotelsStockDAO.update(hotelsStockDOex);//酒店库存
+			}
+			insertTblSupplierIncomplete(supplierId, userBaseId, "0");
+			tblSupplierDOex=findTblSupplierById(supplierId);
+			tblSupplierDOex.setRealName(realName);
+			tblSupplierDAO.update(tblSupplierDOex);//商户信息
+			if (testId==1006) {
+				insertGiftMoneyTradeAll(Long.valueOf(gainMoneyTradesId),giftName,giftId,amount,usedAmount,userId,userName,String.valueOf(templateId),
+						useAmount,"NORMAL",notify, "ORIGINAL", "GAIN_AMOUNT", yesterday(), endDate, tradeDetailId, tradeName, new Date(), outBizNo,
+						rateOfYear,sendAccountCode,sendAccountName);//优惠券信息
+				insertGiftMoneyTemplateAll(templateId, templateName, statusTe, increase, new Date());//优惠券模板
+				insertGiftMoneyTemplateRuleAll(templateId, ruleId, ruleAmount, amountRu);//优惠券规则
+				
+				//获取执行前数据
+				giftMoneyTradeDOex=findGiftMoneyTradeByGiftTradeId(Long.valueOf(gainMoneyTradesId));
+			}
+			
+			//生成订单(团购)
+			String confirmOrderSubUrl="http://127.0.0.1:8085/app/confirmOrderSub.htm?productId="+productId+"&counts="
+					+counts+"&specialExplain="+specialExplain+"&payType="+payType+"&gainMoneyTradesId="+gainMoneyTradesId
+					+"&beginDate="+DateUtil.dtSimpleFormat(beginDate)+"&endDate="+DateUtil.dtSimpleFormat(endDate)+"&roomType="
+					+roomType;
+			HttpPost confirmOrderSubHP = new HttpPost(confirmOrderSubUrl);
+			confirmOrderSubHP.addHeader("Content-type", "application/x-www-form-urlencoded");
+			confirmOrderSubHP.setEntity(httpEntity);
+			response = httpclient.execute(confirmOrderSubHP);
+			/*读返回数据*/
+			conResult = EntityUtils.toString(response.getEntity());
+			jobj = JSONObject.parseObject(conResult);
+			confirmOrderSubHP.releaseConnection();
+			System.out.println(jobj.get("code"));
+			System.out.println(jobj.get("message"));
+			//验证结果
+			if (testId==1001) {
+				assertEquals(-1, jobj.get("code"));
+				assertEquals("未登录或登录失效", jobj.get("message"));
+			}else if (testId==1002) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("未找到该商品", jobj.get("message"));
+			}else if (testId==1003) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("房间价格类型无效", jobj.get("message"));
+			}else if (testId==1004) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("没有相关房间数据", jobj.get("message"));
+			}else if (testId==1005) {
+				assertEquals(0, jobj.get("code"));
+				assertEquals("本次交易没有可使用的优惠券", jobj.get("message"));
+			}else if (testId==1006) {
+				tblOrderInfoDO=findTblOrderInfoByUserId(userId);
+				Money totalMoney=hotelsStockDOex.getProductPrice().multiply(Long.valueOf(counts)).multiply(
+						DateUtil.countDaysBetweenTwoDays(beginDate,endDate));
+				Money payMoney=tblOrderInfoDO.getTotalAmount().subtract(tblOrderInfoDO.getGainMoney())
+						.subtract(tblOrderInfoDO.getGiftMoney()).subtract(tblOrderInfoDO.getUserPointAmount());
+				assertEquals(1, jobj.get("code"));
+				assertEquals("订单生成成功", jobj.get("message"));
+				
+				//tbl_order_info表数据（新增）
+				assertEquals(supplierId, tblOrderInfoDO.getSupplierId());
+				assertEquals(realName, tblOrderInfoDO.getSupplierName());
+				assertEquals(BooleanEnum.YES.code(), tblOrderInfoDO.getSaleTypeHotels());
+				assertEquals(tblProductDOex.getResortsBusinessId(), tblOrderInfoDO.getResortsBusinessId());
+				assertEquals(tblProductDOex.getResortsBusinessName(), tblOrderInfoDO.getResortsBusinessName());
+				assertEquals(tblProductDOex.getResortsBusinessRealName(), tblOrderInfoDO.getResortsBusinessRealName());
+				assertEquals(tblProductDOex.getFacade(), tblOrderInfoDO.getFacade());
+				assertEquals(tblProductDOex.getGroupPurchaseBeginTime(),tblOrderInfoDO.getGroupPurchaseBeginTime());
+				assertEquals(tblProductDOex.getGroupPurchaseEndTime(),tblOrderInfoDO.getGroupPurchaseEndTime());
+				assertEquals(tblProductDOex.getPostType(),tblOrderInfoDO.getPostType());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getSaleTypeB2c());
+				assertNotNull(tblOrderInfoDO.getBatchNo());
+				assertNotNull(tblOrderInfoDO.getId());
+				assertEquals(PaymentMethodEnum.ONLINE.code(), tblOrderInfoDO.getPaymentMethod());
+				assertEquals(mobile,tblOrderInfoDO.getDrawerNumber());
+				assertEquals("计划"+specialExplain+"点前到达", tblOrderInfoDO.getSpecialExplain());
+				assertEquals(new Money(amountRu),tblOrderInfoDO.getGainMoney());
+				assertEquals(TEST_MONEY_YC,tblOrderInfoDO.getUserPointAmount());//没有用积分
+				assertEquals(TEST_LONG, tblOrderInfoDO.getUserPoint());
+				assertNotNull(tblOrderInfoDO.getCreateTime());
+				assertEquals(userBaseInfoDO.getUserId(), tblOrderInfoDO.getUserId());
+				assertEquals(userName, tblOrderInfoDO.getBuyerNickname());
+				assertNotNull(tblOrderInfoDO.getRawAddTime());
+				assertEquals(totalMoney, tblOrderInfoDO.getTotalAmount());
+				assertEquals(OrderFlowStatus.WAIT_BUYER_PAY.code(), tblOrderInfoDO.getWorkflowStatus());
+				assertEquals(OrderStatusEnum.WFK.code(), tblOrderInfoDO.getOrderStatus());
+				assertEquals(TEST_MONEY_YC, tblOrderInfoDO.getPostFee());
+				assertNull(tblOrderInfoDO.getCity());
+				assertNull(tblOrderInfoDO.getCounty());
+				assertNull(tblOrderInfoDO.getProvince());
+				assertNull(tblOrderInfoDO.getDetailAddress());
+				assertNull(tblOrderInfoDO.getDrawerName());
+				assertNull(tblOrderInfoDO.getDrawerTel());
+				assertNull(tblOrderInfoDO.getZipCode());
+				assertNull(tblOrderInfoDO.getPayedTime());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getSaleTypeO2o());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getIsPayed());
+				assertEquals(TEST_LONG, tblOrderInfoDO.getOperatorId());
+				assertNull(tblOrderInfoDO.getOperatorTime());
+				assertEquals(TEST_LONG, tblOrderInfoDO.getTakegoodsId());
+				assertEquals(TEST_MONEY_YC,tblOrderInfoDO.getGiftMoney());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getValidationStatus());
+				assertEquals(BooleanEnum.NO.code(),tblOrderInfoDO.getDelStatus());
+				assertEquals(TakeWaysEnum.DELIVERY.code(),tblOrderInfoDO.getTakeWays());
+				assertNull(tblOrderInfoDO.getSellerDelete());
+				assertNull(tblOrderInfoDO.getBuyerDelete());
+				assertNull(tblOrderInfoDO.getAreaCode());
+				assertNull(tblOrderInfoDO.getConfirmReceiptTime());
+				assertNull(tblOrderInfoDO.getRefundStatus());
+				assertNull(tblOrderInfoDO.getSellerMemo());
+				assertNull(tblOrderInfoDO.getRawUpdateTime());
+				assertNull(tblOrderInfoDO.getQrCode());
+				assertNull(tblOrderInfoDO.getSendStatus());
+				assertNull(tblOrderInfoDO.getSendTime());
+				assertNull(tblOrderInfoDO.getValidationTime());
+				assertNull(tblOrderInfoDO.getPaymentFlowId());
+				assertEquals(PrintReceiptStatusEnum.NOT_PRINT.code(),tblOrderInfoDO.getPrintReceipt());
+				assertNull(tblOrderInfoDO.getDeliverTime());
+				assertEquals(TEST_LONG, tblOrderInfoDO.getDiliverymanId());
+				assertNull(tblOrderInfoDO.getDiliverymanName());
+				
+				//gift_money_trade表
+				GiftMoneyTradeDO giftMoneyTradeDO=findGiftMoneyTradeByGiftTradeId(Long.valueOf(gainMoneyTradesId));//优惠券初始流水
+				assertEquals(GiftMoneyStatusEnum.FINISH.code(), giftMoneyTradeDO.getStatus());
+				assertNotNull(giftMoneyTradeDO.getRawUpdateTime());
+				assertEquals(giftMoneyTradeDOex.getGiftTradeId(), giftMoneyTradeDO.getGiftTradeId());
+				assertEquals(giftMoneyTradeDOex.getGiftName(), giftMoneyTradeDO.getGiftName());
+				assertEquals(giftMoneyTradeDOex.getGiftId(), giftMoneyTradeDO.getGiftId());
+				assertEquals(giftMoneyTradeDOex.getAmount(), giftMoneyTradeDO.getAmount());
+				assertEquals(giftMoneyTradeDOex.getUsedAmount(), giftMoneyTradeDO.getUsedAmount());
+				assertEquals(giftMoneyTradeDOex.getUserid(), giftMoneyTradeDO.getUserid());
+				assertEquals(giftMoneyTradeDOex.getUsername(), giftMoneyTradeDO.getUsername());
+				assertEquals(giftMoneyTradeDOex.getUseType(), giftMoneyTradeDO.getUseType());
+				assertEquals(giftMoneyTradeDOex.getUseAmount(), giftMoneyTradeDO.getUseAmount());
+				assertEquals(giftMoneyTradeDOex.getNotify(), giftMoneyTradeDO.getNotify());
+				assertEquals(giftMoneyTradeDOex.getTradeType(), giftMoneyTradeDO.getTradeType());
+				assertEquals(giftMoneyTradeDOex.getType(), giftMoneyTradeDO.getType());
+				assertEquals(giftMoneyTradeDOex.getStartDate(), giftMoneyTradeDO.getStartDate());
+				assertEquals(giftMoneyTradeDOex.getEndDate(), giftMoneyTradeDO.getEndDate());
+				assertEquals(giftMoneyTradeDOex.getTradeDetailId(), giftMoneyTradeDO.getTradeDetailId());
+				assertEquals(giftMoneyTradeDOex.getTradeName(), giftMoneyTradeDO.getTradeName());
+				assertEquals(giftMoneyTradeDOex.getRawAddTime(), giftMoneyTradeDO.getRawAddTime());
+				assertEquals(giftMoneyTradeDOex.getOutBizNo(), giftMoneyTradeDO.getOutBizNo());
+				assertEquals(giftMoneyTradeDOex.getRateOfYear(), giftMoneyTradeDO.getRateOfYear());
+				assertEquals(giftMoneyTradeDOex.getSendAccountCode(), giftMoneyTradeDO.getSendAccountCode());
+				assertEquals(giftMoneyTradeDOex.getSendAccountName(), giftMoneyTradeDO.getSendAccountName());
+				
+				giftMoneyTradeDOlist=findGiftMoneyTradeByGiftId(Long.valueOf(gainMoneyTradesId));
+				GiftMoneyTradeDO giftMoneyTradeDO1=giftMoneyTradeDOlist.isEmpty()?null:giftMoneyTradeDOlist.get(0);//优惠券消费流水(新增)
+				assertEquals(giftMoneyTradeDOex.getUseType(), giftMoneyTradeDO1.getUseType());
+				assertEquals(giftMoneyTradeDOex.getGiftTradeId(), giftMoneyTradeDO1.getGiftId());
+				assertEquals(giftMoneyTradeDOex.getType(), giftMoneyTradeDO1.getType());
+				assertEquals(Money.zero(), giftMoneyTradeDO1.getAmount());
+				assertEquals(GiftMoneyTradeTypeEnum.USED.code(), giftMoneyTradeDO1.getTradeType());
+				assertEquals(GiftMoneyStatusEnum.USED.code(), giftMoneyTradeDO1.getStatus());
+				assertEquals(new Money(amountRu), giftMoneyTradeDO1.getUsedAmount());
+				assertEquals(tblOrderInfoDO.getBatchNo(), giftMoneyTradeDO1.getTradeDetailId());
+				assertNotNull(giftMoneyTradeDO1.getGiftTradeId());
+				assertNotNull(giftMoneyTradeDO1.getRawAddTime());
+				assertNull(giftMoneyTradeDO1.getRawUpdateTime());
+				assertNotNull(giftMoneyTradeDO1.getOutBizNo());
+				assertEquals(giftMoneyTradeDOex.getGiftName(), giftMoneyTradeDO1.getGiftName());
+				assertEquals(giftMoneyTradeDOex.getUserid(), giftMoneyTradeDO1.getUserid());
+				assertEquals(giftMoneyTradeDOex.getUsername(), giftMoneyTradeDO1.getUsername());
+				assertEquals(giftMoneyTradeDOex.getUseAmount(), giftMoneyTradeDO1.getUseAmount());
+				assertEquals(giftMoneyTradeDOex.getNotify(), giftMoneyTradeDO1.getNotify());
+				assertEquals(giftMoneyTradeDOex.getStartDate(), giftMoneyTradeDO1.getStartDate());
+				assertEquals(giftMoneyTradeDOex.getEndDate(), giftMoneyTradeDO1.getEndDate());
+				assertEquals(giftMoneyTradeDOex.getTradeName(), giftMoneyTradeDO1.getTradeName());
+				assertEquals(giftMoneyTradeDOex.getRateOfYear(), giftMoneyTradeDO1.getRateOfYear());
+				assertEquals(giftMoneyTradeDOex.getSendAccountCode(), giftMoneyTradeDO1.getSendAccountCode());
+				assertEquals(giftMoneyTradeDOex.getSendAccountName(), giftMoneyTradeDO1.getSendAccountName());
+				
+				//tbl_order_items表(新增)
+				TblOrderItemDO tblOrderItemDO=findTblOrderItemByOrderId(tblOrderInfoDO.getId()).get(0);
+				assertNotNull(tblOrderItemDO.getId());
+				assertEquals(tblOrderInfoDO.getId(), tblOrderItemDO.getOrderId());
+				assertEquals(productId, tblOrderItemDO.getItemProductId());
+				assertEquals(tblProductDOex.getProductName(), tblOrderItemDO.getItemProductName());
+				assertEquals(tblProductDOex.getSmallPicPath(),tblOrderItemDO.getPicPath());
+				assertEquals(productPrice, tblOrderItemDO.getProPrice());
+				assertEquals(Long.valueOf(counts), tblOrderItemDO.getQuantity());
+				assertEquals(TEST_MONEY_YC, tblOrderItemDO.getPostFree());
+				assertNotNull(tblOrderItemDO.getRawAddTime());
+				assertNull(tblOrderItemDO.getRawUpdateTime());
+				assertEquals(DateUtil.dtSimpleFormat(beginDate),DateUtil.dtSimpleFormat(tblOrderItemDO.getBeginTime()));
+				assertEquals(DateUtil.dtSimpleFormat(endDate),DateUtil.dtSimpleFormat(tblOrderItemDO.getEndTime()));
+				assertEquals((long)DateUtil.countDaysBetweenTwoDays(beginDate,endDate),tblOrderItemDO.getDays());
+				assertEquals(roomType,tblOrderItemDO.getRoomType());
+			}
+			
+			//清除数据
+			clearnUserRoleByUserId(userId);
+			clearnUserByUserName(userName);
+			clearnPersonaInfoByUserBaseId(userBaseId);
+			clearnUserBaseInfoByUserName(userName);
+			clearnUserAccountDataByUserId(userId);
+			clearnUserExtendByUserId(userId);
+			clearnUserLogin(userName);
+			
+			//清除登录日志
+			List<UserLoginLogDO> userLoginLogDOlist=findUserLoginLogByUserId(userId);
+			if (!userLoginLogDOlist.isEmpty()) {
+				for (int i = 0; i < userLoginLogDOlist.size(); i++) {
+					UserLoginLogDO userLoginLogDO=userLoginLogDOlist.get(i);
+					if (userLoginLogDO!=null) {
+						clearnUserLoginLogById(userLoginLogDO.getTblBaseId());
+					}
+				}
+			}
+			
+			clearnTblProductByProductId(productId);
+			clearnHotelsStockById(id);
+			clearnTblSupplierById(supplierId);
+			clearnGiftMoneyTradeByGiftId(giftId);
+			clearnGiftMoneyTradeByGiftId(Long.valueOf(gainMoneyTradesId));//优惠券消费流水
+			clearnGiftMoneyTemplateById(templateId);
+			clearnGiftMoneyTemplateRuleById(templateId);
+			clearnTblOrderInfoByUserId(userId);
+			clearnTblOrderItemByOrderId(tblOrderInfoDO==null?0:tblOrderInfoDO.getId());
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private static String getStringFromJson(JSONObject adata) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("{");
+		for (Object key : adata.keySet()) {
+			sb.append("\"" + key + "\":\"" + adata.get(key) + "\",");
+		}
+		String rtn = sb.toString().substring(0, sb.toString().length() - 1)
+				+ "}";
+		return rtn;
+	}
+}

@@ -1,0 +1,97 @@
+package com.yjf.esupplier.service.trade.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.yjf.common.lang.util.StringUtil;
+import com.yjf.esupplier.common.util.AppConstantsUtil;
+import com.yjf.esupplier.common.util.DateUtil;
+import com.yjf.esupplier.integration.openapi.enums.YjFPayModeEnum;
+import com.yjf.esupplier.service.base.BaseBizService;
+import com.yjf.esupplier.service.common.enums.YrdDepositChargeModeEnum;
+import com.yjf.esupplier.service.recharge.RechargeFlowService;
+import com.yjf.esupplier.service.user.info.UserInfo;
+import com.yjf.esupplier.service.user.query.UserQueryService;
+import com.yjf.esupplier.ws.enums.BooleanEnum;
+import com.yjf.esupplier.ws.enums.PayTypeEnum;
+import com.yjf.esupplier.ws.service.UserBankService;
+import com.yjf.esupplier.ws.service.query.order.RechargeFlowOrder;
+
+public abstract class DeductWithdrawBase extends BaseBizService {
+	@Autowired
+	protected UserQueryService userQueryService;
+	@Autowired
+	protected RechargeFlowService rechargeFlowService;
+	
+	@Autowired
+	protected UserBankService userBankService;
+	
+	protected YjFPayModeEnum getChargeModeByUserRole(UserInfo userBaseInfo, String chargeMode) {
+		
+		if (StringUtil.isNotEmpty(chargeMode)) {//系统参数有则指定收费模式，无则由yjf指定
+			if (chargeMode.equalsIgnoreCase(YrdDepositChargeModeEnum.INVESTOR.code())) {
+				//融资人设置为P，非融资人设置为U
+				if (userQueryService.isLoaner(userBaseInfo.getUserName())) {
+					return (YjFPayModeEnum.P);
+				} else {
+					return (YjFPayModeEnum.U);
+				}
+			}
+			if (chargeMode.equalsIgnoreCase(YrdDepositChargeModeEnum.LOANER.code())) {
+				//融资人设置为U，非融资人设置为P
+				if (userQueryService.isLoaner(userBaseInfo.getUserName())) {
+					return (YjFPayModeEnum.U);
+				} else {
+					return (YjFPayModeEnum.P);
+				}
+			}
+		}
+		return null;
+	}
+	
+//	protected void setPayMode(BornWithdrawOrder order, UserInfo userInfo) {
+//		String payMode = canFreeWithdraw(userInfo.getAccountId());
+//		if (StringUtil.isNotEmpty(payMode)) {
+//			order.setPayMode(payMode);
+//		}
+//		if (payMode == null || payMode.equals("U")) {
+//			if (StringUtil.isNotBlank(AppConstantsUtil.getWithdrawChargeMode())) {
+//				YjFPayModeEnum modeEnum = getDefaultWithdrawChargeMode(userInfo);
+//				if (modeEnum != null) {
+//					order.setPayMode(modeEnum.code());
+//				}
+//			}
+//		}
+//	}
+	
+	/**
+	 * 系统指定的收费模式
+	 * @param deductOrder
+	 * @param userBaseInfo
+	 */
+//	protected YjFPayModeEnum getDefaultWithdrawChargeMode(UserInfo userBaseInfo) {
+//		String chargeMode = AppConstantsUtil.getWithdrawChargeMode();
+//		return getChargeModeByUserRole(userBaseInfo, chargeMode);
+//		
+//	}
+	
+//	public String canFreeWithdraw(String accountId) {
+//		if (StringUtil.isBlank(AppConstantsUtil.getMonthFreeWithdrawCount())) {
+//			return null;
+//		}
+//		RechargeFlowOrder rechargeFlowOrder = new RechargeFlowOrder();
+//		rechargeFlowOrder.setPayType(PayTypeEnum.WITHDRAW);
+//		rechargeFlowOrder.setAccountId(accountId);
+//		rechargeFlowOrder.setStartTime(DateUtil.getCurrentMonthStartTime());
+//		rechargeFlowOrder.setEndTime(DateUtil.getCurrentMonthEndTime());
+//		rechargeFlowOrder.setIsEffectiveData(BooleanEnum.YES);
+//		long totalCount = rechargeFlowService.getFlow(rechargeFlowOrder).getTotalCount();
+//		if (totalCount == 0) {
+//			return "P";
+//		}
+//		if (totalCount >= Long.valueOf(AppConstantsUtil.getMonthFreeWithdrawCount())) {
+//			return "U";
+//		} else {
+//			return "P";
+//		}
+//	}
+}

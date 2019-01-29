@@ -1,0 +1,150 @@
+<table sqlname="lottery_record">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+		INSERT INTO lottery_record(record_id,activity_id,instance_id,out_biz_no,user_id,user_name,real_name,raw_add_time) VALUES (?,?,?,?,?,?,?,?)
+
+		]]>
+		</sql>
+		<!-- 
+		<sqlmap>
+			<![CDATA[
+		   insert /*MS-YRD-MESSAGE-INFO-INSERT*/ into message_info(message_id,message_title,message_type,message_status,message_subject,message_content,notification_object,view_type,link_url,notification_type,message_send_date,message_plan_send_date,message_sender_id,message_sender_name,raw_add_time) values (#messageId#, #messageTitle#, #messageType#, #messageStatus#, #messageSubject#, #messageContent#, #notificationObject#, #viewType#, #linkUrl#, #notificationType#, #messageSendDate#, #messagePlanSendDate#, #messageSenderId#, #messageSenderName#, #rawAddTime#)
+	       <selectKey  resultClass ="long"  keyProperty ="messageId" >   
+	          		 SELECT LAST_INSERT_ID() AS ID 
+	      	</selectKey>
+				]]>
+		</sqlmap>
+		 -->
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE lottery_record SET activity_id=?,instance_id=?,out_biz_no=?,user_id=?,user_name=?,real_name=? WHERE record_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="long">
+		<sql>
+				<![CDATA[
+				SELECT  record_id ,activity_id ,instance_id ,out_biz_no,user_id ,user_name ,real_name ,raw_add_time ,raw_update_time  FROM lottery_record WHERE record_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByUserId" paramtype="long" multiplicity="many">
+		<sql>
+				<![CDATA[
+				SELECT  record_id ,activity_id ,instance_id ,out_biz_no,user_id ,user_name ,real_name ,raw_add_time ,raw_update_time  FROM lottery_record WHERE user_id=? and instance_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByUserName" paramtype="string" multiplicity="many">
+		<sql>
+				<![CDATA[
+				SELECT  record_id ,activity_id ,instance_id ,out_biz_no,user_id ,user_name ,real_name ,raw_add_time ,raw_update_time  FROM lottery_record WHERE user_name=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="long">
+		<sql>
+				<![CDATA[
+				DELETE FROM lottery_record WHERE record_id=?
+				]]>
+		</sql>
+	</operation>
+	<operation name="findByCondition" paramtype="object" multiplicity="many">
+		<extraparams>
+			<param name="limitStart" javatype="long" />
+			<param name="pageSize" javatype="long" />
+			<param name="beginCreateDate" javatype="java.util.Date" />
+			<param name="endCreateDate" javatype="java.util.Date" />
+		</extraparams>
+		<sql>
+				<![CDATA[
+				SELECT  record_id ,activity_id ,instance_id ,out_biz_no,user_id ,user_name ,real_name ,raw_add_time ,raw_update_time  FROM lottery_record 
+				]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[	
+			SELECT  record_id ,activity_id ,instance_id ,out_biz_no,user_id ,user_name ,real_name ,raw_add_time ,raw_update_time  
+			FROM lottery_record t WHERE 1=1
+				
+			<dynamic>
+			<isGreaterThan property="lotteryRecord.instanceId" compareValue="0" prepend=" and ">
+                        instance_id = #lotteryRecord.instanceId#
+            </isGreaterThan>
+            <isGreaterThan property="lotteryRecord.userId" compareValue="0" prepend=" and ">
+                        user_id = #lotteryRecord.userId#
+            </isGreaterThan>
+			<isNotEmpty property="lotteryRecord.userName" prepend=" and ">
+				t.user_name = #lotteryRecord.userName#
+			</isNotEmpty>
+			<isNotEmpty property="lotteryRecord.realName" prepend=" and ">
+				t.real_name = #lotteryRecord.realName#
+			</isNotEmpty>
+			<isNotEmpty property="beginCreateDate" prepend=" and ">
+			${cdata-start}	t.raw_add_time >= #beginCreateDate# ${cdata-end}
+			</isNotEmpty>
+			<isNotEmpty property="endCreateDate" prepend=" and ">
+			${cdata-start}	t.raw_add_time <= #endCreateDate# ${cdata-end}
+			</isNotEmpty>
+			
+		</dynamic>
+			ORDER BY t.raw_add_time DESC
+			LIMIT #limitStart#,#pageSize#
+		]]>
+		</sqlmap>
+	</operation>
+	<operation name="findByConditionCount" paramtype="object" >
+		<extraparams>
+			<param name="beginCreateDate" javatype="java.util.Date" />
+			<param name="endCreateDate" javatype="java.util.Date" />
+		</extraparams>
+		<sql>
+				<![CDATA[
+			SELECT  count(*)  FROM lottery_record WHERE  1=1
+				]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[	
+			SELECT   count(*)
+			FROM lottery_record t WHERE 1=1
+			<dynamic>
+			<isGreaterThan property="lotteryRecord.instanceId" compareValue="0" prepend=" and ">
+                        instance_id = #lotteryRecord.instanceId#
+            </isGreaterThan>
+            <isGreaterThan property="lotteryRecord.userId" compareValue="0" prepend=" and ">
+                        user_id = #lotteryRecord.userId#
+            </isGreaterThan>
+			<isNotEmpty property="lotteryRecord.userName" prepend=" and ">
+				t.user_name = #lotteryRecord.userName#
+			</isNotEmpty>
+			<isNotEmpty property="lotteryRecord.realName" prepend=" and ">
+				t.real_name = #lotteryRecord.realName#
+			</isNotEmpty>
+			<isNotEmpty property="beginCreateDate" prepend=" and ">
+			${cdata-start}	t.raw_add_time >= #beginCreateDate# ${cdata-end}
+			</isNotEmpty>
+			<isNotEmpty property="endCreateDate" prepend=" and ">
+			${cdata-start}	t.raw_add_time <= #endCreateDate# ${cdata-end}
+			</isNotEmpty>
+		</dynamic>
+		]]>
+		</sqlmap>
+	</operation>
+	
+	<operation name="findByActivityIdAutotest" paramtype="long" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  record_id ,activity_id ,instance_id ,out_biz_no,user_id ,user_name ,real_name ,raw_add_time ,raw_update_time  FROM lottery_record WHERE activity_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteByActivityIdAutotest" paramtype="long">
+		<sql>
+			<![CDATA[
+			DELETE FROM lottery_record WHERE activity_id=?
+			]]>
+		</sql>
+	</operation>
+</table>

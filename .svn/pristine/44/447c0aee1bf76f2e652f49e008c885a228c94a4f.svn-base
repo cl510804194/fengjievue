@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新建优惠券</title>
+    <link type="text/css" href="/resources/css/after.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="warp">
+    <!--头部-->
+    #parse("/backstage/layout/logo.vm")
+    <!--内容-->
+    <div class="container fn-clear">
+        #parse("/backstage/layout/left.vm")
+        <div class="main-content fn-right">
+            <div class="mc">
+                <div class="top">
+                    <p><a href="">优惠券管理</a> > 新建优惠券</p>
+                </div>
+                <form action="/backstage/giftMoney/updateGiftMoneySubmit" method="post" class="ui-form" id="add_giftMoney">
+                    <fieldset>
+                        <legend><h3>优惠券信息</h3></legend>
+                        <input type="hidden" name="guaranteeAudit" value="NO"/>
+
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券名称：</label>
+                            <input type="text" class="u-input w170" name="giftName" id="giftName" value="$!{info.giftName}"/>
+
+                        </div>
+
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券总额：</label>
+                            <input type="text" class="u-input w170 mask_money" name="totalAmount" id="totalAmount" value="$!{info.totalAmount}"/>
+                        </div>
+
+                        <div class="item fn-clear" style="z-index:25">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券类型：</label>
+                            <div class="jqtransform jqtransform-select3">
+                                <select name="type" id="type" style="width: 150px;">
+                                    #foreach($type in $!{types})
+                                        <option value="$!{type.code}" #if($!{info.type}==$!{type.code}) selected="selected"    #end>$!{type.message} </option>
+
+                                    #end
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required"></span>活动时间：</label>
+                            <input type="text" class="u-input fn-time" name="startDate" id="startDate" value="$!dateUtil.simpleFormat($!{info.startDate})"/> -
+                            <input type="text" class="u-input fn-time" name="endDate" id="endDate" value="$!dateUtil.simpleFormat($!{info.endDate})"/>
+                        </div>
+
+
+
+
+                        <div class="item fn-clear" style="z-index:18">
+                            <label for="" class="u-label"><span class="required"></span>使用规则：</label>
+
+                            <div class="jqtransform jqtransform-select3">
+                                <select name="useType" id="useType" style="width: 150px;">
+                                    #foreach($useType in $!{useTypes})
+                                        <option value="$!{useType.code}" #if($!{useType.code}==$!{info.useType}) selected="selected" #end>$!{useType.message}</option>
+                                    #end
+                                </select>
+                            </div>
+                            <input id="increase" name="increase" type="hidden" value="$!{info.increase}">
+                            <span><input type="text" class="u-input w170" name="useAmount" id="useAmount" value="$!{info.useAmount}"/> 元</span>
+                        </div>
+
+                        <div class="item fn-clear" id="div_rule" >
+                            <label for="" class="u-label"><span class="required">*</span>发放规则：</label>
+                            <div class="jqtransform jqtransform-select3">
+                                <select name="giveRuleType" id="giveRuleType" style="width: 150px;">
+                                    #foreach($giveType in $!{giveTypes})
+                                        <option value="$!{giveType.code}" #if($!{giveType.code}==$!{info.giveType}) selected="selected" #end>$!{giveType.message}</option>
+                                    #end
+                                </select>
+                            </div>&nbsp;&nbsp;
+                            <span class="span_new"><a href="javascript:;" class="fn-new"> 新增</a> </span> &nbsp;&nbsp;&nbsp;<span class="span_new"> 是否递增 <input type="checkbox" name="c_increase"  id="c_increase" #if($!{info.increase}=="Y") checked="checked" #end></span>
+                        </div>
+                        #if($rules.size()>0)
+                        #if("REGISTER" ==$!{info.giveType} || "AUTHENTICATION" ==$!{info.giveType})
+                            #foreach($rule in $!{rules})         <div class="item fn-clear rule_xx">
+                     <span id="span_giveAmount">  <input type="hidden" class="u-input w170 mask_money" name="giveRuleAmount" id="giveRuleAmount" value="$!{rule.ruleAmount}"/>
+             &nbsp;&nbsp; 送&nbsp;&nbsp;<input type="text" class="u-input w170 mask_money" name="giveAmount" id="giveAmount" value="$!{rule.amount}"/>  元 &nbsp;&nbsp; <span></span>
+                            </div>   #end
+                       #elseif("REWARD" ==$!{info.giveType} || "LOTTERY" ==$!{info.giveType} || "DIRECT" ==$!{info.giveType})
+                           #foreach($rule in $!{rules})         <div class="item fn-clear rule_xx" style="display: none">
+                     <span id="span_giveAmount">  <input type="hidden" class="u-input w170 mask_money" name="giveRuleAmount" id="giveRuleAmount" value="$!{rule.ruleAmount}"/>
+             &nbsp;&nbsp; 送&nbsp;&nbsp;<input type="hidden" class="u-input w170 mask_money" name="giveAmount" id="giveAmount" value="$!{rule.amount}"/>  元 &nbsp;&nbsp; <span></span>
+                           </div>   #end
+                        #else
+                            #foreach($rule in $!{rules})         <div class="item fn-clear rule_xx" >
+                     <span id="span_giveAmount">  <input type="text" class="u-input w170 mask_money" name="giveRuleAmount" id="giveRuleAmount" value="$!{rule.ruleAmount}"/> 元
+             &nbsp;&nbsp; 送&nbsp;&nbsp;<input type="text" class="u-input w170 mask_money" name="giveAmount" id="giveAmount" value="$!{rule.amount}"/>  元 &nbsp;&nbsp; <span><a href="javascript:;" class="fn-del">删除</a></span>
+                            </div>   #end
+                        #end
+                        #end
+
+                        #if("ONLY_INVEST" ==$!{info.giveType})
+                            <div  class="item fn-clear" id="registerDateRule" style="padding-left: 300px;">
+                                <label for="" class="u-label">用户注册时间：</label>
+                                <input type="text" class="u-input fn-time" name="registerDateRuleStartDate" id="registerDateRuleStartDate" value="$!{registerDateRule.ruleAmount}"/> -
+                                <input type="text" class="u-input fn-time" name="registerDateRuleEndDate" id="registerDateRuleEndDate" value="$!{registerDateRule.amount}"/>
+                            </div>
+                        #end
+
+                        <div class="item">
+                            <label for="" class="u-label"><span class="required">*</span>优惠券有效期：</label>
+                            <input type="radio"  name="r_time" value="tzd" #if(!$!{info.timeLimit}) checked  #end >
+                            <input type="text" class="u-input fn-time" name="useStartDate" id="useStartDate" value="$!dateUtil.simpleFormat($!{info.useStartDate})"/> -
+                            <input type="text" class="u-input fn-time" name="useEndDate" id="useEndDate" value="$!dateUtil.simpleFormat($!{info.useEndDate})"/>
+
+                            <br>
+                            <br>
+                            <input type="radio"   name="r_time" value="tds" #if($!{info.timeLimit}) checked  #end > <input type="text" id="timeLimit" name="timeLimit"  class="u-input w170"  value="$!{info.timeLimit}">
+                            天（有效天数是按优惠券领取当天进行计算）
+
+                            <input type="hidden" class="u-input w170 mask_money" name="giftId" id="giftId" value="$!{info.giftId}"/>
+                        </div>
+
+
+                        <div class="item" style="display: none">
+                            <label for="" class="u-label">增益收益：</label>
+                            <input type="text" class="u-input w170 mask_money" name="rateOfYear" id="rateOfYear"/>
+
+                        </div>
+
+
+                    </fieldset>
+                    <div class="item mt10" style="margin-left:50px;">
+                        #if(${info.status} == "STOP")
+                            <a href="javascript:;" class="u-btn u-btn-blue fn-submit1">保存</a>
+                        #end
+                        <a href="javascript:history.go(-1);" class="u-btn u-btn-gray">取消</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var $_GLOBAL =
+    {
+    }
+    ;
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript">
+    seajs.use($_GLOBAL.mode +'addGiftMoney');
+
+
+
+</script>
+</body>
+</html>

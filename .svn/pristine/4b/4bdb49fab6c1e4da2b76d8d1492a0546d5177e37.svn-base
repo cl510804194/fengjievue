@@ -1,0 +1,21 @@
+package com.yjf.esupplier.service.pay;
+
+import java.util.Map;
+
+import com.yjf.esupplier.integration.openapi.context.OpenApiContext;
+import com.yjf.esupplier.integration.openapi.result.GoToFormResult;
+import com.yjf.esupplier.service.pay.order.BalancePointOrder;
+import com.yjf.esupplier.service.pay.order.PayOrderInfosOrder;
+import com.yjf.esupplier.service.pay.order.PointPayOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+
+public interface PayService {
+	GoToFormResult gotoYijifuPay(PayOrderInfosOrder orderInfosOrder);
+	
+	EsupplierBaseResult paymentProcess(Map<String, String> param);
+
+	/*全积分支付*/
+	EsupplierBaseResult pointPaymentProcess(PointPayOrder pointPayOrder);
+	
+	EsupplierBaseResult creatBalancePointOrder(BalancePointOrder balancePointOrder, OpenApiContext openApiContext);
+}

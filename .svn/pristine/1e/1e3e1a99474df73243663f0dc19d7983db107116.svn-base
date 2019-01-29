@@ -1,0 +1,45 @@
+package com.yjf.esupplier.service.common.services;
+
+import com.yjf.esupplier.service.common.info.GuarantorInfo;
+import com.yjf.esupplier.service.common.order.GuarantorInfoQueryOrder;
+import com.yjf.esupplier.service.common.order.GuarantorOrder;
+import com.yjf.esupplier.ws.result.EsupplierBaseResult;
+import com.yjf.esupplier.ws.service.query.result.QueryBaseBatchResult;
+
+public interface GuarantorManagerService {
+	/**
+	 * 添加担保人
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult addGuarantor(GuarantorOrder order);
+	
+	/**
+	 * 更新担保人
+	 * @param order
+	 * @return
+	 */
+	EsupplierBaseResult updateGuarantor(GuarantorOrder order);
+	
+	/**
+	 * 删除担保人
+	 * @param id
+	 * @return
+	 */
+	EsupplierBaseResult deleteGuarantor(long id);
+	
+	/**
+	 * id加载数据
+	 * @param id
+	 * @return
+	 */
+	GuarantorInfo findById(long id);
+	
+	/**
+	 * 数据查询
+	 * @param queryOrder
+	 * @return
+	 */
+	QueryBaseBatchResult<GuarantorInfo> queryGuarantorInfo(GuarantorInfoQueryOrder queryOrder);
+	
+}

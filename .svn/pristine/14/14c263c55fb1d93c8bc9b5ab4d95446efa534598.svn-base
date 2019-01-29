@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html>
+<body class="m-content">
+<form  action="/contract/applayContract.htm" method="post" id="applyContract_form">
+
+<!--section title-->
+<div class="m-sectionHd">
+
+    <!--left-->
+    <div class="left">条形码</div>
+
+    <!--center-->
+    <div class="center">分期合同表格</div>
+
+    <!--right-->
+    <div class="right">
+
+        <!--tool-->
+        <div class="tool">
+            销售顾问代码：11212313213
+        </div>
+        <!--tool End-->
+
+        <div class="tool">
+            内部编号：
+            <select>
+                <option>请选择</option>
+                <option>RN01</option>
+                <option>RN02</option>
+                <option>RN03</option>
+                <option>RN04</option>
+            </select>
+        </div>
+
+        <div class="tool">
+            <label><a href="/admin/application/viewContractInfo.htm?contractId=$!{contractInfoResult.contractInfo.contractId}">打印</a></label>
+        </div>
+
+    </div>
+</div>
+<!--section title End-->
+
+<!--section-->
+<div class="m-section first">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">商户选择</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+            <!--column-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">商户编号：</label>
+                    <label>$!{contractInfoResult.contractInfo.storeId}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--column End-->
+        </div>
+        <!--form-->
+
+    </div>
+    <!--body End-->
+</div>
+<!--section-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">客户资料</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+            <!--row-->
+            <div class="f-cf">
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">姓名：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerName}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">性别：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.sex.message} &nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">教育程度：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.educationLevel.message} &nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">婚姻状况：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.maritalTatus.message}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">子女数目：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.childrenNum}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>住房：</label>
+                        <span>$!{contractInfoResult.contractInfo.customerInfo.houseType} &nbsp;</span>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>住宅电话登记人：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.houseContactNam}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>户籍地址：</label>
+                        <label>
+                            $!{contractInfoResult.contractInfo.customerInfo.province},$!{contractInfoResult.contractInfo.customerInfo.city},
+                            $!{contractInfoResult.contractInfo.customerInfo.country} $!{contractInfoResult.contractInfo.customerInfo.address}
+                        </label>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">学生号码：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.studentNumber}&nbsp;<label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>电子邮箱：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.email}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">微信帐号：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.weixinNumber}&nbsp;<label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>手机号码：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.mobileNumber}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>住宅/宿舍电话：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.houseContactPhone}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>客户照片：</label>
+                        <input type="file" />
+
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>身份证号码：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.certificateCard}&nbsp;<label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>证件有效期：</label>
+                        #if($!{contractInfoResult.contractInfo.customerInfo.certificateDate} == 'UNDATED')
+                           <label>长期&nbsp;</label>
+                        #else
+                            <label>$!{contractInfoResult.contractInfo.customerInfo.certificateDate}&nbsp;</label>
+                        #end
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>发证机关所在地：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerInfo.certificateSite}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+            </div>
+            <!--row End-->
+
+
+
+        </div>
+        <!--form End-->
+    </div>
+    <!--body End-->
+</div>
+<!--section End-->
+
+<!--section-->
+#if($!{contractInfoResult.customerInfo.maritalTatus} == 'MARRIED')
+    <div class="m-section"  id="mate_div_id" >
+
+        <!--head-->
+        <div class="hd">
+            <!--inner-->
+            <div class="in">
+                <span class="title">配偶资料</span>
+            </div>
+            <!--inner-->
+        </div>
+        <!--head End-->
+
+        <!--body-->
+        <div class="bd">
+
+            <!--form-->
+            <div class="m-form column">
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">配偶姓名：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.mateName}&nbsp;<label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">配偶办公电话：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.matePhone}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">配偶手机号码：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.mateMobile}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">配偶办公分机：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.mateExtPhone}&nbsp;<label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>身份证号码：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.mateCertificateCard}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+            </div>
+            <!--form End-->
+
+        </div>
+        <!--body End-->
+
+    </div>
+#end
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">现居住地址</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--row-->
+            <div class="f-cf">
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">居住时间：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.liveDate}&nbsp;</label>
+                        <label>月</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label"><i>*</i>户籍地址：</label>
+                <label>$!{contractInfoResult.contractInfo.customerExtInfo.liveProvince}，$!{contractInfoResult.contractInfo.customerExtInfo.liveCity}，
+                    $!{contractInfoResult.contractInfo.customerExtInfo.liveCounty}，$!{contractInfoResult.contractInfo.customerExtInfo.liveAddress}，</label>
+            </div>
+
+        </div>
+        <!--form End-->
+
+    </div>
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">家庭信息</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--row-->
+            <div class="f-cf">
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">家庭成员名称：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.memberName}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>家庭成员类型：</label>
+                        <label>
+                            $!{contractInfoResult.contractInfo.customerExtInfo.memberType.message}&nbsp;
+                        </label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">家庭成员电话：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.memberMobile}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label"><i>*</i>家庭地址：</label>
+                <label>省/直辖市：$!{contractInfoResult.contractInfo.customerExtInfo.memberProvince},$!{contractInfoResult.contractInfo.customerExtInfo.memberCity},
+                    $!{contractInfoResult.contractInfo.customerExtInfo.memberConty},$!{contractInfoResult.contractInfo.customerExtInfo.memberAddress}</label>
+            </div>
+
+
+        </div>
+        <!--form End-->
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">其他联系人资料</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+            <!--row-->
+            <div class="f-cf">
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>其它联系人姓名：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.otherContactName}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>其它联系人类型：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerExtInfo.otherContactType}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>其它联系人电话：</label>
+                        <label>$!{contractInfoResul.contractInfo.customerExtInfo.otherContactMobile}</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label">其它备注：</label>
+                <label class="label">$!{contractInfoResult.contractInfo.customerExtInfo.remark}&nbsp;</label>
+            </div>
+
+        </div>
+        <!--form End-->
+    </div>
+    <!--body End-->
+
+</div>
+<!--section-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">文件管理</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <div class="group">
+                <input class="checkbox" type="checkbox" name="imageType" value="CARD">
+                <label class="label2">身份证</label>
+
+
+                <input class="checkbox" type="checkbox" name="imageType" value="MEDICAL_CARD">
+                <label class="label2">社保卡</label><input type="file"/>
+
+                <input class="checkbox" type="checkbox" name="imageType" value="WORK_CARD">
+                <label class="label2">工卡</label><input type="file"/>
+
+                <input class="checkbox" type="checkbox" name="imageType" value="BANK_CARD">
+                <label class="label2">银行卡</label><input type="file"/>
+
+
+            </div>
+
+            <div class="group">
+                <input class="checkbox" type="checkbox" name="imageType" value="BANK_STATEMENT">
+                <label class="label2">银行对账单</label>
+
+                <input class="checkbox" type="checkbox" value="BANK_BOOK">
+                <label class="label2">银行存折</label>
+
+                <input class="checkbox" type="checkbox" value="HOUSEHOLD">
+                <label class="label2">户口本</label>
+
+                <input class="checkbox" type="checkbox" value="DRIVING_LICENCE">
+                <label class="label2">驾驶证</label>
+            </div>
+
+            <div class="group">
+                <input class="checkbox" type="checkbox" value="STUDENT_CARD">
+                <label class="label2">大学学生证</label>
+
+                <input class="checkbox" type="checkbox" value="STUDENT_CERTIFY">
+                <label class="label2">大学学生证明 （仅适用全日制大学学生）</label>
+
+                <input class="checkbox" type="checkbox">
+                <label class="label2">其他</label>
+
+            </div>
+
+            <div class="group">
+                <input type="file"/>
+            </div>
+
+        </div>
+        <!--form End-->
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">零售商员工推荐人资料</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">推荐人姓名：</label>
+                    <label >$!{contractInfoResult.contractInfo.customerExtInfo.referrerName}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">推荐人手机：</label>
+                    <label>$!{contractInfoResult.contractInfo.customerExtInfo.referrerMobile}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">身份证号码：</label>
+                    <label>$!{contractInfoResult.contractInfo.customerExtInfo.referrerCardNumber}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">收入资料</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">月收入总额：</label>
+                    <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.monthlyIncome}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">每月其他收入：</label>
+                    <label>${contractInfoResult.contractInfo.customerCompanyInfo.otherAmount}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--group End-->
+
+            <!--group-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label">家庭月收入：</label>
+                    <label>${contractInfoResult.contractInfo.customerCompanyInfo.allAmount}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--group End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">所在单位信息</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+            <!--row-->
+            <div class="f-cf">
+
+                <!--group-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位或大学：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.companyCategory}&nbsp;</label>
+                        <select class="select" name="companyCategory">
+                            <option value="">请选择</option>
+                            <option value="company">公司/个人</option>
+                            <option value="university">大学</option>
+                        </select>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位/个体全称：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.companyName}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>行业类别：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.industry}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>职位：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.position}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--group End-->
+
+                <!--group-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">大学名称：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.university}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>工作/在校时间：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.workTime}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>单位性质：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.unitType.message}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>办公电话：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompanyInfo.companyPhone}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--group End-->
+
+                <!--group-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label">任职部门/班级：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompany.department}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label">单位/大学开始时间：</label>
+                        <label>$!{contractInfoResult.contractInfo.customerCompany.startDate}&nbsp;</label>
+                        年
+                    </div>
+
+                </div>
+                <!--group End-->
+
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label"><i>*</i>单位/学校地址：</label>
+                <label>省/直辖市：</label>
+                <select class="select2" name="unitProvince">
+                    #foreach($region in $regionInfoList)
+                        <option value="$!{region.regionId}">$!{region.regionName}</option>
+                    #end
+                </select>
+                <label>市：</label>
+                <select class="select2" name="unitCity"></select>
+                <label>区/县：</label>
+                <select class="select2" name="unitCountry"></select>
+                <input type="text" placeholder="如某区/县乡镇村小区楼层" class="input" name="unitAddress">
+            </div>
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+#foreach($commodityInfo in $!{contractInfoResult.contractInfo.commodityInfos})
+    <div class="m-section">
+
+        <!--head-->
+        <div class="hd">
+            <!--inner-->
+            <div class="in">
+                <span class="title">所购商品</span>
+            </div>
+            <!--inner-->
+        </div>
+        <!--head End-->
+
+        <!--body-->
+        <div class="bd">
+
+            <!--form-->
+            <div class="m-form column">
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>商品种类：</label>
+                        <label>$!{commodityInfo.commodityType}&nbsp;</label>
+                    </div>
+
+                    <div class="group">
+                        <label class="label"><i>*</i>价格：</label>
+                        <label>$!{commodityInfo.commodityPrice}&nbsp;</label>
+                        元
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>品牌：</label>
+                        <label>$!{commodityInfo.commodityBrand}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+                <!--col-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>型号：</label>
+                        <label>$!{commodityInfo.commodityModel}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--col End-->
+
+            </div>
+            <!--form End-->
+
+        </div>
+        <!--body End-->
+
+    </div>
+<!--section End-->
+#end
+
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">贷款类型</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>贷款品种：</label>
+                    <select class="select" name="loanType">
+                        <option value="">请选择</option>
+                        <option value="">成人消费贷款</option>
+                        <option value="">学生消费贷款</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>客户支付总额：</label>
+                    <label>$!{contractInfoResult.contractInfo.downPayment}&nbsp;</label>
+                    元
+                </div>
+
+
+                <div class="group">
+                    <label class="label"><i>*</i>每月还款额：</label>
+                    <label>$!{contractInfoResult.contractInfo.monthlyAmount}&nbsp;</label>
+                    元
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>客户开户银行：</label>
+                    <label>$!{contractInfoResult.contractInfo.bank}&nbsp;</label>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>资料邮寄地址：</label>
+                    <label>$!{contractInfoResult.contractInfo.postAddress}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>贷款用途：</label>
+                    <label>$!{contractInfoResult.contractInfo.loanPurpose}&nbsp;</label>
+                </div>
+
+
+
+                <div class="group">
+                    <label class="label"><i>*</i>贷款本金：</label>
+                    <label>$!{contractInfoResult.contractInfo.loanAmount}&nbsp;</label>
+                    元
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>每月还款日：</label>
+                    <label>$!{contractInfoResult.contractInfo.monthlyLoanTime}&nbsp;</label>
+                </div>
+
+
+                <div class="group">
+                    <label class="label"><i>*</i>客户银行卡号：</label>
+                    <label>$!{contractInfoResult.contractInfo.loanBankNumber}&nbsp;</label>
+                </div>
+
+            </div>
+            <!--col End-->
+
+            <!--col-->
+            <div class="col">
+
+                <div class="group">
+                    <label class="label"><i>*</i>商品总价：</label>
+                    <label>$!{contractInfoResult.contractInfo.commodityAmount}&nbsp;</label>
+                    元
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>分期期数：</label>
+                    <label>$!{contractInfoResult.contractInfo.stagesNum}&nbsp;</label>
+                </div>
+
+                <div class="group">
+                    <label class="label"><i>*</i>月供金额：</label>
+                    <label>$!{contractInfoResult.contractInfo.monthlyAmount}&nbsp;</label>
+                    元
+                </div>
+
+                <div class="group">
+                    <input type="checkbox"/>
+                    <label calss="label2">银行代扣还款</label>
+                </div>
+
+
+            </div>
+            <!--col End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">送货地址</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--row-->
+            <div class="f-cf">
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>收货人姓名：</label>
+                        <label>$!{contractInfoResult.contractInfo.deliverInfo.deliverName}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+                <!--column-->
+                <div class="col">
+
+                    <div class="group">
+                        <label class="label"><i>*</i>手机号码：</label>
+                        <label>$!{contractInfoResult.contractInfo.deliverInfo.deliverMobile}&nbsp;</label>
+                    </div>
+
+                </div>
+                <!--column End-->
+
+            </div>
+            <!--row End-->
+
+            <div class="group">
+                <label class="label"><i>*</i>收货地址：</label>
+                <label>$!{contractInfoResult.contractInfo.deliverInfo.deliverProvince} &nbsp; $!{contractInfoResult.contractInfo.deliverInfo.deliverCity}&nbsp;
+                    $!{contractInfoResult.contractInfo.deliverInfo.deliverContry} &nbsp; $!{contractInfoResult.contractInfo.deliverInfo.deliverAddress}</label>
+
+            </div>
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+<!--section End-->
+
+<!--section-->
+<div class="m-section">
+
+    <!--head-->
+    <div class="hd">
+        <!--inner-->
+        <div class="in">
+            <span class="title">保险</span>
+        </div>
+        <!--inner-->
+    </div>
+    <!--head End-->
+
+    <!--body-->
+    <div class="bd">
+
+        <!--form-->
+        <div class="m-form column">
+
+            <!--column-->
+            <div class="col">
+
+                <div class="group">
+                    <input class="checkbox" type="checkbox"/>
+                    <label class="label2">忠利短期人寿险 ￥7.00</label>
+                </div>
+
+            </div>
+            <!--column End-->
+
+        </div>
+        <!--form End-->
+
+    </div>
+    <!--body End-->
+
+</div>
+
+</form>
+
+
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript" src="/resources/js/global.js"></script>
+<script type="text/javascript" src="/resources/js/comp/swfobject.js"></script>
+<script type="text/javascript">
+    seajs.use(['content/applayContract']);
+</script>
+</body>
+</html>

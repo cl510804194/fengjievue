@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>前台图片管理-上传图片</title>
+	<link type="text/css" href="$!{rc.contextPath}/resources/css/after.css" rel="stylesheet" />
+</head>
+<body>
+	<div class="warp">
+		<!--头部-->
+		#parse("/backstage/layout/logo.vm")
+		<!--内容-->
+		<div class="container fn-clear">
+			#parse("/backstage/layout/left.vm")
+			<div class="main-content fn-right">
+				<div class="mc">
+					<div class="top">
+						<p><a href="">前台图片管理</a> > 上传图片</p>
+					</div>
+					<input type='hidden' id="uploadHost" value="$!{uploadHost}"/>
+					<div class="item" >
+						<label for="" class="u-label">上传银行支付能力图片：</label>
+						<span class="sl-file" style="width:300px">
+							<input type="file" exts="png" class="sl-file-input" id="bankUrl_Upload" />
+						</span>
+						<p>仅支持.png的图片格式。<em class="ft-f60">图片大小不超过3M。</em></p>
+						<a href="javascript:;" id="bankUrl_ImgLink" name="bankUrl_ImgLink" title="银行支付能力图片">  
+							<img id="bankUrl_Img" name="bankUrl_Img" title="银行支付能力图片" style = "width:320px;height:120px;"  src="/resources/images/bank/bankChanels.png"/>
+                        </a> 
+					</div>
+					<div class="item" >
+						<label for="" class="u-label">上传首页轮换图片1：</label>
+						<span class="sl-file" style="width:300px">
+							<input type="file" exts="png" class="sl-file-input" id="index1Url_Upload" />
+						</span>
+						<p>仅支持.jpg的图片格式。<em class="ft-f60">图片大小不超过3M。</em></p>
+						<div id="index1Url_Upload_imgcontainer">
+							<a href="javascript:;" id="index1Url_Upload_ImgLink" name="index1Url_Upload_ImgLink" title="首页轮换图片1">  
+								<img id="index1Url_Upload_Img" name="index1Url_Upload_Img" title="首页轮换图片1" style = "width:320px;height:120px;"  src="$!{appConstantsUtil.getImageServerUrl()}/uploadfile/images/main_ad01.jpg" alt="main_ad01.jpg"/>
+                            </a> 
+						</div>
+					</div>
+					<div class="item" >
+						<label for="" class="u-label">上传首页轮换图片2：</label>
+						<span class="sl-file" style="width:300px">
+							<input type="file" exts="png" class="sl-file-input" id="index2Url_Upload" />
+						</span>
+						<p>仅支持.jpg的图片格式。<em class="ft-f60">图片大小不超过3M。</em></p>
+						<a href="javascript:;" id="index2Url_Upload_ImgLink" name="index2Url_Upload_ImgLink" title="首页轮换图片2">  
+							<img id="index2Url_Upload_Img" name="index2Url_Upload_Img" title="首页轮换图片2" style = "width:320px;height:120px;"  src="$!{appConstantsUtil.getImageServerUrl()}/uploadfile/images/main_ad02.jpg" alt="main_ad02.jpg"/>
+                        </a> 
+					</div>
+					<div class="item">
+						<label for="" class="u-label">上传首页轮换图片3：</label>
+						<span class="sl-file" style="width:300px">
+							<input type="file" exts="png" class="sl-file-input" id="index3Url_Upload" />
+						</span>
+						<p>仅支持.jpg的图片格式。<em class="ft-f60">图片大小不超过3M。</em></p>
+						<div id="index3Url_imgcontainer" >
+							<a href="javascript:;" id="index3Url_Upload_ImgLink" name="index3Url_Upload_ImgLink" title="首页轮换图片3">  
+								<img id="index3Url_Upload_Img" name="index3Url_Upload_Img" title="首页轮换图片3" style = "width:320px;height:120px;"  src="$!{appConstantsUtil.getImageServerUrl()}/uploadfile/images/main_ad03.jpg" alt="main_ad03.jpg"/>
+                            </a> 
+						</div>
+					</div>
+					<div class="item" >
+						<label for="" class="u-label">上传首页轮换图片4：</label>
+						<span class="sl-file" style="width:300px">
+							<input type="file" exts="png" class="sl-file-input" id="index4Url_Upload" />
+						</span>
+						<p>仅支持.jpg的图片格式。<em class="ft-f60">图片大小不超过3M。</em></p>
+						<div id="index4Url_imgcontainer" >
+							<a href="javascript:;" id="index4Url_Upload_ImgLink" name="index4Url_Upload_ImgLink" title="首页轮换图片4">  
+								<img id="index4Url_Upload_Img" name="index4Url_Upload_Img" title="首页轮换图片4" style = "width:320px;height:120px;"  src="$!{appConstantsUtil.getImageServerUrl()}/uploadfile/images/main_ad04.jpg" alt="main_ad04.jpg"/>
+                            </a> 
+						</div>
+					</div>
+					<div class="item" >
+						<label for="" class="u-label">上传首页轮换图片5：</label>
+						<span class="sl-file" style="width:300px">
+							<input type="file" exts="png" class="sl-file-input" id="index5Url_Upload" />
+						</span>
+						<p>仅支持.jpg的图片格式。<em class="ft-f60">图片大小不超过3M。</em></p>
+						<div id="index4Url_imgcontainer" >
+							<a href="javascript:;" id="index5Url_Upload_ImgLink" name="index5Url_Upload_ImgLink" title="首页轮换图片5">  
+								<img id="index5Url_Upload_Img" name="index5Url_Upload_Img" title="首页轮换图片5" style = "width:320px;height:120px;"  src="$!{appConstantsUtil.getImageServerUrl()}/uploadfile/images/main_ad05.jpg" alt="main_ad05.jpg"/>
+                            </a> 
+						</div>
+					</div>
+					
+					<form action="/admin/updateFontImg" class="ui-form" id="img_form" method="POST">
+							<input type="hidden" value="0000" name="param_id"/>
+											
+							<div class="item">
+        						#foreach($attachmentModuleTypeInfo in $list)
+        							<h2>前台首页图片（已经上传）</h2>
+        							<div class="b-border pro-info" style="overflow: hidden;">
+        							#foreach($attachmentInfo in $attachmentModuleTypeInfo.attachmentInfos)
+										<div style="position:relative;width:100px;height:50px;margin:5px; display: block; float:left;">
+            								<img style="width:100px;height:50px;"attachmentId="$!attachmentInfo.attachmentId" filePhysicalPath="$!attachmentInfo.filePhysicalPath" requestPath="$!attachmentInfo.requestPath" src='$!attachmentInfo.requestPath'/>
+    										<a style="position: absolute; right: 5px; top: 5px;" class="delimg" href="javascript:;">X</a>
+										</div>
+        							#end		
+        							</div>
+								#end
+
+									<li style="width:500px"><span>前台图片</span><span  class=""><a code='$!{info.code}' href="javascript:;" class='loan_management fn-ys4-btn attach'>上传</a></span></li>	
+									
+								
+							</div>
+							<div class="fn-layer f-active upload-scan" style="width:750px;position:absolute;left:-9999px;">
+                            		<div class="f-con">
+                            			<div class="f-top mb10">
+                            				<p>图片支持jpg、jpeg、png、bmp格式，单张图片大小不超过1M，双击可编辑图片名称,图片名称不超过50字</p>
+                            			</div>
+										#set($index=1)
+										#foreach($!info in $!enumlist)
+												<input type="hidden" value="" name="pathName_$!info.code" id="pathHiddenId_$index"/>
+											#set($index=$index+1)
+										#end
+                					<input type="hidden" value="" name="OTHER_attachPaths" id="OTHER_attachPaths"/>
+                						<div class="fn-item fn-clear" style="width:550px;">
+                						<label class="fn-label">上传图片</label>
+                                        <img style="width:50px;height:50px;" class="uploadimg" />
+                                        </div>
+                						<input type="file" id='upfile' class="fn-text w205" value="" name="credentialsImage"/>
+                							<div id="queueDiv"></div>
+                							<ul id="hidden_imgs_ul" class="upload-img fn-clear hidden_imgs_ul_del">
+                								<li id="upimg-model" style='display:none'>
+                									<img src="" alt="" />
+                									<a href="javascript:;" class="del" title="删除"></a>
+                									<div class="fn-imgInfo" style="text-align:center;"><span></span><input style="display:none;" maxlength='50' /></div>
+                								</li>								
+                							</ul>
+                							<b class="fn-tip"></b>
+                						
+                						</div>
+                				<div class="fn-item">
+                					<a href="javascript:;" class="fn-g-btn loanChecckSubmit">完成</a>
+                				</div>
+                			</div>
+						
+
+						<div class="item">
+                            <a href="javascript:;"  class="u-btn u-btn-blue submit_form">保存</a><a href="/admin/uploadImages2Front" class="u-btn u-btn-gray">取消</a>
+						</div>
+					</form>
+					
+					
+					
+					
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<script type="text/javascript">
+    	var $_GLOBAL = {};
+    </script>
+	<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="$!{rc.contextPath}/resources/js/plugins/jquery.window.js"></script>
+	<script type="text/javascript" src="$!{rc.contextPath}/resources/js/lib/sea.js"></script>
+	<script type="text/javascript">
+    	seajs.use($_GLOBAL.mode + 'frontImagesUpload');
+    </script>
+	
+</body>
+</html>
+
+
+
+
+

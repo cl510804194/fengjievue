@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
+         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+	default-autowire="byName">
+	
+	<context:annotation-config />
+	
+	<bean id="emailTemplateDao" class="com.yjf.esupplier.dal.ibatis.EmailTemplateDAOImpl" parent="baseSqlMapClientDAO"/>
+	<bean id="extraDAO" class="com.yjf.esupplier.dal.ibatis.IbatisExtraDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="settlementInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisSettlementInfoDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="operatorInfoDao" class="com.yjf.esupplier.dal.ibatis.OperatorInfoDaoImpl" parent="baseSqlMapClientDAO"/>
+	<bean id="reportDao" class="com.yjf.esupplier.dal.ibatis.ReportDaoImpl" parent="baseSqlMapClientDAO"/>
+	<bean id="statisticsDAO" class="com.yjf.esupplier.dal.ibatis.IbatisStatisticsDAO" parent="baseSqlMapClientDAO"/>
+	
+	<bean id="deliveryDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisDeliveryDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="drawerAddressDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisDrawerAddressDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="licenseDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisLicenseDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="orderDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisOrderDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="orderOperateLogDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisOrderOperateLogDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="productCustomPropertyDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisProductCustomPropertyDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="productDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisProductDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="productCusDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisProductCusDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="pt2dyDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisPt2dyDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="saleProductDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisSaleProductDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="specialProductDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisSpecialProductDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="supplierDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisSupplierDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="discountDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisDiscountDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="shipDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisShipDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="facadeDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisFacadeDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="productTypeDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisProductTypeDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="storageDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisStorageDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="storageInOutDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisStorageInOutDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="storageInOutDetailDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisStorageInOutDetailDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="popInfoDao" class="com.yjf.esupplier.dal.ibatis.PopInfoDaoImpl" parent="baseSqlMapClientDAO"/>
+	<bean id="tblOrderInfoSearchDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisTblOrderInfoSearchDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="tblProductStorageSearchDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisTblProductStorageSearchDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="userBaseInfoQueryDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisUserBaseInfoQueryDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="supplierProductDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisSupplierProductDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userInterestDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserInterestDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="ibatisHotelsStockDAO" class="com.yjf.esupplier.dal.custom.ibatis.IbatisCustomHotelsStockDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="tblHotelDiscountDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblHotelDiscountDAO" parent="baseSqlMapClientDAO"/>
+	<bean id="tblHotelRefundDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblHotelRefundDAO" parent="baseSqlMapClientDAO"/>
+
+	<!-- ======================================================================== -->
+    <!-- 								 gen DAO            				      -->
+    <!-- ======================================================================== -->
+    <bean id="appEquipmentLoginDAO" class="com.yjf.esupplier.dal.ibatis.IbatisAppEquipmentLoginDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="bankBaseInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisBankBaseInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="commonAttachmentDAO" class="com.yjf.esupplier.dal.ibatis.IbatisCommonAttachmentDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="commonDistrictDAO" class="com.yjf.esupplier.dal.ibatis.IbatisCommonDistrictDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="deliveryPersonDAO" class="com.yjf.esupplier.dal.ibatis.IbatisDeliveryPersonDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="feebackOptionDAO" class="com.yjf.esupplier.dal.ibatis.IbatisFeebackOptionDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="fileElecCertificateDAO" class="com.yjf.esupplier.dal.ibatis.IbatisFileElecCertificateDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="giftMoneyDAO" class="com.yjf.esupplier.dal.ibatis.IbatisGiftMoneyDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="giftMoneyRuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisGiftMoneyRuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="giftMoneyTemplateDAO" class="com.yjf.esupplier.dal.ibatis.IbatisGiftMoneyTemplateDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="giftMoneyTemplateRuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisGiftMoneyTemplateRuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="giftMoneyTradeDAO" class="com.yjf.esupplier.dal.ibatis.IbatisGiftMoneyTradeDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="guarantorInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisGuarantorInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="hotelsStockDAO" class="com.yjf.esupplier.dal.ibatis.IbatisHotelsStockDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="institutionsInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisInstitutionsInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryActivityDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryActivityDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryActivityInstanceDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryActivityInstanceDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryConditionDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryConditionDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryDrawCountDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryDrawCountDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryRecordDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryRecordDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryToBeWinnerDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryToBeWinnerDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="lotteryWinnerDAO" class="com.yjf.esupplier.dal.ibatis.IbatisLotteryWinnerDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="messageInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisMessageInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="messageReceivedDAO" class="com.yjf.esupplier.dal.ibatis.IbatisMessageReceivedDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="operationJournalDAO" class="com.yjf.esupplier.dal.ibatis.IbatisOperationJournalDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="paymentFlowDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPaymentFlowDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="pdfTemplateDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPdfTemplateDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="permissionDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPermissionDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="personalInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPersonalInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="pointsGoodsDetailDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPointsGoodsDetailDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="pointsRuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPointsRuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="pointsRuleDetailDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPointsRuleDetailDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="popModuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPopModuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="prizeRuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPrizeRuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="prizeRuleDetailDAO" class="com.yjf.esupplier.dal.ibatis.IbatisPrizeRuleDetailDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="rechargeFlowDAO" class="com.yjf.esupplier.dal.ibatis.IbatisRechargeFlowDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="refundOrderInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisRefundOrderInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="reportRuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisReportRuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="roleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisRoleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="rolePermissionDAO" class="com.yjf.esupplier.dal.ibatis.IbatisRolePermissionDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="roleReportDAO" class="com.yjf.esupplier.dal.ibatis.IbatisRoleReportDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="sysParamDAO" class="com.yjf.esupplier.dal.ibatis.IbatisSysParamDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblDeliverDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblDeliverDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblDiningTableSituationDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblDiningTableSituationDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblDrawerAddressDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblDrawerAddressDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblHotelLongDetailDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblHotelLongDetailDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblHotelLongSetDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblHotelLongSetDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblLogisticDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblLogisticDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblMessageLoveWallDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblMessageLoveWallDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblMessageWallDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblMessageWallDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblOrderInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblOrderInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblOrderItemDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblOrderItemDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblPopUserDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblPopUserDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductCommentLikeDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductCommentLikeDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductCustomDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductCustomDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductCustomPropertyDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductCustomPropertyDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductDeliveryDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductDeliveryDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductPropertyDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductPropertyDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductRecommendDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductRecommendDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductScoreDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductScoreDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductTypeDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductTypeDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblProductUserDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblProductUserDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblScenicInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblScenicInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblShopCartDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblShopCartDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblStorageDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblStorageDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblStorageInoutDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblStorageInoutDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblStorageInoutDetailDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblStorageInoutDetailDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblSupplierDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblSupplierDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblSupplierDiningConfigDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblSupplierDiningConfigDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblSupplierRecommendDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblSupplierRecommendDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblSyncOrderDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblSyncOrderDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="tblTradeReviewDAO" class="com.yjf.esupplier.dal.ibatis.IbatisTblTradeReviewDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="toCardFlowDAO" class="com.yjf.esupplier.dal.ibatis.IbatisToCardFlowDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userAccountDataDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserAccountDataDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userBankInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserBankInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userBaseInfoDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserBaseInfoDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userExtendDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserExtendDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userLevelRuleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserLevelRuleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userLoginDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserLoginDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userLoginLogDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserLoginLogDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userPointDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserPointDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userPointsDetailDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserPointsDetailDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userRelationDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserRelationDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userRoleDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserRoleDAO" parent="baseSqlMapClientDAO"/>
+    <bean id="userWeixinDAO" class="com.yjf.esupplier.dal.ibatis.IbatisUserWeixinDAO" parent="baseSqlMapClientDAO"/>
+
+</beans>

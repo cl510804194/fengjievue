@@ -1,0 +1,62 @@
+<table sqlname="gift_money_template_rule">
+    <column name="rule_amount" javatype="com.yjf.common.lang.util.money.Money" />
+
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+		    INSERT INTO gift_money_template_rule(rule_id,template_id,rule_amount,amount) VALUES (?,?,?,?)	]]>
+		</sql>
+		<sqlmap>
+			<![CDATA[
+		   INSERT INTO gift_money_template_rule(rule_id,template_id,rule_amount,amount) VALUES (#ruleId#,#templateId#,#ruleAmount#,#amount#)
+	       <selectKey  resultClass ="long"  keyProperty ="ruleId" >
+	          		 SELECT LAST_INSERT_ID() AS ID 
+	      	</selectKey>
+				]]>
+		</sqlmap>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+				<![CDATA[
+					UPDATE gift_money_template_rule SET template_id=?,ruleAmount=?,amount=? WHERE rule_id=?
+			]]>
+		</sql>
+	</operation>
+	<operation name="findByTemplateId" paramtype="long"  multiplicity="many">
+		<sql>
+				<![CDATA[
+				          SELECT  rule_id,template_id,rule_amount,amount  FROM gift_money_template_rule WHERE template_id=?	]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+				<![CDATA[
+					DELETE FROM gift_money_template_rule WHERE template_id=?
+	  		]]>
+		</sql>
+	</operation>
+
+    <operation name="insertAutotest" paramtype="object">
+		<sql>
+			<![CDATA[
+		    INSERT INTO gift_money_template_rule(rule_id,template_id,rule_amount,amount) VALUES (?,?,?,?)
+		    	]]>
+		</sql>
+	</operation>
+	
+	<operation name="findByTemplateIdAutotest" paramtype="long"  multiplicity="many">
+		<sql>
+			<![CDATA[
+			SELECT  rule_id,template_id,rule_amount,amount  FROM gift_money_template_rule WHERE template_id=?
+				]]>
+		</sql>
+	</operation>
+	<operation name="deleteByIdAutotest" paramtype="string">
+		<sql>
+			<![CDATA[
+			DELETE FROM gift_money_template_rule WHERE template_id=?
+	  		    ]]>
+		</sql>
+	</operation>
+
+</table>

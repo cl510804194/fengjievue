@@ -1,0 +1,19 @@
+<div class="m-aside fn-left">
+    <div class="m-info border-bt"> <span class="welcome">晚上好，adswdf</span>
+        <div class="m-function mt10"> <span class="mf-icon1"></span> <span class="mf-icon2"></span> <span class="mf-icon3"></span> </div>
+        <div class="m-safe mt5"> <span class="m-safe-bg"><span></span></span>
+            <p>安全等级：中</p>
+        </div>
+    </div>
+    <div class="m-balance border-bt"> <strong>可用余额</strong> <span>￥$!{yjfAccountInfo.availableBalance.toStandardString()}</span> <a href="/userManage/topUp/withholdingIndex">充值</a> </div>
+    <div class="m-nav">
+        <h2>我的账户</h2>
+        <ul>
+            <li><a href="#">账户总览</a></li>
+            <li><a href="#">投资的项目</a></li>
+            <li><a href="#">交易明细</a></li>
+            <li><a href="#">回款计划</a></li>
+            <li><a href="#">账户设置</a></li>
+        </ul>
+    </div>
+</div>

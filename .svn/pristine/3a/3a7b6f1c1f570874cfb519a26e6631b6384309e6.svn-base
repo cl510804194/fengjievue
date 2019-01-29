@@ -1,0 +1,48 @@
+/**
+ * www.yiji.com Inc.
+ * Copyright (c) 2012 All Rights Reserved.
+ */
+package com.yjf.esupplier.service.report.order;
+
+import java.util.Date;
+
+/**
+ *
+ *
+ * @Filename StatisticsQueryOrder.java
+ *
+ * @Description
+ *
+ * @Version 1.0
+ *
+ * @Author min
+ *
+ * @Email oyangnuo@yiji.com
+ *
+ * @History <li>Author: oyangnuo</li> <li>Date: 2016-2-25上午10:33:48</li> <li>Version: 1.0
+ * </li> <li>Content: create</li>
+ */
+public class StatisticsQueryOrder {
+	
+	private Date startDate;
+	
+	private Date endDate;
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+	
+
+}

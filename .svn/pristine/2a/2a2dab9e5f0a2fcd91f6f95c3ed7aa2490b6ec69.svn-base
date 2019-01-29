@@ -1,0 +1,123 @@
+define(function (require) {
+    var Site = require('../comp/init.js');
+    require('../plugins/jquery.window.js');
+    var addForm = $('#add_discountHotel');
+    if (addForm.length) {
+        addForm.validate({
+			errorClass : 'error-tip',
+			errorElement : 'b',
+            submitHandler: function () {
+                addForm.ajaxSubmit({
+                    success: function (res) {
+                        alert(res.message);
+                        if (res.code == 1) {
+                            window.location.href = "/admin/hotel/discount/hotelDiscountList.htm";
+                        }
+                    }
+                });
+            },          
+			errorPlacement : function(error, element) {
+				if (element.attr('name') == 'discountBegin' || element.attr('name') == 'discountEnd') {
+					element.parent().append(error);
+				} else{
+				    element.after(error);
+				}
+
+		},
+        rules: {
+        	discountBegin:{
+        		required:true,
+				digits : true,
+				firstNum:true,
+				max:10
+        	}
+        },
+        messages: {
+        	discountBegin:{
+        		required: '请输入折扣范围',
+				digits:'请输入整数',
+				firstNum:"请输入正数",
+				max : '最大输入10'
+        	}
+        }
+        });
+    }
+
+
+    $(".fn-submit1").bind("click", function () {
+    	var setTimeMorning = $(".setTimeMorning").val();
+    	if($("#SPECIAL").css('display')!='none'){
+				 addForm.submit();
+			
+    	}else if($("#LONGRENT").css('display')!='none'){
+			var days = $("#LONGRENTDAY").val();
+			if(days==''||days <=0){
+	  			 $(".setTimeLongrentday_error").show();
+	  		}else{
+	  			 addForm.submit();
+	  		}
+    	}else if($("#MORNING").css('display')!='none'){
+    	//	if(validationTime(setTimeMorning)){
+    		if($(".setTimeMorning").val().length >0){
+    		 addForm.submit();
+    		}else{
+    			$(".setTimeMorning_error").show();
+    		}
+    	//	}
+    	}
+    });
+    
+    function validationTime(setTime){
+		var userreg=/^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;	
+		if(userreg.test(setTime)){
+			return true;
+		}else{
+			//$(this).val("");
+			$(".setTimeMorning_error").show();
+			//alert("输入的时间不规范(注意时间格式),如 11:10");
+			return false;
+		}
+	};
+    
+    var addInnerForm = $('#addLongrentDay');
+    if (addInnerForm.length) {
+    	addInnerForm.validate({
+    		errorClass : 'error-tip',
+			errorElement : 'b',
+			errorPlacement : function(error, element) {
+				
+					element.after(error);
+			
+			},
+			rules : {
+				title : {
+					required : true,
+					digits : true,
+					firstNum:true
+				}
+			},
+			messages : {
+				title : {
+					required : '请输入天数',
+					digits:'请输入整数',
+					firstNum:"请输入正数"
+				}
+			},
+            submitHandler: function () {
+            	addInnerForm.ajaxSubmit({
+                    success: function (res) {
+                        alert(res.message);
+                        if (res.code == 1) {
+                        	$(".u-btn-gray").click();
+                        	$(".span_new").after("<input type='checkbox' id='LONGRENTDAY' name='setTime' value="+res.title+">"+res.title+"天</input>");
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    $(".fn-submit2").bind("click", function () {
+    	addInnerForm.submit();
+    });
+});

@@ -1,0 +1,196 @@
+define(function(require) {
+	var Site = require('../comp/init.js');
+	require('../Y-all/Y-script/Y-selectarea.js');
+	require('../Y-all/Y-script/Y-selectbranch.js');
+	require('../Y-all/Y-script/Y-imgplayer.js');
+	require('../Y-all/Y-script/Y-htmluploadify.js');
+	require('../content/fileUpload.js');
+	require('../plugins/jquery.uploadify.js');
+	var Site = require('../Y-all/Y-script/Y-tip.js');
+
+	$('#userCustomType2PathUpload').uploadify({
+		height: 26,
+		width: 100,
+		buttonClass: 'u-btn u-btn-gray',
+		buttonText: '选择上传图片',
+		fileTypeExts: '*.png;*.jpg;*.bmp',
+		multi: false,
+		swf: '/resources/swf/uploadify.swf',
+		uploader: '/do/upload/imagesUploads.htm;jsessionid=' + $_GLOBAL.sessionID,
+		fileSizeLimit: '3MB',
+		successTimeout: 180000,
+		onUploadStart: function() {
+			$('body').Y('Window', {
+				content: "<span><img src='/resources/images/common/loadingScroll.gif' /><br/>上传中，请稍后...</span>",
+				key: 'lodding',
+				simple: true
+			});
+		},
+		onUploadSuccess: function(file, data, response) {
+			handdleResult(data, "userCustomType2Path_imgcontainer", "userCustomType2PathImg", "userCustomType2PathImgLink", "userCustomType2");
+			Y.getCmp('lodding').close();
+		},
+		onUploadError: function(file, errorCode, errorMsg,
+			errorString) {
+			Y.getCmp('lodding').close();
+			alert("图片上传失败！异常信息：" + errorString);
+		},
+		onCancel: function(file) {
+			Y.getCmp('lodding').close();
+			alert("已取消！");
+		}
+	});
+
+	function handdleResult(data, containerId, imgId, linkId, storePathId) {
+		var result = "";
+		if (data.indexOf("pre") > 0) {
+			var startIndex = data.indexOf(">") + 1;
+			var endIndex = data.length - 6;
+			data = data.substring(startIndex, endIndex);
+			data = eval("(" + data + ")");
+			if (data.code == 0) {
+				var imgUrl = data.resData;
+				$("#" + imgId).attr("src", imgUrl);
+				//$("#"+linkId).attr("href", imgUrl);
+				$("#" + storePathId).val(imgUrl);
+
+			} else {
+				result = "<span style='color:red;'>" + data.resData + "</span>"
+			}
+		} else {
+			data = eval("(" + data + ")");
+			if (data.code == 0) {
+				var imgUrl = data.resData;
+				$("#" + imgId).attr("src", imgUrl);
+				//$("#"+linkId).attr("href", imgUrl);
+				$("#" + storePathId).val(imgUrl);
+
+				if ($('#' + linkId).data('jqzoom')) {
+					$('#' + linkId).data('jqzoom').largeimage.node.src = imgUrl;
+				};
+
+				$("#" + imgId).parents('.item').css('height', 360);
+			} else {
+				result = "<span style='color:red;'>" + data.resData + "</span>"
+			}
+		}
+		$("#" + containerId).append(result);
+
+		$('#' + containerId).show(1500);
+		setTimeout(function() {$('#' + containerId).height(90);}, 1000);
+	}
+
+	$('[name=userProvince_p]')[0].onchange = function() {
+		$('[name=userProvince]').val($('[name=userProvince_p]').val());
+	}
+	$('[name=userCity_c]')[0].onchange = function() {
+		$('[name=userCity]').val($('[name=userCity_c]').val());
+	}
+
+	var addForm = $('#form1');
+
+	// $('#fn-submit1').click(function() {
+	// 	addForm.submit();
+	// });
+
+	if (addForm.length) {
+		addForm.validate({
+			ignore: '',
+			errorClass: 'error-tip',
+			errorElement: 'b',
+			errorPlacement: function(error, element) {
+				if (element.attr('name') == 'imgCode') {
+					element.next().next().after(error);
+				} else {
+					element.after(error);
+				}
+			},
+			rules: {
+				userName:{
+					required: true,
+					rangelength: [6, 20],
+					NumandLetter_: true
+				},
+				realName: {
+					required: true				
+				},
+				nickname: {
+					required: true,
+					rangelength: [6, 20],
+					NumandLetter_: true
+				},
+				mail: {
+					required: true
+				},
+				fixedPhone: {
+					required: true
+				},
+				mobile: {
+					required: true,
+					isMobile: true
+				},
+				zip: {
+					required: true
+				},
+				userCounty:{
+					required: true
+				},
+				qq: {
+					required: true
+				}
+				
+			},
+			messages: {
+				userName:{
+					required: '清输入用户名',
+					rangelength: '请输入6-20位字符',
+					NumandLetter_: '只能为数字、字母、下划线'
+				},
+				realName: {
+					required: '请输入真实姓名'				
+				},
+				nickname: {
+					required: '请输入昵称',
+					rangelength: '请输入6-20位字符',
+					NumandLetter_: '只能为数字、字母、下划线'
+				},
+				mail: {
+					required: '请输入邮箱'
+				},
+				fixedPhone: {
+					required: '请输入固定电话'
+				},
+				mobile: {
+					required: '请输入移动电话',
+					isMobile: '请输入正确的手机号'
+				},
+				zip: {
+					required: '请输入邮政编码'
+				},
+				userCounty:{
+					required: '请输入通信地址'
+				},
+				qq: {
+					required: '请输入QQ'
+				}
+				
+			},
+			submitHandler: function() {
+				addForm.ajaxSubmit({
+					success: function(res) {
+//						res = $.parseJSON(res);
+						alert(res.message);
+						if (res.code == 1) {
+							window.location.href = "/do/member/updateMember.htm";
+						} else {
+							document.location.href = document.location.href;
+						}
+					}
+				});
+			},
+			onkeyup: false
+
+		});
+	}
+
+});

@@ -1,0 +1,107 @@
+<html >
+<head >
+	<title >推荐商品列表</title>
+	<link type="text/css" href="/resources/css/after.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/js/jqzoom_ev-2.3/css/jquery.jqzoom.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="/styles/new/backstage.css" />
+</head>
+<body >
+<div class="warp">
+	<!--头部-->
+	#parse("/backstage/layout/logo.vm")
+	<!--内容-->
+	<div class="container fn-clear">
+		#parse("/backstage/layout/left.vm")	
+		<div class="main-content fn-right">
+			<div class="mc t-box">
+				<div class="top">
+					<p><a href="javascript:;"  >推荐列表</a> &gt;#if($saleType=='O2O') 首页推荐美食列表#end #if($saleType=='HOTELS') 首页推荐房间列表 #end</p>
+				</div>
+				<div class="search fn-clear">
+					<form action="/admin/product/recommend/recommendProductList.htm" id="myform" name="myform"  method="post">
+						<dl>
+							#if($saleType=='O2O')
+							 #set($showName="美食")
+							#elseif($saleType=='HOTELS')
+							 #set($showName="房间")
+							#else
+							 #set($showName="商品")
+							#end
+							<dt>$!{showName}名称：</dt>
+							
+							<dd><input type="text" class="u-input" name="productName"  value="$!{productName}"/></dd>
+						</dl>
+						
+						<button type="submit" class="s-btn" style="cursor:pointer;">搜索</button>
+					</form>
+				</div>
+				#if($!page.result.size()<1)
+				<table class="m-table">
+                  <tr>
+    			    <td colspan="7" height="100" class="wz-18b"><span>没有推荐$!{showName}</span></td>
+    			  </tr>
+				</table>
+                #end
+        		<table class="m-table">
+        			<thead style="font-size: 12px;">
+        				<th>$!{showName}图片</th>
+        				<th>$!{showName}ID</th>
+        				<th width="250px">$!{showName}名称</th>
+						<th width="150px">$!{showName}类型</th>
+        				<th width="350px">$!{showName}编号</th>
+                        <th>操作</th>
+                    </thead>
+        			<tbody style="font-size: 12px;">
+						#foreach($info in $!{page.result})
+        				<tr>
+    						<td >
+    							#if($stringUtil.isEmpty($info.smallPicPath))
+									<img width="80" height="80" border="0px;" src='/resources/images/photo_not_exits_small.gif'>  
+        						#else
+    								<img width="80" height="80" border="0px;" src='$info.smallPicPath'>
+    							#end
+							</td>	
+							<td >$!{info.productId}</td>	
+							<td >$!{info.productName}</td>	
+							<td >$!{info.productTypeName}</td>	
+							<td >$!{info.productNumber}</td>	
+            				<td >
+                               <a href="javascript:;" id="cancelRecommend" class="cancelRecommend" data1="$!info.productId" data2="$!recommendType"><input type="button" value="取消推荐" class="button2"/></a>
+##							   <input type="button" value="预览" class="button2" onclick="window.open('/front/platform/mall/product/displayDetailProduct.htm?productId=$info.productId')">
+							</td>
+        				</tr>
+						#end
+                    </tbody>
+                </table>
+				<div class="p-box pages-b fn-clear">
+					#parse("common/page.vm")
+				</div>
+            </div>
+        </div>
+  	</div>
+</div>		
+<script type="text/javascript">
+	var $_GLOBAL = {};
+</script>
+<script type="text/javascript" src="/resources/js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/resources/js/plugins/jquery.window.js"></script>
+<script type="text/javascript" src="/resources/js/lib/sea.js"></script>
+<script type="text/javascript">
+	seajs.use($_GLOBAL.mode + 'allProductList');
+</script>
+<script type="text/javascript">
+    function toPage(totalPage, current) {
+        if (isNaN(current)) {
+            return;
+        }
+        if (current < 1 || current > totalPage) {
+            return;
+        }
+        var url = "/admin/product/recommend/recommendProductList.htm" +
+                "?recommendType=$!{recommendType}&pageSize=$!{page.pageSize}&pageNo=" + current;
+        myform.action = url;
+        myform.submit();
+    }
+</script>
+</body>
+</html>

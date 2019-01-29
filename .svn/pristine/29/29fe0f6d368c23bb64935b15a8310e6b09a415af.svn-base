@@ -1,0 +1,43 @@
+<table sqlname="store_image">
+	<operation name="insert" paramtype="object">
+		<sql>
+			<![CDATA[
+				INSERT INTO store_image(store_img_id,store_id,license_image,licence_copy_image,organizationcode_image,taxAuthority_image,cert_card_image,cert_back_card_image,raw_add_time) VALUES (?,?,?,?,?,?,?,?,?)
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="update" paramtype="object">
+		<sql>
+			<![CDATA[
+				UPDATE store_image SET store_id=?,license_image=?,licence_copy_image=?,organizationcode_image=?,taxAuthority_image=?,cert_card_image=?,cert_back_card_image=? WHERE store_img_id=?
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="findById" paramtype="string">
+		<sql>
+			<![CDATA[
+				SELECT  store_img_id ,store_id ,license_image ,licence_copy_image ,organizationcode_image ,taxAuthority_image ,cert_card_image ,cert_back_card_image ,raw_add_time ,raw_update_time  FROM store_image WHERE store_img_id=?
+
+			]]>
+		</sql>
+	</operation>
+	<operation name="deleteById" paramtype="string">
+		<sql>
+			<![CDATA[
+				DELETE FROM store_image WHERE store_img_id=?
+
+			]]>
+		</sql>
+	</operation>
+	
+	<operation name="findAllCount" multiplicity="many">
+		<sql>
+			<![CDATA[
+				SELECT  count(*) FROM store_image
+			]]>
+		</sql>
+	</operation>
+	
+</table>

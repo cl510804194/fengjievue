@@ -1,0 +1,822 @@
+#parse("/front/platform/layout/header-title.vm")
+<link type="text/css" href="/resources/css/chosen/chosen.css" rel="stylesheet"/>
+<link type="text/css" href="/resources/css/common/form.css" rel="stylesheet"/>
+<body>
+    #parse("/front/platform/layout/header.vm")
+
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="toProductList">
+    <div class="MI">
+        #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB push_pro">
+            <p class="nav_title"><span class="DIB">
+                #if($!{saleType}=="O2O,B2C") 修改团|邮购商品信息
+                #elseif($!{saleType}=="ORDER_MEAL") 修改点餐商品信息
+                #elseif($!{saleType}=="HOTELS") 修改房间信息
+                #else
+                    修改商品信息
+                #end
+            </span><a onclick="javascript:window.history.back();"
+                      class="fn-right">返回</a></p>
+
+            <div class="left_content">
+                <form action="updateProduct.htm" method="post" id="form1" theme="simple" class="input-form">
+                    <div class="inpt">
+                        <input type='hidden' id="product.productVary" name="product.productVary" value="product"/>
+                        <span class="inpt_txt DIB"><em>*</em>所属商户：</span>
+                        <select class="chzn-select" id="supplier" name="product.supplierId" disabled>
+                            <option value="$!product.supplierId">$!{supplier.storeName}_$!{supplier.realName}</option>
+                        </select>
+                    </div>
+                    <div class="choose_pro inpt">
+                        <span class="inpt_txt DIB"><em>*</em>修改商品类别:</span>
+
+                        <div class="DIB ch_type">
+                            #foreach($item in $firstType)
+                                <label class="DIB">
+                                    <span onmousedown="onsel('$!item.ptId','1',$!{velocityCount},'$!item.ptCode','$!item.ptAddColumns','$!item.fullPtTag','$!item.fullPtKeyWords')"
+                                          id="s$!{item.ptId}-1" #if($!{item.ptCode.substring(0,4)}==$!type1)
+                                          class="selected" #end>$!item.ptTypeName</span>
+                                </label>
+                            #end
+                        </div>
+                        <div class="DIB ch_type" id="productSecond">
+                            #foreach($item in $secondType)
+                                #if($!{item.ptCode.substring(0,4)}==$!type1)
+                                    <label class="DIB">
+                                        <span  #if($!{item.ptCode.substring(0,9)}==$!type2)  class="selected" #end
+                                                                                             onmousedown="onsel('$!item.ptId','2',$!{velocityCount},'$!item.ptCode','$!item.ptAddColumns','$!item.fullPtTag','$!item.fullPtKeyWords')"
+                                                                                             id="s$!{velocityCount}-2">$!item.ptTypeName</span>
+                                    </label>
+                                #end
+                            #end
+                        </div>
+                        <div class="DIB ch_type" id="productThird">
+                            #foreach($item in $thirdType)
+                                #if($!{item.ptCode.substring(0,9)}==$!type2)
+                                    <label class="DIB">
+                                        <span #if($!{item.ptCode}==$!type3)  class="selected" #end
+                                                                             onmousedown="onsel('$!item.ptId','3',$!{velocityCount},'$!item.ptCode','$!item.ptAddColumns','$!item.fullPtTag','$!item.fullPtKeyWords')"
+                                                                             id="s$!{velocityCount}-3">$!item.ptTypeName</span>
+                                    </label>
+                                #end
+                            #end
+                        </div>
+                    </div>
+                    <input type="hidden" name="productTypeName" id="productTypeName" value="$!pType"/>
+                    <input type="hidden" name="productTypeCode" id="productTypeCode"/>
+                    <input type="hidden" name="product.productId" id="product_productId" value="$!product.productId"/>
+                    <input type="hidden" name="delivery.deliveryId" value="$!delivery.deliveryId"/>
+
+                    <div style="display: none;" id="sid">$!supplier.supplierId</div>
+                    <span id="errorsDiv_product.productType"></span>
+
+                    <div class="inpt choose_result">
+                        <span class="inpt_txt DIB"><em>*</em>所选商品类别：</span>
+                        <span id="productTypeName1" style="width:auto;">
+                           <label>$!name1</label>&nbsp;-&nbsp;
+                           <label>$!name2</label>&nbsp;-&nbsp;
+                           <label>$!name3</label>
+                        </span>
+                        <input type="hidden" name="product.productType" id="productType" value="$!product.productType"/>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>商品编号：</span>
+                        <input type="text" name="product.productNumber" id="productNumber"
+                               value="$!product.productNumber" onchange="checkNum()"/>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>商品名称：</span>
+                        <input size="30" type="text" maxlength="30" name="product.productName"
+                               value="$!product.productName"></input>
+                        <span id="errorsDiv_product.productName"></span>
+                    </div>
+                ##                    <div class="inpt">
+                ##                        <span class="inpt_txt DIB"><em>*</em>商品分类：</span>
+                ##                        <select name="product.productStyle" id="product.productStyle" style="width:170px;">
+                ##                            #foreach($productProperty in $!{stylePropertyInfos})
+                ##                                <option value="$!{productProperty.propertyName}"  #if(
+                ##                                    "$!{product.productTheme}"=="$!{productProperty.propertyName}")
+                ##                                        selected="selected" #end>$!{productProperty.propertyName}</option>
+                ##                            #end
+                ##                        </select>
+                ##                    </div>
+                    <div id="addDivTag">
+
+                    </div>
+                    #if(${saleType}=="ORDER_MEAL")
+                        <input type='hidden' id="isDc_Y" name="saleType" value="orderMeal"/>
+
+                        <div class="inpt check_box">
+                            <span class="inpt_txt DIB"><em>*</em>是否支持调餐：</span>
+                            <input type="radio" name="tuneMeal" value="YES"/><label for="tuneMeal">是</label>
+                            <input type="radio" name="tuneMeal" value="NO"/><label for="tuneMeal">否</label>
+                        </div>
+                    #else
+						#if(${saleType}=="O2O")
+							<input type='hidden' id="isHotel_Y" name="saleType" value="o2o"/>
+						#elseif(${saleType}=="HOTELS")
+							<input type='hidden' id="isHotel_Y" name="saleType" value="hotel"/>
+						#end
+                   <!--     <div class="inpt check_box">
+                            <span class="inpt_txt DIB"><em>*</em>退款说明：</span>
+                            #enumRadioIterator("RefundRuleEnum","product.facade",$!product.facade)
+                        </div>
+					-->
+                        <div class="inpt">
+                            <span class="inpt_txt DIB"><em>*</em>美食券使用有效期：</span>
+                            <input class="pub-input formatTime" type="text" name="product.groupPurchaseBeginTime"
+                                   id="groupPurchaseBeginTime"
+                                   value="$!dateUtil.simpleFormat($!product.groupPurchaseBeginTime)"
+                                   onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'groupPurchaseEndTime\')||\'2080-10-01\'}'})"/>&nbsp;-&nbsp;
+                            <input class="pub-input formatTime" type="text" name="product.groupPurchaseEndTime"
+                                   id="groupPurchaseEndTime"
+                                   value="$!dateUtil.simpleFormat($!product.groupPurchaseEndTime)"
+                                   onFocus="WdatePicker({minDate:'#F{$dp.$D(\'groupPurchaseBeginTime\')}',maxDate:'2080-10-01'})">
+                        </div>
+##                        <div class="inpt check_box">
+##                            <span class="inpt_txt DIB"><em>*</em>是否预约：</span>
+##                            <input type='radio' id="appointment_N" name="product.appointment"
+##                                   value="NO" #if($!product.appointment=="NO")  checked  #end/><label
+##                                for="appointment_N">否</label>
+##                            <input type='radio' id="appointment_Y" name="product.appointment"
+##                                   value="YES" #if($!product.appointment=="YES")  checked  #end/><label
+##                                for="appointment_Y">是</label>
+##                        </div>
+                        <div class="inpt check_box" id="product_tag">
+
+                        </div>
+                        <div class="inpt check_box" id="product_keyWords">
+
+                        </div>
+
+
+                        <div class="inpt">
+                            <span class="inpt_txt DIB"><em>*</em>商品积分：</span>
+                            <select name="product.points">
+                                <option value="0" #if($!{product.points}==0)   selected="selected"  #end>无积分</option>
+                                <option value="1" #if($!{product.points}==1)   selected="selected"  #end>1倍积分</option>
+                                <option value="2" #if($!{product.points}==2)   selected="selected"  #end>2倍积分</option>
+                                <option value="3" #if($!{product.points}==3)   selected="selected"  #end>3倍积分</option>
+                            </select>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB">商品简介：</span>
+                        <textarea id="groupBuyDetail" name="product.groupBuyDetail" class="area-real" rows="3"
+                                  cols="80">$!product.groupBuyDetail</textarea>
+                            <span id="errorsDiv_product.groupBuyDetail"></span>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB">预约提示：</span>
+                        <textarea id="wholesaleDetail" name="product.wholesaleDetail" class="u-area" rows="12" cols="80"
+                                  style="width:500px;height:280px;">$!product.wholesaleDetail</textarea>
+                            <span id="errorsDiv_product.wholesaleDetail"></span>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB">温馨提示：</span>
+                        <textarea id="transportDetail" name="product.transportDetail" class="u-area" rows="12" cols="80"
+                                  style="width:500px;height:280px;">$!product.transportDetail</textarea>
+                            <span id="errorsDiv_product.transportDetail"></span>
+                        </div>
+                        <div class="inpt inpt_textarea">
+                            <span class="inpt_txt DIB"><em>*</em>商品详情：</span>
+                        <textarea id="productDetail" name="product.productDetail" class="u-area" rows="12" cols="80"
+                                  style="width:720px;height:480px;">$!product.productDetail</textarea>
+                            <span id="errorsDiv_product.productDetail"></span>
+                        </div>
+
+                    #end
+
+
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>商品图片1：</span>
+                        <input class="noTxt" type='text' id="bigPicPath_hidden" name="product.bigPicPath"
+                               value="$!{product.bigPicPath}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath"/>
+                        <input type='hidden' id="bigPicPath_originalPic" name="originalPic"/>
+
+                        <div id="bigPicPath_imgcontainer" class="bigPicPath_imgcontainer" #if(!$!{product.bigPicPath})
+                             style="display:none;"#end>
+                            <a href="javascript:;" id="bigPicPathLink" name="bigPicPathLink" title="商品图片1">
+                                <img id="bigPicPathImg" name="bigPicPathImg" title="商品图片1"
+                                     src="$!{product.bigPicPath}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>商品图片2：</span>
+                        <input class="noTxt" type='text' id="bigPicPath1_hidden" name="product.bigPicPath1"
+                               value="$!{product.bigPicPath1}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath1"/>
+                        <input type='hidden' id="bigPicPath1_originalPic" name="originalPic1"/>
+
+                        <div id="bigPicPath1_imgcontainer"
+                             class="bigPicPath_imgcontainer"  #if($stringUtil.isBlank($!product.bigPicPath1))
+                             style="display:none;"#end >
+                            <a href="javascript:;" id="bigPicPath1Link" name="bigPicPathLink1" title="商品图片2">
+                                <img id="bigPicPath1Img" name="bigPicPath1Img" title="商品图片1"
+                                     src="$!{product.bigPicPath1}"
+                                        />
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>商品图片3：</span>
+                        <input class="noTxt" type='text' id="bigPicPath2_hidden" name="product.bigPicPath2"
+                               value="$!{product.bigPicPath2}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath2"/>
+                        <input type='hidden' id="bigPicPath2_originalPic" name="originalPic2"/>
+
+                        <div id="bigPicPath2_imgcontainer"
+                             class="bigPicPath_imgcontainer"  #if($stringUtil.isBlank($!product.bigPicPath2))
+                             style="display:none;"#end >
+                            <a href="javascript:;" id="bigPicPath2Link" name="bigPicPath2Link" title="商品图片3">
+                                <img id="bigPicPath2Img" name="bigPicPath2Img" title="商品图片3"
+                                     src="$!{product.bigPicPath2}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>商品图片4：</span>
+                        <input class="noTxt" type='text' id="bigPicPath3_hidden" name="product.bigPicPath3"
+                               value="$!{product.bigPicPath3}" readonly/>
+                        <input type="file" exts="png|jpg|bmp" class="sl-file-input" id="bigPicPath3"/>
+                        <input type='hidden' id="bigPicPath3_originalPic" name="originalPic3"/>
+
+                        <div id="bigPicPath3_imgcontainer"
+                             class="bigPicPath_imgcontainer"  #if($stringUtil.isBlank($!product.bigPicPath3))
+                             style="display:none;"#end >
+                            <a href="javascript:;" id="bigPicPath3Link" name="bigPicPath3Link" title="商品图片4">
+                                <img id="bigPicPath3Img" name="bigPicPath3Img" title="商品图片4"
+                                     src="$!{product.bigPicPath3}"/>
+                                <br/>
+                                <label class="DIB">(支持图片格式为:jpg、png、bmp,最大为3M.)</label>
+                            </a>
+                        </div>
+                    </div>
+                    <input id="product.productUnit" type="hidden" autoCompleteOptions="件" type="text"
+                           name="product.productUnit" size="8" value="件"></input>
+
+
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>网购价格：</span>
+                        <input type="text" name="product.price1" size="6" class="fn-mr5 fn-price onlyNum" id="price1"
+                               value="$!product.price1"/>
+                        <span id="errorsDiv_range2"></span>
+                        <span id="errorsDiv_product.price1"></span>
+                    </div>
+                    <div class="inpt">
+                        <span class="inpt_txt DIB"><em>*</em>门市价格：</span>
+                        <input type="text" name="product.marketPrice" size="6" class="fn-mr5 fn-price onlyNum"
+                               id="price1"
+                               value="$!product.marketPrice"/>
+                        <span id="errorsDiv_range2"></span>
+                        <span id="errorsDiv_product.marketPrice"></span>
+                    </div>
+                    <div class="inpt isPost" #if($!{product.saleTypeB2c.code}== "NO") style="display: none"   #end>
+                        <span class="inpt_txt DIB"><em>*</em>常规运费：</span>
+                        <input type="text" class="onlyNum" name="postValue1" size="5"
+                               value="$!{delivery1.express}"></input>
+                    </div>
+                    <div class="inpt isPost" #if($!{product.saleTypeB2c.code}== "NO") style="display: none"   #end>
+                        <span class="inpt_txt DIB">特殊运费：</span>
+
+                        <div class="DIB">
+                            <div class="sp-place">
+                                地区1
+                                <div class="Y-selectarea DIB" province="$!{delivery2.postArea}">
+                                    <input name="province2" type="hidden" value="$!{delivery2.postArea}"/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p2" class="Y-province" onchange="provinceChg(2)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c2" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue2" value="$!{delivery2.express}"
+                                       size="5" #if($stringUtil.isEmpty($!{delivery2.postArea})) disabled  #end/>元
+                            </div>
+                            <div class="sp-place">
+                                地区2
+                                <div class="Y-selectarea DIB" province="$!{delivery3.postArea}">
+                                    <input name="province3" type="hidden" value="$!{delivery3.postArea}"/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p3" class="Y-province" onchange="provinceChg(3)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c3" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue3" value="$!{delivery3.express}"
+                                       size="5" #if($stringUtil.isEmpty($!{delivery3.postArea})) disabled  #end/>元
+                            </div>
+                            <div class="sp-place">
+                                地区3
+                                <div class="Y-selectarea DIB" province="$!{delivery4.postArea}">
+                                    <input name="province4" type="hidden" value="$!{delivery4.postArea}"/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p4" class="Y-province" onchange="provinceChg(4)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c4" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue4" value="$!{delivery4.express}"
+                                       size="5" #if($stringUtil.isEmpty($!{delivery4.postArea})) disabled  #end/>元
+                            </div>
+                            <div class="sp-place">
+                                地区4
+                                <div class="Y-selectarea DIB" province="$!{delivery5.postArea}">
+                                    <input name="province5" type="hidden" value="$!{delivery5.postArea}"/>
+
+                                    <div class="jqtransform jqtransform-select3 DIB">
+                                        <select name="p5" class="Y-province" onchange="provinceChg(5)"></select>
+                                    </div>
+                                    <div class="jqtransform jqtransform-select3 DIB" style="display: none">
+                                        <select name="c5" data="thisCity" class="Y-city"></select>
+                                    </div>
+                                </div>
+                                <input type="text" class="onlyNum" name="postValue5" value="$!{delivery5.express}"
+                                       size="5" #if($stringUtil.isEmpty($!{delivery5.postArea})) disabled  #end />元
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="product.postType" value="2"/>
+                    <input type="hidden" id="hotels" name="hotels" value="$!{supplierInfo.hotels}"/>
+
+                    <div class="inpt publish">
+                        <span class="inpt_txt DIB"><em>*</em>是否直接发布上网：</span>
+                        <label class="pub_txt"><input type="radio" name="product.productStatus"
+                                                      value="ON" #if($!product.productStatus.code=="ON")
+                                                      checked="checked" #end/>是（上架）</label>
+                        <label class="pub_txt">
+                            <input type="radio" name="product.productStatus"
+                                   value="OFF" #if($!product.productStatus.code=="OFF") checked="checked" #end/>
+                            否（下架）
+                        </label>
+                    </div>
+                    <div class="inpt">
+                        <input type="submit" value="提交" id="all" class="submit"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript" src="/resources/js/butil.js"></script>
+<script type="text/javascript">seajs.use($_GLOBAL.mode+'productApply');</script>
+<script type="text/javascript" src="/resources/js/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="/resources/js/kindeditor/kindeditor.js"></script>
+<script charset="utf-8" src="/resources/js/kindeditor/lang/zh_CN.js"></script>
+<script type="text/javascript" src="/resources/js/chosen/chosen.jquery.min.js"></script>
+<script type="text/javascript">
+    var count = 1;
+    var rowNum = 0;
+    /*设置变化项目的默认值*/
+    columnValueInit("$!productTypeInfo.ptId", "$!productTypeInfo.ptAddColumns", "$!productTypeInfo.fullPtTag", "$!{product.ptTag}", "$!productTypeInfo.fullPtKeyWords", "$!{product.ptKeyWords}");
+    function columnValueInit(productType, addColumns, ptTag, chooseTag, ptKey, chooseKey) {
+        //商品分类获取
+    ##        var prodcutPropertyUrl = "/do/productProperty/getSonProperty.json";
+    ##        var propertyArray = butil.getJson(prodcutPropertyUrl, {productType: productType});
+    ##        if (typeof(propertyArray) != "undefined" && propertyArray != null && propertyArray.length > 0) {
+    ##            var property = propertyArray[0];
+    ##            var ret = "";
+    ##            for (var i = 0; i < property.length; i++) {
+    ##                var propertyDe = property[i];
+    ##                var checkVar = propertyDe.propertyName == "$!product.productStyle" ? "checked" : ""
+    ##                ret = ret + '<option value="' + propertyDe.propertyName + '" ' + checkVar + '>' + propertyDe.propertyName + '</option>';
+    ##            }
+    ##            document.getElementById("product.productStyle").innerHTML = ret;
+    ##        }
+        //商品预置字段
+        if (addColumns != "") {
+            var columnArray = addColumns.split(",");
+            var divAdd = ""
+            for (var i = 0; i < columnArray.length; i++) {
+                var num = i + 1;
+                divAdd = divAdd + '<div class="inpt" style="font-size: 12px">' +
+                '<span class="inpt_txt DIB">' + columnArray[i] + '：</span>' +
+                '<input size="30" type="text" maxlength="30" name="product.productCusAdd' + num + '" value="' + getCusColumnsValue(num) + '"></input>' +
+                '</div>';
+            }
+            $("#addDivTag").css("display", "");
+            $("#addDivTag").html(divAdd);
+        } else {
+            $("#addDivTag").css("display", "none");
+            $("#addDivTag").html("");
+        }
+        //商品标签
+        if (ptTag != "") {
+            var ptTagArray = ptTag.split("-");
+            var tagAdd = "<span class=\"inpt_txt DIB\"><em>*</em>商品标签：</span><div class='check_items DIB'>"
+            for (var i = 1; i <= ptTagArray.length; i++) {
+                if (chooseTag.indexOf(ptTagArray[i - 1]) >= 0) {
+                    tagAdd = tagAdd + '<input type="checkbox" checked name="product.ptTag" value="' + ptTagArray[i - 1] + '" id="ptTag_' + i + '"><label class="DIB" for="ptTag_' + i + '">' + ptTagArray[i - 1] + '</label>';
+                } else {
+                    tagAdd = tagAdd + '<input type="checkbox" name="product.ptTag" value="' + ptTagArray[i - 1] + '" id="ptTag_' + i + '"><label class="DIB" for="ptTag_' + i + '">' + ptTagArray[i - 1] + '</label>';
+                }
+            }
+            tagAdd = tagAdd + "</div>";
+            $("#product_tag").css("display", "");
+            $("#product_tag").html(tagAdd);
+        } else {
+            $("#product_tag").css("display", "none");
+            $("#product_tag").html("");
+        }
+        //商品关键字
+        if (ptKey != "") {
+            var ptKeyArray = ptKey.split("-");
+            var keyAdd = "<span class=\"inpt_txt DIB\"><em>*</em>商品关键字：</span><div class='check_items DIB'>"
+            for (var i = 1; i <= ptKeyArray.length; i++) {
+                if (chooseKey.indexOf(ptKeyArray[i - 1]) >= 0) {
+                    keyAdd = keyAdd + '<input type="checkbox" checked name="product.ptKeyWords" value="' + ptKeyArray[i - 1] + '" id="ptKeyWords_' + i + '"><label class="DIB" for="ptKeyWords_' + i + '">' + ptKeyArray[i - 1] + '</label>';
+                } else {
+                    keyAdd = keyAdd + '<input type="checkbox" name="product.ptKeyWords" value="' + ptKeyArray[i - 1] + '" id="ptKeyWords_' + i + '"><label class="DIB" for="ptKeyWords_' + i + '">' + ptKeyArray[i - 1] + '</label>';
+                }
+            }
+            keyAdd = keyAdd + "</div>";
+            $("#product_keyWords").css("display", "");
+            $("#product_keyWords").html(keyAdd);
+        } else {
+            $("#product_keyWords").css("display", "none");
+            $("#product_keyWords").html("");
+        }
+    }
+    function getCusColumnsValue(i) {
+        switch (i) {
+            case 1:
+                return "$!product.productCusAdd1";
+                break;
+            case 2:
+                return "$!product.productCusAdd2";
+                break;
+            case 3:
+                return "$!product.productCusAdd3";
+                break;
+            case 4:
+                return "$!product.productCusAdd4";
+                break;
+            case 5:
+                return "$!product.productCusAdd5";
+                break;
+            default:
+                return "";
+        }
+    }
+    function addLine() {
+        if (rowNum > 99) {
+            alert("自定义属性数量太大");
+            return;
+        }
+        if (rowNum == 0) {
+            count = document.getElementById("customSize").value;
+        }
+        var table = document.getElementById("listTable");
+        var tr = table.insertRow(0);
+        tr.id = "tr" + count;
+        var td0 = tr.insertCell(0);
+        var td1 = tr.insertCell(1);
+        var td2 = tr.insertCell(2);
+        td0.innerHTML = '<input type="text" name="listPCP[' + count + '].propertyName" size="10" maxlength="10"></input>';
+        td1.innerHTML = '<input type="text" name="listPCP[' + count + '].propertyDetail" maxlength="20"></input>';
+        td2.innerHTML = '<input type="button" value="删除" onclick="deleteLine(' + "'" + "tr" + count + "'" + ')"></input>';
+        count++;
+        rowNum++;
+    }
+
+    function deleteLine(id) {
+        var tr = document.getElementById(id);
+        tr.parentNode.removeChild(tr);
+        rowNum--;
+    }
+
+    function onOpen() {
+        window.open("/do/productType/productType.htm?fldOfName=productType&fldOfCode=product.productType", "newwindow", "height=500, width=650, top=50, left=100, toolbar=no, menubar=no, scrollbars=yes, resizable=no,location=no, status=no");
+    }
+
+    function initUnit() {
+        var unit = document.getElementById("product.productUnit").value;
+        document.getElementById("startOrderCountUnit").innerHTML = unit;
+        document.getElementById("wareCountUnit").innerHTML = unit;
+        for (var i = 1; i <= 9; i++) {
+            document.getElementById("unit" + i).innerHTML = unit;
+        }
+    }
+
+    function initValue0() {
+        var value0 = document.getElementById("startOrderCount").value;
+        document.getElementById("range1").value = value0;
+    }
+
+    function initValue1() {
+        var value1 = document.getElementById("range2").value;
+        document.getElementById("range3").value = Number(value1) + 1;
+        document.getElementById("range4").removeAttribute("disabled");
+        document.getElementById("price2").removeAttribute("disabled");
+    }
+
+    function initValue2() {
+        var value1 = document.getElementById("range4").value;
+        document.getElementById("range5").value = Number(value1) + 1;
+        document.getElementById("range6").removeAttribute("disabled");
+        document.getElementById("price3").removeAttribute("disabled");
+    }
+
+    function checkNum() {
+        var value = document.getElementById("productNumber").value;
+        var product_productId = document.getElementById("product_productId").value;
+
+        if (value != null && value != "") {
+            var ret = butil.getUrl("/do/product/checkProductNumber.htm?productNumber=" + value + "&supplierId=$!supplier.supplierId&productId=" + product_productId + "&date=" + new Date());
+            if (ret != "yes") {
+                alert("该编号" + value + "已存在，请另选");
+                document.getElementById("productNumber").value = "";
+                document.getElementById("productNumber").focus();
+                return false;
+            }
+        }
+
+    }
+
+    function showNumTip(elem, spanUnit) {
+        if (elem.value == "") {
+            elem.value = "以上";
+            $("#" + spanUnit).css("visibility", "hidden");
+            $(elem).css("color", "#999999");
+        }
+    }
+
+    function hideNumTip(elem, spanUnit) {
+        if (elem.value == "以上") elem.value = "";
+        $("#" + spanUnit).css("visibility", "visible");
+        $(elem).css("color", "#000000");
+    }
+
+    $(document).ready(function () {
+        $("#productNumber").blur(function () {
+            checkNum();
+        });
+        $(document.getElementById("product.productUnit")).blur(function () {
+            initUnit();
+        });
+        $("#range2").blur(function () {
+            initValue1();
+        });
+        $("#range4").blur(function () {
+            initValue2();
+        });
+        $("#startOrderCount").blur(function () {
+            initValue0();
+        });
+
+    });
+
+    function valueCheckBox() {
+        var tradeType = document.getElementById("tradeType").innerHTML;
+        if (tradeType == "0, 1") {
+            var c0 = document.getElementById("c0");
+            c0.checked = true;
+            var c1 = document.getElementById("c1");
+            c1.checked = true;
+        } else if (tradeType == "0") {
+            var c0 = document.getElementById("c0");
+            c0.checked = true;
+        } else {
+            var c1 = document.getElementById("c1");
+            c1.checked = true;
+        }
+    }
+    function valueDelivery() {
+        var deliveryType = document.getElementById("dType").innerHTML;
+        if (deliveryType != "no") {
+            var dt = deliveryType.split(",");
+            for (var i = 0; i <= dt.length - 2; i++) {
+                var d = document.getElementById("d" + dt[i]);
+                d.checked = true;
+            }
+        }
+    }
+
+    function beforeLoad() {
+        valueDelivery();
+    }
+
+    var prodcutTypeUrl = "/do/productType/getSonTypeByScenic.json";
+    var proArray = butil.getJson(prodcutTypeUrl, {saleType:"${saleType}",supplierId: $("#supplier").val()});
+    var firstType = proArray[0];
+    var secondType = proArray[1];
+    var thridType = proArray[2];
+    var supplierMap = proArray[3];
+    $("#hotels").val(supplierMap[0].hotels);
+    var sum = 0;
+    var sum2 = 0;
+    function onsel(val, n, orderID, ptCode, addColumns, ptTag, ptKeyWords) {
+        var selArray = "";
+        var productTypeName = document.getElementById("productTypeName").value;
+        if (n == "1") {
+            sum = 0;
+            var strvalue = "";
+            document.getElementById("productSecond").style.display = "none";
+            document.getElementById("productThird").style.display = "none";
+            productTypeName = "";
+            for (var i = 0; i < firstType.length; i++) {
+                var productType = firstType[i];
+                var id = productType.ptId;
+                if (id == val) {
+                    document.getElementById("s" + val + "-1").className = "selected";
+                    selArray = onProduct(val, firstType);
+                    document.getElementById("productTypeName").value = productTypeName + selArray[0] + "-";
+                } else {
+                    var productTypeHtmlObj = document.getElementById("s" + productType.ptId + "-1");
+                    if (productTypeHtmlObj != null)
+                        productTypeHtmlObj.className = "";
+                }
+            }
+
+            for (var i = 0; i < secondType.length; i++) {
+
+                var productType = secondType[i];
+                if (productType.ptParentId == val) {
+                    var ptTag = productType.ptTag;
+                    if (ptTag == null) ptTag = "";
+                    sum++;
+                    strvalue = strvalue + "<label class=\"DIB\"><span id='s" + sum + "-2' onmousedown=onsel('" + productType.ptId + "','2','" + sum + "','" + productType.ptCode + "','" + productType.ptAddColumns + "','" + productType.fullPtTag + "','" + productType.fullPtKeyWords + "')>" + productType.ptTypeName + "</span></label>";
+                }
+            }
+            if (strvalue != "") {
+                document.getElementById("productSecond").style.display = "inline-block";
+                document.getElementById("productSecond").innerHTML = strvalue;
+            } else {
+                document.getElementById("productSecond").style.display = "none";
+            }
+        }
+
+        if (n == "2") {
+            sum2 = 0;
+            var strvalue = "";
+            productTypeName = productTypeName.substring(0, productTypeName.indexOf("-") + 1);
+            if (sum == 0) sum =$!secondTypeSize;
+            for (var i = 1; i <= sum; i++) {
+                if (i == orderID) {
+                    document.getElementById("s" + i + "-2").className = "selected";
+                    selArray = onProduct(val, secondType);
+                    document.getElementById("productTypeName").value = productTypeName + selArray[0] + "-";
+                } else {
+                    if (document.getElementById("s" + i + "-2") != undefined) {
+                        document.getElementById("s" + i + "-2").className = "";
+                    }
+                }
+            }
+            for (var i = 0; i < thridType.length; i++) {
+                var productType = thridType[i];
+                if (productType.ptParentId == val) {
+                    sum2++;
+                    var ptTag = productType.ptTag;
+                    if (ptTag == null) ptTag = "";
+                    strvalue = strvalue + "<label class=\"DIB\"><span id='s" + sum2 + "-3' onmousedown=onsel('" + productType.ptId + "','3','" + sum2 + "','" + productType.ptCode + "','" + productType.ptAddColumns + "','" + productType.fullPtTag + "','" + productType.fullPtKeyWords + "')>" + productType.ptTypeName + "</span></label>";
+                }
+            }
+            if (strvalue != "") {
+                document.getElementById("productThird").style.display = "inline-block";
+                document.getElementById("productThird").innerHTML = strvalue;
+            } else {
+                document.getElementById("productThird").style.display = "none";
+            }
+        }
+
+        if (n == "3") {
+            var strSplit = productTypeName.split("-");
+            var productTypeName1 = "<label>" + strSplit[0] + "</label>&nbsp;-&nbsp;" +
+                    "<label>" + strSplit[1] + "</label>&nbsp;-&nbsp;";
+            if (sum2 == 0) sum2 =$!thirdTypeSize;
+            for (var i = 1; i <= sum2; i++) {
+                if (i == orderID) {
+                    document.getElementById("s" + i + "-3").className = "selected";
+                    selArray = onProduct(val, thridType);
+                    document.getElementById("productTypeName").value = productTypeName + selArray[0];
+                    document.getElementById("productTypeName1").innerHTML = productTypeName1 + "<label>" + selArray[0] + "</label>";
+                    document.getElementById("productType").value = selArray[1];
+                } else {
+                    if (document.getElementById("s" + i + "-3") != undefined) {
+                        document.getElementById("s" + i + "-3").className = "";
+                    }
+                }
+            }
+            //商品分类获取
+//            var prodcutPropertyUrl = "/do/productProperty/getSonProperty.json";
+//            var propertyArray = butil.getJson(prodcutPropertyUrl, {productType: val});
+//            if (typeof(propertyArray) != "undefined") {
+//                var property = propertyArray[0];
+//                var ret = "";
+//                for (var i = 0; i < property.length; i++) {
+//                    var propertyDe = property[i];
+//                    var checkVar = i == 0 ? "checked" : ""
+//                    ret = ret + '<option value="' + propertyDe.propertyName + '" ' + checkVar + '>' + propertyDe.propertyName + '</option>';
+//                }
+//                document.getElementById("product.productStyle").innerHTML = ret;
+//            }
+            //商品预置字段
+            if (addColumns != "") {
+                var columnArray = addColumns.split(",");
+                var divAdd = ""
+                for (var i = 0; i < columnArray.length; i++) {
+                    var num = i + 1;
+                    divAdd = divAdd + '<div class="inpt" style="font-size: 12px">' +
+                    '<span class="inpt_txt DIB">' + columnArray[i] + '：</span>' +
+                    '<input size="30" type="text" maxlength="30" name="product.productCusAdd' + num + '"></input>' +
+                    '</div>';
+                }
+                $("#addDivTag").css("display", "");
+                $("#addDivTag").html(divAdd);
+            } else {
+                $("#addDivTag").css("display", "none");
+                $("#addDivTag").html("");
+            }
+            //商品标签
+            if (ptTag != "") {
+                var ptTagArray = ptTag.split("-");
+                var tagAdd = "<span class=\"inpt_txt DIB\"><em>*</em>商品标签：</span><div class='check_items DIB'>"
+                for (var i = 1; i <= ptTagArray.length; i++) {
+                    tagAdd = tagAdd + '<input type="checkbox" name="product.ptTag" value="' + ptTagArray[i - 1] + '" id="ptTag_' + i + '"/><label class="DIB"  for="ptTag_' + i + '">' + ptTagArray[i - 1] + '</label>';
+                }
+                tagAdd = tagAdd + "</div>";
+                $("#product_tag").css("display", "");
+                $("#product_tag").html(tagAdd);
+            } else {
+                $("#product_tag").css("display", "none");
+                $("#product_tag").html("");
+            }
+            //商品关键字
+            if (ptKeyWords != "") {
+                var ptKeyArray = ptKeyWords.split("-");
+                var keyAdd = "<span class=\"inpt_txt DIB\"><em>*</em>商品关键字：</span><div class='check_items DIB'>"
+                for (var i = 1; i <= ptKeyArray.length; i++) {
+                    keyAdd = keyAdd + '<input type="checkbox" name="product.ptKeyWords" value="' + ptKeyArray[i - 1] + '" id="ptKeyWords_' + i + '"/><label class="DIB"  for="ptKeyWords_' + i + '">' + ptKeyArray[i - 1] + '</label>';
+                }
+                keyAdd = keyAdd + "</div>";
+                $("#product_keyWords").css("display", "");
+                $("#product_keyWords").html(keyAdd);
+            } else {
+                $("#product_keyWords").css("display", "none");
+                $("#product_keyWords").html("");
+            }
+        }
+        function onProduct(val, strArray) {
+            var selArray = new Array();
+            for (var i = 0; i < strArray.length; i++) {
+                var productType = strArray[i];
+                if (productType.ptId == val) {
+                    selArray[0] = productType.ptTypeName;
+                    selArray[1] = productType.ptCode;
+                }
+            }
+            return selArray;
+        }
+    }
+
+    function hidePost() {
+        document.getElementById("post1").style.display = 'none';
+        document.getElementById("post2").style.display = 'none';
+        document.getElementById("post3").style.display = 'none';
+        document.getElementById("p1").value = 0;
+        document.getElementById("p2").value = 0;
+        document.getElementById("p3").value = 0;
+    }
+    function showPost() {
+        document.getElementById("post1").style.display = '';
+        document.getElementById("post2").style.display = '';
+        document.getElementById("post3").style.display = '';
+        document.getElementById("p1").value = "";
+        document.getElementById("p2").value = "";
+        document.getElementById("p3").value = "";
+    }
+    KindEditor.ready(function (K) {
+        $('.u-area').each(function () {
+            var id = $(this).attr('id');
+            window.editor = K.create('#' + id, {
+                uploadJson: '/do/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+                fileManagerJson: '/do/upload/imagesUpload.htm;jsessionid=' + $_GLOBAL.sessionID,
+                allowFileManager: true,
+                afterBlur: function () {
+                    this.sync();
+                }
+            });
+        });
+    });
+</script>
+</html>

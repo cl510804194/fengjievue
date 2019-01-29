@@ -1,0 +1,44 @@
+#parse("/front/platform/layout/header-title.vm")
+
+<body>
+    	#parse("/front/platform/layout/header.vm")
+<!--centerContent start-->
+<div class="content person_cntr MO" nav="queryBuyOrder">
+    <div class="MI fn-clear">
+            #parse("/front/platform/member/layout/member_left.vm")
+        <div class="left_cnt DIB user_index fn-right">
+        	
+        	<div class="index_top">
+				<span class="top_left">HI，<label class="time">$!{titleAsk}</label>好，<label class="user_name">#if($!{sessionScope.nickname})$!{sessionScope.nickname} #else $!{sessionScope.realName} #end</label></span>
+				<span class="top_right">上次登录时间：<label class="time">$!dateUtil.simpleFormat($!loginTime)</label></span>
+        	</div>
+    		<div class="left_content index_content">
+    			<!--<div class="rest_money">
+    				<span>账户余额：</span>
+    				<label>￥<em>$!{userMoney}</em></label>
+				</div> -->
+    			<div class="my_link">
+    				<span>我的订单：</span>
+					 #if($sessionLocal.userInfo.o2o.code=="YES")
+    				<a href="/do/scenic/doCenter/querySoldOrderList.htm?orderType=O2O&itemType=bulk">美食订单</a>
+					 #end
+					#if($sessionLocal.userInfo.hotels.code=="YES")
+    				<a href="/do/scenic/doCenter/querySoldOrderList.htm?orderType=HOTELS&itemType=mail">酒店订单</a>
+					#end
+					#if($sessionLocal.userInfo.userBizType.code=="VISITOR_CENTER")
+    				<a href="/do/scenic/doCenter/querySoldOrderList.htm?orderType=TICKET&itemType=mailRefund">门票订单</a>
+					#end
+    			</div>
+    		</div>
+    		
+    	</div>
+    </div>
+</div>
+<!--centerContent end-->
+
+<!-- footer begin -->
+    #parse("/front/platform/layout/footer.vm")
+<!-- footer end -->
+</body>
+<script type="text/javascript">seajs.use($_GLOBAL.mode + 'userIndex');</script>
+</html>
